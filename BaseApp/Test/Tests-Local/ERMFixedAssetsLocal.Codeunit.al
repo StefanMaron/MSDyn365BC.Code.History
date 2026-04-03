@@ -29,8 +29,10 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryPurchase: Codeunit "Library - Purchase";
+#if not CLEAN28
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+#endif
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         WrongJournalUsedErr: Label 'FA Journal without G/L Integration should be used for depreciation calculation.';
@@ -186,6 +188,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         VerifyFinalDepreciationWithNegativeDerogatory(FANo);
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('FAProjValueDerogRPH,DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
@@ -221,6 +224,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LibraryReportDataset.LoadDataSetFile();
         VerifyValues(FANo, CountExpectedAmount(FANo, TaxDeprBookCode, Amount));
     end;
+#endif
 
     [Test]
     [HandlerFunctions('DepreciationCalcConfirmHandler')]
@@ -577,6 +581,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         Assert.AreEqual(ExpectedBookValue, FADepreciationBook."Book Value", BookValueAmountErr);
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('FAProjValueDerogRPH,DepreciationCalcConfirmHandler')]
     [Scope('OnPrem')]
@@ -731,6 +736,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         // [THEN] "Tax" book is projected to open (Book Value <> 0) at the end of projected period (5 years).
         VerifyFAProjectionTaxBookInTheMidOfPeriod();
     end;
+#endif
 
     [Test]
     procedure FAPostingDateOnPurchaseOrderLinesUI()
@@ -756,6 +762,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         PurchInvoiceSubform.Close();
     end;
 
+#if not CLEAN28
     local procedure PrepareBothFABooksWithCustomPeriodAndAcqCostAmount(var NormalDeprBookCode: Code[10]; var TaxDeprBookCode: Code[10]; NoOfYearsNormal: Decimal; NoOfYearsTax: Decimal; AcqCostAmount: Decimal)
     var
         FAJournalLine: Record "FA Journal Line";
@@ -786,6 +793,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         RunCalculateDepreciationReport(FixedAsset."No.", NormalDeprBookCode, CalcDate('<CY+3M>', WorkDate()), false);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
     end;
+#endif
 
     local procedure CreateFAWithNormalAndTaxFADeprBooks(var NormalDeprBookCode: Code[10]; var TaxDeprBookCode: Code[10]): Code[20]
     var
@@ -1054,6 +1062,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         exit(CalcDate('<1M>', WorkDate()));
     end;
 
+#if not CLEAN28
     local procedure CountExpectedAmount(FANo: Code[20]; TaxDeprBook: Code[20]; Amt: Decimal): Decimal
     var
         FATaxDeprBook: Record "FA Depreciation Book";
@@ -1061,6 +1070,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         FATaxDeprBook.Get(FANo, TaxDeprBook);
         exit(Round(Amt * 270 / 360 / FATaxDeprBook."No. of Depreciation Years"));
     end;
+#endif
 
     local procedure RunCalculateDepreciationReport(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; PostingDate: Date; BalanceAccount: Boolean)
     var
@@ -1096,6 +1106,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
           FANo, NormalDeprBookCode, CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(3)), DepreciationEndingDate), true);
     end;
 
+#if not CLEAN28
     local procedure RunFAProjValueDerogReport(DeprBookCode: Code[10]; StartingDate: Date; EndingDate: Date; PostedFrom: Date; PrintDetails: Boolean)
     begin
         LibraryVariableStorage.Enqueue(DeprBookCode);
@@ -1106,6 +1117,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         Commit();
         REPORT.Run(REPORT::"FA - Proj. Value (Derogatory)");
     end;
+#endif
 
     local procedure VerifyFAPostingDate(FANo: Code[20])
     var
@@ -1169,6 +1181,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         Assert.IsFalse(PurchaseInvoiceLine.IsEmpty, NoPurchInvoiceExistErr);
     end;
 
+#if not CLEAN28
     local procedure VerifyValues(FANo: Code[20]; ExpectedAmount: Decimal)
     begin
         LibraryReportDataset.SetRange('FixedAssetNo', FANo);
@@ -1176,6 +1189,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('DerogAmount', -ExpectedAmount);
     end;
+#endif
 
     local procedure VerifyNoOfFALedgerEntries(Expected: Integer; ErrorMsg: Text; FANo: Code[20]; HasGLEntry: Boolean; FAPostingType: Integer)
     var
@@ -1230,6 +1244,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         Assert.AreEqual(DepreciationSum, -AcqusiutionSum, DepreciationErr);
     end;
 
+#if not CLEAN28
     local procedure VerifyFAProjValueRepPostedEntryAmounts(Amount: Decimal; BookValue: Decimal; DerogAmount: Decimal; DerogBookValue: Decimal; DerogDiffBokkValue: Decimal; MoveNextRow: Boolean)
     begin
         LibraryReportDataset.AssertCurrentRowValueEquals('Amount_FALedgerEntry', Amount);
@@ -1481,6 +1496,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         FAProjValueDerogatory.PrintPerFixedAsset.SetValue(LibraryVariableStorage.DequeueBoolean());
         FAProjValueDerogatory.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     local procedure CancelLastFALedgerEntry(DepreciationBookCode: Code[10]; FAPostingType: Option)
     var

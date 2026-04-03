@@ -5,6 +5,7 @@
 namespace Microsoft.Service.Posting;
 
 using Microsoft.CRM.Team;
+using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -13,7 +14,6 @@ using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
-using Microsoft.EServices.EDocument;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
@@ -32,7 +32,6 @@ using Microsoft.Service.Ledger;
 using Microsoft.Service.Pricing;
 using Microsoft.Service.Setup;
 using Microsoft.Utilities;
-using System.Environment.Configuration;
 using System.Utilities;
 
 codeunit 5988 "Serv-Documents Mgt."
@@ -55,6 +54,7 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
         ServHeader: Record "Service Header" temporary;
         ServLine: Record "Service Line" temporary;
         TempServiceLine: Record "Service Line" temporary;
@@ -89,7 +89,6 @@ codeunit 5988 "Serv-Documents Mgt."
         ServDimMgt: Codeunit "Serv. Dimension Management";
         ServAllocMgt: Codeunit ServAllocationManagement;
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         ErrorMessageMgt: Codeunit "Error Message Management";
         InvoicePostingInterface: Interface "Invoice Posting";
         IsInterfaceInitialized: Boolean;
@@ -239,10 +238,12 @@ codeunit 5988 "Serv-Documents Mgt."
     begin
         LineCount := 0;
 
+        OnBeforePostDocumentLines(ServHeader, ServLine, Ship, Consume, Invoice);
+
         // init cu for posting SLE type Usage
         ServPostingJnlsMgt.InitServiceRegister(NextServLedgerEntryNo, NextWarrantyLedgerEntryNo);
         OnPostDocumentLinesOnBeforeFilterServiceLine(ServHeader, ServLine);
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then begin
+        if ServHeader."Tax System Type" = ServHeader."Tax System Type"::VAT then begin
             ServLine.CalcVATAmountLines(1, ServHeader, ServLine, TempVATAmountLine, Ship);
             ServLine.CalcVATAmountLines(2, ServHeader, ServLine, TempVATAmountLineForSLE, Ship);
         end;
@@ -323,7 +324,7 @@ codeunit 5988 "Serv-Documents Mgt."
                     ServLine.TestBinCode();
                     ServLine.TestField("No.");
                     ServLine.TestField(Type);
-                    if not ApplicationAreaMgmt.IsSalesTaxEnabled() then begin
+                    if GLSetup.UseVat() then begin
                         ServLine.TestField("Gen. Bus. Posting Group");
                         ServLine.TestField("Gen. Prod. Posting Group");
                     end;
@@ -339,6 +340,7 @@ codeunit 5988 "Serv-Documents Mgt."
                 if ServLine."Document Type" <> ServLine."Document Type"::"Credit Memo" then begin
                     ServAmountsMgt.ReverseAmount(ServLine);
                     ServAmountsMgt.ReverseAmount(ServiceLineACY);
+                    OnPostDocumentLinesOnAfterReverseAmount(ServHeader, ServLine);
                 end;
 
                 // post Service Ledger Entry of type Sale, on invoice
@@ -421,7 +423,7 @@ codeunit 5988 "Serv-Documents Mgt."
                 if (ServLine.Type <> ServLine.Type::" ") and (ServLine."Qty. to Invoice" <> 0) then
                     InvoicePostingInterface.PrepareLine(ServHeader, ServLine, ServiceLineACY);
 
-                OnPostDocumentLinesOnAfterFillInvPostingBuffer(ServHeader, ServLine, ServiceLineACY, ServInvHeader, ServCrMemoHeader, ServShptHeader);
+                OnPostDocumentLinesOnAfterFillInvPostingBuffer(ServHeader, ServLine, TempServiceLine, ServiceLineACY, ServInvHeader, ServCrMemoHeader, ServShptHeader);
                 // prepare posted document lines
                 if Ship then
                     PrepareShipmentLine(TempServiceLine, WarrantyNo);
@@ -490,6 +492,7 @@ codeunit 5988 "Serv-Documents Mgt."
             InvoicePostingInterface.SetParameters(InvoicePostingParameters);
             InvoicePostingInterface.SetTotalLines(TotalServiceLine, TotalServiceLineLCY);
             ServPostingJnlsMgt.PostLines(ServHeader, InvoicePostingInterface, Window, TotalAmount);
+            ServPostingJnlsMgt.PostSalesTaxLines(ServHeader, TotalServiceLineLCY, InvoicePostingParameters);
 
             // Post customer entry
             if GuiAllowed() then
@@ -850,6 +853,8 @@ codeunit 5988 "Serv-Documents Mgt."
             if PassedServLine."Document Type" = PassedServLine."Document Type"::Order then begin
                 ServShptLine."Order No." := PassedServLine."Document No.";
                 ServShptLine."Order Line No." := PassedServLine."Line No.";
+                ServShptLine."External Document No." := ServShptHeader."External Document No.";
+                ServShptLine."Your Reference" := ServShptHeader."Your Reference";
             end;
 
             if (PassedServLine.Type = PassedServLine.Type::Item) and (PassedServLine."Qty. to Ship" <> 0) then
@@ -1057,6 +1062,8 @@ codeunit 5988 "Serv-Documents Mgt."
                 OnFinalizeOnBeforeFinalizeHeader(PassedServHeader);
                 FinalizeHeader(PassedServHeader);
             end;
+
+        OnFinalizeOnAfterFinalizeDocuments(ServHeader, ServInvHeader, ServInvLine, ServCrMemoHeader, ServCrMemoLine, Invoice);
 
         OnAfterFinalize(PassedServHeader, CloseCondition);
     end;
@@ -1356,12 +1363,12 @@ codeunit 5988 "Serv-Documents Mgt."
             until ServLine.Next() = 0;
     end;
 
-    local procedure GetServLineItem(ServLine: Record "Service Line"; var Item: Record Item)
+    local procedure GetServLineItem(ServLine2: Record "Service Line"; var Item: Record Item)
     begin
-        ServLine.TestField(Type, ServLine.Type::Item);
-        ServLine.TestField("No.");
-        if ServLine."No." <> Item."No." then
-            Item.Get(ServLine."No.");
+        ServLine2.TestField(Type, ServLine.Type::Item);
+        ServLine2.TestField("No.");
+        if ServLine2."No." <> Item."No." then
+            Item.Get(ServLine2."No.");
     end;
 
     local procedure CheckDimensions()
@@ -1553,6 +1560,7 @@ codeunit 5988 "Serv-Documents Mgt."
             OnCheckAndSetPostingContantsOnAfterSetFilterForInvoice(ServLine);
             PassedInvoice := ServLine.Find('-');
             if PassedInvoice and (ServHeader."Document Type" = ServHeader."Document Type"::Order) and not PassedShip then begin
+                OnCheckAndSetPostingConstantsOnBeforeCalcPassedInvoice(ServHeader, ServLine);
                 PassedInvoice := false;
                 repeat
                     PassedInvoice :=
@@ -1728,6 +1736,11 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     procedure SetNoSeries(var PServHeader: Record "Service Header") Result: Boolean
+    begin
+        exit(SetNoSeries(PServHeader, false));
+    end;
+
+    procedure SetNoSeries(var PServHeader: Record "Service Header"; PreviewMode: Boolean) Result: Boolean
     var
         NoSeries: Codeunit "No. Series";
         ModifyHeader: Boolean;
@@ -1744,19 +1757,23 @@ codeunit 5988 "Serv-Documents Mgt."
                ((ServHeader."Document Type" = ServHeader."Document Type"::Invoice) and ServMgtSetup."Shipment on Invoice")
             then begin
                 ServHeader.TestField(ServHeader."Shipping No. Series");
-                ServHeader."Shipping No." := NoSeries.GetNextNo(ServHeader."Shipping No. Series", ServHeader."Posting Date");
+                if PreviewMode then
+                    ServHeader."Shipping No." := '***'
+                else
+                    ServHeader."Shipping No." := NoSeries.GetNextNo(ServHeader."Shipping No. Series", ServHeader."Posting Date");
                 ModifyHeader := true;
             end;
 
         OnSetNoSeriesOnBeforeSetPostingNo(ServHeader, Invoice, ModifyHeader);
 
         if Invoice and (ServHeader."Posting No." = '') then begin
-            if (ServHeader."No. Series" <> '') or (ServHeader."Document Type" = ServHeader."Document Type"::Order)
-            then
+            if (ServHeader."No. Series" <> '') or (ServHeader."Document Type" = ServHeader."Document Type"::Order) then
                 ServHeader.TestField(ServHeader."Posting No. Series");
-            if (ServHeader."No. Series" <> ServHeader."Posting No. Series") or (ServHeader."Document Type" = ServHeader."Document Type"::Order)
-            then begin
-                ServHeader."Posting No." := NoSeries.GetNextNo(ServHeader."Posting No. Series", ServHeader."Posting Date");
+            if (ServHeader."No. Series" <> ServHeader."Posting No. Series") or (ServHeader."Document Type" = ServHeader."Document Type"::Order) then begin
+                if PreviewMode then
+                    ServHeader."Posting No." := '***'
+                else
+                    ServHeader."Posting No." := NoSeries.GetNextNo(ServHeader."Posting No. Series", ServHeader."Posting Date");
                 ModifyHeader := true;
             end;
         end;
@@ -2012,7 +2029,7 @@ codeunit 5988 "Serv-Documents Mgt."
         if ServLine.Find('-') then
             repeat
                 IsHandled := false;
-                OnUpdateServLinesOnPostOrderOnBeforeServLineLoop(ServLine, Invoice, IsHandled);
+                OnUpdateServLinesOnPostOrderOnBeforeServLineLoop(ServLine, Invoice, Consume, IsHandled);
                 if not IsHandled then
                     if ServLine.Quantity <> 0 then begin
                         OldInvDiscountAmount := ServLine."Inv. Discount Amount";
@@ -2366,8 +2383,6 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     local procedure CheckVATDate(var ServiceHeader: Record "Service Header")
-    var
-        GLSetup: Record "General Ledger Setup";
     begin
         // ensure VAT Date is filled in
         if ServiceHeader."VAT Reporting Date" = 0D then begin
@@ -2672,7 +2687,7 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDocumentLinesOnAfterFillInvPostingBuffer(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var ServiceShipmentHeader: Record "Service Shipment Header")
+    local procedure OnPostDocumentLinesOnAfterFillInvPostingBuffer(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TempServiceLine: Record "Service Line" temporary; var ServiceLineACY: Record "Service Line"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var ServiceShipmentHeader: Record "Service Shipment Header")
     begin
     end;
 
@@ -2823,7 +2838,7 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateServLinesOnPostOrderOnBeforeServLineLoop(var ServiceLine: Record "Service Line"; Invoice: Boolean; var IsHandled: Boolean)
+    local procedure OnUpdateServLinesOnPostOrderOnBeforeServLineLoop(var ServiceLine: Record "Service Line"; Invoice: Boolean; Consume: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -2839,6 +2854,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnRemoveLinesNotSatisfyPostingOnBeforeRemoveServLines(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentLinesOnAfterReverseAmount(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
     begin
     end;
 
@@ -2928,6 +2948,11 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckAndSetPostingConstantsOnBeforeCalcPassedInvoice(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckAndSetPostingConstantsOnAfterCalcPassedShip(var PassedShip: Boolean; PassedConsume: Boolean; PassedInvoice: Boolean; var ServiceLine: Record "Service Line")
     begin
     end;
@@ -2979,6 +3004,16 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnGetAndCheckCustomerOnAfterCheckBlocked(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostDocumentLines(var ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; Ship: Boolean; Consume: Boolean; Invoice: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeOnAfterFinalizeDocuments(var ServiceHeader: Record "Service Header"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var ServiceInvoiceLine: Record "Service Invoice Line"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var ServiceCrMemoLine: Record "Service Cr.Memo Line"; var Invoice: Boolean)
     begin
     end;
 }

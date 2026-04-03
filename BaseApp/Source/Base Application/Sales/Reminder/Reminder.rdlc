@@ -19,12 +19,12 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>18.5cm</Width>
+                  <Width>17.97261cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>14.05112cm</Height>
+                  <Height>14.02466cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -82,10 +82,10 @@
                                     <Width>0.35715cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.44069cm</Width>
+                                    <Width>0.35715cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.32674cm</Width>
+                                    <Width>0.74285cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
                                     <Width>0.64285cm</Width>
@@ -97,13 +97,13 @@
                                     <Width>1.14285cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.2045cm</Width>
+                                    <Width>0.44285cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.07938cm</Width>
+                                    <Width>0.44287cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.07938cm</Width>
+                                    <Width>0.44285cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
                                     <Width>0.44285cm</Width>
@@ -115,7 +115,7 @@
                                     <Width>0.64287cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.6254cm</Width>
+                                    <Width>1.34285cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
@@ -271,43 +271,14 @@
                                               <PaddingRight>5pt</PaddingRight>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>5</ColSpan>
+                                          <ColSpan>6</ColSpan>
                                         </CellContents>
                                       </TablixCell>
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox81">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!InterestRateCaption_IssuedReminderLine.Value</Value>
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                      <FontWeight>Bold</FontWeight>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox81</rd:DefaultName>
-                                            <Style>
-                                              <Border />
-                                              <VerticalAlign>Bottom</VerticalAlign>
-                                              <PaddingLeft>5pt</PaddingLeft>
-                                              <PaddingRight>5pt</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
+                                      <TablixCell />
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="IssuedReminderLineOriginalAmtCapt">
@@ -765,43 +736,14 @@
                                               <PaddingRight>5pt</PaddingRight>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>5</ColSpan>
+                                          <ColSpan>6</ColSpan>
                                         </CellContents>
                                       </TablixCell>
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox82">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!InterestRate_IssuedReminderLine.Value &amp; "%"</Value>
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox82</rd:DefaultName>
-                                            <Style>
-                                              <Border>
-                                                <Style>None</Style>
-                                              </Border>
-                                              <PaddingLeft>5pt</PaddingLeft>
-                                              <PaddingRight>5pt</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
+                                      <TablixCell />
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="IssuedReminderLineOriginalAmt">
@@ -1041,44 +983,14 @@
                                               <PaddingRight>5pt</PaddingRight>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>5</ColSpan>
+                                          <ColSpan>6</ColSpan>
                                         </CellContents>
                                       </TablixCell>
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox89">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!InterestRate_IssuedReminderLine.Value &amp; "%"</Value>
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                      <FontWeight>Bold</FontWeight>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox82</rd:DefaultName>
-                                            <Style>
-                                              <Border>
-                                                <Style>None</Style>
-                                              </Border>
-                                              <PaddingLeft>5pt</PaddingLeft>
-                                              <PaddingRight>5pt</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
+                                      <TablixCell />
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="IssuedReminderLineOriginalAmt2">
@@ -1986,7 +1898,7 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Textbox84">
+                                          <Textbox Name="Textbox40">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -2006,7 +1918,7 @@
                                                 </Style>
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Textbox84</rd:DefaultName>
+                                            <rd:DefaultName>Textbox40</rd:DefaultName>
                                             <Style>
                                               <Border />
                                               <PaddingLeft>5pt</PaddingLeft>
@@ -2783,7 +2695,7 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Textbox85">
+                                          <Textbox Name="Textbox72">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -2803,7 +2715,7 @@
                                                 </Style>
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Textbox85</rd:DefaultName>
+                                            <rd:DefaultName>Textbox72</rd:DefaultName>
                                             <Style>
                                               <Border />
                                               <PaddingLeft>5pt</PaddingLeft>
@@ -3775,9 +3687,9 @@
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Left>0.30776cm</Left>
+                              <Left>0.01537cm</Left>
                               <Height>4.58608cm</Height>
-                              <Width>17.94191cm</Width>
+                              <Width>17.95724cm</Width>
                               <Style>
                                 <FontFamily>Segoe UI</FontFamily>
                                 <FontSize>8pt</FontSize>
@@ -6975,7 +6887,7 @@
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
                               <Top>4.67079cm</Top>
-                              <Left>0.30776cm</Left>
+                              <Left>0.01537cm</Left>
                               <Height>2.78694cm</Height>
                               <Width>17.94201cm</Width>
                               <ZIndex>1</ZIndex>
@@ -9382,8 +9294,8 @@
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
-                              <Top>9.91481cm</Top>
-                              <Left>0.30776cm</Left>
+                              <Top>7.49097cm</Top>
+                              <Left>0.01537cm</Left>
                               <Height>3.17498cm</Height>
                               <Width>17.94205cm</Width>
                               <ZIndex>2</ZIndex>
@@ -9737,7 +9649,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <Top>0.02116cm</Top>
-                              <Left>0.40513cm</Left>
+                              <Left>0.11274cm</Left>
                               <Height>0.25603cm</Height>
                               <Width>3.31571cm</Width>
                               <ZIndex>4</ZIndex>
@@ -9901,8 +9813,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                                   </TablixMember>
                                 </TablixMembers>
                               </TablixRowHierarchy>
-                              <Top>13.26617cm</Top>
-                              <Left>0.29241cm</Left>
+                              <Top>13.23972cm</Top>
                               <Height>0.70556cm</Height>
                               <Width>17.95724cm</Width>
                               <ZIndex>5</ZIndex>
@@ -9916,25 +9827,25 @@ Cstr(Fields!CompanyInfoEMail.Value)
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>2.65411cm</Width>
+                                    <Width>2.65189cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.7393cm</Width>
+                                    <Width>2.73708cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.95947cm</Width>
+                                    <Width>1.95725cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.28609cm</Width>
+                                    <Width>2.28387cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.28609cm</Width>
+                                    <Width>2.28387cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.52071cm</Width>
+                                    <Width>2.84536cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>3.51167cm</Width>
+                                    <Width>3.18257cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
@@ -10108,7 +10019,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Textbox40">
+                                          <Textbox Name="Textbox48">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -10187,7 +10098,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Textbox72">
+                                          <Textbox Name="Textbox81">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -10354,7 +10265,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Textbox86">
+                                          <Textbox Name="Textbox82">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -10481,7 +10392,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                                       <TablixMember />
                                       <TablixMember>
                                         <Visibility>
-                                          <Hidden>=Microsoft.VisualBasic.Strings.Len(Fields!VATClauseDescription2.Value) = 0</Hidden>
+                                          <Hidden>=Len(Fields!VATClauseDescription2.Value) = 0</Hidden>
                                         </Visibility>
                                       </TablixMember>
                                     </TablixMembers>
@@ -10494,17 +10405,16 @@ Cstr(Fields!CompanyInfoEMail.Value)
                               <DataSetName>DataSet_Result</DataSetName>
                               <Filters>
                                 <Filter>
-                                  <FilterExpression>=Microsoft.VisualBasic.Strings.Len(Fields!VATClauseCode.Value)</FilterExpression>
+                                  <FilterExpression>=Len(Fields!VATClauseCode.Value)</FilterExpression>
                                   <Operator>GreaterThan</Operator>
                                   <FilterValues>
                                     <FilterValue DataType="Integer">0</FilterValue>
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>7.6341cm</Top>
-                              <Left>0.30776cm</Left>
+                              <Top>10.82233cm</Top>
                               <Height>2.11666cm</Height>
-                              <Width>17.95744cm</Width>
+                              <Width>17.94189cm</Width>
                               <ZIndex>6</ZIndex>
                               <Visibility>
                                 <Hidden>=(Fields!VATClausesCaption.Value = "")</Hidden>
@@ -10548,27 +10458,24 @@ Cstr(Fields!CompanyInfoEMail.Value)
                 </TablixMember>
               </TablixMembers>
             </TablixRowHierarchy>
-            <PageBreak>
-              <BreakLocation>End</BreakLocation>
-            </PageBreak>
-            <Height>14.05112cm</Height>
-            <Width>18.5cm</Width>
+            <Height>14.02466cm</Height>
+            <Width>17.97261cm</Width>
             <Style>
               <FontFamily>Segoe UI</FontFamily>
               <FontSize>8pt</FontSize>
             </Style>
           </Tablix>
         </ReportItems>
-        <Height>14.07758cm</Height>
+        <Height>14.02466cm</Height>
         <Style>
           <FontFamily>Segoe UI</FontFamily>
           <FontSize>8pt</FontSize>
         </Style>
       </Body>
-      <Width>18.55741cm</Width>
+      <Width>18cm</Width>
       <Page>
         <PageHeader>
-          <Height>10cm</Height>
+          <Height>10.05cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -10653,7 +10560,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>97.39999pt</Top>
+              <Top>99.39999pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>2</ZIndex>
@@ -10683,7 +10590,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>107.39999pt</Top>
+              <Top>109.39999pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>3</ZIndex>
@@ -10713,7 +10620,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>117.39999pt</Top>
+              <Top>119.39999pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>4</ZIndex>
@@ -10743,7 +10650,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>127.39999pt</Top>
+              <Top>129.39999pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>5</ZIndex>
@@ -10773,7 +10680,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>137.39999pt</Top>
+              <Top>139.39999pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>6</ZIndex>
@@ -10803,7 +10710,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>147.40002pt</Top>
+              <Top>149.40002pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>7</ZIndex>
@@ -10833,7 +10740,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>157.40001pt</Top>
+              <Top>159.40001pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>8</ZIndex>
@@ -10863,7 +10770,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>167.40002pt</Top>
+              <Top>169.40002pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>9</ZIndex>
@@ -11080,8 +10987,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>187.20006pt</Top>
-              <Left>11.01182cm</Left>
+              <Top>190.80003pt</Top>
+              <Left>10.9811cm</Left>
               <Height>11pt</Height>
               <Width>2.90319cm</Width>
               <ZIndex>16</ZIndex>
@@ -11112,8 +11019,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>187.20006pt</Top>
-              <Left>13.91501cm</Left>
+              <Top>190.80003pt</Top>
+              <Left>13.89966cm</Left>
               <Height>11pt</Height>
               <Width>4.04223cm</Width>
               <ZIndex>17</ZIndex>
@@ -11144,8 +11051,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>220.60013pt</Top>
-              <Left>11.01182cm</Left>
+              <Top>223.5pt</Top>
+              <Left>10.9811cm</Left>
               <Height>11pt</Height>
               <Width>2.90319cm</Width>
               <ZIndex>18</ZIndex>
@@ -11176,8 +11083,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>220.60013pt</Top>
-              <Left>13.91501cm</Left>
+              <Top>223.5pt</Top>
+              <Left>13.89966cm</Left>
               <Height>11pt</Height>
               <Width>4.04223cm</Width>
               <ZIndex>19</ZIndex>
@@ -11208,8 +11115,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>231.60016pt</Top>
-              <Left>11.01182cm</Left>
+              <Top>234.39999pt</Top>
+              <Left>10.9811cm</Left>
               <Height>11pt</Height>
               <Width>2.90319cm</Width>
               <ZIndex>20</ZIndex>
@@ -11240,8 +11147,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>231.60016pt</Top>
-              <Left>13.91501cm</Left>
+              <Top>234.39999pt</Top>
+              <Left>13.89966cm</Left>
               <Height>11pt</Height>
               <Width>4.04223cm</Width>
               <ZIndex>21</ZIndex>
@@ -11272,8 +11179,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>241.60016pt</Top>
-              <Left>11.01182cm</Left>
+              <Top>244.39999pt</Top>
+              <Left>10.9811cm</Left>
               <Height>11pt</Height>
               <Width>2.90319cm</Width>
               <ZIndex>22</ZIndex>
@@ -11304,8 +11211,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>241.60016pt</Top>
-              <Left>13.91501cm</Left>
+              <Top>244.39999pt</Top>
+              <Left>13.89966cm</Left>
               <Height>11pt</Height>
               <Width>4.04223cm</Width>
               <ZIndex>23</ZIndex>
@@ -11338,10 +11245,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>241.89999pt</Top>
-              <Left>2.85622cm</Left>
+              <Top>244.39999pt</Top>
+              <Left>3.35cm</Left>
               <Height>11pt</Height>
-              <Width>8.1556cm</Width>
+              <Width>7.6cm</Width>
               <ZIndex>24</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11369,9 +11276,9 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>221pt</Top>
+              <Top>223.5pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>25</ZIndex>
               <Style>
                 <Border />
@@ -11400,10 +11307,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>221pt</Top>
-              <Left>2.85622cm</Left>
+              <Top>223.5pt</Top>
+              <Left>3.35cm</Left>
               <Height>11pt</Height>
-              <Width>8.1556cm</Width>
+              <Width>7.6cm</Width>
               <ZIndex>26</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11431,9 +11338,9 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>231.89999pt</Top>
+              <Top>234.39999pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>27</ZIndex>
               <Style>
                 <Border />
@@ -11464,10 +11371,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>231.89999pt</Top>
-              <Left>2.85622cm</Left>
+              <Top>234.39999pt</Top>
+              <Left>3.35cm</Left>
               <Height>11pt</Height>
-              <Width>8.1556cm</Width>
+              <Width>7.6cm</Width>
               <ZIndex>28</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11495,9 +11402,9 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>253.69998pt</Top>
+              <Top>256.19998pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>29</ZIndex>
               <Style>
                 <Border />
@@ -11528,10 +11435,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>252.79999pt</Top>
-              <Left>2.85622cm</Left>
+              <Top>255.39999pt</Top>
+              <Left>3.37056cm</Left>
               <Height>11pt</Height>
-              <Width>15.08568cm</Width>
+              <Width>14.57cm</Width>
               <ZIndex>30</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11559,9 +11466,9 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>188.30003pt</Top>
+              <Top>190.80003pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>31</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11589,10 +11496,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>188.30003pt</Top>
-              <Left>2.85622cm</Left>
+              <Top>190.80003pt</Top>
+              <Left>3.35cm</Left>
               <Height>11pt</Height>
-              <Width>8.1556cm</Width>
+              <Width>7.6cm</Width>
               <ZIndex>32</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11619,9 +11526,9 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>210.80002pt</Top>
+              <Top>213.30002pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>33</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11648,10 +11555,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>210.80002pt</Top>
-              <Left>2.85622cm</Left>
+              <Top>213.30002pt</Top>
+              <Left>3.35cm</Left>
               <Height>11pt</Height>
-              <Width>8.1556cm</Width>
+              <Width>7.6cm</Width>
               <ZIndex>34</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11678,9 +11585,9 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>200.10002pt</Top>
+              <Top>202.60002pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>35</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11707,10 +11614,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>200.10002pt</Top>
-              <Left>2.85622cm</Left>
+              <Top>202.60002pt</Top>
+              <Left>3.35cm</Left>
               <Height>11pt</Height>
-              <Width>8.1556cm</Width>
+              <Width>7.6cm</Width>
               <ZIndex>36</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -11736,9 +11643,9 @@ Cstr(Fields!CompanyInfoEMail.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox2</rd:DefaultName>
-              <Top>242.8pt</Top>
+              <Top>245.3pt</Top>
               <Height>11pt</Height>
-              <Width>2.67983cm</Width>
+              <Width>3.3cm</Width>
               <ZIndex>37</ZIndex>
               <Style>
                 <Border>
@@ -11766,8 +11673,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>198.20007pt</Top>
-              <Left>11.01182cm</Left>
+              <Top>202.60002pt</Top>
+              <Left>10.9811cm</Left>
               <Height>11pt</Height>
               <Width>2.90319cm</Width>
               <ZIndex>38</ZIndex>
@@ -11798,8 +11705,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>198.20007pt</Top>
-              <Left>13.91501cm</Left>
+              <Top>202.60002pt</Top>
+              <Left>13.89966cm</Left>
               <Height>11pt</Height>
               <Width>4.04223cm</Width>
               <ZIndex>39</ZIndex>
@@ -11830,8 +11737,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>209.60007pt</Top>
-              <Left>11.02946cm</Left>
+              <Top>213.30002pt</Top>
+              <Left>10.99874cm</Left>
               <Height>11pt</Height>
               <Width>2.88555cm</Width>
               <ZIndex>40</ZIndex>
@@ -11862,8 +11769,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>209.60007pt</Top>
-              <Left>13.91501cm</Left>
+              <Top>213.30002pt</Top>
+              <Left>13.89966cm</Left>
               <Height>11pt</Height>
               <Width>4.04223cm</Width>
               <ZIndex>41</ZIndex>
@@ -11937,8 +11844,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
         <PageWidth>21cm</PageWidth>
         <InteractiveHeight>11in</InteractiveHeight>
         <InteractiveWidth>8.5in</InteractiveWidth>
-        <LeftMargin>1.4cm</LeftMargin>
-        <RightMargin>1cm</RightMargin>
+        <LeftMargin>1.76389cm</LeftMargin>
+        <RightMargin>1.05833cm</RightMargin>
         <TopMargin>1.05833cm</TopMargin>
         <BottomMargin>1.48167cm</BottomMargin>
         <Style>
@@ -12290,15 +12197,6 @@ End Function
         </Field>
         <Field Name="DueDate_IssuedReminderLine">
           <DataField>DueDate_IssuedReminderLine</DataField>
-        </Field>
-        <Field Name="InterestRate_IssuedReminderLine">
-          <DataField>InterestRate_IssuedReminderLine</DataField>
-        </Field>
-        <Field Name="InterestRate_IssuedReminderLineFormat">
-          <DataField>InterestRate_IssuedReminderLineFormat</DataField>
-        </Field>
-        <Field Name="InterestRateCaption_IssuedReminderLine">
-          <DataField>InterestRateCaption_IssuedReminderLine</DataField>
         </Field>
         <Field Name="OriginalAmt_IssuedReminderLine">
           <DataField>OriginalAmt_IssuedReminderLine</DataField>

@@ -9,9 +9,9 @@ using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using System;
+using System.IO;
 using System.Utilities;
 using System.Xml;
-using System.IO;
 
 report 10876 "EC Sales List - Services"
 {

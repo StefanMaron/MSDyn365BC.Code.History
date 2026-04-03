@@ -1,6 +1,7 @@
 namespace Microsoft.EServices.EDocument.OrderMatch.Copilot;
-using Microsoft.eServices.EDocument.OrderMatch;
+
 using Microsoft.eServices.EDocument;
+using Microsoft.eServices.EDocument.OrderMatch;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Setup;
 
@@ -13,6 +14,7 @@ table 6163 "E-Doc. PO Match Prop. Buffer"
     InherentEntitlements = X;
     DataClassification = CustomerContent;
 
+#pragma warning disable AA0473
     fields
     {
         field(1; "Document Order No."; Code[20])
@@ -72,6 +74,7 @@ table 6163 "E-Doc. PO Match Prop. Buffer"
             Caption = 'Learn Matching Rule';
         }
     }
+#pragma warning restore AA0473
 
     keys
     {

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,15 +16,18 @@ table 5966 "Contract Group"
         field(1; "Code"; Code[10])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies a code for the contract group.';
             NotBlank = true;
         }
         field(2; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the contract group.';
         }
         field(3; "Disc. on Contr. Orders Only"; Boolean)
         {
             Caption = 'Disc. on Contr. Orders Only';
+            ToolTip = 'Specifies that contract/service discounts only apply to service lines linked to service orders created for the service contracts in the contract group.';
         }
         field(4; "Date Filter"; Date)
         {
@@ -33,8 +36,9 @@ table 5966 "Contract Group"
         }
         field(5; "Contract Gain/Loss Amount"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
-            CalcFormula = sum ("Contract Gain/Loss Entry".Amount where("Contract Group Code" = field(Code),
+            CalcFormula = sum("Contract Gain/Loss Entry".Amount where("Contract Group Code" = field(Code),
                                                                        "Change Date" = field("Date Filter")));
             Caption = 'Contract Gain/Loss Amount';
             Editable = false;

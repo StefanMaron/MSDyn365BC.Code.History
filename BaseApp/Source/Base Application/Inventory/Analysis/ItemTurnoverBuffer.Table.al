@@ -19,11 +19,13 @@ table 921 "Item Turnover Buffer"
         field(6; "Period Name"; Text[50])
         {
             Caption = 'Period Name';
+            ToolTip = 'Specifies the name of the period defined on the line, related to year-to-date inventory turnover.';
             DataClassification = SystemMetadata;
         }
         field(7; "Period Start"; Date)
         {
             Caption = 'Period Start';
+            ToolTip = 'Specifies the start date of the period defined on the line, related to year-to-date inventory turnover.';
             DataClassification = SystemMetadata;
         }
         field(8; "Period End"; Date)
@@ -33,17 +35,20 @@ table 921 "Item Turnover Buffer"
         }
         field(10; "Purchases (Qty.)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Purchases (Qty.)';
             DataClassification = SystemMetadata;
         }
         field(11; "Purchases (LCY)"; Decimal)
         {
             Caption = 'Purchases (LCY)';
-            AutoFormatType = 1;
+            AutoFormatType = 0;
+            AutoFormatExpression = '';
             DataClassification = SystemMetadata;
         }
         field(12; "Sales (Qty.)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Sales (Qty.)';
             DataClassification = SystemMetadata;
         }
@@ -51,6 +56,7 @@ table 921 "Item Turnover Buffer"
         {
             Caption = 'Sales (LCY)';
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             DataClassification = SystemMetadata;
         }
     }

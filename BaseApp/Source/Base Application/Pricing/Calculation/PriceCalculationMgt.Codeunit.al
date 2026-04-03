@@ -29,9 +29,6 @@ codeunit 7001 "Price Calculation Mgt."
         ExtendedPriceFeatureTelemetryNameLbl: Label 'New Sales Pricing', Locked = true;
         UsedCustomLookupTxt: Label 'Used custom lookup in table %1.', Comment = '%1 = table id', Locked = true;
         NotImplementedMethodErr: Label 'Method %1 does not have active implementations for %2 price type.', Comment = '%1 - method name, %2 - price type name';
-#if not CLEAN25
-        FeatureIsOffErr: Label 'Extended price calculation feature is not enabled.';
-#endif
 
     procedure RefreshSetup() Updated: Boolean;
     var
@@ -113,7 +110,7 @@ codeunit 7001 "Price Calculation Mgt."
     begin
         if not IsExtendedPriceCalculationEnabled() then begin
             PriceCalculationSetup.Method := PriceCalculationSetup.Method::"Lowest Price";
-#if not CLEAN25
+#if not CLEAN27
             PriceCalculationSetup.Implementation := PriceCalculationSetup.Implementation::"Business Central (Version 15.0)";
 #else
             PriceCalculationSetup.Implementation := PriceCalculationSetup.Implementation::"Business Central (Version 16.0)";
@@ -164,15 +161,6 @@ codeunit 7001 "Price Calculation Mgt."
     begin
         exit(ExtendedPriceFeatureTelemetryNameLbl);
     end;
-
-#if not CLEAN25
-    [Obsolete('Replaced by the method in Codeunit 7049 Feature - Price Calculation', '19.0')]
-    procedure TestIsEnabled()
-    begin
-        if not IsExtendedPriceCalculationEnabled() then
-            Error(FeatureIsOffErr);
-    end;
-#endif
 
     internal procedure FeatureCustomizedLookupUsage(TableId: Integer)
     begin

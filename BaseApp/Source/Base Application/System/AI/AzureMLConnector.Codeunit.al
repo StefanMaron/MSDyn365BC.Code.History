@@ -7,6 +7,9 @@ codeunit 2001 "Azure ML Connector"
 
     trigger OnRun()
     begin
+        // Set default timeout if not already set
+        if DefaultTimeoutSeconds = 0 then
+            DefaultTimeoutSeconds := 300; // 5 minutes default
     end;
 
     var
@@ -26,12 +29,16 @@ codeunit 2001 "Azure ML Connector"
         OutputName: Text;
         ParametersName: Text;
         InvalidURIErr: Label 'Provided API URL (%1) is not a valid AzureML URL.', Comment = '%1 = custom URL';
+        DefaultTimeoutSeconds: Integer;
 
 
     [NonDebuggable]
     [TryFunction]
     procedure Initialize(ApiKey: SecretText; ApiUri: Text; TimeOutSeconds: Integer)
     begin
+        // Default timeout to a higher value (5 minutes) to prevent task cancellation errors
+        if TimeOutSeconds = 0 then
+            TimeOutSeconds := DefaultTimeoutSeconds;
         AzureMLRequest := AzureMLRequest.AzureMLRequest(ApiKey.Unwrap(), ApiUri, TimeOutSeconds);
 
         // To set HttpMessageHandler first call SetMessageHandler
@@ -52,6 +59,11 @@ codeunit 2001 "Azure ML Connector"
     procedure IsInitialized(): Boolean
     begin
         exit(not IsNull(AzureMLRequest) and not IsNull(AzureMLInputBuilder) and not IsNull(AzureMLParametersBuilder));
+    end;
+
+    procedure SetDefaultTimeoutSeconds(TimeoutSeconds: Integer)
+    begin
+        DefaultTimeoutSeconds := TimeoutSeconds;
     end;
 
     [Scope('OnPrem')]

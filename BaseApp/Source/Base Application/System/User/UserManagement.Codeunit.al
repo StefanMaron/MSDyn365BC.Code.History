@@ -14,6 +14,7 @@ using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Interaction;
 using Microsoft.CRM.Segment;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Budget;
 using Microsoft.Finance.GeneralLedger.Ledger;
@@ -111,7 +112,7 @@ codeunit 418 "User Management"
                   TableData "Ins. Coverage Ledger Entry" = rm,
                   TableData "Insurance Register" = rm,
                   TableData "Value Entry" = rm,
-#if not CLEAN25
+#if not CLEAN28
                   TableData Microsoft.Service.Ledger."Service Ledger Entry" = rm,
                   TableData Microsoft.Service.Ledger."Service Register" = rm,
                   TableData Microsoft.Service.Contract."Contract Gain/Loss Entry" = rm,
@@ -252,6 +253,7 @@ codeunit 418 "User Management"
         PrinterSelection: Record "Printer Selection";
         SelectedDimension: Record "Selected Dimension";
         FAJournalSetup: Record "FA Journal Setup";
+        FinancialReportRecipient: Record "Financial Report Recipient";
         AnalysisSelectedDimension: Record "Analysis Selected Dimension";
         WarehouseEmployee: Record "Warehouse Employee";
         MyCustomer: Record "My Customer";
@@ -351,6 +353,15 @@ codeunit 418 "User Management"
                 Checklist.UpdateUserName(RecRef, Company, UserName, 1993);
             1994: //User Checklist Status
                 Checklist.UpdateUserName(RecRef, Company, UserName, 1994);
+            Database::"Financial Report Recipient":
+                begin
+                    FinancialReportRecipient.ChangeCompany(Company);
+                    RecRef.SetTable(FinancialReportRecipient);
+                    FinancialReportRecipient.Rename(
+                        FinancialReportRecipient."Financial Report Name",
+                        FinancialReportRecipient."Financial Report Schedule Code",
+                        UserName);
+                end;
         end;
     end;
 
@@ -590,15 +601,6 @@ codeunit 418 "User Management"
             Database::"Ins. Coverage Ledger Entry",
             Database::"Insurance Register",
             Database::"Value Entry",
-#if not CLEAN25
-            Database::Microsoft.Service.Ledger."Service Ledger Entry",
-            Database::Microsoft.Service.Ledger."Service Register",
-            Database::Microsoft.Service.Contract."Contract Gain/Loss Entry",
-            Database::Microsoft.Service.Contract."Filed Service Contract Header",
-            Database::Microsoft.Service.History."Service Shipment Header",
-            Database::Microsoft.Service.History."Service Invoice Header",
-            Database::Microsoft.Service.History."Service Cr.Memo Header",
-#endif
             Database::"Return Shipment Header",
             Database::"Return Receipt Header",
             Database::"Item Budget Entry",
@@ -676,4 +678,3 @@ codeunit 418 "User Management"
     end;
 #endif
 }
-

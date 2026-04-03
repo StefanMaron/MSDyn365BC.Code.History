@@ -4,16 +4,18 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
 
+#if not CLEAN28
+using Microsoft.Bank.Payment;
+#endif
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Employee;
 using Microsoft.HumanResources.Payables;
 using Microsoft.Sales.Archive;
-using System.Privacy;
-using Microsoft.Finance.FinancialReports;
 using Microsoft.Sales.Document;
-using Microsoft.Bank.Payment;
-using Microsoft.Finance.ReceivablesPayables;
+using System.Privacy;
 
 codeunit 1752 "Data Class. Eval. Data Country"
 {
@@ -36,6 +38,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"FR Acc. Schedule Name");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"FR Acc. Schedule Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Shipment Invoiced");
+#if not CLEAN28
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Class");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Status");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Step");
@@ -47,6 +50,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Line Archive");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Account Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Address");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Unreal. CV Ledg. Entry Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Alt. Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");

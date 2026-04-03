@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN28
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +17,9 @@ report 10812 "Fixed Asset-Professional Tax"
     ApplicationArea = FixedAssets;
     Caption = 'Professional Tax';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Moved to FA Reports FR app';
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
 
     dataset
     {
@@ -277,6 +281,7 @@ report 10812 "Fixed Asset-Professional Tax"
                     }
                     field(FixedAssetMoreThan30years1; PercentageTax[2])
                     {
+                        AutoFormatType = 0;
                         ApplicationArea = FixedAssets;
                         BlankZero = true;
                         Caption = 'Fixed Asset >30 years 1';
@@ -286,6 +291,7 @@ report 10812 "Fixed Asset-Professional Tax"
                     }
                     field(FixedAssetMoreThan30years2; PercentageTax[3])
                     {
+                        AutoFormatType = 0;
                         ApplicationArea = FixedAssets;
                         BlankZero = true;
                         Caption = 'Fixed Asset >30 years 2';
@@ -295,6 +301,7 @@ report 10812 "Fixed Asset-Professional Tax"
                     }
                     field(FixedAssetLessThan30years; PercentageTax[4])
                     {
+                        AutoFormatType = 0;
                         ApplicationArea = FixedAssets;
                         BlankZero = true;
                         Caption = 'Fixed Asset <30 years';
@@ -552,4 +559,5 @@ report 10812 "Fixed Asset-Professional Tax"
             Error(Text008, PostingType);
     end;
 }
+#endif
 

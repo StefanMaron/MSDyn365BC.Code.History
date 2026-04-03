@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -34,10 +34,12 @@ table 99000754 "Work Center"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
         }
         field(3; Name; Text[100])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies the name of the work center.';
 
             trigger OnValidate()
             begin
@@ -47,6 +49,7 @@ table 99000754 "Work Center"
         field(4; "Search Name"; Code[100])
         {
             Caption = 'Search Name';
+            ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
         }
         field(5; "Name 2"; Text[50])
         {
@@ -109,11 +112,13 @@ table 99000754 "Work Center"
         field(12; "Alternate Work Center"; Code[20])
         {
             Caption = 'Alternate Work Center';
+            ToolTip = 'Specifies an alternate work center.';
             TableRelation = "Work Center";
         }
         field(14; "Work Center Group Code"; Code[10])
         {
             Caption = 'Work Center Group Code';
+            ToolTip = 'Specifies the work center group, if the work center or underlying machine center is assigned to a work center group.';
             TableRelation = "Work Center Group";
 
             trigger OnValidate()
@@ -205,6 +210,7 @@ table 99000754 "Work Center"
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
+            ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -217,6 +223,7 @@ table 99000754 "Work Center"
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
+            ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -228,12 +235,15 @@ table 99000754 "Work Center"
         field(18; "Subcontractor No."; Code[20])
         {
             Caption = 'Subcontractor No.';
+            ToolTip = 'Specifies the number of a subcontractor who supplies this work center.';
             TableRelation = Vendor;
         }
         field(19; "Direct Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Direct Unit Cost';
+            ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
             MinValue = 0;
 
             trigger OnValidate()
@@ -243,7 +253,9 @@ table 99000754 "Work Center"
         }
         field(20; "Indirect Cost %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Indirect Cost %';
+            ToolTip = 'Specifies the percentage of the center''s cost that includes indirect costs, such as machine maintenance.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
 
@@ -259,7 +271,9 @@ table 99000754 "Work Center"
         field(21; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
+            ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
             DecimalPlaces = 2 : 5;
             MinValue = 0;
 
@@ -273,18 +287,22 @@ table 99000754 "Work Center"
         }
         field(22; "Queue Time"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Queue Time';
+            ToolTip = 'Specifies the queue time of the work center.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(23; "Queue Time Unit of Meas. Code"; Code[10])
         {
             Caption = 'Queue Time Unit of Meas. Code';
+            ToolTip = 'Specifies the queue time unit of measure code.';
             TableRelation = "Capacity Unit of Measure";
         }
         field(26; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
+            ToolTip = 'Specifies when the work center card was last modified.';
             Editable = false;
         }
         field(27; Comment; Boolean)
@@ -298,6 +316,7 @@ table 99000754 "Work Center"
         field(30; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
             TableRelation = "Capacity Unit of Measure";
 
             trigger OnValidate()
@@ -342,33 +361,43 @@ table 99000754 "Work Center"
         }
         field(31; Capacity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Capacity';
+            ToolTip = 'Specifies the amount of work that can be done in a specified time period. The capacity of a work center indicates how many machines or persons are working at the same time. If you enter 2, for example, the work center will take half of the time compared to a work center with the capacity of 1.';
             DecimalPlaces = 0 : 5;
             InitValue = 1;
             MinValue = 0;
         }
         field(32; Efficiency; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Efficiency';
+            ToolTip = 'Specifies the efficiency factor as a percentage of the work center.';
             DecimalPlaces = 0 : 5;
             InitValue = 100;
             MinValue = 0;
         }
         field(33; "Maximum Efficiency"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Maximum Efficiency';
+            ToolTip = 'Specifies the maximum efficiency factor of the work center.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(34; "Minimum Efficiency"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Minimum Efficiency';
+            ToolTip = 'Specifies the minimum efficiency factor of the work center.';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
         }
         field(35; "Calendar Rounding Precision"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Calendar Rounding Precision';
+            ToolTip = 'Specifies how calendar entries are rounded, such as whether minutes are rounded to hours.';
             DecimalPlaces = 0 : 5;
             InitValue = 0.00001;
             MinValue = 0.00001;
@@ -377,12 +406,14 @@ table 99000754 "Work Center"
         field(36; "Simulation Type"; Option)
         {
             Caption = 'Simulation Type';
+            ToolTip = 'Specifies the simulation type for the work center.';
             OptionCaption = 'Moves,Moves When Necessary,Critical';
             OptionMembers = Moves,"Moves When Necessary",Critical;
         }
         field(37; "Shop Calendar Code"; Code[10])
         {
             Caption = 'Shop Calendar Code';
+            ToolTip = 'Specifies the shop calendar code that the planning of this work center refers to.';
             TableRelation = "Shop Calendar";
         }
         field(38; Blocked; Boolean)
@@ -403,6 +434,7 @@ table 99000754 "Work Center"
         }
         field(41; "Capacity (Total)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Calendar Entry"."Capacity (Total)" where("Capacity Type" = const("Work Center"),
                                                                          "No." = field("No."),
                                                                          "Work Shift Code" = field("Work Shift Filter"),
@@ -414,6 +446,7 @@ table 99000754 "Work Center"
         }
         field(42; "Capacity (Effective)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Calendar Entry"."Capacity (Effective)" where("Capacity Type" = const("Work Center"),
                                                                              "No." = field("No."),
                                                                              "Work Shift Code" = field("Work Shift Filter"),
@@ -425,6 +458,7 @@ table 99000754 "Work Center"
         }
         field(44; "Prod. Order Need (Qty.)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Prod. Order Capacity Need"."Allocated Time" where("Work Center No." = field("No."),
                                                                                   Status = field("Prod. Order Status Filter"),
                                                                                   Date = field("Date Filter"),
@@ -437,6 +471,7 @@ table 99000754 "Work Center"
         field(45; "Prod. Order Need Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Prod. Order Routing Line"."Expected Operation Cost Amt." where("Work Center No." = field("No."),
                                                                                                Status = field("Prod. Order Status Filter")));
             Caption = 'Prod. Order Need Amount';
@@ -451,14 +486,17 @@ table 99000754 "Work Center"
         field(50; "Unit Cost Calculation"; Enum "Unit Cost Calculation Type")
         {
             Caption = 'Unit Cost Calculation';
+            ToolTip = 'Specifies the unit cost calculation that is to be made.';
         }
         field(51; "Specific Unit Cost"; Boolean)
         {
             Caption = 'Specific Unit Cost';
+            ToolTip = 'Specifies where to define the unit costs. If you place a check mark in this field, you can define the unit costs on the routing line. This allows you to have individual costs on every routing line. This is useful for subcontracting operations with varying rates.';
         }
         field(52; "Consolidated Calendar"; Boolean)
         {
             Caption = 'Consolidated Calendar';
+            ToolTip = 'Specifies whether the consolidated calendar is used.';
         }
         field(53; "Flushing Method"; Enum "Flushing Method Routing")
         {
@@ -473,8 +511,9 @@ table 99000754 "Work Center"
         }
         field(81; "Overhead Rate"; Decimal)
         {
-            AutoFormatType = 2;
+            AutoFormatType = 0;
             Caption = 'Overhead Rate';
+            ToolTip = 'Specifies the overhead rate of this work center.';
 
             trigger OnValidate()
             begin
@@ -484,6 +523,7 @@ table 99000754 "Work Center"
         field(82; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
+            ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
             TableRelation = "Gen. Product Posting Group";
         }
         field(83; County; Text[30])
@@ -504,6 +544,7 @@ table 99000754 "Work Center"
         field(7300; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the location where the work center operates by default.';
             TableRelation = Location.Code where("Use As In-Transit" = const(false),
                                                  "Bin Mandatory" = const(true));
 
@@ -563,6 +604,7 @@ table 99000754 "Work Center"
         field(7301; "Open Shop Floor Bin Code"; Code[20])
         {
             Caption = 'Open Shop Floor Bin Code';
+            ToolTip = 'Specifies the bin that functions as the default open shop floor bin at the work center.';
             TableRelation = Bin.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
@@ -573,6 +615,7 @@ table 99000754 "Work Center"
         field(7302; "To-Production Bin Code"; Code[20])
         {
             Caption = 'To-Production Bin Code';
+            ToolTip = 'Specifies the bin in the production area where components that are picked for production are placed by default before they can be consumed.';
             TableRelation = Bin.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
@@ -583,6 +626,7 @@ table 99000754 "Work Center"
         field(7303; "From-Production Bin Code"; Code[20])
         {
             Caption = 'From-Production Bin Code';
+            ToolTip = 'Specifies the bin in the production area where finished end items are taken by default when the process involves warehouse activity.';
             TableRelation = Bin.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
@@ -667,10 +711,10 @@ table 99000754 "Work Center"
         MfgSetup.Get();
         if "No." = '' then begin
             MfgSetup.TestField("Work Center Nos.");
-                "No. Series" := MfgSetup."Work Center Nos.";
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
-                "No." := NoSeries.GetNextNo("No. Series");
+            "No. Series" := MfgSetup."Work Center Nos.";
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series");
         end;
         DimMgt.UpdateDefaultDim(
           Database::"Work Center", "No.",

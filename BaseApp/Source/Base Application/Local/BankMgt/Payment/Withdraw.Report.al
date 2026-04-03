@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN28
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -11,13 +12,16 @@ using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Foundation.Company;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
-using System.Reflection;
 using System.IO;
+using System.Reflection;
 
 report 10881 Withdraw
 {
     Caption = 'Withdraw';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+    ObsoleteTag = '28.0';
 
     dataset
     {
@@ -338,4 +342,4 @@ report 10881 Withdraw
         end;
     end;
 }
-
+#endif

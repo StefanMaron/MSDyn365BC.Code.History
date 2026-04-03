@@ -241,6 +241,7 @@ codeunit 7324 "Whse.-Activity-Post"
         OnAfterPostWhseActivHeader(WhseActivHeader, PurchHeader, SalesHeader, TransHeader);
 
         Clear(WhseJnlRegisterLine);
+        OnAfterPostWhseActivityCompleted(WhseActivHeader, PurchHeader, SalesHeader, TransHeader, SuppressCommit, IsPreview);
     end;
 
     local procedure CheckQuantityInBinContentForTracking(var WarehouseActivityLine: Record "Warehouse Activity Line")
@@ -1500,6 +1501,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostWhseActivHeader(WhseActivHeader: Record "Warehouse Activity Header"; var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostWhseActivityCompleted(WhseActivHeader: Record "Warehouse Activity Header"; var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var TransferHeader: Record "Transfer Header"; SuppressCommit: Boolean; IsPreview: Boolean)
     begin
     end;
 

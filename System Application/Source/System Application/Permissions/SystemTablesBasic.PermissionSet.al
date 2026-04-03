@@ -4,9 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Security.AccessControl;
+
 using System.Environment;
 using System.Environment.Configuration;
+#if not CLEAN28
 using System.Feedback;
+#endif
 using System.Integration;
 using System.IO;
 using System.Reflection;
@@ -26,7 +29,9 @@ permissionset 66 "System Tables - Basic"
                              "Permissions & Licenses - Read",
                              "Power BI - Read",
                              "Reporting - Edit",
+#if not CLEAN28
                              "Satisfaction Survey - View",
+#endif
                              "Session - Read",
                              "System Execute - Basic",
                              "User Personalization - Edit",

@@ -14,10 +14,17 @@ using Microsoft.Sales.Customer;
 using System.Security.User;
 using System.Utilities;
 
+/// <summary>
+/// Generates a test report for validating finance charge memos before issuing, displaying errors and VAT breakdowns.
+/// </summary>
 report 123 "Finance Charge Memo - Test"
 {
     DefaultLayout = RDLC;
+#if not CLEAN28
+    RDLCLayout = './Sales/FinanceCharge/FinanceChargeMemoTestFR.rdlc';
+#else
     RDLCLayout = './Sales/FinanceCharge/FinanceChargeMemoTest.rdlc';
+#endif
     Caption = 'Finance Charge Memo - Test';
     WordMergeDataItem = "Finance Charge Memo Header";
 
@@ -281,9 +288,14 @@ report 123 "Finance Charge Memo - Test"
                     column(Finance_Charge_Memo_Line__Due_Date_; Format("Due Date"))
                     {
                     }
+#if not CLEAN28
                     column(Finance_Charge_Memo_Line__Interest_Rate_; "Interest Rate")
                     {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This field is no longer required and will be removed in a future release.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     column(Finance_Charge_Memo_Line__Document_Type_; "Document Type")
                     {
                     }
@@ -328,9 +340,14 @@ report 123 "Finance Charge Memo - Test"
                     column(Finance_Charge_Memo_Line__Document_No__Caption; FieldCaption("Document No."))
                     {
                     }
+#if not CLEAN28
                     column(Finance_Charge_Memo_Line__Interest_Rate_Caption; FieldCaption("Interest Rate"))
                     {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This field is no longer required and will be removed in a future release.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     column(Finance_Charge_Memo_Line__Document_Date_Caption; Finance_Charge_Memo_Line__Document_Date_CaptionLbl)
                     {
                     }
@@ -810,6 +827,10 @@ report 123 "Finance Charge Memo - Test"
         ErrorText[ErrorCounter] := Text;
     end;
 
+    /// <summary>
+    /// Initializes the request parameters for the finance charge memo test report.
+    /// </summary>
+    /// <param name="NewShowDim">Specifies whether to show dimensions on the report.</param>
     procedure InitializeRequest(NewShowDim: Boolean)
     begin
         ShowDim := NewShowDim;

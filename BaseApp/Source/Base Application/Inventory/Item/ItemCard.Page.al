@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -82,7 +82,6 @@ page 30 "Item Card"
                 {
                     ApplicationArea = All;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies a description of the item.';
                     AboutTitle = 'Describe the product or service';
                     AboutText = 'This appears on the documents you create when buying or selling this item. You can create Extended Texts with additional item description available to insert in the document lines.';
                     Visible = DescriptionFieldVisible;
@@ -91,7 +90,6 @@ page 30 "Item Card"
                 {
                     ApplicationArea = All;
                     Importance = Additional;
-                    ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
                 field(Blocked; Rec.Blocked)
@@ -102,7 +100,6 @@ page 30 "Item Card"
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the item card represents a physical inventory unit (Inventory), a labor time unit (Service), or a physical unit that is not tracked in inventory (Non-Inventory).';
 
                     trigger OnValidate()
                     begin
@@ -111,10 +108,9 @@ page 30 "Item Card"
                 }
                 field("Base Unit of Measure"; Rec."Base Unit of Measure")
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
+                    ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the base unit used to measure the item, such as piece, box, or pallet. The base unit of measure also serves as the conversion basis for alternate units of measure.';
 
                     trigger OnValidate()
                     begin
@@ -126,7 +122,6 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies when the item card was last modified.';
                 }
                 field(GTIN; Rec.GTIN)
                 {
@@ -138,7 +133,6 @@ page 30 "Item Card"
                 field("Item Category Code"; Rec."Item Category Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the category that the item belongs to. Item categories also contain any assigned item attributes.';
 
                     trigger OnValidate()
                     begin
@@ -149,26 +143,22 @@ page 30 "Item Card"
                 field("Manufacturer Code"; Rec."Manufacturer Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code for the manufacturer of the catalog item.';
                     Visible = false;
                 }
                 field("Automatic Ext. Texts"; Rec."Automatic Ext. Texts")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies that an extended text that you have set up will be added automatically on sales or purchase documents for this item.';
                 }
                 field("Common Item No."; Rec."Common Item No.")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
-                    ToolTip = 'Specifies the unique common item number that the intercompany partners agree upon.';
                 }
                 field("Purchasing Code"; Rec."Purchasing Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the code for a special procurement method, such as drop shipment.';
                 }
                 field(VariantMandatoryDefaultYes; Rec."Variant Mandatory if Exists")
                 {
@@ -189,6 +179,18 @@ page 30 "Item Card"
                     ApplicationArea = Basic, Suite;
                     Visible = false;
                 }
+                field("No. 2"; Rec."No. 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                    Importance = Additional;
+                }
+                field("Alternative Item No."; Rec."Alternative Item No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                    Importance = Additional;
+                }
             }
             group(InventoryGrp)
             {
@@ -200,19 +202,16 @@ page 30 "Item Card"
                 field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies where to find the item in the warehouse. This is informational only.';
                 }
                 field("Created From Nonstock Item"; Rec."Created From Nonstock Item")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies that the item was created from a catalog item.';
                 }
                 field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies a search description that you use to find the item in lists.';
                 }
                 field(Inventory; Rec.Inventory)
                 {
@@ -220,7 +219,6 @@ page 30 "Item Card"
                     Enabled = IsInventoriable;
                     HideValue = IsNonInventoriable;
                     Importance = Promoted;
-                    ToolTip = 'Specifies how many units, such as pieces, boxes, or cans, of the item are in inventory.';
                     Visible = IsInventoryAdjmtAllowed;
 
                     trigger OnAssistEdit()
@@ -254,25 +252,31 @@ page 30 "Item Card"
                 field("Qty. on Purch. Order"; Rec."Qty. on Purch. Order")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how many units of the item are inbound on purchase orders, meaning listed on outstanding purchase order lines.';
                 }
                 field("Qty. on Sales Order"; Rec."Qty. on Sales Order")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how many units of the item are allocated to sales orders, meaning listed on outstanding sales orders lines.';
                 }
                 field("Qty. on Job Order"; Rec."Qty. on Job Order")
                 {
                     ApplicationArea = Jobs;
                     Importance = Additional;
-                    ToolTip = 'Specifies how many units of the item are allocated to projects, meaning listed on outstanding project planning lines.';
+                }
+                field("Qty. on Blanket Sales Order"; Rec."Qty. on Blanket Sales Order")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+                field("Qty. on Blanket Purch. Order"; Rec."Qty. on Blanket Purch. Order")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
                 }
                 field(StockoutWarningDefaultYes; Rec."Stockout Warning")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = IsInventoriable;
                     OptionCaption = 'Default (Yes),No,Yes';
-                    ToolTip = 'Specifies if a warning is displayed when you enter a quantity on a sales document that brings the item''s inventory below zero.';
                     Visible = ShowStockoutWarningDefaultYes;
                 }
                 field(StockoutWarningDefaultNo; Rec."Stockout Warning")
@@ -288,7 +292,6 @@ page 30 "Item Card"
                     Caption = 'Prevent Negative Inventory';
                     Importance = Additional;
                     OptionCaption = 'Default (Yes),No,Yes';
-                    ToolTip = 'Specifies whether you can post a transaction that will bring the item''s inventory below zero. Negative inventory is always prevented for Consumption and Transfer type transactions.';
                     Visible = ShowPreventNegInventoryDefaultYes;
                 }
                 field(PreventNegInventoryDefaultNo; Rec."Prevent Negative Inventory")
@@ -304,24 +307,20 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the net weight of the item.';
                 }
                 field("Gross Weight"; Rec."Gross Weight")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the gross weight of the item.';
                 }
                 field("Unit Volume"; Rec."Unit Volume")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the volume of one unit of the item.';
                 }
                 field("Over-Receipt Code"; Rec."Over-Receipt Code")
                 {
                     ApplicationArea = All;
                     Visible = OverReceiptAllowed;
-                    ToolTip = 'Specifies the policy that will be used for the item if more items than ordered are received.';
                 }
                 field("Trans. Ord. Receipt (Qty.)"; Rec."Trans. Ord. Receipt (Qty.)")
                 {
@@ -338,7 +337,6 @@ page 30 "Item Card"
                 field("Qty. in Transit"; Rec."Qty. in Transit")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the quantity of the items that are currently in transit.';
                     Visible = false;
                 }
             }
@@ -354,7 +352,6 @@ page 30 "Item Card"
                     field("Costing Method"; Rec."Costing Method")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies how the item''s cost flow is recorded and whether an actual or budgeted value is capitalized and used in the cost calculation.';
 
                         trigger OnValidate()
                         begin
@@ -365,7 +362,6 @@ page 30 "Item Card"
                     {
                         ApplicationArea = Basic, Suite;
                         Enabled = StandardCostEnable;
-                        ToolTip = 'Specifies the unit cost that is used as an estimation to be adjusted with variances later. It is typically used in assembly and production where costs can vary.';
 
                         trigger OnDrillDown()
                         var
@@ -380,7 +376,6 @@ page 30 "Item Card"
                         Editable = UnitCostEditable;
                         Enabled = UnitCostEnable;
                         Importance = Promoted;
-                        ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
 
                         trigger OnDrillDown()
                         var
@@ -400,41 +395,34 @@ page 30 "Item Card"
                         ApplicationArea = Basic, Suite;
                         Enabled = IsInventoriable;
                         Importance = Additional;
-                        ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     }
                     field("Last Direct Cost"; Rec."Last Direct Cost")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
-                        ToolTip = 'Specifies the most recent direct unit cost of the item.';
                     }
                     field("Net Invoiced Qty."; Rec."Net Invoiced Qty.")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies how many units of the item in inventory have been invoiced.';
                     }
                     field("Cost is Adjusted"; Rec."Cost is Adjusted")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies whether the item''s unit cost has been adjusted, either automatically or manually.';
                     }
                     field("Excluded from Cost Adjustment"; Rec."Excluded from Cost Adjustment")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies whether the item is excluded from the cost adjustment process.';
                         Visible = false;
                     }
                     field("Cost is Posted to G/L"; Rec."Cost is Posted to G/L")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
-                        ToolTip = 'Specifies that all the inventory costs for this item have been posted to the general ledger.';
                     }
                     field("Inventory Value Zero"; Rec."Inventory Value Zero")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
-                        ToolTip = 'Specifies whether the item on inventory must be excluded from inventory valuation. This is relevant if the item is kept on inventory on someone else''s behalf.';
                         Visible = false;
                     }
                     field(SpecialPurchPriceListTxt; GetPurchPriceListsText())
@@ -457,7 +445,6 @@ page 30 "Item Card"
                             UpdateSpecialPriceListsTxt(PriceType::Purchase);
                         end;
                     }
-#if not CLEAN25
                     field(SpecialPurchPricesAndDiscountsTxt; SpecialPurchPricesAndDiscountsTxt)
                     {
                         ApplicationArea = Suite;
@@ -465,9 +452,6 @@ page 30 "Item Card"
                         Editable = false;
                         Visible = not ExtendedPriceEnabled;
                         ToolTip = 'Specifies purchase prices and line discounts for the item.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                        ObsoleteTag = '17.0';
 
                         trigger OnDrillDown()
                         var
@@ -497,7 +481,6 @@ page 30 "Item Card"
                             UpdateSpecialPricesAndDiscountsTxt();
                         end;
                     }
-#endif
                 }
                 group("Posting Details")
                 {
@@ -507,7 +490,6 @@ page 30 "Item Card"
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
                         ShowMandatory = true;
-                        ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     }
                     field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                     {
@@ -520,7 +502,6 @@ page 30 "Item Card"
                     {
                         ApplicationArea = SalesTax;
                         Importance = Promoted;
-                        ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
                     }
                     field("Inventory Posting Group"; Rec."Inventory Posting Group")
                     {
@@ -528,7 +509,6 @@ page 30 "Item Card"
                         Editable = IsInventoriable;
                         Importance = Promoted;
                         ShowMandatory = IsInventoriable;
-                        ToolTip = 'Specifies links between business transactions made for the item and an inventory account in the general ledger, to group amounts for that item type.';
                     }
                     field("Default Deferral Template Code"; Rec."Default Deferral Template Code")
                     {
@@ -543,13 +523,11 @@ page 30 "Item Card"
                     field("Tariff No."; Rec."Tariff No.")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies a code for the item''s tariff number.';
                     }
                     field("Country/Region of Origin Code"; Rec."Country/Region of Origin Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
-                        ToolTip = 'Specifies a code for the country/region where the item was produced or processed.';
                     }
                 }
             }
@@ -561,14 +539,15 @@ page 30 "Item Card"
 
                 field("Unit Price"; Rec."Unit Price")
                 {
-                    ApplicationArea = Invoicing, Basic, Suite;
+                    ApplicationArea = Basic, Suite;
                     Editable = PriceEditable;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
                 field(CalcUnitPriceExclVAT; Rec.CalcUnitPriceExclVAT())
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 2;
+                    AutoFormatExpression = '';
                     CaptionClass = '2,0,' + Rec.FieldCaption("Unit Price");
                     Importance = Additional;
                     ToolTip = 'Specifies the unit price excluding VAT.';
@@ -577,7 +556,6 @@ page 30 "Item Card"
                 {
                     ApplicationArea = VAT;
                     Importance = Additional;
-                    ToolTip = 'Specifies if the Unit Price and Line Amount fields on sales document lines for this item should be shown with or without VAT.';
 
                     trigger OnValidate()
                     begin
@@ -589,7 +567,6 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the relationship between the Unit Cost, Unit Price, and Profit Percentage fields associated with this item.';
 
                     trigger OnValidate()
                     begin
@@ -601,7 +578,6 @@ page 30 "Item Card"
                     ApplicationArea = Basic, Suite;
                     DecimalPlaces = 2 : 2;
                     Editable = ProfitEditable;
-                    ToolTip = 'Specifies the profit margin that you want to sell the item at. You can enter a profit percentage manually or have it entered according to the Price/Profit Calculation field';
                 }
                 field(SpecialSalesPriceListTxt; GetSalesPriceListsText())
                 {
@@ -623,7 +599,6 @@ page 30 "Item Card"
                         UpdateSpecialPriceListsTxt(PriceType::Sale);
                     end;
                 }
-#if not CLEAN25
                 field(SpecialPricesAndDiscountsTxt; SpecialPricesAndDiscountsTxt)
                 {
                     ApplicationArea = Basic, Suite;
@@ -631,9 +606,6 @@ page 30 "Item Card"
                     Editable = false;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Specifies sales prices and line discounts for the item.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '16.0';
 
                     trigger OnDrillDown()
                     var
@@ -665,23 +637,19 @@ page 30 "Item Card"
                         UpdateSpecialPricesAndDiscountsTxt();
                     end;
                 }
-#endif
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies if the item should be included in the calculation of an invoice discount on documents where the item is traded.';
                 }
                 field("Item Disc. Group"; Rec."Item Disc. Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies an item group code that can be used as a criterion to grant a discount when the item is sold to a certain customer.';
                 }
                 field("Sales Unit of Measure"; Rec."Sales Unit of Measure")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the unit of measure code used when you sell the item.';
                 }
                 field("Sales Blocked"; Rec."Sales Blocked")
                 {
@@ -691,13 +659,11 @@ page 30 "Item Card"
                 field("Service Blocked"; Rec."Service Blocked")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies that the item cannot be entered on service items, service contracts and service documents, except credit memos.';
                 }
                 field("Application Wksh. User ID"; Rec."Application Wksh. User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the ID of a user who is working in the Application Worksheet window.';
                     Visible = false;
                 }
                 field("VAT Bus. Posting Gr. (Price)"; Rec."VAT Bus. Posting Gr. (Price)")
@@ -725,7 +691,6 @@ page 30 "Item Card"
                 field("Lead Time Calculation"; Rec."Lead Time Calculation")
                 {
                     ApplicationArea = Assembly, Planning;
-                    ToolTip = 'Specifies a date formula for the amount of time it takes to replenish the item.';
                 }
                 group(Purchase)
                 {
@@ -733,22 +698,18 @@ page 30 "Item Card"
                     field("Vendor No."; Rec."Vendor No.")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the vendor code of who supplies this item by default.';
                     }
                     field("Vendor Item No."; Rec."Vendor Item No.")
                     {
                         ApplicationArea = Planning;
-                        ToolTip = 'Specifies the number that the vendor uses for this item.';
                     }
                     field("Purch. Unit of Measure"; Rec."Purch. Unit of Measure")
                     {
                         ApplicationArea = Planning;
-                        ToolTip = 'Specifies the unit of measure code used when you purchase the item.';
                     }
                     field("Purchasing Blocked"; Rec."Purchasing Blocked")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies that the item cannot be entered on purchase documents, except return orders and credit memos, and journals.';
                     }
                 }
                 group(Replenishment_Assembly)
@@ -758,13 +719,11 @@ page 30 "Item Card"
                     field("Assembly Policy"; Rec."Assembly Policy")
                     {
                         ApplicationArea = Assembly;
-                        ToolTip = 'Specifies which default order flow is used to supply this assembly item.';
                     }
                     field(AssemblyBOM; Rec."Assembly BOM")
                     {
                         AccessByPermission = TableData "BOM Component" = R;
                         ApplicationArea = Assembly;
-                        ToolTip = 'Specifies if the item is an assembly BOM.';
 
                         trigger OnDrillDown()
                         var
@@ -797,18 +756,15 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Reservation;
                     Importance = Additional;
-                    ToolTip = 'Specifies if and how the item will be reserved. Never: It is not possible to reserve the item. Optional: You can reserve the item manually. Always: The item is automatically reserved from demand, such as sales orders, against inventory, purchase orders, assembly orders, and production orders.';
                 }
                 field("Order Tracking Policy"; Rec."Order Tracking Policy")
                 {
                     ApplicationArea = Planning;
                     Importance = Promoted;
-                    ToolTip = 'Specifies if and how order tracking entries are created and maintained between supply and its corresponding demand.';
                 }
                 field("Stockkeeping Unit Exists"; Rec."Stockkeeping Unit Exists")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies that a stockkeeping unit exists for this item.';
                 }
                 field("Dampener Period"; Rec."Dampener Period")
                 {
@@ -822,24 +778,20 @@ page 30 "Item Card"
                     ApplicationArea = Planning;
                     Enabled = DampenerQtyEnable;
                     Importance = Additional;
-                    ToolTip = 'Specifies a dampener quantity to block insignificant change suggestions for an existing supply, if the change quantity is lower than the dampener quantity.';
                 }
                 field(Critical; Rec.Critical)
                 {
                     ApplicationArea = OrderPromising;
-                    ToolTip = 'Specifies if the item is included in availability calculations to promise a shipment date for its parent item.';
                 }
                 field("Safety Lead Time"; Rec."Safety Lead Time")
                 {
                     ApplicationArea = Planning;
                     Enabled = SafetyLeadTimeEnable;
-                    ToolTip = 'Specifies a date formula to indicate a safety lead time that can be used as a buffer period for production and other delays.';
                 }
                 field("Safety Stock Quantity"; Rec."Safety Stock Quantity")
                 {
                     ApplicationArea = Planning;
                     Enabled = SafetyStockQtyEnable;
-                    ToolTip = 'Specifies a quantity of stock to have in inventory to protect against supply-and-demand fluctuations during replenishment lead time.';
                 }
                 group(LotForLotParameters)
                 {
@@ -848,7 +800,6 @@ page 30 "Item Card"
                     {
                         ApplicationArea = Planning;
                         Enabled = IncludeInventoryEnable;
-                        ToolTip = 'Specifies that the inventory quantity is included in the projected available balance when replenishment orders are calculated.';
 
                         trigger OnValidate()
                         begin
@@ -859,13 +810,11 @@ page 30 "Item Card"
                     {
                         ApplicationArea = Planning;
                         Enabled = LotAccumulationPeriodEnable;
-                        ToolTip = 'Specifies a period in which multiple demands are accumulated into one supply order when you use the Lot-for-Lot reordering policy.';
                     }
                     field("Rescheduling Period"; Rec."Rescheduling Period")
                     {
                         ApplicationArea = Planning;
                         Enabled = ReschedulingPeriodEnable;
-                        ToolTip = 'Specifies a period within which any suggestion to change a supply date always consists of a Reschedule action and never a Cancel + New action.';
                     }
                 }
                 group(ReorderPointParameters)
@@ -878,19 +827,16 @@ page 30 "Item Card"
                         {
                             ApplicationArea = Planning;
                             Enabled = ReorderPointEnable;
-                            ToolTip = 'Specifies a stock quantity that sets the inventory below the level that you must replenish the item.';
                         }
                         field("Reorder Quantity"; Rec."Reorder Quantity")
                         {
                             ApplicationArea = Planning;
                             Enabled = ReorderQtyEnable;
-                            ToolTip = 'Specifies a standard lot size quantity to be used for all order proposals.';
                         }
                         field("Maximum Inventory"; Rec."Maximum Inventory")
                         {
                             ApplicationArea = Planning;
                             Enabled = MaximumInventoryEnable;
-                            ToolTip = 'Specifies a quantity that you want to use as a maximum inventory level.';
                         }
                     }
                     field("Overflow Level"; Rec."Overflow Level")
@@ -898,14 +844,12 @@ page 30 "Item Card"
                         ApplicationArea = Planning;
                         Enabled = OverflowLevelEnable;
                         Importance = Additional;
-                        ToolTip = 'Specifies a quantity you allow projected inventory to exceed the reorder point, before the system suggests to decrease supply orders.';
                     }
                     field("Time Bucket"; Rec."Time Bucket")
                     {
                         ApplicationArea = Planning;
                         Enabled = TimeBucketEnable;
                         Importance = Additional;
-                        ToolTip = 'Specifies a time period that defines the recurring planning horizon used with Fixed Reorder Qty. or Maximum Qty. reordering policies.';
                     }
                 }
                 group(OrderModifiers)
@@ -918,19 +862,16 @@ page 30 "Item Card"
                         {
                             ApplicationArea = Planning;
                             Enabled = MinimumOrderQtyEnable;
-                            ToolTip = 'Specifies a minimum allowable quantity for an item order proposal.';
                         }
                         field("Maximum Order Quantity"; Rec."Maximum Order Quantity")
                         {
                             ApplicationArea = Planning;
                             Enabled = MaximumOrderQtyEnable;
-                            ToolTip = 'Specifies a maximum allowable quantity for an item order proposal.';
                         }
                         field("Order Multiple"; Rec."Order Multiple")
                         {
                             ApplicationArea = Planning;
                             Enabled = OrderMultipleEnable;
-                            ToolTip = 'Specifies a parameter used by the planning system to round the quantity of planned supply orders to a multiple of this value.';
                         }
                     }
                 }
@@ -943,7 +884,6 @@ page 30 "Item Card"
                 {
                     ApplicationArea = ItemTracking;
                     Importance = Promoted;
-                    ToolTip = 'Specifies how serial, lot or package numbers assigned to the item are tracked in the supply chain.';
 
                     trigger OnValidate()
                     begin
@@ -953,18 +893,15 @@ page 30 "Item Card"
                 field("Serial Nos."; Rec."Serial Nos.")
                 {
                     ApplicationArea = ItemTracking;
-                    ToolTip = 'Specifies a number series code to assign consecutive serial numbers to items produced.';
                 }
                 field("Lot Nos."; Rec."Lot Nos.")
                 {
                     ApplicationArea = ItemTracking;
-                    ToolTip = 'Specifies the number series code that will be used when assigning lot numbers.';
                 }
                 field("Expiration Calculation"; Rec."Expiration Calculation")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = ExpirationCalculationEditable;
-                    ToolTip = 'Specifies the date formula for calculating the expiration date on the item tracking line. Note: This field will be ignored if the involved item has Require Expiration Date Entry set to Yes on the Item Tracking Code page.';
 
                     trigger OnValidate()
                     begin
@@ -979,62 +916,51 @@ page 30 "Item Card"
                 field("Warehouse Class Code"; Rec."Warehouse Class Code")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the warehouse class code for the item.';
                 }
                 field("Special Equipment Code"; Rec."Special Equipment Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
-                    ToolTip = 'Specifies the code of the equipment that warehouse employees must use when handling the item.';
                 }
                 field("Put-away Template Code"; Rec."Put-away Template Code")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the code of the put-away template by which the program determines the most appropriate zone and bin for storage of the item after receipt.';
                 }
                 field("Put-away Unit of Measure Code"; Rec."Put-away Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the code of the item unit of measure in which the program will put the item away.';
                 }
                 field("Phys Invt Counting Period Code"; Rec."Phys Invt Counting Period Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the code of the counting period that indicates how often you want to count the item in a physical inventory.';
                 }
                 field("Last Phys. Invt. Date"; Rec."Last Phys. Invt. Date")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the date on which you last posted the results of a physical inventory for the item to the item ledger.';
                 }
                 field("Last Counting Period Update"; Rec."Last Counting Period Update")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the last date on which you calculated the counting period. It is updated when you use the function Calculate Counting Period.';
                 }
                 field("Next Counting Start Date"; Rec."Next Counting Start Date")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the starting date of the next counting period.';
                 }
                 field("Next Counting End Date"; Rec."Next Counting End Date")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the ending date of the next counting period.';
                 }
                 field("Identifier Code"; Rec."Identifier Code")
                 {
                     ApplicationArea = Advanced;
                     Importance = Additional;
-                    ToolTip = 'Specifies a unique code for the item in terms that are useful for automatic data capture.';
                 }
                 field("Use Cross-Docking"; Rec."Use Cross-Docking")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
-                    ToolTip = 'Specifies if this item can be cross-docked.';
                 }
             }
         }
@@ -1046,19 +972,6 @@ page 30 "Item Card"
                 Caption = 'Picture';
                 SubPageLink = "No." = field("No.");
             }
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::Item),
-                              "No." = field("No.");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -1103,7 +1016,6 @@ page 30 "Item Card"
             group(PricesandDiscounts)
             {
                 Caption = 'Sales Prices & Discounts';
-#if not CLEAN25
                 action("Set Special Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1111,9 +1023,6 @@ page 30 "Item Card"
                     Image = Price;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Set up sales prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -1130,9 +1039,6 @@ page 30 "Item Card"
                     Image = LineDiscount;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Set up sales discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -1151,9 +1057,6 @@ page 30 "Item Card"
                     Image = PriceWorksheet;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View the sales prices and line discounts that you grant for this item when certain criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -1164,7 +1067,6 @@ page 30 "Item Card"
                         SalesPriceAndLineDiscounts.RunModal();
                     end;
                 }
-#endif
                 action(SalesPriceLists)
                 {
                     AccessByPermission = TableData "Sales Price Access" = R;
@@ -1205,7 +1107,6 @@ page 30 "Item Card"
             group(PurchPricesandDiscounts)
             {
                 Caption = 'Purchase Prices & Discounts';
-#if not CLEAN25
                 action(Action86)
                 {
                     ApplicationArea = Suite;
@@ -1216,9 +1117,6 @@ page 30 "Item Card"
                     RunPageLink = "Item No." = field("No.");
                     RunPageView = sorting("Item No.");
                     ToolTip = 'Set up purchase prices for the item. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
                 action(Action85)
                 {
@@ -1229,9 +1127,6 @@ page 30 "Item Card"
                     RunObject = Page "Purchase Line Discounts";
                     RunPageLink = "Item No." = field("No.");
                     ToolTip = 'Set up purchase discounts for the item. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
                 action(PurchPricesDiscountsOverview)
                 {
@@ -1240,9 +1135,6 @@ page 30 "Item Card"
                     Image = PriceWorksheet;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View the purchase prices and line discounts that you grant for this item when certain criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -1252,7 +1144,6 @@ page 30 "Item Card"
                         PurchasesPriceAndLineDisc.RunModal();
                     end;
                 }
-#endif
                 action(PurchPriceLists)
                 {
                     AccessByPermission = TableData "Purchase Price Access" = R;
@@ -1553,6 +1444,20 @@ page 30 "Item Card"
                         Commit();
                         AdjustInventory.SetItem(Rec."No.");
                         AdjustInventory.RunModal();
+                    end;
+                }
+                action("Update Variant Attributes")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Update Variant Attributes';
+                    Image = Refresh;
+                    ToolTip = 'Keep your item variants up to date with the item. It adds any missing details, updates changes, and removes info that''s no longer needed. Variant-specific details stay as they are';
+
+                    trigger OnAction()
+                    var
+                        ItemAttributeManagement: Codeunit "Item Attribute Management";
+                    begin
+                        ItemAttributeManagement.UpdateItemVariantAttributeFromItem(Rec."No.");
                     end;
                 }
             }
@@ -1961,6 +1866,65 @@ page 30 "Item Card"
                     end;
                 }
             }
+            group(StatisticsGroup)
+            {
+                Caption = 'Statistics';
+                Image = Statistics;
+                action(ItemStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Item Statistics';
+                    Image = Statistics;
+                    RunObject = Page "Item Statistics 2";
+                    RunPageLink = "Item No." = field("No.");
+                    ToolTip = 'View item statistics. Summarised sales, inventory value, turnover and aging based on the selected filters, with drill-down to related ledger and value entries.';
+                }
+                action(Statistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Advanced Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+
+                    trigger OnAction()
+                    var
+                        ItemStatistics: Page "Item Statistics";
+                    begin
+                        ItemStatistics.SetItem(Rec);
+                        ItemStatistics.RunModal();
+                    end;
+                }
+                action("Entry Statistics")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Entry Statistics';
+                    Image = EntryStatistics;
+                    RunObject = Page "Item Entry Statistics";
+                    RunPageLink = "No." = field("No."),
+                                      "Date Filter" = field("Date Filter"),
+                                      "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                      "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
+                                      "Location Filter" = field("Location Filter"),
+                                      "Drop Shipment Filter" = field("Drop Shipment Filter"),
+                                      "Variant Filter" = field("Variant Filter");
+                    ToolTip = 'View statistics for item ledger entries.';
+                }
+                action("T&urnover")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'T&urnover';
+                    Image = Turnover;
+                    RunObject = Page "Item Turnover";
+                    RunPageLink = "No." = field("No."),
+                                      "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                                      "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
+                                      "Location Filter" = field("Location Filter"),
+                                      "Drop Shipment Filter" = field("Drop Shipment Filter"),
+                                      "Variant Filter" = field("Variant Filter");
+                    ToolTip = 'View a detailed account of item turnover by periods after you have set the relevant filters for location and variant.';
+                }
+            }
             group(Availability)
             {
                 Caption = 'Availability';
@@ -2075,56 +2039,6 @@ page 30 "Item Card"
                                       "Drop Shipment Filter" = field("Drop Shipment Filter"),
                                       "Variant Filter" = field("Variant Filter");
                         ToolTip = 'View the item''s availability by a unit of measure.';
-                    }
-                }
-                group(StatisticsGroup)
-                {
-                    Caption = 'Statistics';
-                    Image = Statistics;
-                    action(Statistics)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Statistics';
-                        Image = Statistics;
-                        ShortCutKey = 'F7';
-                        ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
-
-                        trigger OnAction()
-                        var
-                            ItemStatistics: Page "Item Statistics";
-                        begin
-                            ItemStatistics.SetItem(Rec);
-                            ItemStatistics.RunModal();
-                        end;
-                    }
-                    action("Entry Statistics")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Entry Statistics';
-                        Image = EntryStatistics;
-                        RunObject = Page "Item Entry Statistics";
-                        RunPageLink = "No." = field("No."),
-                                      "Date Filter" = field("Date Filter"),
-                                      "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
-                                      "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
-                                      "Location Filter" = field("Location Filter"),
-                                      "Drop Shipment Filter" = field("Drop Shipment Filter"),
-                                      "Variant Filter" = field("Variant Filter");
-                        ToolTip = 'View statistics for item ledger entries.';
-                    }
-                    action("T&urnover")
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'T&urnover';
-                        Image = Turnover;
-                        RunObject = Page "Item Turnover";
-                        RunPageLink = "No." = field("No."),
-                                      "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
-                                      "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
-                                      "Location Filter" = field("Location Filter"),
-                                      "Drop Shipment Filter" = field("Drop Shipment Filter"),
-                                      "Variant Filter" = field("Variant Filter");
-                        ToolTip = 'View a detailed account of item turnover by periods after you have set the relevant filters for location and variant.';
                     }
                 }
             }
@@ -2444,66 +2358,36 @@ page 30 "Item Card"
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 5.';
 
-#if not CLEAN25
                 actionref("Set Special Prices_Promoted"; "Set Special Prices")
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
                 actionref(SalesPriceLists_Promoted; SalesPriceLists)
                 {
                 }
                 actionref(PurchPriceLists_Promoted; PurchPriceLists)
                 {
                 }
-#if not CLEAN25
                 actionref(PricesDiscountsOverview_Promoted; PricesDiscountsOverview)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
-#if not CLEAN25
                 actionref("Set Special Discounts_Promoted"; "Set Special Discounts")
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
-#if not CLEAN25
                 actionref(PurchPricesDiscountsOverview_Promoted; PurchPricesDiscountsOverview)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
                 actionref(SalesPriceListsDiscounts_Promoted; SalesPriceListsDiscounts)
                 {
                 }
                 actionref(PurchPriceListsDiscounts_Promoted; PurchPriceListsDiscounts)
                 {
                 }
-#if not CLEAN25
                 actionref(Action86_Promoted; Action86)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
-#if not CLEAN25
                 actionref(Action85_Promoted; Action85)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
             }
             group(Category_Report)
             {
@@ -2662,12 +2546,10 @@ page 30 "Item Card"
         MarketingTextPlaceholderTxt: Label '[Create draft]() based on this item''s attributes.', Comment = 'Text contained in [here]() will be clickable to invoke the generate action';
         ViewExistingTxt: Label 'View Existing Prices and Discounts...';
         ShowVariantMandatoryDefaultYes: Boolean;
-#if not CLEAN25
         SpecialPricesAndDiscountsTxt: Text;
         CreateNewSpecialPriceTxt: Label 'Create New Special Price...';
         CreateNewSpecialDiscountTxt: Label 'Create New Special Discount...';
         SpecialPurchPricesAndDiscountsTxt: Text;
-#endif
 
     protected var
         ItemReplenishmentSystem: Enum "Item Replenishment System";
@@ -2727,10 +2609,8 @@ page 30 "Item Card"
         EnablePlanningControls();
         EnableCostingControls();
 
-#if not CLEAN25
         if not ExtendedPriceEnabled then
             UpdateSpecialPricesAndDiscountsTxt();
-#endif
         SetExpirationCalculationEditable();
     end;
 
@@ -2851,8 +2731,6 @@ page 30 "Item Card"
         OnAfterInitControls();
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure UpdateSpecialPricesAndDiscountsTxt()
     var
         TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary;
@@ -2866,7 +2744,6 @@ page 30 "Item Card"
         if TempPurchPriceLineDiscBuff.ItemHasLines(Rec) then
             SpecialPurchPricesAndDiscountsTxt := ViewExistingTxt;
     end;
-#endif
 
     local procedure UpdateSpecialPriceListsTxt(PriceType: Enum "Price Type")
     begin

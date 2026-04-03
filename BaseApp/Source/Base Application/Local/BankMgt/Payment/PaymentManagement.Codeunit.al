@@ -1,3 +1,4 @@
+#if not CLEAN28
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -16,15 +17,18 @@ using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
-using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Payables;
-using Microsoft.Sales.Receivables;
+using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.Receivables;
 
 codeunit 10860 "Payment Management"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+    ObsoleteTag = '28.0';
 
     trigger OnRun()
     begin
@@ -485,8 +489,8 @@ codeunit 10860 "Payment Management"
         NoSeriesPaymentClass.SetLoadFields("Line No. Series");
         NoSeriesPaymentClass.Get(PaymentHeader."Payment Class");
         if NoSeriesPaymentClass."Line No. Series" <> '' then
-           if PaymentLine."Document No." = NoSeries.PeekNextNo(NoSeriesPaymentClass."Line No. Series", PaymentLine."Posting Date") then
-              NoSeries.GetNextNo(NoSeriesPaymentClass."Line No. Series", PaymentLine."Posting Date");
+            if PaymentLine."Document No." = NoSeries.PeekNextNo(NoSeriesPaymentClass."Line No. Series", PaymentLine."Posting Date") then
+                NoSeries.GetNextNo(NoSeriesPaymentClass."Line No. Series", PaymentLine."Posting Date");
     end;
 
     [Scope('OnPrem')]
@@ -1191,3 +1195,4 @@ codeunit 10860 "Payment Management"
     begin
     end;
 }
+#endif

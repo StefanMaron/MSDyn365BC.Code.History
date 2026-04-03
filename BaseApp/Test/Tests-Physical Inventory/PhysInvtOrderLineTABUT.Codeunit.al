@@ -334,7 +334,7 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, CreatePhysInventoryOrderHeader());
 
         // [GIVEN] Different item references exist
-        CreateDifferentItemReferencesWithSameReferenceNo(ItemReference);
+        CreateDifferentItemReferencesWithSameReferenceNoAndUOM(ItemReference);
 
         // [WHEN] Lookup references
         PhysInventoryOrderSubf.OpenEdit();
@@ -551,6 +551,39 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
 
         LibraryInventory.CreateItem(Item);
         LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryItemReference.CreateItemReferenceWithNo(AdditionalItemReference, FirstItemReference."Reference No.", Item."No.", FirstItemReference."Reference Type"::"Bar Code", '');
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryItemReference.CreateItemReferenceWithNo(AdditionalItemReference, FirstItemReference."Reference No.", Item."No.", FirstItemReference."Reference Type"::Customer, LibrarySales.CreateCustomerNo());
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryItemReference.CreateItemReferenceWithNo(AdditionalItemReference, FirstItemReference."Reference No.", Item."No.", FirstItemReference."Reference Type"::Vendor, LibraryPurchase.CreateVendorNo());
+    end;
+
+    local procedure CreateDifferentItemReferencesWithSameReferenceNoandUOM(var FirstItemReference: Record "Item Reference")
+    var
+        Item: Record Item;
+        AdditionalItemReference: Record "Item Reference";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemVariant: Record "Item Variant";
+    begin
+        FirstItemReference.DeleteAll();
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        // Create specific UoM to be used in all references
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 10);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        // First reference
+        LibraryItemReference.CreateItemReference(FirstItemReference, Item."No.", "Item Reference Type"::" ", '');
+        // Rename to have same UoM and new item variant 
+        FirstItemReference.Rename(FirstItemReference."Item No.", ItemVariant.Code, FirstItemReference."Unit of Measure", FirstItemReference."Reference Type", FirstItemReference."Reference Type No.", FirstItemReference."Reference No.");
+        FirstItemReference.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(FirstItemReference.Description)));
+        FirstItemReference.Validate("Description 2", LibraryUtility.GenerateRandomText(MaxStrLen(FirstItemReference."Description 2")));
+        FirstItemReference.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        // Additional references 
         LibraryItemReference.CreateItemReferenceWithNo(AdditionalItemReference, FirstItemReference."Reference No.", Item."No.", FirstItemReference."Reference Type"::"Bar Code", '');
         LibraryInventory.CreateItem(Item);
         LibraryVariableStorage.Enqueue(Item."No.");

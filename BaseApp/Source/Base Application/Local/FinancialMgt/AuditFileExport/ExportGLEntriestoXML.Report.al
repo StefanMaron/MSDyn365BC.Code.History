@@ -5,9 +5,9 @@
 namespace Microsoft.Finance.AuditFileExport;
 
 using Microsoft.Finance.GeneralLedger.Ledger;
+using System.IO;
 using System.Telemetry;
 using System.Utilities;
-using System.IO;
 
 report 10820 "Export G/L Entries to XML"
 {

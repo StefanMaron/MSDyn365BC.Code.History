@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,6 +17,20 @@ using System.Integration.Excel;
 using System.Telemetry;
 using System.Utilities;
 
+/// <summary>
+/// Main interface for processing payment reconciliation and automatic payment application.
+/// This page provides comprehensive tools for importing bank statement data, applying automatic
+/// matching algorithms, manually reviewing and adjusting payment applications, and posting
+/// finalized payment reconciliations. Serves as the primary workspace for payment processing
+/// with integrated matching confidence indicators, application details, and difference management.
+/// </summary>
+/// <remarks>
+/// Key features include automatic payment application with confidence scoring, manual application
+/// override capabilities, text-to-account mapping integration, difference posting options, and
+/// comprehensive validation before posting. Supports multi-line selection for batch operations,
+/// Excel integration for data export, and detailed drill-down to application specifics.
+/// Integration with bank statement import, payment application rules, and posting workflows.
+/// </remarks>
 page 1290 "Payment Reconciliation Journal"
 {
     AutoSplitKey = true;
@@ -41,7 +55,6 @@ page 1290 "Payment Reconciliation Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the quality of the automatic payment application on the journal line.';
                     StyleExpr = ReviewStatusStyleTxt;
 
                     trigger OnDrillDown()
@@ -66,20 +79,17 @@ page 1290 "Payment Reconciliation Journal"
                 field("Transaction Text"; Rec."Transaction Text")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the text that the customer or vendor entered on that payment transaction that is represented by the journal line.';
                     Width = 40;
                 }
                 field("Transaction ID"; Rec."Transaction ID")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the ID of the imported bank transaction.';
                     Visible = false;
                 }
                 field("Statement Amount"; Rec."Statement Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Transaction Amount';
-                    ToolTip = 'Specifies the amount that was paid into the bank account and then imported as a bank statement line represented by the journal line.';
 
                     trigger OnValidate()
                     begin
@@ -101,11 +111,12 @@ page 1290 "Payment Reconciliation Journal"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Style = Unfavorable;
-                    ToolTip = 'Specifies the difference between the amount in the Statement Amount field and the amount in the Applied Amount field.';
                 }
                 field(StatementToRemAmtDifference; StatementToRemAmtDifference)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = AppliedPmtEntry."Currency Code";
                     BlankZero = true;
                     Caption = 'Difference from Remaining Amount';
                     Enabled = false;
@@ -221,6 +232,8 @@ page 1290 "Payment Reconciliation Journal"
                 field(RemainingAmount; RemainingAmountAfterPosting)
                 {
                     ApplicationArea = Basic, Suite;
+                    AutoFormatType = 1;
+                    AutoFormatExpression = AppliedPmtEntry."Currency Code";
                     BlankZero = true;
                     Caption = 'Remaining Amount After Posting';
                     Editable = false;
@@ -231,7 +244,6 @@ page 1290 "Payment Reconciliation Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies additional information on the bank statement line for the payment.';
                     Visible = false;
                     Width = 40;
                 }
@@ -239,7 +251,6 @@ page 1290 "Payment Reconciliation Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the address of the customer or vendor who made the payment that is represented by the journal line.';
                     Visible = false;
                     Width = 30;
                 }
@@ -247,7 +258,6 @@ page 1290 "Payment Reconciliation Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the bank account number of the customer or vendor who made the payment.';
                     Visible = false;
                     Width = 20;
                 }
@@ -255,7 +265,6 @@ page 1290 "Payment Reconciliation Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the city name of the customer or vendor.';
                     Visible = false;
                     Width = 10;
                 }
@@ -263,20 +272,17 @@ page 1290 "Payment Reconciliation Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the name of the customer or vendor who made the payment that is represented by the journal line.';
                     Visible = false;
                     Width = 30;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up on the General Ledger Setup page.';
                     Visible = DimVisible1;
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up om the General Ledger Setup page.';
                     Visible = DimVisible2;
                 }
                 field(ShortcutDimCode3; ShortcutDimCode[3])
@@ -401,24 +407,6 @@ page 1290 "Payment Reconciliation Journal"
                         {
                             ShowCaption = false;
 
-#if not CLEAN25
-                            group("Number of Lines")
-                            {
-                                Visible = false;
-                                ShowCaption = false;
-                                ObsoleteState = Pending;
-                                ObsoleteReason = 'Rearranging the footer fields.';
-                                ObsoleteTag = '25.0';
-                            }
-                            group(LinesWithDifferenceGroup)
-                            {
-                                Visible = false;
-                                ShowCaption = false;
-                                ObsoleteState = Pending;
-                                ObsoleteReason = 'Rearranging the footer fields.';
-                                ObsoleteTag = '25.0';
-                            }
-#endif
                             field(TotalLines; TotalLinesCount)
                             {
                                 Caption = 'Number of Lines';
@@ -469,24 +457,6 @@ page 1290 "Payment Reconciliation Journal"
                             ShowCaption = false;
                             Editable = false;
 
-#if not CLEAN25
-                            group("Transaction Total")
-                            {
-                                Visible = false;
-                                ShowCaption = false;
-                                ObsoleteState = Pending;
-                                ObsoleteReason = 'Rearranging the footer fields.';
-                                ObsoleteTag = '25.0';
-                            }
-                            group(CreditDebit)
-                            {
-                                Visible = false;
-                                ShowCaption = false;
-                                ObsoleteState = Pending;
-                                ObsoleteReason = 'Rearranging the footer fields.';
-                                ObsoleteTag = '25.0';
-                            }
-#endif
                             field(TotalTransactionAmountFixedLayout; BankAccReconciliation."Total Transaction Amount")
                             {
                                 ApplicationArea = Basic, Suite;
@@ -519,32 +489,6 @@ page 1290 "Payment Reconciliation Journal"
                         group(Balances1)
                         {
                             ShowCaption = false;
-#if not CLEAN25
-                            group(BalanceOnBankAccountGroup)
-                            {
-                                Visible = false;
-                                ShowCaption = false;
-                                ObsoleteState = Pending;
-                                ObsoleteReason = 'Rearranging the footer fields.';
-                                ObsoleteTag = '25.0';
-                            }
-                            group(BalanceOnBankAccountAfterPostingGroup)
-                            {
-                                Visible = false;
-                                ShowCaption = false;
-                                ObsoleteState = Pending;
-                                ObsoleteReason = 'Rearranging the footer fields.';
-                                ObsoleteTag = '25.0';
-                            }
-                            group(StatementEndingBalanceGroup)
-                            {
-                                Visible = false;
-                                ShowCaption = false;
-                                ObsoleteState = Pending;
-                                ObsoleteReason = 'Rearranging the footer fields.';
-                                ObsoleteTag = '25.0';
-                            }
-#endif
                             field(BalanceOnBankAccountFixedLayout; BankAccReconciliation."Total Balance on Bank Account")
                             {
                                 ApplicationArea = Basic, Suite;
@@ -562,6 +506,7 @@ page 1290 "Payment Reconciliation Journal"
                                 Caption = 'Balance After Posting';
                                 ApplicationArea = Basic, Suite;
                                 AutoFormatType = 1;
+                                AutoFormatExpression = AppliedPmtEntry."Currency Code";
                                 ToolTip = 'Specifies the total amount that will exist on the bank account as a result of payment applications that you post on the Payment Reconciliation Journal page.';
                             }
                             field(StatementEndingBalanceFixedLayout; StatementEndingBalance)
@@ -1456,18 +1401,36 @@ page 1290 "Payment Reconciliation Journal"
         Clear(DimMgt);
     end;
 
+    /// <summary>
+    /// Integration event raised when the Apply Automatically action is triggered in the payment reconciliation journal.
+    /// Enables customization of the automatic application process with custom matching logic or pre-processing steps.
+    /// </summary>
+    /// <param name="BankAccReconciliation">Bank reconciliation header containing statement and processing details.</param>
+    /// <param name="SubscriberInvoked">Set to true by subscribers to indicate custom processing was performed.</param>
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnAtActionApplyAutomatically(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var SubscriberInvoked: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised when line sorting is updated in the payment reconciliation journal.
+    /// Enables custom sorting logic implementation or additional processing when sort order changes.
+    /// </summary>
+    /// <param name="BankAccReconciliation">Bank reconciliation header containing statement context.</param>
+    /// <param name="SubscriberInvoked">Set to true by subscribers to indicate custom sorting was applied.</param>
     [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnUpdateSorting(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var SubscriberInvoked: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after importing bank transactions into the payment reconciliation journal.
+    /// Enables custom post-processing of imported transaction data or additional validation steps.
+    /// </summary>
+    /// <param name="SubscriberInvoked">Set to true by subscribers to indicate custom post-processing was performed.</param>
+    /// <param name="BankAccReconciliationLine">Bank reconciliation lines that were created during import.</param>
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnAfterImportBankTransactions(var SubscriberInvoked: Boolean; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
@@ -1489,4 +1452,3 @@ page 1290 "Payment Reconciliation Journal"
     begin
     end;
 }
-

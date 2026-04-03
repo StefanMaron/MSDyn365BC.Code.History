@@ -4,6 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Consolidation;
 
+/// <summary>
+/// Currency exchange rate factor selection page for consolidation currency conversion processing.
+/// Enables users to specify exchange rate multipliers for consolidation currency calculations.
+/// </summary>
+/// <remarks>
+/// Card page for selecting and configuring currency exchange rate factors during consolidation setup.
+/// Supports manual exchange rate factor entry for custom currency conversion scenarios.
+/// Integrates with consolidation currency management for precise multi-currency consolidation processing.
+/// </remarks>
 page 153 "Currency Factor Selector"
 {
     PageType = Card;
@@ -14,6 +23,7 @@ page 153 "Currency Factor Selector"
             field(ExchangeRateAmount; ExchangeRateAmount)
             {
                 ApplicationArea = All;
+                AutoFormatType = 0;
                 CaptionClass = ExchangeRateAmountCaption;
                 DecimalPlaces = 0 : 15;
                 ToolTip = 'Specifies the exchange rate amount in the consolidation currency.';
@@ -26,6 +36,7 @@ page 153 "Currency Factor Selector"
             field(RelationalExchangeRateAmount; RelationalExchangeRateAmount)
             {
                 ApplicationArea = All;
+                AutoFormatType = 0;
                 CaptionClass = RelationalExchangeRateAmountCaption;
                 DecimalPlaces = 0 : 15;
                 ToolTip = 'Specifies the exchange rate amount in the currency of the business unit.';

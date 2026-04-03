@@ -1,3 +1,4 @@
+#if not CLEAN28
 codeunit 144056 "ERM FA Professional Tax"
 {
     // 1. Verify Fixed Asset Professional Tax Report with No Tax option.
@@ -14,6 +15,9 @@ codeunit 144056 "ERM FA Professional Tax"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to FA Reports FR app';
+    ObsoleteState = Pending;
+    ObsoleteTag = '28.0';
 
     trigger OnRun()
     begin
@@ -213,4 +217,5 @@ codeunit 144056 "ERM FA Professional Tax"
         FixedAssetProfessionalTax.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
+#endif
 

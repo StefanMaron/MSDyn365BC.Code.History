@@ -25,5 +25,8 @@
       "from": 1,
       "to": 9999
     }
+  ],
+  "features": [
+    "TranslationFile"
   ]
 }

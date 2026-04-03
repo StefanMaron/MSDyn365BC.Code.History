@@ -1,8 +1,13 @@
+#if not CLEAN28
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reports;
+
+/// <summary>
+/// Generates an aged accounts receivable report showing customer balances grouped by aging periods. This report is obsolete.
+/// </summary>
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -16,10 +21,13 @@ report 120 "Aged Accounts Receivable"
     DefaultLayout = RDLC;
     RDLCLayout = './Sales/Reports/AgedAccountsReceivable.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Aged Accounts Receivable';
+    Caption = 'Aged Accounts Receivable (Obsolete)';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report has been replaced by the report Aged Accounts Receivable (Excel). This report will be removed in a future release.';
+    ObsoleteTag = '28.0';
 
     dataset
     {
@@ -654,8 +662,8 @@ report 120 "Aged Accounts Receivable"
     requestpage
     {
         SaveValues = true;
-        AboutTitle = 'About Aged Accounts Receivables';
-        AboutText = 'Analyze customer balances at the end of each period by calculating outstanding invoice, credit memo, and payment totals in three periods of equal length. Measure the reliability of collectable debts for your customers.';
+        AboutTitle = 'About Aged Accounts Receivable (Obsolete)';
+        AboutText = 'Analyze customer balances at the end of each period by calculating outstanding invoice, credit memo, and payment totals in three periods of equal length. Measure the reliability of collectable debts for your customers.** This report is obsolete and will be removed in a future release.** Please refer to the report documentation for alternative ways to retrieve this information.';
 
         layout
         {
@@ -957,6 +965,16 @@ report 120 "Aged Accounts Receivable"
         end;
     end;
 
+    /// <summary>
+    /// Initializes the report request options for the Aged Accounts Receivable report.
+    /// </summary>
+    /// <param name="NewEndingDate">The ending date for aging calculation.</param>
+    /// <param name="NewAgingBy">The aging method (due date, posting date, or document date).</param>
+    /// <param name="NewPeriodLength">The period length formula for aging buckets.</param>
+    /// <param name="NewPrintAmountInLCY">True to print amounts in local currency.</param>
+    /// <param name="NewPrintDetails">True to print detailed entries.</param>
+    /// <param name="NewHeadingType">The heading type for the report.</param>
+    /// <param name="NewPagePercust">True to start a new page per customer.</param>
     procedure InitializeRequest(NewEndingDate: Date; NewAgingBy: Option; NewPeriodLength: DateFormula; NewPrintAmountInLCY: Boolean; NewPrintDetails: Boolean; NewHeadingType: Option; NewPagePercust: Boolean)
     begin
         EndingDate := NewEndingDate;
@@ -1001,3 +1019,4 @@ report 120 "Aged Accounts Receivable"
     end;
 }
 
+#endif

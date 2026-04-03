@@ -7,7 +7,6 @@
         <DataProvider>SQL</DataProvider>
         <ConnectString />
       </ConnectionProperties>
-      <rd:SecurityType>None</rd:SecurityType>
       <rd:DataSourceID>2a4733d5-e33c-4a22-b712-6ff4cb4c049e</rd:DataSourceID>
     </DataSource>
   </DataSources>
@@ -19,12 +18,12 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>7.12411in</Width>
+                  <Width>18.09524cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>0.16654in</Height>
+                  <Height>0.423cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -57,7 +56,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.33307in</Height>
+                  <Height>0.846cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -116,7 +115,7 @@
                 </FilterValues>
               </Filter>
             </Filters>
-            <Height>1.26901cm</Height>
+            <Height>1.269cm</Height>
             <Width>18.09524cm</Width>
             <Visibility>
               <Hidden>=IIF(Fields!FinChrgMemoHeaderFilter.Value = "",True,False)</Hidden>
@@ -128,12 +127,12 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>7.15473in</Width>
+                  <Width>18.17302cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>8.63334in</Height>
+                  <Height>21.92869cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -151,6 +150,7 @@
                                       </Style>
                                     </TextRun>
                                   </TextRuns>
+                                  <Style />
                                 </Paragraph>
                               </Paragraphs>
                               <Top>0.18518cm</Top>
@@ -169,15 +169,15 @@ Fields!PageCaption.Value)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>1.24984in</Width>
+                                    <Width>3.1746cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>5.87426in</Width>
+                                    <Width>14.92063cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -274,8 +274,8 @@ Fields!PageCaption.Value)</Hidden>
                                 </Filter>
                               </Filters>
                               <Top>6.00529cm</Top>
-                              <Height>0.42301cm</Height>
-                              <Width>18.09521cm</Width>
+                              <Height>0.423cm</Height>
+                              <Width>18.09523cm</Width>
                               <ZIndex>1</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF(Fields!DimensionLoop_Number.Value &gt; 0,False,True)</Hidden>
@@ -287,12 +287,12 @@ Fields!PageCaption.Value)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>4.12448in</Width>
+                                    <Width>10.47619cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -326,7 +326,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -386,8 +386,8 @@ Fields!PageCaption.Value)</Hidden>
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Height>0.84602cm</Height>
-                              <Width>10.47618cm</Width>
+                              <Height>0.846cm</Height>
+                              <Width>10.47619cm</Width>
                               <ZIndex>2</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF(Fields!STRSUBSTNO___1__2___Finance_Charge_Memo_Header___No___Cust_Name_.Value = "",True,False)</Hidden>
@@ -1100,15 +1100,15 @@ Fields!PageCaption.Value)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>0.90551in</Width>
+                                    <Width>2.3cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>6.24922in</Width>
+                                    <Width>15.87302cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1170,7 +1170,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.33307in</Height>
+                                    <Height>0.846cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1241,8 +1241,8 @@ Fields!PageCaption.Value)</Hidden>
                                 </Filter>
                               </Filters>
                               <Top>6.48148cm</Top>
-                              <Height>1.26901cm</Height>
-                              <Width>18.17301cm</Width>
+                              <Height>1.269cm</Height>
+                              <Width>18.17302cm</Width>
                               <ZIndex>29</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF(Fields!ErrorText_Number_Caption.Value = "",True,False)</Hidden>
@@ -1254,12 +1254,12 @@ Fields!PageCaption.Value)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>7.12411in</Width>
+                                    <Width>18.09524cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.16665in</Height>
+                                    <Height>0.42328cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1322,7 +1322,7 @@ Fields!PageCaption.Value)</Hidden>
                                 </Filter>
                               </Filters>
                               <Top>7.77777cm</Top>
-                              <Height>0.42329cm</Height>
+                              <Height>0.42328cm</Height>
                               <Width>18.09524cm</Width>
                               <ZIndex>30</ZIndex>
                               <Visibility>
@@ -1335,36 +1335,33 @@ Fields!PageCaption.Value)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>0.82677in</Width>
+                                    <Width>2.1cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.70866in</Width>
+                                    <Width>1.8cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.90551in</Width>
+                                    <Width>2.3cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.70866in</Width>
+                                    <Width>1.8cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.72384in</Width>
+                                    <Width>2cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.87483in</Width>
+                                    <Width>2.7cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.81299in</Width>
+                                    <Width>2.7cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.79848in</Width>
-                                  </TablixColumn>
-                                  <TablixColumn>
-                                    <Width>0.75049in</Width>
+                                    <Width>2.7cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1394,10 +1391,9 @@ Fields!PageCaption.Value)</Hidden>
                                               <PaddingBottom>1pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>9</ColSpan>
+                                          <ColSpan>8</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
@@ -1408,7 +1404,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.33307in</Height>
+                                    <Height>0.846cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1515,37 +1511,6 @@ Fields!PageCaption.Value)</Hidden>
                                                 <TextRuns>
                                                   <TextRun>
                                                     <Value>=Fields!Finance_Charge_Memo_Line__Due_Date_Caption.Value</Value>
-                                                    <Style>
-                                                      <FontSize>9pt</FontSize>
-                                                      <FontWeight>Bold</FontWeight>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox53</rd:DefaultName>
-                                            <ZIndex>32</ZIndex>
-                                            <Style>
-                                              <VerticalAlign>Bottom</VerticalAlign>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox63">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!Finance_Charge_Memo_Line__Interest_Rate_Caption.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -1700,7 +1665,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1803,37 +1768,6 @@ Fields!PageCaption.Value)</Hidden>
                                                 <TextRuns>
                                                   <TextRun>
                                                     <Value>=Fields!Finance_Charge_Memo_Line__Due_Date_.Value</Value>
-                                                    <Style>
-                                                      <FontSize>9pt</FontSize>
-                                                      <FontWeight>Bold</FontWeight>
-                                                      <Format>d</Format>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox97</rd:DefaultName>
-                                            <ZIndex>24</ZIndex>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox104">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!Finance_Charge_Memo_Line__Interest_Rate_.Value &amp; "%"</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
@@ -1986,11 +1920,11 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox105">
+                                          <Textbox Name="Textbox4">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -2000,7 +1934,6 @@ Fields!PageCaption.Value)</Hidden>
                                                     <Value>=Fields!Finance_Charge_Memo_Line__Document_Date_.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>d</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -2009,8 +1942,7 @@ Fields!PageCaption.Value)</Hidden>
                                                 </Style>
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>textbox94</rd:DefaultName>
-                                            <ZIndex>27</ZIndex>
+                                            <rd:DefaultName>Textbox4</rd:DefaultName>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -2022,7 +1954,8 @@ Fields!PageCaption.Value)</Hidden>
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox107">
+                                          <Textbox Name="Textbox45">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -2037,8 +1970,7 @@ Fields!PageCaption.Value)</Hidden>
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>textbox95</rd:DefaultName>
-                                            <ZIndex>26</ZIndex>
+                                            <rd:DefaultName>Textbox45</rd:DefaultName>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -2050,7 +1982,8 @@ Fields!PageCaption.Value)</Hidden>
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox112">
+                                          <Textbox Name="Textbox52">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -2065,8 +1998,7 @@ Fields!PageCaption.Value)</Hidden>
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>textbox96</rd:DefaultName>
-                                            <ZIndex>25</ZIndex>
+                                            <rd:DefaultName>Textbox52</rd:DefaultName>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -2078,7 +2010,7 @@ Fields!PageCaption.Value)</Hidden>
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox113">
+                                          <Textbox Name="Textbox63">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -2088,15 +2020,13 @@ Fields!PageCaption.Value)</Hidden>
                                                     <Value>=Fields!Finance_Charge_Memo_Line__Due_Date_.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>d</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>textbox97</rd:DefaultName>
-                                            <ZIndex>24</ZIndex>
+                                            <rd:DefaultName>Textbox63</rd:DefaultName>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -2108,37 +2038,8 @@ Fields!PageCaption.Value)</Hidden>
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox115">
+                                          <Textbox Name="Textbox69">
                                             <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!Finance_Charge_Memo_Line__Interest_Rate_.Value &amp; "%"</Value>
-                                                    <Style>
-                                                      <FontSize>9pt</FontSize>
-                                                      <Format>d</Format>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox97</rd:DefaultName>
-                                            <ZIndex>24</ZIndex>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox120">
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -2153,8 +2054,7 @@ Fields!PageCaption.Value)</Hidden>
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>textbox98</rd:DefaultName>
-                                            <ZIndex>23</ZIndex>
+                                            <rd:DefaultName>Textbox69</rd:DefaultName>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -2166,7 +2066,7 @@ Fields!PageCaption.Value)</Hidden>
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox121">
+                                          <Textbox Name="Textbox71">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -2176,7 +2076,6 @@ Fields!PageCaption.Value)</Hidden>
                                                     <Value>=Code.BlankZero(Fields!Finance_Charge_Memo_Line__Original_Amount_.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>=Fields!Finance_Charge_Memo_Line__Original_Amount_Format.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -2185,8 +2084,7 @@ Fields!PageCaption.Value)</Hidden>
                                                 </Style>
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>textbox99</rd:DefaultName>
-                                            <ZIndex>22</ZIndex>
+                                            <rd:DefaultName>Textbox71</rd:DefaultName>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -2198,7 +2096,7 @@ Fields!PageCaption.Value)</Hidden>
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox123">
+                                          <Textbox Name="Textbox72">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -2208,7 +2106,6 @@ Fields!PageCaption.Value)</Hidden>
                                                     <Value>=Code.BlankZero(Fields!Finance_Charge_Memo_Line__Remaining_Amount_.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>=Fields!Finance_Charge_Memo_Line__Remaining_Amount_Format.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -2217,8 +2114,7 @@ Fields!PageCaption.Value)</Hidden>
                                                 </Style>
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>textbox100</rd:DefaultName>
-                                            <ZIndex>21</ZIndex>
+                                            <rd:DefaultName>Textbox72</rd:DefaultName>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -2230,7 +2126,7 @@ Fields!PageCaption.Value)</Hidden>
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox131">
+                                          <Textbox Name="Textbox75">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -2240,7 +2136,6 @@ Fields!PageCaption.Value)</Hidden>
                                                     <Value>=Code.BlankZero(Fields!Finance_Charge_Memo_Line_Amount.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>=Fields!Finance_Charge_Memo_Line_AmountFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -2249,8 +2144,7 @@ Fields!PageCaption.Value)</Hidden>
                                                 </Style>
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>textbox101</rd:DefaultName>
-                                            <ZIndex>20</ZIndex>
+                                            <rd:DefaultName>Textbox75</rd:DefaultName>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -2263,7 +2157,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2299,36 +2193,6 @@ Fields!PageCaption.Value)</Hidden>
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox63">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>9pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox63</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="textbox82">
@@ -2395,7 +2259,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2454,10 +2318,9 @@ Fields!PageCaption.Value)</Hidden>
                                               <PaddingBottom>1pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>8</ColSpan>
+                                          <ColSpan>7</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
@@ -2467,7 +2330,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2497,10 +2360,9 @@ Fields!PageCaption.Value)</Hidden>
                                               <PaddingBottom>1pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>9</ColSpan>
+                                          <ColSpan>8</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
@@ -2511,7 +2373,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2541,10 +2403,9 @@ Fields!PageCaption.Value)</Hidden>
                                               <PaddingBottom>1pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>9</ColSpan>
+                                          <ColSpan>8</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
@@ -2555,7 +2416,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2591,36 +2452,6 @@ Fields!PageCaption.Value)</Hidden>
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox69">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>9pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox69</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="textbox122">
@@ -2718,7 +2549,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2754,36 +2585,6 @@ Fields!PageCaption.Value)</Hidden>
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox71">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>9pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox71</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="textbox114">
@@ -2880,7 +2681,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2916,36 +2717,6 @@ Fields!PageCaption.Value)</Hidden>
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox72">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>9pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox72</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="textbox106">
@@ -3043,7 +2814,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3073,10 +2844,9 @@ Fields!PageCaption.Value)</Hidden>
                                               <PaddingBottom>1pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>9</ColSpan>
+                                          <ColSpan>8</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
@@ -3090,7 +2860,6 @@ Fields!PageCaption.Value)</Hidden>
                               </TablixBody>
                               <TablixColumnHierarchy>
                                 <TablixMembers>
-                                  <TablixMember />
                                   <TablixMember />
                                   <TablixMember />
                                   <TablixMember />
@@ -3209,8 +2978,8 @@ Fields!PageCaption.Value)</Hidden>
                                 </Filter>
                               </Filters>
                               <Top>8.22751cm</Top>
-                              <Height>5.07611cm</Height>
-                              <Width>18.05999cm</Width>
+                              <Height>5.499cm</Height>
+                              <Width>18.1cm</Width>
                               <ZIndex>31</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF(Fields!Finance_Charge_Memo_Line_DescriptionCaption.Value = "",True,False)</Hidden>
@@ -3222,12 +2991,12 @@ Fields!PageCaption.Value)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>7.12411in</Width>
+                                    <Width>18.09524cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3259,7 +3028,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.33307in</Height>
+                                    <Height>0.846cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3327,7 +3096,7 @@ Fields!PageCaption.Value)</Hidden>
                                 </Filter>
                               </Filters>
                               <Top>13.35978cm</Top>
-                              <Height>1.26901cm</Height>
+                              <Height>1.269cm</Height>
                               <Width>18.09524cm</Width>
                               <ZIndex>32</ZIndex>
                               <Visibility>
@@ -3340,21 +3109,21 @@ Fields!PageCaption.Value)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>0.90551in</Width>
+                                    <Width>2.3cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.06299in</Width>
+                                    <Width>2.7cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.06299in</Width>
+                                    <Width>2.7cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.06299in</Width>
+                                    <Width>2.7cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3420,7 +3189,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3457,7 +3226,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.33307in</Height>
+                                    <Height>0.846cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3594,7 +3363,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3631,7 +3400,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3755,7 +3524,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3792,7 +3561,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3991,8 +3760,8 @@ Fields!PageCaption.Value)</Hidden>
                                 </Filter>
                               </Filters>
                               <Top>14.68254cm</Top>
-                              <Height>3.38407cm</Height>
-                              <Width>10.39998cm</Width>
+                              <Height>3.384cm</Height>
+                              <Width>10.4cm</Width>
                               <ZIndex>33</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF(Fields!VAT_Amount_SpecificationCaption.Value = "",True,False)</Hidden>
@@ -4004,21 +3773,21 @@ Fields!PageCaption.Value)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>0.90551in</Width>
+                                    <Width>2.3cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.06299in</Width>
+                                    <Width>2.7cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.06299in</Width>
+                                    <Width>2.7cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.49994in</Width>
+                                    <Width>1.26984cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -4055,7 +3824,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -4093,7 +3862,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -4130,7 +3899,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -4167,7 +3936,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -4299,7 +4068,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -4336,7 +4105,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -4458,7 +4227,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -4495,7 +4264,7 @@ Fields!PageCaption.Value)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.16654in</Height>
+                                    <Height>0.423cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -4693,8 +4462,8 @@ Fields!PageCaption.Value)</Hidden>
                                 </Filter>
                               </Filters>
                               <Top>18.12169cm</Top>
-                              <Height>3.8071cm</Height>
-                              <Width>8.96983cm</Width>
+                              <Height>3.807cm</Height>
+                              <Width>8.96984cm</Width>
                               <ZIndex>34</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF(Fields!VALVATAmountLCY_Control92Caption.Value = "",True,False)</Hidden>
@@ -4746,8 +4515,8 @@ Fields!PageCaption.Value)</Hidden>
               </Filter>
             </Filters>
             <Top>1.2963cm</Top>
-            <Height>21.92868cm</Height>
-            <Width>18.17301cm</Width>
+            <Height>21.92869cm</Height>
+            <Width>18.17302cm</Width>
             <ZIndex>1</ZIndex>
             <DataElementOutput>NoOutput</DataElementOutput>
             <Style />
@@ -5145,12 +4914,6 @@ End Function</Code>
         <Field Name="Finance_Charge_Memo_Line__Due_Date_">
           <DataField>Finance_Charge_Memo_Line__Due_Date_</DataField>
         </Field>
-        <Field Name="Finance_Charge_Memo_Line__Interest_Rate_">
-          <DataField>Finance_Charge_Memo_Line__Interest_Rate_</DataField>
-        </Field>
-        <Field Name="Finance_Charge_Memo_Line__Interest_Rate_Format">
-          <DataField>Finance_Charge_Memo_Line__Interest_Rate_Format</DataField>
-        </Field>
         <Field Name="Finance_Charge_Memo_Line__Document_Type_">
           <DataField>Finance_Charge_Memo_Line__Document_Type_</DataField>
         </Field>
@@ -5198,9 +4961,6 @@ End Function</Code>
         </Field>
         <Field Name="Finance_Charge_Memo_Line__Document_No__Caption">
           <DataField>Finance_Charge_Memo_Line__Document_No__Caption</DataField>
-        </Field>
-        <Field Name="Finance_Charge_Memo_Line__Interest_Rate_Caption">
-          <DataField>Finance_Charge_Memo_Line__Interest_Rate_Caption</DataField>
         </Field>
         <Field Name="Finance_Charge_Memo_Line__Document_Date_Caption">
           <DataField>Finance_Charge_Memo_Line__Document_Date_Caption</DataField>

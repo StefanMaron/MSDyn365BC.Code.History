@@ -4,23 +4,23 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Test;
 
+using Microsoft.Assembly.Document;
+using Microsoft.Assembly.History;
 using Microsoft.Assembly.Setup;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
-using System.Environment.Configuration;
-using System.TestLibraries.Utilities;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
-using Microsoft.Assembly.Document;
-using Microsoft.Finance.Dimension;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Inventory.BOM;
-using Microsoft.Sales.Document;
-using Microsoft.Assembly.History;
-using Microsoft.Sales.History;
-using Microsoft.Foundation.UOM;
-using Microsoft.Projects.Resources.Resource;
+using System.Environment.Configuration;
+using System.TestLibraries.Utilities;
 
 codeunit 137311 "SCM Kitting - Printout Reports"
 {
@@ -42,6 +42,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryPostInventoryToGL: Codeunit "Library - Post Inventory to GL";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryDimension: Codeunit "Library - Dimension";
@@ -79,7 +80,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
         WorkDate2 := LibraryPlanning.SetSafetyWorkDate(); // to avoid Due Date Before Work Date message.
         LibraryCosting.AdjustCostItemEntries('', '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate2, '');
+        LibraryPostInventoryToGL.PostInvtCostToGL(false, WorkDate2, '');
 
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card",
           LibraryUtility.GetGlobalNoSeriesCode());

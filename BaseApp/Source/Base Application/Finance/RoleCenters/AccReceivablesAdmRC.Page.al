@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -11,8 +11,11 @@ using Microsoft.Bank.Payment;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
+#if not CLEAN28
 using Microsoft.Finance.GeneralLedger.Reports;
+#endif
 using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.Task;
 using Microsoft.Inventory.Item;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.Customer;
@@ -22,7 +25,6 @@ using Microsoft.Sales.History;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Reports;
 using Microsoft.Sales.Setup;
-using Microsoft.Foundation.Task;
 using System.Threading;
 
 page 9003 "Acc. Receivables Adm. RC"
@@ -75,6 +77,7 @@ page 9003 "Acc. Receivables Adm. RC"
     {
         area(reporting)
         {
+#if not CLEAN28
             action("C&ustomer - List")
             {
                 ApplicationArea = Suite;
@@ -82,7 +85,11 @@ page 9003 "Acc. Receivables Adm. RC"
                 Image = "Report";
                 RunObject = Report "Customer - List";
                 ToolTip = 'View various information for customers, such as customer posting group, discount group, finance charge and payment information, salesperson, the customer''s default currency and credit limit (in LCY), and the customer''s current balance (in LCY).';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future version.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("Customer - &Balance to Date")
             {
                 ApplicationArea = Basic, Suite;
@@ -91,14 +98,19 @@ page 9003 "Acc. Receivables Adm. RC"
                 RunObject = Report "Customer - Balance to Date";
                 ToolTip = 'View a list with customers'' payment history up until a certain date. You can use the report to extract your total sales income at the close of an accounting period or fiscal year.';
             }
+#if not CLEAN28
             action("Aged &Accounts Receivable")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Aged &Accounts Receivable';
+                Caption = 'Aged &Accounts Receivable (Obsolete)';
                 Image = "Report";
                 RunObject = Report "Aged Accounts Receivable";
                 ToolTip = 'View an overview of when your receivables from customers are due or overdue (divided into four periods). You must specify the date you want aging calculated from and the length of the period that each column will contain data for.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the report Aged Accounts Receivable (Excel). This report will be removed in a future release.';
+                ObsoleteTag = '28.0';
             }
+#endif
             action("Customer - &Summary Aging Simp.")
             {
                 ApplicationArea = Suite;
@@ -141,71 +153,10 @@ page 9003 "Acc. Receivables Adm. RC"
             separator(Action20)
             {
             }
-#if not CLEAN25
-            action("Customer &Document Nos.")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'The action will be deleted.';
-                Image = "Report";
-                RunObject = Report "Customer Register";
-                ToolTip = 'The action will be deleted.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The related report doesn''t exist anymore.';
-                ObsoleteTag = '25.0';
-            }
-            action("Sales &Invoice Nos.")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'The action will be deleted.';
-                Image = "Report";
-                RunObject = Report "Sales - Shipment";
-                ToolTip = 'The action will be deleted.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The related report doesn''t exist anymore.';
-                ObsoleteTag = '25.0';
-            }
-            action("Sa&les Credit Memo Nos.")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'The action will be deleted.';
-                Image = "Report";
-                RunObject = Report "Standard Sales - Credit Memo";
-                ToolTip = 'The action will be deleted.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The related report doesn''t exist anymore.';
-                ObsoleteTag = '25.0';
-            }
-            action("Re&minder Nos.")
-            {
-                ApplicationArea = Suite;
-                Caption = 'The action will be deleted.';
-                Image = "Report";
-                RunObject = Report Reminder;
-                ToolTip = 'The action will be deleted.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The related report doesn''t exist anymore.';
-                ObsoleteTag = '25.0';
-            }
-            action("Finance Cha&rge Memo Nos.")
-            {
-                ApplicationArea = Suite;
-                Caption = 'The action will be deleted.';
-                Image = "Report";
-                RunObject = Report "Finance Charge Memo";
-                ToolTip = 'The action will be deleted.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The related report doesn''t exist anymore.';
-                ObsoleteTag = '25.0';
-            }
-#endif            
             separator(Action1120005)
             {
             }
+#if not CLEAN28
             action("Payments Lists")
             {
                 ApplicationArea = Basic, Suite;
@@ -213,6 +164,9 @@ page 9003 "Acc. Receivables Adm. RC"
                 Image = "Report";
                 RunObject = Report "Payment List";
                 ToolTip = 'View a list of payments.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+                ObsoleteTag = '28.0';
             }
             action("GL/Cust. Ledger Reconciliation")
             {
@@ -221,7 +175,11 @@ page 9003 "Acc. Receivables Adm. RC"
                 Image = "Report";
                 RunObject = Report "GL/Cust. Ledger Reconciliation";
                 ToolTip = 'View or print a separate page for each customer that sums up amounts from general ledger transactions based on payments and posted invoices. This is useful when you want to reconcile general ledger entries with customer ledger entries.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+                ObsoleteTag = '28.0';
             }
+#endif
         }
         area(embedding)
         {
@@ -324,13 +282,18 @@ page 9003 "Acc. Receivables Adm. RC"
                                     Recurring = const(false));
                 ToolTip = 'Register received payments by manually applying them to the related customer, vendor, or bank ledger entries. Then, post the payments to G/L accounts and thereby close the related ledger entries.';
             }
+#if not CLEAN28
             action("Payment Slips")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Payment Slips';
                 RunObject = Page "Payment Slip List";
                 ToolTip = 'View a list of payment slips.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+                ObsoleteTag = '28.0';
             }
+#endif
             action(GeneralJournals)
             {
                 ApplicationArea = Basic, Suite;
@@ -425,13 +388,18 @@ page 9003 "Acc. Receivables Adm. RC"
                     RunObject = Page "G/L Registers";
                     ToolTip = 'View posted G/L entries.';
                 }
+#if not CLEAN28
                 action("Payment Slip List Archives")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Slip List Archives';
                     RunObject = Page "Payment Slip List Archive";
                     ToolTip = 'View a list of payment slips that have been posted and archived.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+                    ObsoleteTag = '28.0';
                 }
+#endif
                 action("Posted Bank Deposits")
                 {
                     ApplicationArea = Basic, Suite;
@@ -529,12 +497,16 @@ page 9003 "Acc. Receivables Adm. RC"
                 RunObject = Page "Cash Receipt Journal";
                 ToolTip = 'Open the cash receipt journal to post incoming payments.';
             }
+#if not CLEAN28
             action("Payment Slip")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Payment Slip';
                 RunObject = Page "Payment Slip";
                 ToolTip = 'Use payment slips to manage customer and vendor payments. ';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+                ObsoleteTag = '28.0';
             }
             action("Look/Edit Payment Line")
             {
@@ -542,6 +514,9 @@ page 9003 "Acc. Receivables Adm. RC"
                 Caption = 'Look/Edit Payment Line';
                 RunObject = Page "View/Edit Payment Line";
                 ToolTip = 'View and edit all payment lines that belong to a payment class. The window shows a line for each payment status. ';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+                ObsoleteTag = '28.0';
             }
             action("Payment Report")
             {
@@ -549,6 +524,9 @@ page 9003 "Acc. Receivables Adm. RC"
                 Caption = 'Payment Report';
                 RunObject = Page "Payment Report";
                 ToolTip = 'View all payment documents that belong to a payment class and have the same status.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+                ObsoleteTag = '28.0';
             }
             action("Archive Payment Journals")
             {
@@ -557,6 +535,9 @@ page 9003 "Acc. Receivables Adm. RC"
                 Image = "Report";
                 RunObject = Report "Archive Payment Slips";
                 ToolTip = 'Archive payment journals to separate them from active journals. You can enter criteria to specify the journals to archive.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+                ObsoleteTag = '28.0';
             }
             action("Create Payment Slip")
             {
@@ -564,7 +545,11 @@ page 9003 "Acc. Receivables Adm. RC"
                 Caption = 'Create Payment Slip';
                 RunObject = Codeunit "Payment Management";
                 ToolTip = 'Manage information about customer and vendor payments.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+                ObsoleteTag = '28.0';
             }
+#endif
             action(Deposit)
             {
                 ApplicationArea = Basic, Suite;

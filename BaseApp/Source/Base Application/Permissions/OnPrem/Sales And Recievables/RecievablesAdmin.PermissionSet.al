@@ -1,21 +1,21 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Sales.Customer;
-using Microsoft.Sales.FinanceCharge;
-using Microsoft.Sales.Reminder;
+using Microsoft.Bank.BankAccount;
+using Microsoft.CRM.Team;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.Inventory.Item;
-using Microsoft.Bank.BankAccount;
-using Microsoft.Foundation.PaymentTerms;
-using Microsoft.Sales.Setup;
-using Microsoft.Sales.Pricing;
-using Microsoft.Sales.Document;
-using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Calendar;
+using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Reporting;
-using Microsoft.CRM.Team;
 using Microsoft.Foundation.Shipping;
+using Microsoft.Inventory.Item;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.Sales.Pricing;
+using Microsoft.Sales.Reminder;
+using Microsoft.Sales.Setup;
 
 permissionset 3723 "Recievables - Admin"
 {
@@ -65,9 +65,7 @@ permissionset 3723 "Recievables - Admin"
                   tabledata "Return Reason" = RIMD,
                   tabledata "Sales & Receivables Setup" = RIMD,
                   tabledata "Sales Discount Access" = RIMD,
-#if not CLEAN25
                   tabledata "Sales Line Discount" = RIMD,
-#endif
                   tabledata "Salesperson/Purchaser" = RIMD,
                   tabledata "Shipment Method" = RIMD,
                   tabledata "Shipping Agent" = RIMD,

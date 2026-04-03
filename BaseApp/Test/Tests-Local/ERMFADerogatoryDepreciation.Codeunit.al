@@ -49,7 +49,9 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
     var
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
+#if not CLEAN28
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+#endif
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryReportValidation: Codeunit "Library - Report Validation";
@@ -266,6 +268,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
           FADepreciationBook."Book Value");
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('FAProjValueDerogRPH,ConfirmHandler')]
     [Scope('OnPrem')]
@@ -291,6 +294,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         // [THEN] Report shows Depreciation Amount = "A"
         FAProjectedValueReport(LibraryRandom.RandIntInRange(1, 7), true);  // Using Random value in range for GroupTotals and TRUE for Print Details.
     end;
+#endif
 
     [Test]
     procedure ShowDerogatoryValueofPreviousMonthInFixedAssetBookValue()
@@ -373,6 +377,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
                 CalcDate('<CM>', PostingDate)));
     end;
 
+#if not CLEAN28
     local procedure FAProjectedValueReport(GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group"; PrintDetails: Boolean)
     var
         FADepreciationBook: Record "FA Depreciation Book";
@@ -388,6 +393,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         // Verify: Verify values on Report "Fixed Asset - Projected Value (Derogatory)"
         VerifyFAProjectedValueReport(FADepreciationBook."FA No.");
     end;
+#endif
 
     local procedure CreateAndPostFAGLJournal(FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     var
@@ -495,6 +501,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         FixedAssetBookValue01.Run();
     end;
 
+#if not CLEAN28
     local procedure RunReportFAProjValueDerogatory(FADepreciationBook: Record "FA Depreciation Book"; GroupTotals: Option; PrintDetails: Boolean)
     var
         FixedAsset: Record "Fixed Asset";
@@ -520,6 +527,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         LibraryReportDataset.AssertElementWithValueExists(
           'AssetAmounts1', -FALedgerEntryAmount(FANo, FALedgerEntry."FA Posting Type"::"Acquisition Cost"));
     end;
+#endif
 
     local procedure CreateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; FANo: Code[20]; FAPostingGroup: Code[20]; DepreciationBookCode: Code[10])
     begin
@@ -619,6 +627,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         FixedAssetBookValue01.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+#if not CLEAN28
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure FAProjValueDerogRPH(var FAProjValueDerogatory: TestRequestPage "FA - Proj. Value (Derogatory)")
@@ -626,6 +635,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         FAProjValueDerogatory.UseAccountingPeriod.SetValue(true);
         FAProjValueDerogatory.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
+#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

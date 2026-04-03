@@ -11,7 +11,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Digital Vouchers Setup Tests - NamedType InstallFeatureNotificationMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit Digital Vouchers Setup Tests - NamedType InstallFeatureNotificationMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4070772112 - NamedType 3553078962" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -20,7 +20,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Digital Vouchers Tests - NamedType CannotRemoveReferenceRecordFromIncDocErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit Digital Vouchers Tests - NamedType CannotRemoveReferenceRecordFromIncDocErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4070772112 - NamedType 4134605491" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -29,7 +29,25 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Digital Vouchers Tests - NamedType DetachQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit Digital Vouchers Tests - NamedType DetachQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4070772112 - NamedType 6559368" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Digital voucher has been generated.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit Digital Vouchers Tests - NamedType DigitalVoucherGenerateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4070772112 - NamedType 4151900491" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Digital voucher has not been generated]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit Digital Vouchers Tests - NamedType DigitalVoucherNotGenerateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4070772112 - NamedType 777386507" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -38,7 +56,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Digital Vouchers Tests - NamedType DoYouWantToPostQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit Digital Vouchers Tests - NamedType DoYouWantToPostQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4070772112 - NamedType 2118670449" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -47,7 +65,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Digital Vouchers Tests - NamedType DoYouWantTPostPmtQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit Digital Vouchers Tests - NamedType DoYouWantTPostPmtQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4070772112 - NamedType 203848375" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -56,7 +74,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Digital Vouchers Tests - NamedType LinesPostedMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit Digital Vouchers Tests - NamedType LinesPostedMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4070772112 - NamedType 2032039542" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -65,7 +83,16 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Digital Vouchers Tests - NamedType NotPossibleToPostWithoutVoucherErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit Digital Vouchers Tests - NamedType NotPossibleToPostWithoutVoucherErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4070772112 - NamedType 180528833" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Not possible to post without attaching the digital voucher or adding the note.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit Digital Vouchers Tests - NamedType NotPossibleToPostWithoutVoucherOrNoteErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4070772112 - NamedType 2859880924" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -74,7 +101,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - number]D;]A;(LookupHint=Codeunit Digital Vouchers Tests - NamedType PaymentLineAppliedMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - number]D;]A;(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit Digital Vouchers Tests - NamedType PaymentLineAppliedMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4070772112 - NamedType 538095048" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -83,7 +110,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Digital Vouchers Tests - NamedType RemovePostedRecordManuallyMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit Digital Vouchers Tests - NamedType RemovePostedRecordManuallyMsg)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

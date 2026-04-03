@@ -4,11 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Period;
 
+#if not CLEAN28
 using Microsoft.Finance.GeneralLedger.Setup;
+#endif
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Setup;
+#if not CLEAN28
 using System.Security.User;
+#endif
 
 table 50 "Accounting Period"
 {
@@ -39,8 +43,10 @@ table 50 "Accounting Period"
             trigger OnValidate()
             begin
                 TestField("Date Locked", false);
+#if not CLEAN28
                 if not "New Fiscal Year" then
                     CheckPostingRangeInAccPeriod("Starting Date");
+#endif
 
                 if "New Fiscal Year" then begin
                     CheckOpenFiscalYears();
@@ -120,7 +126,9 @@ table 50 "Accounting Period"
     trigger OnDelete()
     begin
         TestField("Date Locked", false);
+#if not CLEAN28
         CheckPostingRangeInAccPeriod("Starting Date");
+#endif
     end;
 
     trigger OnInsert()
@@ -141,9 +149,11 @@ table 50 "Accounting Period"
     var
         AccountingPeriod2: Record "Accounting Period";
         InvtSetup: Record "Inventory Setup";
+#if not CLEAN28
         Text10800: Label 'To delete the fiscal year from %1 to %2, you must first modify the fields %3 and %4 in the %5 and %6 so that they are outside the fiscal year that is being deleted.';
         GLSetup: Record "General Ledger Setup";
         UserSetup: Record "User Setup";
+#endif
         Text10801: Label 'It is not allowed to have more than two open fiscal years. Please fiscally close the oldest open fiscal year first.';
         Text10802: Label 'You will not be able to post transactions in a closed period. Are you sure you want to close the period with starting date %1?';
         Text10803: Label 'There are no open fiscal periods that can be closed.';
@@ -249,9 +259,11 @@ table 50 "Accounting Period"
                 AccountingPeriod2."Fiscally Closed" := true;
                 AccountingPeriod2."Fiscal Closing Date" := Today;
                 AccountingPeriod2.Modify();
+#if not CLEAN28
                 // update allowed posting range
                 UpdateGLSetup(EndingDate);
                 UpdateUserSetup(EndingDate);
+#endif
             end;
         end else
             Message(Text10803);
@@ -276,6 +288,8 @@ table 50 "Accounting Period"
             Message(Text10807);
     end;
 
+#if not CLEAN28
+    [Obsolete('The procedure will be removed in a future release.', '28.0')]
     [Scope('OnPrem')]
     procedure UpdateGLSetup(PeriodEndDate: Date)
     begin
@@ -291,6 +305,7 @@ table 50 "Accounting Period"
         end;
     end;
 
+    [Obsolete('The procedure will be removed in a future release.', '28.0')]
     [Scope('OnPrem')]
     procedure UpdateUserSetup(PeriodEndDate: Date)
     begin
@@ -307,6 +322,7 @@ table 50 "Accounting Period"
             until UserSetup.Next() = 0;
     end;
 
+    [Obsolete('The procedure will be removed in a future release.', '28.0')]
     [Scope('OnPrem')]
     procedure CheckPostingRangeSetup(FYEndDate: Date): Boolean
     begin
@@ -323,6 +339,7 @@ table 50 "Accounting Period"
         exit(false);
     end;
 
+    [Obsolete('The procedure will be removed in a future release.', '28.0')]
     local procedure CheckPostingRangeInAccPeriod(ExcludePeriod: Date)
     var
         OldPostingAllowedTo: Date;
@@ -345,6 +362,7 @@ table 50 "Accounting Period"
                       GLSetup.TableCaption(), UserSetup.TableCaption());
     end;
 
+    [Obsolete('The procedure will be removed in a future release.', '28.0')]
     local procedure GetPostingAllowedToDate(ExcludePeriod: Date): Date
     var
         AccountingPeriod: Record "Accounting Period";
@@ -357,6 +375,7 @@ table 50 "Accounting Period"
 
         exit(0D);
     end;
+#endif
 
     procedure CorrespondingAccountingPeriodExists(var AccountingPeriod: Record "Accounting Period"; AccSchedDate: Date): Boolean
     begin

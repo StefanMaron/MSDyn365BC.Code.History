@@ -22,10 +22,17 @@ using System.Email;
 using System.Globalization;
 using System.Utilities;
 
+/// <summary>
+/// Prints issued finance charge memos including customer details, line items, VAT amounts, and payment information.
+/// </summary>
 report 118 "Finance Charge Memo"
 {
     DefaultLayout = RDLC;
+#if not CLEAN28
+    RDLCLayout = './Sales/FinanceCharge/FinanceChargeMemoFR.rdlc';
+#else
     RDLCLayout = './Sales/FinanceCharge/FinanceChargeMemo.rdlc';
+#endif
     Caption = 'Finance Charge Memo';
     WordMergeDataItem = "Issued Fin. Charge Memo Header";
 
@@ -310,9 +317,14 @@ report 118 "Finance Charge Memo"
                     column(DcType_IssuFinChrgMemoLine; "Document Type")
                     {
                     }
+#if not CLEAN28
                     column(InterestRate_IssuFinChrgMemoLine; "Interest Rate")
                     {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This field is no longer required and will be removed in a future release.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     column(DocNo_IssuFinChrgMemoLineCaption; FieldCaption("Document No."))
                     {
                     }
@@ -325,9 +337,14 @@ report 118 "Finance Charge Memo"
                     column(DcType_IssuFinChrgMemoLineCaption; FieldCaption("Document Type"))
                     {
                     }
+#if not CLEAN28
                     column(InterestRate_IssuFinChrgMemoLineCaption; FieldCaption("Interest Rate"))
                     {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This field is no longer required and will be removed in a future release.';
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     column(No_IssuedFinChgMemoLine; "No.")
                     {
                     }
@@ -802,11 +819,19 @@ report 118 "Finance Charge Memo"
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
+    /// <summary>
+    /// Initializes the log interaction setting based on interaction template configuration.
+    /// </summary>
     procedure InitLogInteraction()
     begin
         LogInteraction := SegManagement.FindInteractionTemplateCode(Enum::"Interaction Log Entry Document Type"::"Sales Finance Charge Memo") <> '';
     end;
 
+    /// <summary>
+    /// Initializes the request parameters for the finance charge memo report.
+    /// </summary>
+    /// <param name="NewShowInternalInfo">Specifies whether to show internal information.</param>
+    /// <param name="NewLogInteraction">Specifies whether to log interaction.</param>
     procedure InitializeRequest(NewShowInternalInfo: Boolean; NewLogInteraction: Boolean)
     begin
         ShowInternalInfo := NewShowInternalInfo;

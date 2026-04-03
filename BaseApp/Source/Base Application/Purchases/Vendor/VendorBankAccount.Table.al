@@ -1,10 +1,12 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Vendor;
 
+#if not CLEAN28
 using Microsoft.Bank.BankAccount;
+#endif
 using Microsoft.Bank.Setup;
 using Microsoft.Finance.Currency;
 using Microsoft.Foundation.Address;
@@ -32,11 +34,13 @@ table 288 "Vendor Bank Account"
         field(2; "Code"; Code[20])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies a code to identify this vendor bank account.';
             NotBlank = true;
         }
         field(3; Name; Text[100])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies the name of the bank where the vendor has this bank account.';
 
             trigger OnLookup()
             begin
@@ -50,14 +54,17 @@ table 288 "Vendor Bank Account"
         field(6; Address; Text[100])
         {
             Caption = 'Address';
+            ToolTip = 'Specifies the address of the bank where the vendor has the bank account.';
         }
         field(7; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
+            ToolTip = 'Specifies additional address information.';
         }
         field(8; City; Text[30])
         {
             Caption = 'City';
+            ToolTip = 'Specifies the city of the bank where the vendor has the bank account.';
             TableRelation = if ("Country/Region Code" = const('')) "Post Code".City
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
@@ -81,6 +88,7 @@ table 288 "Vendor Bank Account"
         field(9; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
+            ToolTip = 'Specifies the postal code.';
             TableRelation = if ("Country/Region Code" = const('')) "Post Code"
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Country/Region Code"));
@@ -104,10 +112,12 @@ table 288 "Vendor Bank Account"
         field(10; Contact; Text[100])
         {
             Caption = 'Contact';
+            ToolTip = 'Specifies the name of the bank employee regularly contacted in connection with this bank account.';
         }
         field(11; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
+            ToolTip = 'Specifies the telephone number of the bank where the vendor has the bank account.';
             ExtendedDatatype = PhoneNo;
         }
         field(12; "Telex No."; Text[20])
@@ -117,35 +127,44 @@ table 288 "Vendor Bank Account"
         field(13; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+            ToolTip = 'Specifies the number of the bank branch.';
 
             trigger OnValidate()
             begin
+#if not CLEAN28
                 "RIB Checked" := RIBKey.Check("Bank Branch No.", "Agency Code", "Bank Account No.", "RIB Key");
+#endif
                 OnValidateBankAccount(Rec, 'Bank Branch No.');
             end;
         }
         field(14; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            ToolTip = 'Specifies the number used by the bank for the bank account.';
 
             trigger OnValidate()
             begin
+#if not CLEAN28
                 "RIB Checked" := RIBKey.Check("Bank Branch No.", "Agency Code", "Bank Account No.", "RIB Key");
+#endif
                 OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
         field(15; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
+            ToolTip = 'Specifies a bank identification number of your own choice.';
         }
         field(16; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the relevant currency code for the bank account.';
             TableRelation = Currency;
         }
         field(17; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
+            ToolTip = 'Specifies the country/region of the address.';
             TableRelation = "Country/Region";
 
             trigger OnValidate()
@@ -157,10 +176,12 @@ table 288 "Vendor Bank Account"
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
+            ToolTip = 'Specifies the state, province or county as a part of the address.';
         }
         field(19; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
+            ToolTip = 'Specifies the fax number associated with the address.';
         }
         field(20; "Telex Answer Back"; Text[20])
         {
@@ -169,11 +190,13 @@ table 288 "Vendor Bank Account"
         field(21; "Language Code"; Code[10])
         {
             Caption = 'Language Code';
+            ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
             TableRelation = Language;
         }
         field(22; "E-Mail"; Text[80])
         {
             Caption = 'Email';
+            ToolTip = 'Specifies the email address associated with the bank account.';
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -192,11 +215,13 @@ table 288 "Vendor Bank Account"
 #endif
         {
             Caption = 'Home Page';
+            ToolTip = 'Specifies the bank web site.';
             ExtendedDatatype = URL;
         }
         field(24; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            ToolTip = 'Specifies the bank account''s international bank account number.';
 
             trigger OnValidate()
             var
@@ -214,22 +239,34 @@ table 288 "Vendor Bank Account"
         field(25; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
+            ToolTip = 'Specifies the SWIFT code (international bank identifier code) of the bank where the vendor has the account.';
             TableRelation = "SWIFT Code";
             ValidateTableRelation = false;
         }
         field(1211; "Bank Clearing Code"; Text[50])
         {
             Caption = 'Bank Clearing Code';
+            ToolTip = 'Specifies the code for bank clearing that is required according to the format standard you selected in the Bank Clearing Standard field.';
         }
         field(1212; "Bank Clearing Standard"; Text[50])
         {
             Caption = 'Bank Clearing Standard';
+            ToolTip = 'Specifies the format standard to be used in bank transfers if you use the Bank Clearing Code field to identify you as the sender.';
             TableRelation = "Bank Clearing Standard";
         }
+#if not CLEANSCHEMA31
         field(10851; "Agency Code"; Text[5])
         {
             Caption = 'Agency Code';
             InitValue = '00000';
+#if CLEAN28
+            ObsoleteState = Removed;
+            ObsoleteTag = '31.0';
+            ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+            ObsoleteReason = 'Moved to the Payment Management FR first-party app';
 
             trigger OnValidate()
             begin
@@ -237,21 +274,41 @@ table 288 "Vendor Bank Account"
                     "Agency Code" := PadStr('', 5 - StrLen("Agency Code"), '0') + "Agency Code";
                 "RIB Checked" := RIBKey.Check("Bank Branch No.", "Agency Code", "Bank Account No.", "RIB Key");
             end;
+#endif
         }
         field(10852; "RIB Key"; Integer)
         {
             Caption = 'RIB Key';
+#if CLEAN28
+            ObsoleteState = Removed;
+            ObsoleteTag = '31.0';
+            ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+            ObsoleteReason = 'Moved to the Payment Management FR first-party app';
 
             trigger OnValidate()
             begin
                 "RIB Checked" := RIBKey.Check("Bank Branch No.", "Agency Code", "Bank Account No.", "RIB Key");
             end;
+#endif
         }
         field(10853; "RIB Checked"; Boolean)
         {
             Caption = 'RIB Checked';
             Editable = false;
+#if CLEAN28
+            ObsoleteState = Removed;
+            ObsoleteTag = '31.0';
+            ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+            ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+#endif
         }
+#endif
     }
 
     keys
@@ -298,7 +355,9 @@ table 288 "Vendor Bank Account"
 
     var
         PostCode: Record "Post Code";
+#if not CLEAN28
         RIBKey: Codeunit "RIB Key";
+#endif
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a Bank Account No. or an IBAN.';
         BankAccDeleteErr: Label 'You cannot delete this bank account because it is associated with one or more open ledger entries.';
 

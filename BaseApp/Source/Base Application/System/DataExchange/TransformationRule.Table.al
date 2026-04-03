@@ -232,6 +232,7 @@ table 1237 "Transformation Rule"
         }
         field(57; Precision; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Precision';
             DecimalPlaces = 0 : 10;
 
@@ -311,6 +312,10 @@ table 1237 "Transformation Rule"
         USDATETIMEFORMATDescTxt: Label 'U.S. Date/Time Format';
         DeleteNOTPROVIDEDTxt: Label 'DELETE_NOTPROVIDED', Comment = 'NOTPROVIDED should stay in english because it is a constant value. DELETE should be translated.';
         DeleteNOTPROVIDEDDescriptionTxt: Label 'Delete NOTPROVIDED value', Comment = 'NOTPROVIDED should stay in english because it is a constant value. ''Delete'' and ''value'' should be translated.';
+#if not CLEAN28
+        AppendSpaceTxt: Label 'ADDSPCEND', Locked = true;
+        AppendSpaceDescriptionTxt: Label 'Adds a single empty space character to the end of the input string.', MaxLength = 100;
+#endif
 
     procedure CreateDefaultTransformations()
     begin
@@ -489,6 +494,14 @@ table 1237 "Transformation Rule"
         exit(DeleteNOTPROVIDEDTxt);
     end;
 
+#if not CLEAN28
+    [Obsolete('This is an unused procedure.', '28.0')]
+    procedure GetAppendSpaceCode(): Code[20]
+    begin
+        exit(AppendSpaceTxt);
+    end;
+
+#endif
     procedure EditNextTransformationRule()
     var
         TransformationRule: Record "Transformation Rule";
@@ -508,6 +521,14 @@ table 1237 "Transformation Rule"
         TransformationRule.CheckMandatoryFieldsInTransformationRule(Rec);
     end;
 
+#if not CLEAN28
+    [Obsolete('This is an unused procedure.', '28.0')]
+    procedure InsertAppendSpaceTransformation()
+    begin
+        InsertFindAndReplaceRule(AppendSpaceTxt, AppendSpaceDescriptionTxt, "Transformation Type"::"Regular Expression - Replace", '$', ' ', '');
+    end;
+
+#endif
     [IntegrationEvent(false, false)]
     procedure OnTransformation(TransformationCode: Code[20]; InputText: Text; var OutputText: Text)
     begin

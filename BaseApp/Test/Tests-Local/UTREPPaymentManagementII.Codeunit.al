@@ -1,3 +1,4 @@
+#if not CLEAN28
 codeunit 144054 "UT REP Payment Management II"
 {
     // 1 - 29. Purpose of test is to validate error for Report 10882 (Transfer), 10881 (Withdraw), 10880 (ETEBAC Files), 10862 (Suggest Vendor Payments FR), 10864 (Suggest Customer Payments) and 10872 (Duplicate parameter).
@@ -32,6 +33,9 @@ codeunit 144054 "UT REP Payment Management II"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to the Payment Management FR first-party app';
+    ObsoleteTag = '28.0';
 
     trigger OnRun()
     begin
@@ -46,6 +50,7 @@ codeunit 144054 "UT REP Payment Management II"
         DialogCap: Label 'Dialog';
         ValueMatchMsg: Label 'Value must be same.';
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('TransferRequestPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -56,6 +61,7 @@ codeunit 144054 "UT REP Payment Management II"
         // Verify actual error: "The RIB of the company's bank account is incorrect. Please verify before continuing."
         PaymentHeaderWithRIBCheckedFalse(REPORT::Transfer);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('WithdrawRequestPageHandler')]
@@ -92,6 +98,7 @@ codeunit 144054 "UT REP Payment Management II"
         Assert.ExpectedErrorCode(DialogCap);
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('TransferRequestPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -143,6 +150,7 @@ codeunit 144054 "UT REP Payment Management II"
         // Verify actual error: "You can only use currency code EUR."
         PaymentHeaderWithRIBCheckedTrue(REPORT::Transfer, PaymentHeader.FieldNo("Currency Code"), CreateCurrencyExchangeRate())
     end;
+#endif
 
     [Test]
     [HandlerFunctions('WithdrawRequestPageHandler')]
@@ -248,6 +256,7 @@ codeunit 144054 "UT REP Payment Management II"
         Assert.ExpectedErrorCode(DialogCap);
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('TransferRequestPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -258,6 +267,7 @@ codeunit 144054 "UT REP Payment Management II"
         // Verify actual error: "The RIB of the vendor's bank account  is incorrect. Please verify before continuing."
         CreatePaymentLineAndRunReport(REPORT::Transfer, LibraryUTUtility.GetNewCode());
     end;
+#endif
 
     [Test]
     [HandlerFunctions('WithdrawRequestPageHandler')]
@@ -294,6 +304,7 @@ codeunit 144054 "UT REP Payment Management II"
         Assert.ExpectedErrorCode(DialogCap);
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('TransferRequestPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -306,6 +317,7 @@ codeunit 144054 "UT REP Payment Management II"
         // Verify actual error: "The vendor's bank account number is too long. Please verify before continuing."
         CreateAndUpdatePaymentLine(PaymentLine.FieldNo("Bank Branch No."), REPORT::Transfer);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('WithdrawRequestPageHandler')]
@@ -333,6 +345,7 @@ codeunit 144054 "UT REP Payment Management II"
         CreateAndUpdatePaymentLine(PaymentLine.FieldNo("Bank Account No."), REPORT::Withdraw);
     end;
 
+#if not CLEAN28
     [Test]
     [HandlerFunctions('TransferRequestPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -345,6 +358,7 @@ codeunit 144054 "UT REP Payment Management II"
         // Verify actual error: "The vendor's bank account number  is too long. Please verify before continuing."
         CreateAndUpdatePaymentLine(PaymentLine.FieldNo("Bank Account No."), REPORT::Transfer);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ETEBACFilesRequestPageHandler')]
@@ -674,12 +688,14 @@ codeunit 144054 "UT REP Payment Management II"
         SuggestVendorPaymentsFR.OK().Invoke();
     end;
 
+#if not CLEAN28
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure TransferRequestPageHandler(var Transfer: TestRequestPage Transfer)
     begin
         Transfer.OK().Invoke();
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -688,4 +704,4 @@ codeunit 144054 "UT REP Payment Management II"
         Withdraw.OK().Invoke();
     end;
 }
-
+#endif

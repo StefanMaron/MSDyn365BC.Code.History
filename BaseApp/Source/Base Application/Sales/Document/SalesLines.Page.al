@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -10,6 +10,9 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Inventory.Item;
 using Microsoft.Utilities;
 
+/// <summary>
+/// Displays a list of sales lines across all documents for searching and analysis.
+/// </summary>
 page 516 "Sales Lines"
 {
     ApplicationArea = Basic, Suite;
@@ -44,7 +47,6 @@ page 516 "Sales Lines"
                 field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the customer.';
                 }
                 field("Line No."; Rec."Line No.")
                 {
