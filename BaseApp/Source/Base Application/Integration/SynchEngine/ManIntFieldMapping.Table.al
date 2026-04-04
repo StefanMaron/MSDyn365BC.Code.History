@@ -1,11 +1,13 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Integration.SyncEngine;
 
-using System.Reflection;
+using Microsoft.Integration.Dataverse;
 using System.IO;
+using System.Reflection;
+
 table 5384 "Man. Int. Field Mapping"
 {
     DataClassification = SystemMetadata;
@@ -25,6 +27,7 @@ table 5384 "Man. Int. Field Mapping"
         field(20; "Table Field Caption"; Text[80])
         {
             Caption = 'Table Field Caption';
+            ToolTip = 'Specifies the name of the field in Business Central.';
             DataClassification = SystemMetadata;
         }
         field(30; "Integration Table Field No."; Integer)
@@ -35,11 +38,18 @@ table 5384 "Man. Int. Field Mapping"
         field(40; "Int. Table Field Caption"; Text[80])
         {
             Caption = 'Integration Table Field Caption';
+            ToolTip = 'Specifies the name of the integration field to map to the Business Central field.';
+            DataClassification = SystemMetadata;
+        }
+        field(41; "Integration Table Field Name"; Text[80])
+        {
+            Caption = 'Integration Field Name';
             DataClassification = SystemMetadata;
         }
         field(50; "Direction"; Option)
         {
             Caption = 'Direction';
+            ToolTip = 'Specifies the synchronization direction.';
             DataClassification = SystemMetadata;
             OptionCaption = 'Bidirectional,ToIntegrationTable,FromIntegrationTable';
             OptionMembers = Bidirectional,ToIntegrationTable,FromIntegrationTable;
@@ -47,21 +57,25 @@ table 5384 "Man. Int. Field Mapping"
         field(60; "Const Value"; Text[50])
         {
             Caption = 'Const Value';
+            ToolTip = 'Specifies the constant value that the mapped field will be set to.';
             DataClassification = SystemMetadata;
         }
         field(70; "Validate Field"; Boolean)
         {
             Caption = 'Validate Field';
+            ToolTip = 'Specifies if the field should be validated during assignment.';
             DataClassification = SystemMetadata;
         }
         field(80; "Validate Integr. Table Field"; Boolean)
         {
             Caption = 'Validate Integration Table Field';
+            ToolTip = 'Specifies if the field should be validated during assignment in the integration table.';
             DataClassification = SystemMetadata;
         }
         field(90; "Transformation Rule"; Code[20])
         {
             Caption = 'Transformation Rule';
+            ToolTip = 'Specifies a rule for transforming imported text to a supported value before it can be mapped to a specified field in Microsoft Dynamics 365.';
             DataClassification = SystemMetadata;
             TableRelation = "Transformation Rule";
         }
@@ -77,12 +91,10 @@ table 5384 "Man. Int. Field Mapping"
 
     var
         FieldTypeNotTheSameErr: Label 'The field %1 with type %2 must have the same type as field %3 (%4).', Comment = '%1 - field name, %2 - field type, %3 - field name, %4 - field type';
-        FieldRelationExistsErr: Label 'The field %1 must not have a relationship with another table.', Comment = '%1 = field name';
 
     internal procedure GetAllValidFields(var Field: Record "Field"; IntegrationTable: Boolean; IntegrationMappingName: Code[20]; TableNo: Integer)
     var
         IntegrationFieldMapping: Record "Integration Field Mapping";
-        TableRelationsMetadata: Record "Table Relations Metadata";
         TextBuilder: TextBuilder;
     begin
         Field.SetRange(ObsoleteState, Field.ObsoleteState::No);
@@ -100,16 +112,6 @@ table 5384 "Man. Int. Field Mapping"
                             Field.Type::Integer,
                             Field.Type::Option,
                             Field.Type::Text);
-
-        //Filter out fields that have a relationship        
-        TableRelationsMetadata.SetRange("Table ID", TableNo);
-        if TableRelationsMetadata.FindSet() then
-            repeat
-                if TextBuilder.Length = 0 then
-                    TextBuilder.Append('<>' + Format(TableRelationsMetadata."Field No."))
-                else
-                    TextBuilder.Append('&<>' + Format(TableRelationsMetadata."Field No."));
-            until TableRelationsMetadata.Next() = 0;
 
         //Filder fields that are in field mapping table
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationMappingName);
@@ -147,14 +149,23 @@ table 5384 "Man. Int. Field Mapping"
             Field.SetFilter("No.", TextBuilder.ToText() + '&..1999999999');
     end;
 
-    internal procedure CheckTableRelationForSync(Field: Record Field)
+    internal procedure GetAllValidIntegrationFields(var IntegrationField: Record "Integration Field"; IntegrationMappingName: Code[20]; TableNo: Integer)
     var
-        TableRelationsMetadata: Record "Table Relations Metadata";
+        Field: Record "Field";
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
     begin
-        TableRelationsMetadata.SetRange("Table ID", Field.TableNo);
-        TableRelationsMetadata.SetRange("Field No.", Field."No.");
-        if not TableRelationsMetadata.IsEmpty() then
-            Error(FieldRelationExistsErr, Field."Field Caption");
+        Field.SetRange(TableNo, TableNo);
+        GetAllValidFields(Field, true, IntegrationMappingName, TableNo);
+        if Field.FindSet() then
+            repeat
+                IntegrationField."Table No." := Field.TableNo;
+                IntegrationField."Field Name" := Field.FieldName;
+                IntegrationField."Field Caption" := Field."Field Caption";
+                IntegrationField."Field No." := Field."No.";
+                IntegrationField.IsRuntime := false;
+                IntegrationField.Insert();
+            until Field.Next() = 0;
+        CDSIntegrationMgt.GetEntityFields(TableNo, IntegrationField);
     end;
 
     internal procedure CompareFieldType(LocalField: Record Field; IntegrationField: Record Field)

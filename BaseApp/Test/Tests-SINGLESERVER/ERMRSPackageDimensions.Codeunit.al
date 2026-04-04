@@ -22,6 +22,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         DimSetLessThanExpectedError: Label 'Dimension Set ID should be more than %1 in Gen. Jnl Line 4. Current value is %2.';
         IncorrectDimSetError: Label 'Dimension Set ID is not correct.';
         LibraryRandom: Codeunit "Library - Random";
+        APIMockEvents: Codeunit "API Mock Events";
         DimValueNotUpdatedErr: Label 'Dimension Set Entry was not updated on apply.';
         IsInitialized: Boolean;
 
@@ -266,7 +267,7 @@ codeunit 136604 "ERM RS Package Dimensions"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM RS Package Dimensions");
-        LibraryRapidStart.SetAPIServicesEnabled(false);
+        APIMockEvents.SetAPIServicesEnabled(false);
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Package Dimensions");
     end;

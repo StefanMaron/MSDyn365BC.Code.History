@@ -9,6 +9,8 @@ using System.Security.User;
 page 662 "Approval Request Entries"
 {
     ApplicationArea = Suite;
+    AboutTitle = 'About Approval Request Entries';
+    AboutText = 'Manage and review approval request entries, including details about the documents awaiting approval, the approvers involved, and the status of each request.';
     Caption = 'Approval Request Entries';
     Editable = false;
     PageType = List;

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -7,9 +7,9 @@ namespace Microsoft.Integration.SyncEngine;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Sales.Document;
+using System.Globalization;
 using System.Reflection;
 using System.Threading;
-using System.Globalization;
 
 page 5335 "Integration Table Mapping List"
 {
@@ -31,7 +31,6 @@ page 5335 "Integration Table Mapping List"
                 {
                     ApplicationArea = Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the name of the integration table mapping entry.';
                 }
                 field(TableCaptionValue; TableCaptionValue)
                 {
@@ -63,7 +62,6 @@ page 5335 "Integration Table Mapping List"
                 field(Direction; Rec.Direction)
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the synchronization direction.';
                 }
                 field(IntegrationTableCaptionValue; IntegrationTableCaptionValue)
                 {
@@ -99,12 +97,10 @@ page 5335 "Integration Table Mapping List"
                 field("Synch. Only Coupled Records"; Rec."Synch. Only Coupled Records")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies if the synchronization engine will process only currently coupled records or couple the newly created records as well.';
                 }
                 field("Multi Company Synch. Enabled"; Rec."Multi Company Synch. Enabled")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies if the multi-company synchronization is enabled for this mapping.';
 
                     trigger OnValidate()
                     begin
@@ -138,26 +134,6 @@ page 5335 "Integration Table Mapping List"
                     Editable = false;
                     ToolTip = 'Specifies the type of the field in the integration table to map to the Business Central table.';
                 }
-#if not CLEAN25            
-                field("Table Config Template Code"; Rec."Table Config Template Code")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies a configuration template to use when creating new records in the Business Central table (specified by the Table ID field) during synchronization.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with Table Config Templates field';
-                    ObsoleteTag = '25.0';
-                }
-                field("Int. Tbl. Config Template Code"; Rec."Int. Tbl. Config Template Code")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies a configuration template to use for creating new records in the integration table.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with Table Config Templates field';
-                    ObsoleteTag = '25.0';
-                }
-#endif
                 field("Table Config Templates"; TableConfigTemplates)
                 {
                     ApplicationArea = Suite;
@@ -195,38 +171,31 @@ page 5335 "Integration Table Mapping List"
                 field("Int. Tbl. Caption Prefix"; Rec."Int. Tbl. Caption Prefix")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies text that appears before the caption of the integration table wherever the caption is used.';
                     Visible = false;
                 }
                 field("Synch. Modified On Filter"; Rec."Synch. Modified On Filter")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies a date/time filter that uses the date on which records were modified to determine which records to synchronize from the system you are integrating with. The filter is based on the Modified On field on the integration table records.';
                 }
                 field("Synch. Int. Tbl. Mod. On Fltr."; Rec."Synch. Int. Tbl. Mod. On Fltr.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies a date/time filter that uses the date on which records were modified to determine which records to synchronize to the integration system. The filter is based on the SystemModifiedAt field on the Business Central table records.';
                 }
                 field("Deletion-Conflict Resolution"; Rec."Deletion-Conflict Resolution")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the action to take when a coupled record is deleted in one of the connected applications.';
                 }
                 field("Update-Conflict Resolution"; Rec."Update-Conflict Resolution")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the action to take when a coupled record is updated in both of the connected applications.';
                 }
                 field("Disable Event Job Resch."; Rec."Disable Event Job Resch.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies if event-based rescheduling of synchronization jobs should be turned off for this table mapping.';
                 }
                 field("User Defined"; Rec."User Defined")
                 {
                     Editable = false;
-                    ToolTip = 'Specifies if the field is generated manually through the integration table mapping wizard.';
                 }
             }
         }
@@ -717,4 +686,3 @@ page 5335 "Integration Table Mapping List"
             end;
     end;
 }
-

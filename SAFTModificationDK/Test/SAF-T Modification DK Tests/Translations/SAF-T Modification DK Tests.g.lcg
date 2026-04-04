@@ -23,4 +23,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Regnskab Accounting File Tests - NamedType SelectMappingErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 550091355 - NamedType 1296079953" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[New standard account type is available for year 2025.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Modification DK Tests - NamedType StandardAccount2025AvailableMsg)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

@@ -1,37 +1,33 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Foundation.Comment;
-using Microsoft.Sales.Customer;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Comment;
+using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
-using Microsoft.Finance.GeneralLedger.Ledger;
-using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
-using Microsoft.Purchases.History;
-using Microsoft.Purchases.Document;
-using Microsoft.Purchases.Archive;
-using Microsoft.Projects.Resources.Journal;
-using Microsoft.Projects.Resources.Ledger;
-using Microsoft.Projects.Resources.Resource;
-#if not CLEAN25
-using Microsoft.Projects.Resources.Pricing;
-#endif
-using Microsoft.Sales.History;
-using Microsoft.Sales.Document;
-using Microsoft.Sales.Archive;
-using Microsoft.Finance.VAT.Setup;
 using Microsoft.Projects.Project.Job;
-#if not CLEAN25
-using Microsoft.Projects.Project.Pricing;
-#endif
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.Project.Pricing;
 using Microsoft.Projects.Project.WIP;
+using Microsoft.Projects.Resources.Journal;
+using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Projects.Resources.Pricing;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Purchases.Archive;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Sales.Archive;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
 using Microsoft.Utilities;
 
 permissionset 6719 "Jobs - Edit"
@@ -52,19 +48,15 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "General Ledger Setup" = RM,
                   tabledata "VAT Setup" = RM,
                   tabledata Job = RIMD,
-#if not CLEAN25
                   tabledata "Job G/L Account Price" = RIMD,
                   tabledata "Job Item Price" = RIMD,
-#endif
                   tabledata "Job Journal Line" = r,
                   tabledata "Job Ledger Entry" = Rm,
                   tabledata "Job Planning Line - Calendar" = RIMD,
                   tabledata "Job Planning Line" = RIMD,
                   tabledata "Job Planning Line Invoice" = RIMD,
                   tabledata "Job Posting Group" = R,
-#if not CLEAN25
                   tabledata "Job Resource Price" = RIMD,
-#endif
                   tabledata "Job Task" = RIMD,
                   tabledata "Job Usage Link" = RIMD,
                   tabledata "Job WIP Entry" = rimd,
@@ -92,9 +84,7 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Res. Ledger Entry" = rm,
                   tabledata Resource = R,
                   tabledata "Resource Group" = R,
-#if not CLEAN25
                   tabledata "Resource Price" = RIMD,
-#endif
                   tabledata "Return Receipt Header" = r,
                   tabledata "Return Receipt Line" = r,
                   tabledata "Return Shipment Header" = r,

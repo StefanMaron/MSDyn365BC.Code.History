@@ -11,7 +11,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Stmt File Wizard Tests - NamedType AmountHeaderTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Bank.StatementImport)(LookupHint=Codeunit Bank Stmt File Wizard Tests - NamedType AmountHeaderTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 831549604 - NamedType 130911341" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -20,7 +20,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Stmt File Wizard Tests - NamedType DateHeaderTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Bank.StatementImport)(LookupHint=Codeunit Bank Stmt File Wizard Tests - NamedType DateHeaderTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 831549604 - NamedType 3055693507" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -29,7 +29,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Stmt File Wizard Tests - NamedType DescriptionHeaderTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.Bank.StatementImport)(LookupHint=Codeunit Bank Stmt File Wizard Tests - NamedType DescriptionHeaderTxt)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

@@ -7,7 +7,7 @@ namespace System.TestTools.AITestToolkit;
 
 page 149034 "AIT Test Method Lines"
 {
-    Caption = 'Tests';
+    Caption = 'Evals';
     PageType = ListPart;
     ApplicationArea = All;
     SourceTable = "AIT Test Method Line";
@@ -62,7 +62,9 @@ page 149034 "AIT Test Method Lines"
                         AITEvaluator.SetRange("Test Method Line", Rec."Line No.");
                         AITEvaluatorPage.SetTableView(AITEvaluator);
                         AITEvaluatorPage.SetTestMethodLine(Rec."Line No.");
-                        AITEvaluatorPage.Run();
+
+                        if AITEvaluatorPage.RunModal() = Action::LookupOK then
+                            CurrPage.Update(false);
                     end;
                 }
                 field(Status; Rec.Status)
@@ -78,8 +80,8 @@ page 149034 "AIT Test Method Lines"
                 field("No. of Tests Failed"; Rec."No. of Tests Executed" - Rec."No. of Tests Passed")
                 {
                     Editable = false;
-                    Caption = 'No. of Tests Failed';
-                    ToolTip = 'Specifies the number of failed tests for the test line.';
+                    Caption = 'No. of Evals Failed';
+                    ToolTip = 'Specifies the number of failed evals for the eval line.';
                     Style = Unfavorable;
 
                     trigger OnDrillDown()
@@ -125,7 +127,7 @@ page 149034 "AIT Test Method Lines"
                     Visible = false;
                     Editable = false;
                     Caption = 'No. of Turns Failed';
-                    ToolTip = 'Specifies the number of failed turns of the test line.';
+                    ToolTip = 'Specifies the number of failed turns of the eval line.';
                     Style = Unfavorable;
 
                     trigger OnDrillDown()
@@ -152,7 +154,7 @@ page 149034 "AIT Test Method Lines"
                 field(AvgDuration; AITTestSuiteMgt.GetAvgDuration(Rec))
                 {
                     Caption = 'Average Duration (ms)';
-                    ToolTip = 'Specifies average time taken to execute the test line.';
+                    ToolTip = 'Specifies average time taken to execute the eval line.';
                     Visible = false;
                 }
                 field("No. of Tests Executed - Base"; Rec."No. of Tests Executed - Base")
@@ -167,8 +169,8 @@ page 149034 "AIT Test Method Lines"
                 field("No. of Tests Failed - Base"; Rec."No. of Tests Executed - Base" - Rec."No. of Tests Passed - Base")
                 {
                     Editable = false;
-                    Caption = 'No. of Tests Failed - Base';
-                    ToolTip = 'Specifies the number of failed tests for the base version of the test line.';
+                    Caption = 'No. of Evals Failed - Base';
+                    ToolTip = 'Specifies the number of failed evals for the base version of the eval line.';
                     Style = Unfavorable;
                     Visible = false;
 
@@ -194,13 +196,13 @@ page 149034 "AIT Test Method Lines"
                 field(AvgDurationBase; GetAvg(Rec."No. of Tests Executed - Base", Rec."Total Duration - Base (ms)"))
                 {
                     Caption = 'Average Duration Base (ms)';
-                    ToolTip = 'Specifies average time taken to execute the base version of the test line.';
+                    ToolTip = 'Specifies average time taken to execute the base version of the eval line.';
                     Visible = false;
                 }
                 field(AvgDurationDeltaPct; GetDiffPct(GetAvg(Rec."No. of Tests Executed - Base", Rec."Total Duration - Base (ms)"), GetAvg(Rec."No. of Tests Executed", Rec."Total Duration (ms)")))
                 {
                     Caption = 'Change in Duration (%)';
-                    ToolTip = 'Specifies difference in average test execution time compared to the base version.';
+                    ToolTip = 'Specifies difference in average eval execution time compared to the base version.';
                     Visible = false;
                     AutoFormatType = 0;
                 }
@@ -213,9 +215,9 @@ page 149034 "AIT Test Method Lines"
         {
             action("Run Test")
             {
-                Caption = 'Run Test';
+                Caption = 'Run Eval';
                 Image = Start;
-                ToolTip = 'Starts running the AI Test Line.';
+                ToolTip = 'Starts running the AI Eval Line.';
 
                 trigger OnAction()
                 begin
@@ -274,6 +276,16 @@ page 149034 "AIT Test Method Lines"
     end;
 
     trigger OnAfterGetRecord()
+    begin
+        UpdateControls();
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        UpdateControls();
+    end;
+
+    local procedure UpdateControls()
     begin
         EvaluationSetupTxt := AITTestSuiteMgt.GetEvaluationSetupText(CopyStr(Rec."Test Suite Code", 1, 10), Rec."Line No.");
         TurnsText := AITTestSuiteMgt.GetTurnsAsText(Rec);

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -37,11 +37,13 @@ table 5601 "FA Ledger Entry"
         field(1; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
+            ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
         }
         field(2; "G/L Entry No."; Integer)
         {
             BlankZero = true;
             Caption = 'G/L Entry No.';
+            ToolTip = 'Specifies the entry number of the corresponding G/L entry that was created in the general ledger for this fixed asset transaction.';
             TableRelation = "G/L Entry";
         }
         field(3; "FA No."; Code[20])
@@ -87,6 +89,7 @@ table 5601 "FA Ledger Entry"
         field(11; "Depreciation Book Code"; Code[10])
         {
             Caption = 'Depreciation Book Code';
+            ToolTip = 'Specifies the code for the depreciation book to which the line will be posted if you have selected Fixed Asset in the Type field for this line.';
             TableRelation = "Depreciation Book";
         }
         field(12; "FA Posting Category"; Enum "FA Ledger Posting Category")
@@ -102,18 +105,23 @@ table 5601 "FA Ledger Entry"
         field(14; Amount; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Amount';
             ToolTip = 'Specifies the entry amount in currency.';
         }
         field(15; "Debit Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Debit Amount';
+            ToolTip = 'Specifies the total of the ledger entries that represent debits.';
         }
         field(16; "Credit Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Credit Amount';
+            ToolTip = 'Specifies the total of the ledger entries that represent credits.';
         }
         field(17; "Reclassification Entry"; Boolean)
         {
@@ -142,9 +150,11 @@ table 5601 "FA Ledger Entry"
         field(22; "No. of Depreciation Days"; Integer)
         {
             Caption = 'No. of Depreciation Days';
+            ToolTip = 'Specifies the number of depreciation days that were used for calculating depreciation for the fixed asset entry.';
         }
         field(23; Quantity; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
         }
@@ -191,6 +201,7 @@ table 5601 "FA Ledger Entry"
         field(32; "User ID"; Code[50])
         {
             Caption = 'User ID';
+            ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
         }
@@ -206,21 +217,25 @@ table 5601 "FA Ledger Entry"
         }
         field(35; "Straight-Line %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Straight-Line %';
             DecimalPlaces = 1 : 1;
         }
         field(36; "No. of Depreciation Years"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'No. of Depreciation Years';
             DecimalPlaces = 0 : 3;
         }
         field(37; "Fixed Depr. Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Fixed Depr. Amount';
         }
         field(38; "Declining-Balance %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Declining-Balance %';
             DecimalPlaces = 1 : 1;
         }
@@ -236,11 +251,13 @@ table 5601 "FA Ledger Entry"
         field(41; "Source Code"; Code[10])
         {
             Caption = 'Source Code';
+            ToolTip = 'Specifies the source code that specifies where the entry was created.';
             TableRelation = "Source Code";
         }
         field(42; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
+            ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
             TableRelation = "Reason Code";
         }
         field(43; "Transaction No."; Integer)
@@ -250,10 +267,12 @@ table 5601 "FA Ledger Entry"
         field(44; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
+            ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
         }
         field(45; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
+            ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
             TableRelation = if ("Bal. Account Type" = const("G/L Account")) "G/L Account"
             else
             if ("Bal. Account Type" = const(Customer)) Customer
@@ -267,6 +286,7 @@ table 5601 "FA Ledger Entry"
         field(46; "VAT Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'VAT Amount';
         }
         field(47; "Gen. Posting Type"; Enum "General Posting Type")
@@ -290,12 +310,13 @@ table 5601 "FA Ledger Entry"
         }
         field(51; "FA Exchange Rate"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 0;
             Caption = 'FA Exchange Rate';
         }
         field(52; "Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount (LCY)';
         }
         field(53; "Result on Disposal"; Option)
@@ -311,10 +332,12 @@ table 5601 "FA Ledger Entry"
         field(55; "Index Entry"; Boolean)
         {
             Caption = 'Index Entry';
+            ToolTip = 'Specifies this entry is an index entry.';
         }
         field(56; "Canceled from FA No."; Code[20])
         {
             Caption = 'Canceled from FA No.';
+            ToolTip = 'Specifies the number of the fixed asset linked to the original entry, from which this fixed asset error ledger entry was created.';
             TableRelation = "Fixed Asset";
         }
         field(57; "Depreciation Ending Date"; Date)
@@ -340,11 +363,13 @@ table 5601 "FA Ledger Entry"
         }
         field(62; "Accum. Depr. % (Custom 1)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Accum. Depr. % (Custom 1)';
             DecimalPlaces = 1 : 1;
         }
         field(63; "Depr. % this year (Custom 1)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Depr. % this year (Custom 1)';
             DecimalPlaces = 1 : 1;
         }
@@ -390,22 +415,26 @@ table 5601 "FA Ledger Entry"
         field(72; Reversed; Boolean)
         {
             Caption = 'Reversed';
+            ToolTip = 'Specifies whether the entry has been part of a reverse transaction (correction) made by the Reverse function.';
         }
         field(73; "Reversed by Entry No."; Integer)
         {
             BlankZero = true;
             Caption = 'Reversed by Entry No.';
+            ToolTip = 'Specifies the number of the correcting entry.';
             TableRelation = "FA Ledger Entry";
         }
         field(74; "Reversed Entry No."; Integer)
         {
             BlankZero = true;
             Caption = 'Reversed Entry No.';
+            ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
             TableRelation = "FA Ledger Entry";
         }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
+            ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
             Editable = false;
             TableRelation = "Dimension Set Entry";
 
@@ -661,6 +690,11 @@ table 5601 "FA Ledger Entry"
         AcquisitionCost := "FA Posting Type" = "FA Posting Type"::"Acquisition Cost";
         OnAfterIsAcquisitionCost(Rec, AcquisitionCost);
         exit(AcquisitionCost);
+    end;
+
+    local procedure GetCurrencyCode(): Code[10]
+    begin
+        exit('');
     end;
 
     [IntegrationEvent(false, false)]

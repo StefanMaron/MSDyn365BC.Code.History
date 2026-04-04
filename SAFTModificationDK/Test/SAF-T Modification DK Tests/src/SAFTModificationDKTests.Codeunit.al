@@ -326,4 +326,133 @@ codeunit 148057 "SAF-T Modification DK Tests"
             Assert.AreEqual(ExpectedTaxCodes.Get(TaxCode), VATReportingCode.Description, 'Tax code ' + TaxCode + ' description is incorrect.');
         end;
     end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    procedure NotificationShownForFourDigitStandardAccount()
+    var
+        AuditFileExportSetup: Record "Audit File Export Setup";
+        MyNotifications: Record "My Notifications";
+        AuditFileExportDocuments: TestPage "Audit File Export Documents";
+    begin
+        // [FEATURE] [AI test]
+        // [FEATURE] [RegF][DK] New Standard Chart of Accounts 2025
+        // [SCENARIO] Notification is shown when Audit File Export Setup has "Four Digit Standard Account"
+
+        // [GIVEN] Audit File Export Setup with Standard Account Type "Four Digit Standard Account", notification not disabled
+        AuditFileExportSetup.DeleteAll();
+        AuditFileExportSetup.Init();
+        AuditFileExportSetup."Standard Account Type" := AuditFileExportSetup."Standard Account Type"::"Four Digit Standard Account";
+        AuditFileExportSetup.Insert();
+
+        MyNotifications.SetRange("Notification Id", GetStandardAccount2025NotificationId());
+        MyNotifications.DeleteAll();
+
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(StandardAccount2025AvailableMsg);
+
+        // [WHEN] User opens "Audit File Export Documents" page
+        AuditFileExportDocuments.OpenView();
+
+        // [THEN] Notification with message 'New standard account type is available for year 2025.' is sent
+        // Verified in SendNotificationHandler
+        AuditFileExportDocuments.Close();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure NotificationNotShownWhenSetupNotExists()
+    var
+        AuditFileExportSetup: Record "Audit File Export Setup";
+        AuditFileExportDocuments: TestPage "Audit File Export Documents";
+    begin
+        // [FEATURE] [AI test]
+        // [FEATURE] [RegF][DK] New Standard Chart of Accounts 2025
+        // [SCENARIO] Notification is not shown when Audit File Export Setup does not exist
+
+        // [GIVEN] No Audit File Export Setup record exists
+        AuditFileExportSetup.DeleteAll();
+
+        // [WHEN] User opens "Audit File Export Documents" page
+        AuditFileExportDocuments.OpenView();
+
+        // [THEN] No notification is sent (page opens without error)
+        AuditFileExportDocuments.Close();
+    end;
+
+    [Test]
+    procedure NotificationNotShownWhenStandardAccount2025Configured()
+    var
+        AuditFileExportSetup: Record "Audit File Export Setup";
+        AuditFileExportDocuments: TestPage "Audit File Export Documents";
+    begin
+        // [FEATURE] [AI test]
+        // [FEATURE] [RegF][DK] New Standard Chart of Accounts 2025
+        // [SCENARIO] Notification is not shown when Audit File Export Setup already has "Standard Account 2025"
+
+        // [GIVEN] Audit File Export Setup with Standard Account Type "Standard Account 2025"
+        AuditFileExportSetup.DeleteAll();
+        AuditFileExportSetup.Init();
+        AuditFileExportSetup."Standard Account Type" := AuditFileExportSetup."Standard Account Type"::"Standard Account 2025";
+        AuditFileExportSetup.Insert();
+
+        // [WHEN] User opens "Audit File Export Documents" page
+        AuditFileExportDocuments.OpenView();
+
+        // [THEN] No notification is sent
+        AuditFileExportDocuments.Close();
+    end;
+
+    [Test]
+    procedure NotificationNotShownWhenUserDisabledNotification()
+    var
+        AuditFileExportSetup: Record "Audit File Export Setup";
+        MyNotifications: Record "My Notifications";
+        AuditFileExportDocuments: TestPage "Audit File Export Documents";
+    begin
+        // [FEATURE] [AI test]
+        // [FEATURE] [RegF][DK] New Standard Chart of Accounts 2025
+        // [SCENARIO] Notification is not shown when user has disabled the notification
+
+        // [GIVEN] Audit File Export Setup with Standard Account Type "Four Digit Standard Account"
+        AuditFileExportSetup.DeleteAll();
+        AuditFileExportSetup.Init();
+        AuditFileExportSetup."Standard Account Type" := AuditFileExportSetup."Standard Account Type"::"Four Digit Standard Account";
+        AuditFileExportSetup.Insert();
+
+        // [GIVEN] My Notifications record for current user with notification ID disabled
+        MyNotifications.SetRange("Notification Id", GetStandardAccount2025NotificationId());
+        MyNotifications.DeleteAll();
+        MyNotifications.Init();
+        MyNotifications."User Id" := CopyStr(UserId(), 1, MaxStrLen(MyNotifications."User Id"));
+        MyNotifications."Notification Id" := GetStandardAccount2025NotificationId();
+        MyNotifications.Enabled := false;
+        MyNotifications.Insert();
+
+        // [WHEN] User opens "Audit File Export Documents" page
+        AuditFileExportDocuments.OpenView();
+
+        // [THEN] No notification is sent
+        AuditFileExportDocuments.Close();
+    end;
+
+    [SendNotificationHandler]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    var
+        Assert: Codeunit Assert;
+        ExpectedMessage: Text;
+    begin
+        ExpectedMessage := LibraryVariableStorage.DequeueText();
+        Assert.AreEqual(ExpectedMessage, Notification.Message(), 'Notification message is incorrect.');
+        exit(true);
+    end;
+
+    local procedure GetStandardAccount2025NotificationId(): Guid
+    begin
+        exit('a1b0c3e4-d5f6-4a7b-8c9d-0e1f2a3b4c5d');
+    end;
+
+    var
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        StandardAccount2025AvailableMsg: Label 'New standard account type is available for year 2025.';
 }

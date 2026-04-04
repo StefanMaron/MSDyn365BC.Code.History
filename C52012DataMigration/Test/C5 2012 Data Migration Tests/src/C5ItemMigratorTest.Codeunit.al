@@ -239,7 +239,7 @@ codeunit 148005 "C5 Item Migrator Test"
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
         CustomerDiscountGroup: Record "Customer Discount Group";
-#if not CLEAN25
+#if not CLEAN27
         SalesLineDiscount: Record "Sales Line Discount";
         SalesPrice: Record "Sales Price";
 #else
@@ -258,13 +258,13 @@ codeunit 148005 "C5 Item Migrator Test"
         CustomerDiscountGroup.DeleteAll();
         Vendor.DeleteAll();
         TariffNumber.DeleteAll();
-#if not CLEAN25
+#if not CLEAN27
         SalesLineDiscount.DeleteAll();
 #endif
         ItemTrackingCode.DeleteAll();
         DefaultDimension.DeleteAll();
         DimensionValue.DeleteAll();
-#if not CLEAN25
+#if not CLEAN27
         SalesPrice.DeleteAll();
 #else
         PriceListLine.DeleteAll();
@@ -493,7 +493,7 @@ codeunit 148005 "C5 Item Migrator Test"
         ItemTrackingCode: Record "Item Tracking Code";
         DefaultDimension: Record "Default Dimension";
         CustomerDiscountGroup: Record "Customer Discount Group";
-#if not CLEAN25
+#if not CLEAN27
         SalesLineDiscount: Record "Sales Line Discount";
         SalesPrice: Record "Sales Price";
 #else
@@ -529,7 +529,7 @@ codeunit 148005 "C5 Item Migrator Test"
         Assert.AreEqual('Super amazing discount cust', CustomerDiscountGroup.Description, 'CustomerDiscountGroup.Description');
 
         // check inven cust disc
-#if not CLEAN25
+#if not CLEAN27
         SalesLineDiscount.SetRange(Type, SalesLineDiscount.Type::Item);
         SalesLineDiscount.SetRange(Code, ItemNumTxt);
         SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::"Customer Disc. Group");
@@ -585,7 +585,7 @@ codeunit 148005 "C5 Item Migrator Test"
         Assert.IsTrue(Item.PreventNegativeInventory(), 'PreventNegativeInventory incorrect');
 
         // check price is created
-#if not CLEAN25
+#if not CLEAN27
         SalesPrice.SetRange("Sales Code", 'PREMIUM');
         SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::"Customer Price Group");
         SalesPrice.SetRange("Item No.", ItemNumTxt);

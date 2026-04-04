@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -44,14 +44,12 @@ page 375 "Bank Account Statistics"
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
-                    ToolTip = 'Specifies the bank account''s current balance denominated in the applicable foreign currency.';
                 }
                 field("Min. Balance"; Rec."Min. Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
-                    ToolTip = 'Specifies a minimum balance for the bank account.';
                 }
                 field("Currency Code"; Rec."Currency Code")
                 {
@@ -88,6 +86,7 @@ page 375 "Bank Account Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Net Change (LCY)';
                             ToolTip = 'Specifies the net value of entries in LCY on the bank account for the periods: Current Month, This Year, Last Year, and To Date.';
                         }
@@ -112,6 +111,7 @@ page 375 "Bank Account Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Net Change (LCY)';
                             ToolTip = 'Specifies the net value of entries in LCY on the bank account for the periods: Current Month, This Year, Last Year, and To Date.';
                         }
@@ -136,6 +136,7 @@ page 375 "Bank Account Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Net Change (LCY)';
                             ToolTip = 'Specifies the net value of entries in LCY on the bank account for the periods: Current Month, This Year, Last Year, and To Date.';
                         }
@@ -159,6 +160,7 @@ page 375 "Bank Account Statistics"
                         field("BankAccNetChangeLCY[4]"; BankAccNetChangeLCY[4])
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatExpression = '';
                             AutoFormatType = 1;
                             Caption = 'Net Change (LCY)';
                             ToolTip = 'Specifies the net value of entries in LCY on the bank account for the periods: Current Month, This Year, Last Year, and To Date.';

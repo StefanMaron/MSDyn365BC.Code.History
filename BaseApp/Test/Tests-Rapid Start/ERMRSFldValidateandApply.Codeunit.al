@@ -18,12 +18,11 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         LibraryRandom: Codeunit "Library - Random";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        APIMockEvents: Codeunit "API Mock Events";
         isInitialized: Boolean;
         SingleEntryRecNo: Integer;
-#if not CLEAN25
         MigrationError: Label 'There are errors in Migration Data Error.';
         NoMigrationError: Label 'There must be errors in Migration Data Error.';
-#endif
         NoDataInTableAfterApply: Label 'There is no data in table after apply procedure.';
         DataIsInvalidAfterApply: Label 'Invalid data in field %1.';
         PackageValidationError: Label 'Package validation errors.';
@@ -32,6 +31,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         OptionNoExistsErr: Label 'OptionNoExists function returns wrong result.';
         GetOptionNoErr: Label 'GetOptionNo function returns wrong result.';
         ConfigPackContErr: Label 'Config Package contains errors';
+        ItemUOMWeightErr: Label 'Item unit of measure weight is incorrect';
 
     local procedure Initialize()
     begin
@@ -43,13 +43,12 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
 
         SingleEntryRecNo := 1;
 
-        LibraryRapidStart.SetAPIServicesEnabled(false);
+        APIMockEvents.SetAPIServicesEnabled(false);
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Fld. Validate and Apply");
     end;
 
-#if not CLEAN25
     local procedure CreateResource(var Resource: Record Resource; var ResourcePrice: Record "Resource Price")
     var
         LibraryResource: Codeunit "Library - Resource";
@@ -111,7 +110,6 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         if not SavePackageRecord then
             ResourcePrice.Delete();
     end;
-#endif
 
     local procedure GenerateSimplePackage(UseInvalidGLAccountCode: Boolean; SavePackageRecord: Boolean; ValidateFields: Boolean; var ConfigPackage: Record "Config. Package"; var CustPostingGroupCode: Code[20]; var GLAccountNo: Code[20])
     var
@@ -222,7 +220,6 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         CheckGetOptionNo(Format(SalesCrMemoLine."IC Partner Ref. Type"), OptionNo.AsInteger());
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure TableValidation_ValidateTableWithWrongOrderInPK_PackageErrorGenerated()
@@ -290,7 +287,6 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
 
         Assert.IsTrue(ResourcePrice.Get(ResourcePrice.Type::All, ResourcePriceCode, '', ''), NoDataInTableAfterApply);
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -403,7 +399,6 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         Assert.IsTrue(ConfigPackageError.IsEmpty, PackageValidationError);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure TableValidation_ValidateTableWhenValidatedRecordExists()
@@ -423,7 +418,6 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
         Assert.IsTrue(ConfigPackageError.IsEmpty, PackageValidationError);
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -762,7 +756,6 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         Assert.AreEqual(0, ConfigPackageTable."No. of Package Errors", ConfigPackContErr);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure UT_SalesPriceTableProcessingOrder()
@@ -791,7 +784,6 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         ConfigPackageField.Get(PackageCode, TableID, FieldID);
         ConfigPackageField.TestField("Processing Order", ProcessingOrder);
     end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -934,6 +926,61 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         // [THEN] Post Code record is updated, "Country/Region Code" = 'BE'
         PostCode.GET(PostCode.Code, PostCode.City);
         PostCode.TestField("Country/Region Code", CountryRegionCode);
+    end;
+
+    [Test]
+    procedure ItemUnitOfMeasureWeightUpdatedViaConfigPackage()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageRecord: Record "Config. Package Record";
+        ConfigPackageTable: Record "Config. Package Table";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemNo: Code[20];
+        NetWeight: Decimal;
+    begin
+        // [SCENARIO 616529] Item Unit of Measure weight is updated when Net Weight is set via Configuration Package after Base Unit of Measure.
+        Initialize();
+
+        // [GIVEN] A new item number and unit of measure.
+        ItemNo := LibraryInventory.CreateItemNo();
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        NetWeight := LibraryRandom.RandDecInRange(1, 100, 2);
+
+        // [GIVEN] A configuration package for Item table with fields in specific order.
+        LibraryRapidStart.CreatePackage(ConfigPackage);
+        LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::Item);
+
+        // [GIVEN] Configure fields to be included: No., Base Unit of Measure (applied first), Net Weight (applied second).
+        SetupItemConfigPackageFields(ConfigPackage.Code, ConfigPackageTable."Table ID");
+
+        // [GIVEN] Package data: No. = ItemNo, Base Unit of Measure = UOM Code, Net Weight = 10.
+        LibraryRapidStart.CreatePackageRecord(ConfigPackageRecord, ConfigPackageTable."Package Code", ConfigPackageTable."Table ID", 1);
+        LibraryRapidStart.CreatePackageFieldData(ConfigPackageRecord, Item.FieldNo("No."), ItemNo);
+        LibraryRapidStart.CreatePackageFieldData(ConfigPackageRecord, Item.FieldNo("Base Unit of Measure"), UnitOfMeasure.Code);
+        LibraryRapidStart.CreatePackageFieldData(ConfigPackageRecord, Item.FieldNo("Net Weight"), Format(NetWeight));
+
+        // [WHEN] Apply the configuration package.
+        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
+
+        // [THEN] Verify Item Unit of Measure is created with the correct weight.
+        ItemUnitOfMeasure.Get(ItemNo, UnitOfMeasure.Code);
+        Assert.AreEqual(ItemUnitOfMeasure.Weight, NetWeight, ItemUOMWeightErr);
+    end;
+
+    local procedure SetupItemConfigPackageFields(PackageCode: Code[20]; TableID: Integer)
+    var
+        ConfigPackageField: Record "Config. Package Field";
+        Item: Record Item;
+    begin
+        ConfigPackageField.SetRange("Package Code", PackageCode);
+        ConfigPackageField.SetRange("Table ID", TableID);
+        ConfigPackageField.ModifyAll("Include Field", false);
+
+        LibraryRapidStart.SetIncludeOneField(PackageCode, TableID, Item.FieldNo("No."), true);
+        LibraryRapidStart.SetIncludeOneField(PackageCode, TableID, Item.FieldNo("Base Unit of Measure"), true);
+        LibraryRapidStart.SetIncludeOneField(PackageCode, TableID, Item.FieldNo("Net Weight"), true);
     end;
 
 }

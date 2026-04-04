@@ -37,6 +37,7 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
+using Microsoft.Utilities;
 using System.IO;
 using System.Text;
 
@@ -509,12 +510,6 @@ page 344 Navigate
         Cust: Record Customer;
         [SecurityFiltering(SecurityFilter::Filtered)]
         Vend: Record Vendor;
-#if not CLEAN25
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        ServInvHeader: Record Microsoft.Service.History."Service Invoice Header";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        ServCrMemoHeader: Record Microsoft.Service.History."Service Cr.Memo Header";
-#endif
         [SecurityFiltering(SecurityFilter::Filtered)]
         IssuedReminderHeader: Record "Issued Reminder Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -569,10 +564,6 @@ page 344 Navigate
         InsuranceCovLedgEntry: Record "Ins. Coverage Ledger Entry";
         [SecurityFiltering(SecurityFilter::Filtered)]
         CapacityLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
-#if not CLEAN25
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        WarrantyLedgerEntry: Record Microsoft.Service.Ledger."Warranty Ledger Entry";
-#endif
         TempRecordBuffer: Record "Record Buffer" temporary;
         [SecurityFiltering(SecurityFilter::Filtered)]
         CostEntry: Record "Cost Entry";
@@ -675,17 +666,6 @@ page 344 Navigate
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlLine: Record "Gen. Journal Line";
-#if not CLEAN25
-        [Obsolete('Moved to codeunit Serv. Navigate Mgt.', '25.0')]
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        SOServHeader: Record Microsoft.Service.Document."Service Header";
-        [Obsolete('Moved to codeunit Serv. Navigate Mgt.', '25.0')]
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        SIServHeader: Record Microsoft.Service.Document."Service Header";
-        [Obsolete('Moved to codeunit Serv. Navigate Mgt.', '25.0')]
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        SCMServHeader: Record Microsoft.Service.Document."Service Header";
-#endif
         PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
         ContactNo: Code[250];
         ContactType: Enum "Navigate Contact Type";
@@ -754,17 +734,6 @@ page 344 Navigate
 
                     OnFindExtRecordsForCustomer(Rec, ContactNo, ExtDocNo);
 
-#if not CLEAN25
-                    SOServHeader.Reset();
-                    SOServHeader.Setrange("Customer No.", ContactNo);
-                    SOServHeader.SetRange("Document Type", SOServHeader."Document Type"::Order);
-                    SIServHeader.Reset();
-                    SIServHeader.Setrange("Customer No.", ContactNo);
-                    SIServHeader.SetRange("Document Type", SOServHeader."Document Type"::Invoice);
-                    SCMServHeader.Reset();
-                    SCMServHeader.Setrange("Customer No.", ContactNo);
-                    SCMServHeader.SetRange("Document Type", SOServHeader."Document Type"::"Credit Memo");
-#endif
                     FindUnpostedSalesDocs(SOSalesHeader."Document Type"::Quote, SalesQuoteTxt, SQSalesHeader);
                     FindUnpostedSalesDocs(SOSalesHeader."Document Type"::Order, SalesOrderTxt, SOSalesHeader);
                     FindUnpostedSalesDocs(SISalesHeader."Document Type"::Invoice, SalesInvoiceTxt, SISalesHeader);
@@ -1407,29 +1376,8 @@ page 344 Navigate
         CurrPage.Update(false);
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by procedure InsertIntoDocEntry() in table Document Entry', '25.0')]
-    procedure InsertIntoDocEntry(DocTableID: Integer; DocTableName: Text; DocNoOfRecords: Integer)
-    begin
-        Rec.InsertIntoDocEntry(DocTableID, Enum::"Document Entry Document Type"::" ", DocTableName, DocNoOfRecords);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by procedure InsertIntoDocEntry() in table Document Entry', '25.0')]
-    procedure InsertIntoDocEntry(var TempDocumentEntry: Record "Document Entry" temporary; DocTableID: Integer; DocTableName: Text; DocNoOfRecords: Integer)
-    begin
-        InsertIntoDocEntry(TempDocumentEntry, DocTableID, Enum::"Document Entry Document Type"::" ", DocTableName, DocNoOfRecords);
-    end;
-#endif
 
-#if not CLEAN25
-    [Obsolete('Replaced by procedure InsertIntoDocEntry() in table Document Entry', '25.0')]
-    procedure InsertIntoDocEntry(var TempDocumentEntry: Record "Document Entry" temporary; DocTableID: Integer; DocEntryType: Enum "Document Entry Document Type"; DocTableName: Text; DocNoOfRecords: Integer)
-    begin
-        TempDocumentEntry.InsertIntoDocEntry(DocTableID, DocEntryType, DocTableName, DocNoOfRecords);
-    end;
-#endif
 
     protected procedure NoOfRecords(TableID: Integer): Integer
     begin
@@ -1589,28 +1537,10 @@ page 344 Navigate
 
     procedure ShowRecords()
     var
+        PageManagement: Codeunit "Page Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN25
-        // Set filters to simulate previous event behavior
-        ServInvHeader.Reset();
-        ServInvHeader.SetFilter("No.", DocNoFilter);
-        ServInvHeader.SetFilter("Posting Date", PostingDateFilter);
-        ServCrMemoHeader.Reset();
-        ServCrMemoHeader.SetFilter("No.", DocNoFilter);
-        ServCrMemoHeader.SetFilter("Posting Date", PostingDateFilter);
-        WarrantyLedgerEntry.Reset();
-        WarrantyLedgerEntry.SetCurrentKey("Document No.", "Posting Date");
-        WarrantyLedgerEntry.SetFilter("Document No.", DocNoFilter);
-        WarrantyLedgerEntry.SetFilter("Posting Date", PostingDateFilter);
-
-        OnBeforeNavigateShowRecords(
-          Rec."Table ID", DocNoFilter, PostingDateFilter, ItemTrackingSearch(), Rec, IsHandled,
-          SalesInvHeader, SalesCrMemoHeader, PurchInvHeader, PurchCrMemoHeader, ServInvHeader, ServCrMemoHeader,
-          SOSalesHeader, SISalesHeader, SCMSalesHeader, SROSalesHeader, GLEntry, VATEntry, VendLedgEntry, WarrantyLedgerEntry, NewSourceRecVar,
-          SalesShptHeader, ReturnRcptHeader, ReturnShptHeader, PurchRcptHeader, CustLedgEntry, DtldCustLedgEntry);
-#endif
         OnBeforeShowRecords(Rec, DocNoFilter, PostingDateFilter, ItemTrackingSearch(), ContactNo, ExtDocNo, IsHandled);
         if IsHandled then
             exit;
@@ -1629,24 +1559,24 @@ page 344 Navigate
                     Page.Run(PAGE::"General Journal", GenJnlLine);
                 Database::"Sales Invoice Header":
                     if Rec."No. of Records" = 1 then
-                        PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvHeader)
+                        PageManagement.PageRun(SalesInvHeader)
                     else
-                        PAGE.Run(PAGE::"Posted Sales Invoices", SalesInvHeader);
+                        PageManagement.PageRunList(SalesInvHeader);
                 Database::"Sales Cr.Memo Header":
                     if Rec."No. of Records" = 1 then
-                        PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader)
+                        PageManagement.PageRun(SalesCrMemoHeader)
                     else
-                        PAGE.Run(PAGE::"Posted Sales Credit Memos", SalesCrMemoHeader);
+                        PageManagement.PageRunList(SalesCrMemoHeader);
                 Database::"Return Receipt Header":
                     if Rec."No. of Records" = 1 then
-                        PAGE.Run(PAGE::"Posted Return Receipt", ReturnRcptHeader)
+                        PageManagement.PageRun(ReturnRcptHeader)
                     else
-                        PAGE.Run(0, ReturnRcptHeader);
+                        PageManagement.PageRunList(ReturnRcptHeader);
                 Database::"Sales Shipment Header":
                     if Rec."No. of Records" = 1 then
-                        PAGE.Run(PAGE::"Posted Sales Shipment", SalesShptHeader)
+                        PageManagement.PageRun(SalesShptHeader)
                     else
-                        PAGE.Run(0, SalesShptHeader);
+                        PageManagement.PageRunList(SalesShptHeader);
                 Database::"Issued Reminder Header":
                     if Rec."No. of Records" = 1 then
                         PAGE.Run(PAGE::"Issued Reminder", IssuedReminderHeader)
@@ -1659,24 +1589,24 @@ page 344 Navigate
                         PAGE.Run(0, IssuedFinChrgMemoHeader);
                 Database::"Purch. Inv. Header":
                     if Rec."No. of Records" = 1 then
-                        PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader)
+                        PageManagement.PageRun(PurchInvHeader)
                     else
-                        PAGE.Run(PAGE::"Posted Purchase Invoices", PurchInvHeader);
+                        PageManagement.PageRunList(PurchInvHeader);
                 Database::"Purch. Cr. Memo Hdr.":
                     if Rec."No. of Records" = 1 then
-                        PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHeader)
+                        PageManagement.PageRun(PurchCrMemoHeader)
                     else
-                        PAGE.Run(PAGE::"Posted Purchase Credit Memos", PurchCrMemoHeader);
+                        PageManagement.PageRunList(PurchCrMemoHeader);
                 Database::"Return Shipment Header":
                     if Rec."No. of Records" = 1 then
-                        PAGE.Run(PAGE::"Posted Return Shipment", ReturnShptHeader)
+                        PageManagement.PageRun(ReturnShptHeader)
                     else
-                        PAGE.Run(0, ReturnShptHeader);
+                        PageManagement.PageRunList(ReturnShptHeader);
                 Database::"Purch. Rcpt. Header":
                     if Rec."No. of Records" = 1 then
-                        PAGE.Run(PAGE::"Posted Purchase Receipt", PurchRcptHeader)
+                        PageManagement.PageRun(PurchRcptHeader)
                     else
-                        PAGE.Run(0, PurchRcptHeader);
+                        PageManagement.PageRunList(PurchRcptHeader);
                 Database::"Transfer Shipment Header":
                     if Rec."No. of Records" = 1 then
                         PAGE.Run(PAGE::"Posted Transfer Shipment", TransShptHeader)
@@ -1749,68 +1679,66 @@ page 344 Navigate
                         PAGE.Run(0, PostedInvtShptHeader);
             end;
 
-#if not CLEAN25
-        OnAfterNavigateShowRecords(
-          Rec."Table ID", DocNoFilter, PostingDateFilter, ItemTrackingSearch(), Rec,
-          SalesInvHeader, SalesCrMemoHeader, PurchInvHeader, PurchCrMemoHeader, ServInvHeader, ServCrMemoHeader,
-          ContactType, ContactNo, ExtDocNo);
-#endif
         OnAfterShowRecords(Rec, DocNoFilter, PostingDateFilter, ItemTrackingSearch(), ContactType, ContactNo, ExtDocNo);
     end;
 
     local procedure ShowPurchaseHeaderRecords()
+    var
+        PageManagement: Codeunit "Page Management";
     begin
         Rec.TestField("Table ID", Database::"Purchase Header");
 
         case Rec."Document Type" of
             Rec."Document Type"::Quote:
                 if Rec."No. of Records" = 1 then
-                    PAGE.Run(PAGE::"Purchase Quote", PQPurchaseHeader)
+                    PageManagement.PageRun(PQPurchaseHeader)
                 else
-                    PAGE.Run(0, PQPurchaseHeader);
+                    PageManagement.PageRunList(PQPurchaseHeader);
             Rec."Document Type"::Order:
                 if Rec."No. of Records" = 1 then
-                    PAGE.Run(PAGE::"Purchase Order", POPurchaseHeader)
+                    PageManagement.PageRun(POPurchaseHeader)
                 else
-                    PAGE.Run(0, POPurchaseHeader);
+                    PageManagement.PageRunList(POPurchaseHeader);
             Rec."Document Type"::Invoice:
                 if Rec."No. of Records" = 1 then
-                    PAGE.Run(PAGE::"Purchase Invoice", PIPurchaseHeader)
+                    PageManagement.PageRun(PIPurchaseHeader)
                 else
-                    PAGE.Run(0, PIPurchaseHeader);
+                    PageManagement.PageRunList(PIPurchaseHeader);
         end;
     end;
 
     local procedure ShowSalesHeaderRecords()
+    var
+        PageManagement: Codeunit "Page Management";
     begin
         Rec.TestField("Table ID", Database::"Sales Header");
 
         case Rec."Document Type" of
             Rec."Document Type"::Quote:
                 if Rec."No. of Records" = 1 then
-                    PAGE.Run(PAGE::"Sales Quote", SQSalesHeader)
+                    PageManagement.PageRun(SQSalesHeader)
                 else
-                    PAGE.Run(0, SQSalesHeader);
+                    PageManagement.PageRunList(SQSalesHeader);
             Rec."Document Type"::Order:
                 if Rec."No. of Records" = 1 then
-                    PAGE.Run(PAGE::"Sales Order", SOSalesHeader)
+                    PageManagement.PageRun(SOSalesHeader)
                 else
-                    PAGE.Run(0, SOSalesHeader);
+                    PageManagement.PageRunList(SOSalesHeader);
             Rec."Document Type"::Invoice:
                 if Rec."No. of Records" = 1 then
-                    PAGE.Run(PAGE::"Sales Invoice", SISalesHeader)
+                    PageManagement.PageRun(SISalesHeader)
                 else
-                    PAGE.Run(0, SISalesHeader);
+                    PageManagement.PageRunList(SISalesHeader);
             Rec."Document Type"::"Return Order":
                 if Rec."No. of Records" = 1 then
-                    PAGE.Run(PAGE::"Sales Return Order", SROSalesHeader)
+                    PageManagement.PageRun(SROSalesHeader)
                 else
-                    PAGE.Run(0, SROSalesHeader);
+                    PageManagement.PageRunList(SROSalesHeader);
             Rec."Document Type"::"Credit Memo":
                 if Rec."No. of Records" = 1 then
-                    PAGE.Run(PAGE::"Sales Credit Memo", SCMSalesHeader)
+                    PageManagement.PageRun(SCMSalesHeader)
                 else
-                    PAGE.Run(0, SCMSalesHeader);
+                    PageManagement.PageRunList(SCMSalesHeader);
         end;
     end;
 
@@ -2211,13 +2139,6 @@ page 344 Navigate
     begin
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by event OnAfterShowRecords()', '25.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterNavigateShowRecords(TableID: Integer; DocNoFilter: Text; PostingDateFilter: Text; ItemTrackingSearch: Boolean; var TempDocumentEntry: Record "Document Entry" temporary; SalesInvoiceHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ServiceInvoiceHeader: Record Microsoft.Service.History."Service Invoice Header"; ServiceCrMemoHeader: Record Microsoft.Service.History."Service Cr.Memo Header"; ContactType: Enum "Navigate Contact Type"; ContactNo: Code[250]; ExtDocNo: Code[250])
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterShowRecords(var DocumentEntry: Record "Document Entry"; DocNoFilter: Text; PostingDateFilter: Text; ItemTrackingSearch: Boolean; ContactType: Enum "Navigate Contact Type"; ContactNo: Code[250]; ExtDocNo: Code[250])
@@ -2249,13 +2170,6 @@ page 344 Navigate
     begin
     end;
 
-#if not CLEAN25
-    [Obsolete('Replaced by event OnBeforeShowRecords()', '25.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeNavigateShowRecords(TableID: Integer; DocNoFilter: Text; PostingDateFilter: Text; ItemTrackingSearch: Boolean; var TempDocumentEntry: Record "Document Entry" temporary; var IsHandled: Boolean; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var ServiceInvoiceHeader: Record Microsoft.Service.History."Service Invoice Header"; var ServiceCrMemoHeader: Record Microsoft.Service.History."Service Cr.Memo Header"; var SOSalesHeader: Record "Sales Header"; var SISalesHeader: Record "Sales Header"; var SCMSalesHeader: Record "Sales Header"; var SROSalesHeader: Record "Sales Header"; var GLEntry: Record "G/L Entry"; var VATEntry: Record "VAT Entry"; var VendLedgEntry: Record "Vendor Ledger Entry"; var WarrantyLedgerEntry: Record Microsoft.Service.Ledger."Warranty Ledger Entry"; var NewSourceRecVar: Variant; var SalesShipmentHeader: Record "Sales Shipment Header"; var ReturnReceiptHeader: Record "Return Receipt Header"; var ReturnShipmentHeader: Record "Return Shipment Header"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeShowRecords(var TempDocumentEntry: Record "Document Entry" temporary; DocNoFilter: Text; PostingDateFilter: Text; ItemTrackingSearch: Boolean; ContactNo: Code[250]; ExtDocNo: Code[250]; var IsHandled: Boolean);

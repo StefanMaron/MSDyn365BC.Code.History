@@ -801,7 +801,6 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('PostedServiceInvoiceStatisticsPageHandler')]
@@ -882,7 +881,6 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           ServiceLine."Document No.", GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
           GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
     end;
-#endif
 
     [Test]
     [HandlerFunctions('ServiceOrderStatisticsPageHandler')]
@@ -1247,7 +1245,6 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
     end;
 
-#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('PostedServiceInvoiceStatisticsPageHandlerNM')]
@@ -1328,7 +1325,6 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           ServiceLine."Document No.", GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
           GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
     end;
-#endif
 
     [Test]
     [HandlerFunctions('ServiceOrderStatisticsPageHandlerNM')]
@@ -1906,7 +1902,6 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."No.");
     end;
 
-#if not CLEAN25
     local procedure CreateItemWithSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     var
         Item: Record Item;
@@ -1918,7 +1913,6 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Modify(true);
     end;
-#endif
 
     local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     var

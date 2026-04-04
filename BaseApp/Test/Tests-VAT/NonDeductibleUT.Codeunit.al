@@ -292,6 +292,7 @@ codeunit 134282 "Non-Deductible UT"
         GLAccount: Record "G/L Account";
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
+        PurchasePayableSetup: Record "Purchases & Payables Setup";
         VATEntry: Record "VAT Entry";
         VATPostingSetup: Record "VAT Posting Setup";
         Vendor: Record Vendor;
@@ -301,6 +302,11 @@ codeunit 134282 "Non-Deductible UT"
     begin
         // [SCENARIO 595966] Check VAT Entry Non-Deductible VAT on Purchase Invoice Posting with G/L Account Line.
         Initialize();
+
+        // [GIVEN] Modify Purchase Payable Setup to disable "Check Doc. Total Amount"   
+        PurchasePayableSetup.Get();
+        PurchasePayableSetup.Validate("Check Doc. Total Amounts", false);
+        PurchasePayableSetup.Modify(true);
 
         // [GIVEN] Create Vendor and set Prices Including VAT
         LibraryPurchase.CreateVendor(Vendor);

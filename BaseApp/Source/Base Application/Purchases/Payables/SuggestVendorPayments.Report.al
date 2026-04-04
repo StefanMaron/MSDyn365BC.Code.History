@@ -219,6 +219,8 @@ report 393 "Suggest Vendor Payments"
                         field("Available Amount (LCY)"; AmountAvailable)
                         {
                             ApplicationArea = Basic, Suite;
+                            AutoFormatType = 1;
+                            AutoFormatExpression = '';
                             Caption = 'Available Amount (LCY)';
                             Importance = Additional;
                             ToolTip = 'Specifies a maximum amount (in LCY) that is available for payments. The batch job will then create a payment suggestion on the basis of this amount and the Use Vendor Priority check box. It will only include vendor entries that can be paid fully.';
@@ -250,7 +252,7 @@ report 393 "Suggest Vendor Payments"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Summarize per Vendor';
-                            ToolTip = 'Specifies if you want the batch job to make one line per vendor for each currency in which the vendor has ledger entries. If, for example, a vendor uses two currencies, the batch job will create two lines in the payment journal for this vendor. If you are using Remit Addresses the batch job will create a line for each remit address. The batch job then uses the Applies-to ID field when the journal lines are posted to apply the lines to vendor ledger entries. If you do not select this check box, then the batch job will make one line per invoice.';
+                            ToolTip = 'Specifies if you want the batch job to make one line per vendor for each currency in which the vendor has ledger entries. If, for example, a vendor uses two currencies, the batch job will create two lines in the payment journal for this vendor. Please note that this option will consider all open entries. If you are using Remit Addresses the batch job will create a line for each remit address. The batch job then uses the Applies-to ID field when the journal lines are posted to apply the lines to vendor ledger entries. If you do not select this check box, then the batch job will make one line per invoice.';
 
                             trigger OnValidate()
                             begin

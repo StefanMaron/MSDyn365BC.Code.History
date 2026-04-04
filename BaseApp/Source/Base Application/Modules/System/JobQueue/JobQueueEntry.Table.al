@@ -527,33 +527,26 @@ table 472 "Job Queue Entry"
     procedure RefreshLocked()
     begin
         SetLoadFields();
-        if not Rec.GetRecLockedExtendedTimeout() then begin
-            Rec.ReadIsolation(IsolationLevel::UpdLock);
-            Rec.Get(ID);  // one last try, and then throw the lock timeout error
-        end;
+        Rec.GetRecLockedExtendedTimeout();
     end;
 
     /// <summary>
-    /// Allow up to three lock time-outs = 90 seconds, in order to reduce lock timeouts
+    /// Allow up to 10 minutes of lock, in order to reduce lock timeouts
     ///</summary>    
     procedure GetRecLockedExtendedTimeout(): Boolean
     var
-        i: Integer;
+        Found: Boolean;
+        PrevLockTimeout: Integer;
     begin
         Rec.ReadIsolation(IsolationLevel::ReadUncommitted);
         if not Rec.Find() then
             exit(false);
         Rec.ReadIsolation(IsolationLevel::UpdLock);
-        for i := 1 to 3 do
-            if TryGetRecordLocked(Rec) then
-                exit(true);
-        exit(false);
-    end;
-
-    [TryFunction]
-    local procedure TryGetRecordLocked(var JobQueueEntry: Record "Job Queue Entry")
-    begin
-        JobQueueEntry.Find();
+        PrevLockTimeout := LockTimeoutDuration();
+        LockTimeoutDuration(600); // 10min.
+        Found := Rec.Find();
+        LockTimeoutDuration(PrevLockTimeout);
+        exit(Found);
     end;
 
     procedure IsExpired(AtDateTime: DateTime): Boolean
@@ -821,9 +814,6 @@ table 472 "Job Queue Entry"
         TaskGUID: Guid;
         IsHandled: Boolean;
         JobTimeout: Duration;
-#if not CLEAN25
-        ShouldChangeUserID: Boolean;
-#endif
     begin
         CheckRequiredPermissions();
         IsHandled := false;
@@ -833,11 +823,6 @@ table 472 "Job Queue Entry"
         if not IsNullGuid(TaskGUID) then
             exit(TaskGUID);
 
-#if not CLEAN25
-#pragma warning disable AL0432
-        OnScheduleTaskOnAfterCalcShouldChangeUserID(Rec, ShouldChangeUserID);
-#pragma warning restore AL0432
-#endif
         if Rec."Job Timeout" <> 0 then
             JobTimeout := Rec."Job Timeout"
         else
@@ -876,7 +861,7 @@ table 472 "Job Queue Entry"
                 SetStatus(Status::Ready);
             end;
 
-            OnReuseExisingJobFromId(Rec);
+            OnReuseExisingJobFromId(Rec, ExecutionDateTime);
 
             exit(true);
         end;
@@ -1647,7 +1632,7 @@ table 472 "Job Queue Entry"
     end;
 
     [InternalEvent(false)]
-    local procedure OnReuseExisingJobFromId(var JobQueueEntry: Record "Job Queue Entry")
+    local procedure OnReuseExisingJobFromId(var JobQueueEntry: Record "Job Queue Entry"; ExecutionDateTime: DateTime)
     begin
     end;
 
@@ -1656,13 +1641,6 @@ table 472 "Job Queue Entry"
     begin
     end;
 
-#if not CLEAN25
-    [Obsolete('Function ScheduleTask no longer changes user ID.', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnScheduleTaskOnAfterCalcShouldChangeUserID(var JobQueueEntry: Record "Job Queue Entry"; var ShouldChangeUserID: Boolean)
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnSetXmlContentOnBeforeModify(var JobQueueEntry: Record "Job Queue Entry"; var Params: Text)
     begin

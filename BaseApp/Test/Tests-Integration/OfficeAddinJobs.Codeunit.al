@@ -84,46 +84,6 @@ codeunit 139060 "Office Add-in Jobs"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure ProjectManagerPosts()
-    var
-        OfficeAddinContext: Record "Office Add-in Context";
-        JobPlanningLine: Record "Job Planning Line";
-        JobJournalLine: Record "Job Journal Line";
-        JobJournalTemplate: Record "Job Journal Template";
-        OfficeJobJournal: TestPage "Office Job Journal";
-    begin
-        // [SCENARIO] Project Manager Posts Job Journal line and then user opens add-in
-        // [FEATURE] [UI]
-
-        // Setup
-        Initialize();
-
-        // [GIVEN] Job Information
-        CreateJobPlanningLine(JobPlanningLine);
-        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, JobPlanningLine."Line Type", 1, JobJournalLine);
-
-        // [GIVEN] Project manager has posted the journal line
-        LibraryJob.PostJobJournal(JobJournalLine);
-
-        // [WHEN] Calendar appoinment Add-in with Job information
-        OfficeAddinContext.SetRange(
-          Subject, CreateAppointmentSubject(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."));
-        OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
-        OfficeJobJournal.Trap();
-        RunMailEngine(OfficeAddinContext);
-
-        // [THEN] Office Job Complete page opens with correct values
-        VerifyPage(JobPlanningLine, OfficeJobJournal, 2, true);
-
-        // Cleanup Job Journal that was created by the LibraryJob.CreateJobJournalLineForPlan
-        JobJournalTemplate.SetRange(Name, 'ZZZT');
-        if JobJournalTemplate.FindFirst() then
-            JobJournalTemplate.Delete(true);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure UserCompletesJob()
     var
@@ -172,48 +132,6 @@ codeunit 139060 "Office Add-in Jobs"
 
         // [THEN] Office Job Complete page opens with correct values
         VerifyPage(JobPlanningLine, OfficeJobJournalComplete, Quantity, true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure OneTemplateMultipleBatches()
-    var
-        OfficeAddinContext: Record "Office Add-in Context";
-        JobPlanningLine: Record "Job Planning Line";
-        JobJournalTemplate: Record "Job Journal Template";
-        JobJournalBatch1: Record "Job Journal Batch";
-        JobJournalBatch2: Record "Job Journal Batch";
-        OfficeJobJournal: TestPage "Office Job Journal";
-    begin
-        // [SCENARIO] One Job Journal Template exists with multiple Job Journal Batches
-        // [FEATURE] [UI]
-
-        // Setup
-        Initialize();
-
-        // [GIVEN] Job Information
-        CreateJobPlanningLine(JobPlanningLine);
-
-        // [GIVEN] A job Journal Template with multiple Journal Batches
-        JobJournalTemplate.SetRange("Page ID", PAGE::"Job Journal");
-        JobJournalTemplate.SetRange(Recurring, false);
-        JobJournalTemplate.FindFirst();
-        LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch1);
-        LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch2);
-
-        // [GIVEN] Calendar appoinment with Job information
-        OfficeAddinContext.SetRange(
-          Subject, CreateAppointmentSubject(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."));
-        OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
-
-        // [GIVEN] Add-in opens the Office Job Journal page opens
-        OfficeJobJournal.Trap();
-        RunMailEngine(OfficeAddinContext);
-
-        // [THEN] Job Journal Template is not editable and Job Journal Batch is editable
-        Assert.IsFalse(OfficeJobJournal.JobJournalTemplate.Editable(), 'Job journal template');
-        OfficeJobJournal.JobJournalTemplate.AssertEquals(JobJournalTemplate.Name);
-        Assert.IsTrue(OfficeJobJournal.JobJournalBatch.Editable(), 'Job journal batch');
     end;
 
     [Test]

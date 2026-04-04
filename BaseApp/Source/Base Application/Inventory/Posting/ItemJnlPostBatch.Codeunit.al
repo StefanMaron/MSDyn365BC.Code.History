@@ -193,6 +193,8 @@ codeunit 23 "Item Jnl.-Post Batch"
 
         OnAfterUpdateAnalysisViews(ItemReg);
 
+        MoveItemJournalBatch(ItemRegNo);
+
         if not SuppressCommit then
             Commit();
 
@@ -976,6 +978,14 @@ codeunit 23 "Item Jnl.-Post Batch"
     local procedure MakeInventoryAdjustment()
     begin
         InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust);
+    end;
+
+    local procedure MoveItemJournalBatch(ItemRegisterNo: Integer)
+    var
+        ItemRegister: Record "Item Register";
+    begin
+        if ItemRegister.Get(ItemRegisterNo) then
+            ItemJnlBatch.OnMoveItemJournalBatch(ItemRegister.RecordId());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]

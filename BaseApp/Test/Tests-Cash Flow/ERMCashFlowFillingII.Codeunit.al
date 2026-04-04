@@ -2784,7 +2784,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ColumnLayout: Variant;
         ViewBy: Option Day,Week,Month;
     begin
-        AccScheduleOverview.PeriodType.SetValue(Format(ViewBy::Day));
+        AccScheduleOverview.PeriodTypeDefault.SetValue(Format(ViewBy::Day));
         LibraryVariableStorage.Dequeue(ColumnLayout);
         LibraryVariableStorage.Dequeue(CashFlowForcastNo);
         AccScheduleOverview.CurrentColumnName.SetValue(ColumnLayout);

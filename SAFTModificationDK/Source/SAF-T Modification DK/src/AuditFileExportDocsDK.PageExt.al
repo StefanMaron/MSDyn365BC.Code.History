@@ -13,7 +13,7 @@ pageextension 13687 "Audit File Export Docs. DK" extends "Audit File Export Docu
         SendStandardAccount2025Notification();
     end;
 
-    local procedure SendStandardAccount2025Notification()
+    internal procedure SendStandardAccount2025Notification()
     var
         AuditFileExportSetup: Record "Audit File Export Setup";
         MyNotifications: Record "My Notifications";

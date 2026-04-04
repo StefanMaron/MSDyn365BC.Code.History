@@ -25,17 +25,19 @@
         LibraryJournals: Codeunit "Library - Journals";
         LibraryCostAccounting: Codeunit "Library - Cost Accounting";
         LibraryCashFlow: Codeunit "Library - Cash Flow";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         DimFilterErr: Label 'Wrong Dimension filter.';
         DimFilterStrTok: Label '%1 FILTER';
         DimFilterStringTok: Label 'Dimension 1 Filter: %1, Dimension 2 Filter: %2, Dimension 3 Filter: %3, Dimension 4 Filter: %4';
         CopySourceNameMissingErr: Label 'You must specify a valid name for the source rows definition to copy from.';
         MultipleSourcesErr: Label 'You can only copy one rows definition at a time.';
-        SystemGeneratedAccSchedQst: Label 'This account schedule may be automatically updated by the system, so any changes you make may be lost. Do you want to make a copy?';
+        SystemGeneratedAccSchedQst: Label 'This report definition may be automatically updated by the system, so any changes you make may be lost. Do you want to make a copy?';
         TargetExistsErr: Label 'The new rows definition already exists.';
         TargetNameMissingErr: Label 'You must specify a name for the new rows definition.';
         InvalidRowErr: Label 'Row %1 with is visible with the value %2.';
         RowNotFoundErr: Label 'Row %1 is not visible.';
         WrongValueErr: Label 'Wrong value of the field %1 in table %2.', Comment = '%1 = Field name, %2 = Table name';
+        MissingSheetDataErr: Label 'Sheet %1 is either missing or does not contain the correct data.', Comment = '%1 = Sheet number';
         IsInitialized: Boolean;
 
     [Test]
@@ -950,6 +952,84 @@
     end;
 
     [Test]
+    procedure ExportAccScheduleToExcelWithDimPerspective()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayoutName: Record "Column Layout Name";
+        ColumnLayout: Record "Column Layout";
+        FinancialReport: Record "Financial Report";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        DimPerspectiveName: Record "Dimension Perspective Name";
+        DimPerspectiveLine: Record "Dimension Perspective Line";
+        DimensionValue: array[2] of Record "Dimension Value";
+        ExpectedCellValue: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Excel]
+        // [SCENARIO] Financial Report export to excel must create and filter by the Dimension Perspective
+        Initialize();
+
+        // [GIVEN] Dimension Perspective for two global dimension 1 values
+        DimPerspectiveName.Init();
+        DimPerspectiveName.Name := LibraryUtility.GenerateRandomCode(DimPerspectiveName.FieldNo(Name), Database::"Dimension Perspective Name");
+        DimPerspectiveName."Perspective Type" := DimPerspectiveName."Perspective Type"::Custom;
+        DimPerspectiveName.Insert();
+
+        // [GIVEN] A G/L Account with transactions under each dimension value
+        LibraryERM.CreateGLAccount(GLAccount);
+        for i := 1 to 2 do begin
+            LibraryDimension.CreateDimensionValue(DimensionValue[i], LibraryERM.GetGlobalDimensionCode(1));
+            LibraryJournals.CreateGenJournalLineWithBatch(
+                GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
+                GLAccount."No.", LibraryRandom.RandDec(10, 2));
+            GenJournalLine.Validate("Shortcut Dimension 1 Code", DimensionValue[i].Code);
+            GenJournalLine.Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+            DimPerspectiveLine.Init();
+            DimPerspectiveLine.Name := DimPerspectiveName.Name;
+            DimPerspectiveLine."Line No." := i * 10000;
+            DimPerspectiveLine."Perspective Header" := DimensionValue[i].Code;
+            DimPerspectiveLine."Dimension 1 Totaling" := DimensionValue[i].Code;
+            DimPerspectiveLine.Insert();
+        end;
+
+        // [GIVEN] Financial Report using said Dimension Perspective
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        CreateAccScheduleLineWithGLAcc(AccScheduleLine, AccScheduleName.Name, GenJournalLine."Account No.", AccScheduleLine.Show::Yes);
+        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
+        CreateColumnLayoutLine(ColumnLayout, ColumnLayoutName.Name, ColumnLayout."Column Type"::"Net Change", '');
+        FinancialReport.Get(AccScheduleLine."Schedule Name");
+        FinancialReport."Financial Report Column Group" := ColumnLayout."Column Layout Name";
+        FinancialReport.DimPerspective := DimPerspectiveName.Name;
+        FinancialReport.Modify();
+
+        // [WHEN] The report is exported to Excel
+        AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.SetRange("Date Filter", CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        LibraryReportValidation.SetFileName(AccScheduleName.Name);
+        RunExportAccSchedule(AccScheduleLine, AccScheduleName);
+
+        // [THEN] The Excel contains 3 worksheets, one for unfiltered data and one for each dimension value filter
+        LibraryReportValidation.OpenExcelFile();
+        Assert.AreEqual(3, LibraryReportValidation.CountWorksheets(), 'There should be 3 worksheets, 1 for unfiltered data, 1 for each dimension value filter.');
+
+        // [THEN] The first worksheet contains the unfiltered data
+        GLAccount.CalcFields("Net Change");
+        ExpectedCellValue := GLAccount."Net Change";
+        LibraryReportValidation.VerifyCellValue(7, 3, Format(ExpectedCellValue, 0, 9));
+
+        // [THEN] The following worksheets contain the filtered data for each dimension value
+        for i := 1 to 2 do begin
+            GLAccount.SetRange("Global Dimension 1 Filter", DimensionValue[i].Code);
+            GLAccount.CalcFields("Net Change");
+            Assert.IsTrue(LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(i + 1, Format(GLAccount."Net Change")), StrSubstNo(MissingSheetDataErr, i + 1));
+        end;
+    end;
+
+    [Test]
     [HandlerFunctions('CopyAccountScheduleWithNewNameRequestPageHandler,CopyAccountScheduleSuccessMessageHandler')]
     [Scope('OnPrem')]
     procedure StanCanCopyExistingAccountScheduleWithNewName()
@@ -1181,6 +1261,38 @@
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure AccScheduleCaptionIncludesNameAndDescription()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleMgt: Codeunit AccSchedManagement;
+    begin
+        // [SCENARIO] Account Schedule caption will include name and description if possible
+        Initialize();
+
+        // [GIVEN] Account schedule with only name
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        AccScheduleName.Description := '';
+        AccScheduleName.Modify();
+
+        // [THEN] Caption includes name only
+        Assert.AreEqual(
+            AccScheduleName.Name,
+            AccScheduleMgt.GetAccountScheduleCaption(AccScheduleName.Name),
+            'Caption should include name only when description is empty.');
+
+        // [GIVEN] Account schedule with name and description
+        AccScheduleName.Description := CopyStr(LibraryRandom.RandText(MaxStrLen(AccScheduleName.Description)), 1, MaxStrLen(AccScheduleName.Description));
+        AccScheduleName.Modify();
+
+        // [THEN] Caption includes name and description
+        Assert.AreEqual(
+            StrSubstNo('%1 (%2)', AccScheduleName.Description, AccScheduleName.Name),
+            AccScheduleMgt.GetAccountScheduleCaption(AccScheduleName.Name),
+            'Caption should include name and description when description has a value.');
+    end;
+
+    [Test]
     [HandlerFunctions('RHAccountSchedule')]
     [Scope('OnPrem')]
     procedure TotalingDimensionValuesCanBeUsedAsFiltersInAccountScheduleWithAnalysisViewReport()
@@ -1385,7 +1497,7 @@
         // [SCENARIO 316070] Account Schedule report prints lines with empty Totaling and Show=Yes when SkipEmptyLines = true
         Initialize();
 
-        // [GIVEN] Account Schedule Name 
+        // [GIVEN] Account Schedule Name
         CreateColumnLayout(ColumnLayout);
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         // [GIVEN] Line 10000 with empty Totaling and Show=Yes
@@ -1853,7 +1965,7 @@
         AccScheduleOverview.Trap();
         FinancialReports.Overview.Invoke();
 
-        // [GIVEN] As "AS1" has empty "Default Column Layout", Current Column Name = "Default" (w1) 
+        // [GIVEN] As "AS1" has empty "Default Column Layout", Current Column Name = "Default" (w1)
         AccountSchedule1CurrentColumnName := AccScheduleOverview.CurrentColumnName.Value();
         AccScheduleOverview.Close();
 
@@ -1862,7 +1974,7 @@
         AccScheduleOverview.Trap();
         FinancialReports.Overview.Invoke();
 
-        // [THEN] As "AS2" has empty "Default Column Layout", Current Column Name = "CL" (w1) 
+        // [THEN] As "AS2" has empty "Default Column Layout", Current Column Name = "CL" (w1)
         AccScheduleOverview.CurrentColumnName.AssertEquals(ColumnLayoutName.Name);
         AccScheduleOverview.Close();
 
@@ -1871,7 +1983,7 @@
         AccScheduleOverview.Trap();
         FinancialReports.Overview.Invoke();
 
-        // [GIVEN] Current Column Name has not changed and is equal to previous value = "Default" (w1) 
+        // [GIVEN] Current Column Name has not changed and is equal to previous value = "Default" (w1)
         AccScheduleOverview.CurrentColumnName.AssertEquals(AccountSchedule1CurrentColumnName);
         AccScheduleOverview.Close();
     end;
@@ -1932,6 +2044,38 @@
 
         // Verify
         VerifyColumnLayoutNameCopied(NewColumnLayoutName, ColumnLayoutName.Name);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ColumnLayoutCaptionIncludesNameAndDescription()
+    var
+        ColumnLayoutName: Record "Column Layout Name";
+        AccScheduleMgt: Codeunit AccSchedManagement;
+    begin
+        // [SCENARIO] Column Layout caption will include name and description if possible
+        Initialize();
+
+        // [GIVEN] Column layout with only name
+        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
+        ColumnLayoutName.Description := '';
+        ColumnLayoutName.Modify();
+
+        // [THEN] Caption includes name only
+        Assert.AreEqual(
+            ColumnLayoutName.Name,
+            AccScheduleMgt.GetColumnLayoutCaption(ColumnLayoutName.Name),
+            'Caption should include name only when description is empty.');
+
+        // [GIVEN] Column layout with name and description
+        ColumnLayoutName.Description := CopyStr(LibraryRandom.RandText(MaxStrLen(ColumnLayoutName.Description)), 1, MaxStrLen(ColumnLayoutName.Description));
+        ColumnLayoutName.Modify();
+
+        // [THEN] Caption includes name and description
+        Assert.AreEqual(
+            StrSubstNo('%1 (%2)', ColumnLayoutName.Description, ColumnLayoutName.Name),
+            AccScheduleMgt.GetColumnLayoutCaption(ColumnLayoutName.Name),
+            'Caption should include name and description when description has a value.');
     end;
 
     [Test]
@@ -2000,7 +2144,7 @@
         Amount: Decimal;
     begin
         // [FEATURE] [Report]
-        // [SCENARIO 365423] Account Schedule report shows Currency Symbol for column formula 
+        // [SCENARIO 365423] Account Schedule report shows Currency Symbol for column formula
         // Clear
         Initialize();
         // [GIVEN] GLSetup with local currency symbol '$' specified
@@ -2009,7 +2153,7 @@
         Amount := LibraryRandom.RandDec(100, 2);
         AccountNo := CreateGLAccountWithNetChange(Amount);
         // [GIVEN] Create financial report for account "A"
-        // Note that the CreateAccScheduleName procedure creates a Financial Report 
+        // Note that the CreateAccScheduleName procedure creates a Financial Report
         // with the same name as sets the Account Schedule Name as a Row Group
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
@@ -2065,7 +2209,7 @@
         // [GIVEN] Create G/L Account account "A" and post entry with amount 100
         Amount := LibraryRandom.RandDec(100, 2);
         AccountNo := CreateGLAccountWithNetChange(Amount);
-        // [GIVEN] Create account schedule line for account "A" 
+        // [GIVEN] Create account schedule line for account "A"
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
         FinancialReport.Get(AccScheduleName.Name);
@@ -2128,7 +2272,7 @@
         // [GIVEN] Open "Financial Reports" page
         FinancialReports.OpenView();
 
-        // [GIVEN] Position to created "Financial Report"        
+        // [GIVEN] Position to created "Financial Report"
         FinancialReports.GoToKey(AccScheduleName.Name);
 
         // [WHEN] Run "Edit Row Definition" action
@@ -2267,6 +2411,7 @@
     end;
 
     [Test]
+    [Scope('OnPrem')]
     procedure VerifyFinancialReportEmptyCellForNoEntry()
     var
         AccScheduleLine: Record "Acc. Schedule Line";
@@ -2325,6 +2470,414 @@
         // [THEN] Verify exported Excel file GL Account That Has No Entry shows empty cell.
         LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(11, 1, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OpenGLAccountWhereUsedInAccScheduleLine()
+    var
+        GLAccount: Record "G/L Account";
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        TempGLAccWhereUsed: Record "G/L Account Where-Used" temporary;
+        FinReportMgt: Codeunit "Financial Report Mgt.";
+    begin
+        // [SCENARIO] Where-used for G/L Account will correctly find usage in Acc. Schedule Line
+        Initialize();
+
+        // [GIVEN] G/L Account that's used in an Acc. Schedule Line
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        CreateAccScheduleLineWithGLAcc(
+            AccScheduleLine, AccScheduleName.Name, GLAccount."No.", AccScheduleLine.Show::Yes);
+
+        // [WHEN] Finding where-used for the G/L Account
+        // [THEN] The usage in the Acc. Schedule Line is found and points to the correct record
+        Assert.IsTrue(FinReportMgt.FindGLAccountWhereUsedInAccScheduleLine(GLAccount."No.", TempGLAccWhereUsed), 'Where-used should be found in Acc. Schedule Line');
+        Assert.AreEqual(1, TempGLAccWhereUsed.Count(), 'There should be one where-used entry.');
+        Assert.AreEqual(AccScheduleLine."Schedule Name", TempGLAccWhereUsed."Key 1", 'Where-used entry should contain the schedule name as key 1.');
+        Assert.AreEqual(Format(AccScheduleLine."Line No."), TempGLAccWhereUsed."Key 2", 'Where-used entry should contain the line no. as key 2.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeDateFilterWithDynamicColumnHeading()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinancialReport: Record "Financial Report";
+        ColumnLayoutName: Record "Column Layout Name";
+        ColumnLayout: array[3] of Record "Column Layout";
+        FilterDateFormula: array[2] of DateFormula;
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        FinancialReports: TestPage "Financial Reports";
+        FilterDate: array[4] of Date;
+    begin
+        // [SCENARIO] Changing the period on financial report should update the dynamic column headings
+        Initialize();
+
+        FilterDate[1] := 20251101D;
+        FilterDate[2] := 20251130D;
+        FilterDate[3] := 20251201D;
+        FilterDate[4] := 20251231D;
+        Evaluate(FilterDateFormula[1], '<1M>');
+        Evaluate(FilterDateFormula[2], '<2M>');
+
+        // [GIVEN] Financial report with 3 columns, current, next month, and month after next
+        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
+        LibraryERM.CreateColumnLayout(ColumnLayout[1], ColumnLayoutName.Name);
+        ColumnLayout[1]."Include Date In Header" := ColumnLayout[1]."Include Date In Header"::Month;
+        ColumnLayout[1].Modify();
+        LibraryERM.CreateColumnLayout(ColumnLayout[2], ColumnLayoutName.Name);
+        ColumnLayout[2]."Include Date In Header" := ColumnLayout[2]."Include Date In Header"::Month;
+        ColumnLayout[2]."Comparison Date Formula" := FilterDateFormula[1];
+        ColumnLayout[2].Modify();
+        LibraryERM.CreateColumnLayout(ColumnLayout[3], ColumnLayoutName.Name);
+        ColumnLayout[3]."Include Date In Header" := ColumnLayout[3]."Include Date In Header"::Month;
+        ColumnLayout[3]."Comparison Date Formula" := FilterDateFormula[2];
+        ColumnLayout[3].Modify();
+
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        FinancialReport.Get(AccScheduleName.Name);
+        FinancialReport.Validate("Financial Report Column Group", ColumnLayoutName.Name);
+        FinancialReport.Modify();
+
+        FinancialReports.OpenEdit();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
+        AccScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+
+        // [WHEN] Period type is set to month and filtered to the first period
+        AccScheduleOverview.PeriodTypeDefault.SetValue(Enum::"Financial Report Period Type"::Month);
+        AccScheduleOverview.DateFilter.SetValue(StrSubstNo('%1..%2', Format(FilterDate[1], 0, 9), Format(FilterDate[2], 0, 9)));
+
+        // [THEN] Column headings should show current month, +1 month, and +2 month
+        Assert.AreEqual(Format(FilterDate[2], 0, '<Month Text>'), AccScheduleOverview.ColumnValues1.Caption, 'Heading for current period is incorrect.');
+        Assert.AreEqual(Format(CalcDate(FilterDateFormula[1], FilterDate[2]), 0, '<Month Text>'), AccScheduleOverview.ColumnValues2.Caption, 'Heading for 1M comparison period is incorrect.');
+        Assert.AreEqual(Format(CalcDate(FilterDateFormula[2], FilterDate[2]), 0, '<Month Text>'), AccScheduleOverview.ColumnValues3.Caption, 'Heading for 2M comparison period is incorrect.');
+
+        // [WHEN] Next Period is selected
+        AccScheduleOverview.NextPeriod.Invoke();
+
+        // [THEN] Column headings should update to show the +1 month, +2 month, and +3 month
+        Assert.AreEqual(Format(FilterDate[4], 0, '<Month Text>'), AccScheduleOverview.ColumnValues1.Caption, 'Heading for current period is incorrect after Next Period.');
+        Assert.AreEqual(Format(CalcDate(FilterDateFormula[1], FilterDate[4]), 0, '<Month Text>'), AccScheduleOverview.ColumnValues2.Caption, 'Heading for 1M comparison period is incorrect after Next Period.');
+        Assert.AreEqual(Format(CalcDate(FilterDateFormula[2], FilterDate[4]), 0, '<Month Text>'), AccScheduleOverview.ColumnValues3.Caption, 'Heading for 2M comparison period is incorrect after Next Period.');
+    end;
+
+    [Test]
+    [HandlerFunctions('RenameDefinitionConfirmHandler')]
+    procedure RenameReportDefinitionFromCard()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinancialReport: Record "Financial Report";
+        GLSetup: Record "General Ledger Setup";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        FinancialReports: TestPage "Financial Reports";
+        NewFinancialReportName: Code[10];
+    begin
+        // [SCENARIO] Renaming a report definition from the card page correctly renames the record and update G/L setup
+        Initialize();
+
+        // [GIVEN] A report definition linked to G/L setup
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        FinancialReport.Get(AccScheduleName.Name);
+        GLSetup.Get();
+        GLSetup.Validate("Fin. Rep. for Income Stmt.", FinancialReport.Name);
+        GLSetup.Modify();
+
+        // [WHEN] The report definition is renamed from the card page
+        FinancialReports.OpenEdit();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
+        AccScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+
+        NewFinancialReportName := CopyStr(LibraryRandom.RandText(MaxStrLen(NewFinancialReportName)), 1, MaxStrLen(NewFinancialReportName));
+        AccScheduleOverview.FinancialReportName.SetValue(NewFinancialReportName);
+        AccScheduleOverview.Close();
+
+        // [THEN] The report definition is renamed and G/L setup is updated
+        Assert.IsTrue(FinancialReport.Get(NewFinancialReportName), 'financial report was not renamed');
+        GLSetup.Get();
+        Assert.AreEqual(FinancialReport.Name, GLSetup."Fin. Rep. for Income Stmt.", 'GL setup was not updated with the new financial report name');
+    end;
+
+    [Test]
+    [HandlerFunctions('RenameDefinitionConfirmHandler')]
+    procedure RenameRowDefinitionFromCard()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        GLSetup: Record "General Ledger Setup";
+        FinRepUseFilters: Record "Financial Report User Filters";
+        AccScheduleNames: TestPage "Account Schedule Names";
+        AccSchedule: TestPage "Account Schedule";
+        NewAccScheduleName: Code[10];
+    begin
+        // [SCENARIO] Renaming an row definition from the card page correctly renames the record and updates G/L setup and user filters
+        Initialize();
+
+        // [GIVEN] A row definition linked to G/L setup and a user filter
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+
+        FinRepUseFilters.Init();
+        FinRepUseFilters."User ID" := UserId();
+        FinRepUseFilters."Financial Report Name" := AccScheduleName.Name;
+        FinRepUseFilters."Row Definition" := AccScheduleName.Name;
+        FinRepUseFilters.Insert();
+
+        GLSetup.Get();
+        GLSetup.Validate("Fin. Rep. Bal. Sheet Row", AccScheduleName.Name);
+        GLSetup.Modify();
+
+        // [WHEN] The row definition is renamed from the card page
+        AccScheduleNames.OpenEdit();
+        AccScheduleNames.Filter.SetFilter(Name, AccScheduleName.Name);
+        AccSchedule.Trap();
+        AccScheduleNames.EditAccountSchedule.Invoke();
+        NewAccScheduleName := CopyStr(LibraryRandom.RandText(MaxStrLen(NewAccScheduleName)), 1, MaxStrLen(NewAccScheduleName));
+        AccSchedule.CurrentSchedName.SetValue(NewAccScheduleName);
+        AccSchedule.Close();
+
+        // [THEN] The row definition is renamed, G/L setup and user filters are updated
+        Assert.IsTrue(AccScheduleName.Get(NewAccScheduleName), 'account schedule was not renamed');
+        GLSetup.Get();
+        Assert.AreEqual(AccScheduleName.Name, GLSetup."Fin. Rep. Bal. Sheet Row", 'GL setup was not updated with the new account schedule name');
+        FinRepUseFilters.Find();
+        Assert.AreEqual(AccScheduleName.Name, FinRepUseFilters."Row Definition", 'User filter was not updated with the new account schedule name');
+    end;
+
+    [Test]
+    [HandlerFunctions('RenameDefinitionConfirmHandler')]
+    procedure RenameColumnDefinitionFromCard()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        ColumnLayoutName: Record "Column Layout Name";
+        GLSetup: Record "General Ledger Setup";
+        FinRepUseFilters: Record "Financial Report User Filters";
+        ColumnLayoutNames: TestPage "Column Layout Names";
+        ColumnLayout: TestPage "Column Layout";
+        NewColumnLayoutName: Code[10];
+    begin
+        // [SCENARIO] Renaming a column definition from the card page correctly renames the record and updates G/L setup and user filters
+        Initialize();
+
+        // [GIVEN] A column definition linked to G/L setup and a user filter
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
+
+        FinRepUseFilters.Init();
+        FinRepUseFilters."User ID" := UserId();
+        FinRepUseFilters."Financial Report Name" := AccScheduleName.Name;
+        FinRepUseFilters."Column Definition" := ColumnLayoutName.Name;
+        FinRepUseFilters.Insert();
+
+        GLSetup.Get();
+        GLSetup.Validate("Fin. Rep. Net Change Column", ColumnLayoutName.Name);
+        GLSetup.Modify();
+
+        // [WHEN] The column definition is renamed from the card page
+        ColumnLayoutNames.OpenEdit();
+        ColumnLayoutNames.Filter.SetFilter(Name, ColumnLayoutName.Name);
+        ColumnLayout.Trap();
+        ColumnLayoutNames.EditColumnLayoutSetup.Invoke();
+
+        NewColumnLayoutName := CopyStr(LibraryRandom.RandText(MaxStrLen(NewColumnLayoutName)), 1, MaxStrLen(NewColumnLayoutName));
+        ColumnLayout.CurrentColumnName.SetValue(NewColumnLayoutName);
+        ColumnLayout.Close();
+
+        // [THEN] The column definition is renamed, G/L setup and user filters are updated
+        Assert.IsTrue(ColumnLayoutName.Get(NewColumnLayoutName), 'column layout was not renamed');
+        GLSetup.Get();
+        Assert.AreEqual(ColumnLayoutName.Name, GLSetup."Fin. Rep. Net Change Column", 'GL setup was not updated with the new column layout name');
+        FinRepUseFilters.Find();
+        Assert.AreEqual(ColumnLayoutName.Name, FinRepUseFilters."Column Definition", 'User filter was not updated with the new column layout name');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FinRepAuditLogOnView()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinancialReportAuditLog: Record "Financial Report Audit Log";
+        FinancialReports: Testpage "Financial Reports";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+    begin
+        // [SCENARIO] When a financial report is viewed, an audit log entry is created
+        Initialize();
+
+        // [GIVEN] A financial report
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        FinancialReports.OpenEdit();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
+        AccScheduleOverview.Trap();
+        // [WHEN] The financial report is viewed
+        FinancialReports.Overview.Invoke();
+        AccScheduleOverview.Close();
+
+        // [THEN] An audit log entry is created for the action
+        FinancialReportAuditLog.SetRange("Report Name", AccScheduleName.Name);
+        FinancialReportAuditLog.SetRange(User, UserId);
+        FinancialReportAuditLog.SetRange(Format, FinancialReportAuditLog.Format::View);
+        Assert.AreEqual(1, FinancialReportAuditLog.Count(), 'Audit log entry was not created after viewing the financial report.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RHAccountSchedule')]
+    procedure FinRepAuditLogOnPDF()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        ColumnLayoutName: Record "Column Layout Name";
+        FinancialReportAuditLog: Record "Financial Report Audit Log";
+    begin
+        // [SCENARIO] When a financial report is exported to PDF, an audit log entry is created
+        Initialize();
+
+        // [GIVEN] A financial report
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
+        // [WHEN] The financial report is exported to PDF
+        RunAccountScheduleReport(AccScheduleName.Name, ColumnLayoutName.Name);
+
+        // [THEN] An audit log entry is created for the action
+        FinancialReportAuditLog.SetRange("Report Name", AccScheduleName.Name);
+        FinancialReportAuditLog.SetRange(User, UserId);
+        FinancialReportAuditLog.SetRange(Format, FinancialReportAuditLog.Format::PDF);
+        Assert.AreEqual(1, FinancialReportAuditLog.Count(), 'Audit log entry was not created after export the financial report to PDF.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FinRepAuditLogOnExcel()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        FinancialReportAuditLog: Record "Financial Report Audit Log";
+    begin
+        // [SCENARIO] When a financial report is exported to Excel, an audit log entry is created
+        Initialize();
+
+        // [GIVEN] A financial report
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        // [WHEN] The financial report is exported to Excel
+        AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.SetRange("Date Filter", CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        RunExportAccSchedule(AccScheduleLine, AccScheduleName);
+
+        // [THEN] An audit log entry is created for the action
+        FinancialReportAuditLog.SetRange("Report Name", AccScheduleName.Name);
+        FinancialReportAuditLog.SetRange(User, UserId);
+        FinancialReportAuditLog.SetRange(Format, FinancialReportAuditLog.Format::Excel);
+        Assert.AreEqual(1, FinancialReportAuditLog.Count(), 'Audit log entry was not created after export the financial report to PDF.');
+    end;
+
+    procedure FinancialReportWithBlockedStatus()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinancialReport: Record "Financial Report";
+        FinRepStatus: Record "Financial Report Status";
+        FinancialReports: TestPage "Financial Reports";
+    begin
+        // [SCENARIO] Financial reports with blocked status are only visible to users with write permission on status table
+        Initialize();
+
+        // [GIVEN] Financial report status that is blocked
+        FinRepStatus := CreateFinancialReportStatus(true);
+        // [GIVEN] Financial report with the blocked status
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        FinancialReport.Get(AccScheduleName.Name);
+        FinancialReport.Validate(Status, FinRepStatus.Code);
+        FinancialReport.Modify(true);
+        Commit();
+
+        // [WHEN] Viewing financial reports as user with write permission on status
+        LibraryLowerPermissions.SetO365Full();
+        FinancialReports.OpenView();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
+        // [THEN] The blocked financial report is visible
+        Assert.IsTrue(FinancialReports.First(), 'Blocked financial reports are visible to users with write permission on status.');
+        Assert.AreEqual(FinRepStatus.Code, FinancialReports.Status.Value(), 'Financial report status code is incorrect.');
+        FinancialReports.Close();
+
+        // [WHEN] Viewing financial reports as user without write permission on status
+        LibraryLowerPermissions.SetRead();
+        Clear(FinancialReports);
+        FinancialReports.OpenView();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
+        // [THEN] The blocked financial report is not visible
+        Assert.IsFalse(FinancialReports.First(), 'Blocked financial reports are not visible to users without write permission on status.');
+    end;
+
+    [Test]
+    procedure RowDefinitionWithBlockedStatus()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinRepStatus: Record "Financial Report Status";
+        AccScheduleNames: TestPage "Account Schedule Names";
+    begin
+        // [SCENARIO] Row definitions with blocked status are only visible to users with write permission on status table
+        // Unfortunately it's not possible to test the visibility of row blocked group nor the field styling on the financial report card page.
+        Initialize();
+
+        // [GIVEN] Financial report status that is blocked
+        FinRepStatus := CreateFinancialReportStatus(true);
+        // [GIVEN] Account schedule name with the blocked status
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        AccScheduleName.Validate(Status, FinRepStatus.Code);
+        AccScheduleName.Modify(true);
+        Commit();
+
+        // [WHEN] Viewing account schedule names as user with write permission on status
+        LibraryLowerPermissions.SetO365Full();
+        AccScheduleNames.OpenView();
+        AccScheduleNames.Filter.SetFilter(Name, AccScheduleName.Name);
+        // [THEN] The blocked row definition is visible
+        Assert.IsTrue(AccScheduleNames.First(), 'Blocked row definitions are visible to users with write permission on status.');
+        Assert.AreEqual(FinRepStatus.Code, AccScheduleNames.Status.Value(), 'Row definition status code is incorrect.');
+        AccScheduleNames.Close();
+
+        // [WHEN] Viewing account schedule names as user without write permission on status
+        LibraryLowerPermissions.SetRead();
+        Clear(AccScheduleNames);
+        AccScheduleNames.OpenView();
+        // [THEN] The blocked row definition is not visible
+        AccScheduleNames.Filter.SetFilter(Name, AccScheduleName.Name);
+        Assert.IsFalse(AccScheduleNames.First(), 'Blocked row definitions are not visible to users without write permission on status.');
+    end;
+
+    [Test]
+    procedure ColumnDefinitionWithBlockedStatus()
+    var
+        ColumnLayoutName: Record "Column Layout Name";
+        FinRepStatus: Record "Financial Report Status";
+        ColumnLayoutNames: TestPage "Column Layout Names";
+    begin
+        // [SCENARIO] Column definitions with blocked status are only visible to users with write
+        Initialize();
+
+        // [GIVEN] Financial report status that is blocked
+        FinRepStatus := CreateFinancialReportStatus(true);
+        // [GIVEN] Column layout name with the blocked status
+        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
+        ColumnLayoutName.Validate(Status, FinRepStatus.Code);
+        ColumnLayoutName.Modify(true);
+        Commit();
+
+        // [WHEN] Viewing column layout names as user with write permission on status
+        LibraryLowerPermissions.SetO365Full();
+        ColumnLayoutNames.OpenView();
+        ColumnLayoutNames.Filter.SetFilter(Name, ColumnLayoutName.Name);
+        // [THEN] The blocked column definition is visible
+        Assert.IsTrue(ColumnLayoutNames.First(), 'Blocked column definitions are visible to users with write permission on status.');
+        Assert.AreEqual(FinRepStatus.Code, ColumnLayoutNames.Status.Value(), 'Column definition status code is incorrect.');
+        ColumnLayoutNames.Close();
+
+        // [WHEN] Viewing column layout names as user without write permission on status
+        LibraryLowerPermissions.SetRead();
+        Clear(ColumnLayoutNames);
+        ColumnLayoutNames.OpenView();
+        ColumnLayoutNames.Filter.SetFilter(Name, ColumnLayoutName.Name);
+        // [THEN] The blocked column definition is not visible
+        Assert.IsFalse(ColumnLayoutNames.First(), 'Blocked column definitions are not visible to users without write permission on status.');
     end;
 
     local procedure Initialize()
@@ -2488,14 +3041,11 @@
     local procedure CopyColumnLayoutFromColumnLayoutPage(SourceColumnLayoutName: Code[10])
     var
         ColumnLayoutNames: TestPage "Column Layout Names";
-        ColumnLayout: TestPage "Column Layout";
     begin
         Commit();
         ColumnLayoutNames.OpenView();
         ColumnLayoutNames.GoToKey(SourceColumnLayoutName);
-        ColumnLayout.Trap();
-        ColumnLayoutNames.EditColumnLayoutSetup.Invoke();
-        ColumnLayout.CopyColumnLayout.Invoke();
+        ColumnLayoutNames.CopyColumnLayout.Invoke();
     end;
 
     local procedure RunAccountScheduleReport(ScheduleName: Code[10]; ColumnLayoutName: Code[10])
@@ -2554,7 +3104,7 @@
     begin
         FinancialReport.Get(AccScheduleName.Name);
         ExportAccSchedToExcel.SetFileNameSilent(LibraryReportValidation.GetFileName());
-        ExportAccSchedToExcel.SetOptions(AccScheduleLine, FinancialReport."Financial Report Column Group", false, AccScheduleName.Name);
+        ExportAccSchedToExcel.SetOptions(AccScheduleLine, FinancialReport."Financial Report Column Group", false, FinancialReport.Name, FinancialReport.DimPerspective);
         ExportAccSchedToExcel.SetTestMode(true);
         ExportAccSchedToExcel.UseRequestPage(false);
         ExportAccSchedToExcel.Run();
@@ -2780,6 +3330,14 @@
         GenJournalLine.Modify(true);
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateFinancialReportStatus(IsBlocked: Boolean) FinRepStatus: Record "Financial Report Status";
+    begin
+        FinRepStatus.Init();
+        FinRepStatus.Validate(Code, LibraryUtility.GenerateRandomCode(FinRepStatus.FieldNo(Code), Database::"Financial Report Status"));
+        FinRepStatus.Validate(Blocked, IsBlocked);
+        FinRepStatus.Insert(true);
     end;
 
     [RequestPageHandler]
@@ -3015,5 +3573,11 @@
     procedure CopyColumnLayoutSuccessMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(CopyColumnLayoutSuccessMsg, Message);
+    end;
+
+    [ConfirmHandler]
+    procedure RenameDefinitionConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }

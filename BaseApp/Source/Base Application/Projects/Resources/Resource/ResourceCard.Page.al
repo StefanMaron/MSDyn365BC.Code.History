@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,9 +16,7 @@ using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Analysis;
 using Microsoft.Projects.Resources.Analysis;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
-#endif
 using Microsoft.Utilities;
 
 page 76 "Resource Card"
@@ -40,7 +38,6 @@ page 76 "Resource Card"
                 {
                     ApplicationArea = All;
                     Importance = Standard;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = NoFieldVisible;
 
                     trigger OnAssistEdit()
@@ -52,53 +49,44 @@ page 76 "Resource Card"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies a description of the resource.';
                 }
                 field("Name 2"; Rec."Name 2")
                 {
                     ApplicationArea = Jobs;
                     Importance = Additional;
-                    ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Jobs;
                     Importance = Promoted;
-                    ToolTip = 'Specifies whether the resource is a person or a machine.';
                 }
                 field("Base Unit of Measure"; Rec."Base Unit of Measure")
                 {
                     ApplicationArea = Jobs;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the base unit used to measure the resource, such as hour, piece, or kilometer.';
                 }
                 field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                 }
                 field("Resource Group No."; Rec."Resource Group No.")
                 {
                     ApplicationArea = Jobs;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the resource group that this resource is assigned to.';
                 }
                 field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
                 field("Privacy Blocked"; Rec."Privacy Blocked")
                 {
                     ApplicationArea = Jobs;
                     Importance = Additional;
-                    ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the date of the most recent change of information in the Resource Card window.';
                 }
                 field("Use Time Sheet"; Rec."Use Time Sheet")
                 {
@@ -108,12 +96,10 @@ page 76 "Resource Card"
                 field("Time Sheet Owner User ID"; Rec."Time Sheet Owner User ID")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the name of the owner of the time sheet.';
                 }
                 field("Time Sheet Approver User ID"; Rec."Time Sheet Approver User ID")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the ID of the approver of the time sheet.';
                 }
             }
             group(Invoicing)
@@ -122,60 +108,49 @@ page 76 "Resource Card"
                 field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                 }
                 field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
                 field("Price/Profit Calculation"; Rec."Price/Profit Calculation")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the relationship between the Unit Cost, Unit Price, and Profit Percentage fields associated with this resource.';
                 }
                 field("Profit %"; Rec."Profit %")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the profit margin that you want to sell the resource at. You can enter a profit percentage manually or have it entered according to the Price/Profit Calculation field';
                 }
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
                 field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Jobs;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
                 field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("Default Deferral Template Code"; Rec."Default Deferral Template Code")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Default Deferral Template';
-                    ToolTip = 'Specifies the default template that governs how to defer revenues and expenses to the periods when they occurred.';
                 }
                 field("Automatic Ext. Texts"; Rec."Automatic Ext. Texts")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies that an Extended Text Header will be added on sales or purchase documents for this resource.';
                 }
                 field("IC Partner Purch. G/L Acc. No."; Rec."IC Partner Purch. G/L Acc. No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the intercompany g/l account number in your partner''s company that the amount for this resource is posted to.';
                 }
             }
             group("Personal Data")
@@ -184,22 +159,18 @@ page 76 "Resource Card"
                 field("Job Title"; Rec."Job Title")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the person''s job title.';
                 }
                 field(Address; Rec.Address)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the address or location of the resource, if applicable.';
                 }
                 field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies additional address information.';
                 }
                 field(City; Rec.City)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the city of the resource''s address.';
                 }
                 group(Control47)
                 {
@@ -208,18 +179,15 @@ page 76 "Resource Card"
                     field(County; Rec.County)
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies a special region, to which the resource belongs.';
                     }
                 }
                 field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the postal code.';
                 }
                 field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the country/region of the address.';
 
                     trigger OnValidate()
                     begin
@@ -229,23 +197,19 @@ page 76 "Resource Card"
                 field("Social Security No."; Rec."Social Security No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the person''s social security number or the machine''s serial number.';
                     MaskType = Concealed;
                 }
                 field(Education; Rec.Education)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the training, education, or certification level of the person.';
                 }
                 field("Contract Class"; Rec."Contract Class")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the contract class for the person.';
                 }
                 field("Employment Date"; Rec."Employment Date")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the date when the person began working for you or the date when the machine was placed in service.';
                 }
             }
         }
@@ -256,19 +220,6 @@ page 76 "Resource Card"
                 ApplicationArea = Jobs;
                 SubPageLink = "No." = field("No.");
             }
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::Resource),
-                              "No." = field("No.");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -282,9 +233,6 @@ page 76 "Resource Card"
                 ApplicationArea = Jobs;
                 SubPageLink = "No." = field("No."),
                               "Unit of Measure Filter" = field("Unit of Measure Filter"),
-#if not CLEAN25
-                              "Service Zone Filter" = field("Service Zone Filter"),
-#endif
                               "Chargeable Filter" = field("Chargeable Filter");
                 Visible = true;
             }
@@ -362,15 +310,6 @@ page 76 "Resource Card"
                     RunPageLink = "Resource No." = field("No.");
                     ToolTip = 'View or edit the units of measure that are set up for the resource.';
                 }
-#if not CLEAN25
-                separator(Action34)
-                {
-                    Caption = '';
-                    ObsoleteReason = 'Not used.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                }
-#endif
                 action("Co&mments")
                 {
                     ApplicationArea = Comments;
@@ -509,157 +448,10 @@ page 76 "Resource Card"
                     end;
                 }
             }
-#if not CLEAN25
-            group(ActionGroupFS)
-            {
-                Caption = 'Dynamics 365 Field Service';
-                Visible = false;
-                ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '25.0';
-
-                action(FSGoToProduct)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Bookable Resource';
-                    Image = CoupledItem;
-                    ToolTip = 'Open the coupled Dynamics 365 Field Service bookable resource.';
-                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-
-                    trigger OnAction()
-                    var
-                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
-                    begin
-                        CRMIntegrationManagement.ShowCRMEntityFromRecordID(Rec.RecordId);
-                    end;
-                }
-                action(FSSynchronizeNow)
-                {
-                    AccessByPermission = TableData "CRM Integration Record" = IM;
-                    ApplicationArea = Suite;
-                    Caption = 'Synchronize';
-                    Image = Refresh;
-                    ToolTip = 'Send updated data to Dynamics 365 Sales.';
-                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-
-                    trigger OnAction()
-                    var
-                        Resource: Record Resource;
-                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
-                        ResourceRecordRef: RecordRef;
-                    begin
-                        CurrPage.SetSelectionFilter(Resource);
-                        Resource.Next();
-
-                        if Resource.Count = 1 then
-                            CRMIntegrationManagement.UpdateOneNow(Resource.RecordId)
-                        else begin
-                            ResourceRecordRef.GetTable(Resource);
-                            CRMIntegrationManagement.UpdateMultipleNow(ResourceRecordRef);
-                        end
-                    end;
-                }
-                group(FSCoupling)
-                {
-                    Caption = 'Coupling', Comment = 'Coupling is a noun';
-                    Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Sales record.';
-                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-
-                    action(ManageFSCoupling)
-                    {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
-                        ApplicationArea = Suite;
-                        Caption = 'Set Up Coupling';
-                        Image = LinkAccount;
-                        ToolTip = 'Create or modify the coupling to a Dynamics 365 Sales product.';
-                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '25.0';
-
-                        trigger OnAction()
-                        var
-                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
-                        begin
-                            CRMIntegrationManagement.DefineCoupling(Rec.RecordId);
-                        end;
-                    }
-                    action(MatchBasedCouplingFS)
-                    {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
-                        ApplicationArea = Suite;
-                        Caption = 'Match-Based Coupling';
-                        Image = CoupledItem;
-                        ToolTip = 'Couple resources to products in Dynamics 365 Sales based on matching criteria.';
-                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '25.0';
-
-                        trigger OnAction()
-                        var
-                            Resource: Record Resource;
-                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
-                            RecRef: RecordRef;
-                        begin
-                            CurrPage.SetSelectionFilter(Resource);
-                            RecRef.GetTable(Resource);
-                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
-                        end;
-                    }
-                    action(DeleteFSCoupling)
-                    {
-                        AccessByPermission = TableData "CRM Integration Record" = D;
-                        ApplicationArea = Suite;
-                        Caption = 'Delete Coupling';
-                        Enabled = CRMIsCoupledToRecord;
-                        Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Dynamics 365 Sales product.';
-                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '25.0';
-
-                        trigger OnAction()
-                        var
-                            Resource: Record Resource;
-                            CRMCouplingManagement: Codeunit "CRM Coupling Management";
-                            RecRef: RecordRef;
-                        begin
-                            CurrPage.SetSelectionFilter(Resource);
-                            RecRef.GetTable(Resource);
-                            CRMCouplingManagement.RemoveCoupling(RecRef);
-                        end;
-                    }
-                }
-                action(ShowLogFS)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Synchronization Log';
-                    Image = Log;
-                    ToolTip = 'View integration synchronization jobs for the resource table.';
-                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-
-                    trigger OnAction()
-                    var
-                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
-                    begin
-                        CRMIntegrationManagement.ShowLog(Rec.RecordId);
-                    end;
-                }
-            }
-#endif
             group("&Prices")
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN25
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
@@ -670,9 +462,6 @@ page 76 "Resource Card"
                                   Code = field("No.");
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or change detailed information about costs for the resource.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
                 action(Prices)
                 {
@@ -684,11 +473,7 @@ page 76 "Resource Card"
                                   Code = field("No.");
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or edit prices for the resource.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
                 action(PurchPriceLists)
                 {
                     ApplicationArea = Jobs;
@@ -868,22 +653,12 @@ page 76 "Resource Card"
                 actionref("Units of Measure_Promoted"; "Units of Measure")
                 {
                 }
-#if not CLEAN25
                 actionref(Costs_Promoted; Costs)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
-#if not CLEAN25
                 actionref(Prices_Promoted; Prices)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
             }
             group(Category_Category6)
             {
@@ -913,68 +688,6 @@ page 76 "Resource Card"
                 {
                 }
             }
-#if not CLEAN25
-            group(Category_Synchronize_FS)
-            {
-                Caption = 'Synchronize';
-                Visible = false;
-                ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '25.0';
-
-                group(Category_Coupling_FS)
-                {
-                    Caption = 'Coupling';
-                    ShowAs = SplitButton;
-                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-
-                    actionref(ManageFSCoupling_Promoted; ManageFSCoupling)
-                    {
-                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '25.0';
-                    }
-                    actionref(DeleteFSCoupling_Promoted; DeleteFSCoupling)
-                    {
-                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '25.0';
-                    }
-                    actionref(MatchBasedCouplingFS_Promoted; MatchBasedCouplingFS)
-                    {
-                        ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '25.0';
-                    }
-                }
-                actionref(FSSynchronizeNow_Promoted; FSSynchronizeNow)
-                {
-                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                }
-                actionref(FSGoToProduct_Promoted; FSGoToProduct)
-                {
-                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                }
-                actionref(ShowLogFS_Promoted; ShowLogFS)
-                {
-                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                }
-                actionref("Unit Group_Promoted_FS"; "Unit Group")
-                {
-                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                }
-            }
-#endif
             group(Category_Synchronize)
             {
                 Caption = 'Synchronize';
@@ -1049,4 +762,3 @@ page 76 "Resource Card"
         NoFieldVisible := DocumentNoVisibility.ResourceNoIsVisible();
     end;
 }
-

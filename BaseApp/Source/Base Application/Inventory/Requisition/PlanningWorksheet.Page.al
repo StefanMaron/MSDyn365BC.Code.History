@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -12,11 +12,14 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Setup;
+using System.Automation;
 using System.Environment;
 using System.Environment.Configuration;
 using System.Integration;
 using System.Integration.Excel;
+using System.Privacy;
 
 page 99000852 "Planning Worksheet"
 {
@@ -39,26 +42,39 @@ page 99000852 "Planning Worksheet"
     {
         area(content)
         {
-            field(CurrentWkshBatchName; CurrentWkshBatchName)
+            group(Control120)
             {
-                ApplicationArea = Planning;
-                Caption = 'Name';
-                ToolTip = 'Specifies the name of the journal batch of the planning worksheet.';
+                ShowCaption = false;
+                field(CurrentWkshBatchName; CurrentWkshBatchName)
+                {
+                    ApplicationArea = Planning;
+                    Caption = 'Name';
+                    ToolTip = 'Specifies the name of the journal batch of the planning worksheet.';
 
-                trigger OnLookup(var Text: Text): Boolean
-                begin
-                    CurrPage.SaveRecord();
-                    ReqJnlManagement.LookupName(CurrentWkshBatchName, Rec);
-                    CurrPage.Update(false);
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        CurrPage.SaveRecord();
+                        ReqJnlManagement.LookupName(CurrentWkshBatchName, Rec);
+                        SetControlAppearanceFromWkshBatch();
+                        CurrPage.Update(false);
 
-                    OnAfterLookupCurrentJnlBatchName(Rec, CurrentWkshBatchName);
-                end;
+                        OnAfterLookupCurrentJnlBatchName(Rec, CurrentWkshBatchName);
+                    end;
 
-                trigger OnValidate()
-                begin
-                    ReqJnlManagement.CheckName(CurrentWkshBatchName, Rec);
-                    CurrentWkshBatchNameOnAfterVal();
-                end;
+                    trigger OnValidate()
+                    begin
+                        ReqJnlManagement.CheckName(CurrentWkshBatchName, Rec);
+                        CurrentWkshBatchNameOnAfterVal();
+                    end;
+                }
+                field(RequisitionWkshBatchApprovalStatus; RequisitionWkshBatchApprovalStatus)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Approval Status';
+                    Editable = false;
+                    Visible = EnabledWkshBatchWorkflowsExist;
+                    ToolTip = 'Specifies the approval status for planning worksheet batch.';
+                }
             }
             repeater(Control1)
             {
@@ -80,13 +96,11 @@ page 99000852 "Planning Worksheet"
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the type of requisition worksheet line you are creating.';
                     Visible = false;
                 }
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnValidate()
                     var
@@ -100,7 +114,6 @@ page 99000852 "Planning Worksheet"
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                     ShowMandatory = VariantCodeMandatory;
 
@@ -115,108 +128,89 @@ page 99000852 "Planning Worksheet"
                 field("Planning Level"; Rec."Planning Level")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Indicates the planning level of the item in multi-level production orders. The planning level is calculated only for items that have Make-to-Order specified in the Manufacturing Policy field.';
                     Visible = false;
                 }
                 field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the bin of the item on the line.';
                     Visible = false;
                 }
                 field("Action Message"; Rec."Action Message")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies an action to take to rebalance the demand-supply situation.';
                 }
                 field("Accept Action Message"; Rec."Accept Action Message")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies whether to accept the action message proposed for the line.';
                 }
                 field("Original Due Date"; Rec."Original Due Date")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the due date stated on the production or purchase order, when an action message proposes to reschedule an order.';
                 }
                 field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the date when the related order was created.';
                     Visible = false;
                 }
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the date when you can expect to receive the items.';
                 }
                 field("Transfer Shipment Date"; Rec."Transfer Shipment Date")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the shipment date of the transfer order proposal.';
                     Visible = false;
                 }
                 field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the starting date and the starting time, which are combined in a format called "starting date-time".';
                 }
                 field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the starting time of the manufacturing process.';
                     Visible = false;
                 }
                 field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the starting date of the manufacturing process, if the planned supply is a production order.';
                     Visible = false;
                 }
                 field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the ending date and the ending time, which are combined in a format called "ending date-time".';
                 }
                 field("Ending Time"; Rec."Ending Time")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the ending time for the manufacturing process.';
                     Visible = false;
                 }
                 field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the ending date of the manufacturing process, if the planned supply is a production order.';
                     Visible = false;
                 }
                 field("Low-Level Code"; Rec."Low-Level Code")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the planning level of this item entry in the planning worksheet.';
                     Visible = false;
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies text that describes the entry.';
                 }
                 field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies additional text describing the entry, or a remark about the requisition worksheet line.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
                 field("ShortcutDimCode[3]"; ShortcutDimCode[3])
@@ -312,67 +306,55 @@ page 99000852 "Planning Worksheet"
                 field("Transfer-from Code"; Rec."Transfer-from Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the code of the location that items are transferred from.';
                     Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies a code for an inventory location where the items that are being ordered will be registered.';
                     Visible = false;
                 }
                 field("Original Quantity"; Rec."Original Quantity")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the quantity stated on the production or purchase order, when an action message proposes to change the quantity on an order.';
                 }
                 field("MPS Order"; Rec."MPS Order")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies whether the requisition worksheet line is an MPS order, that is, whether it is linked to a demand forecast or a sales order.';
                 }
                 field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the number of units of the item.';
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                     Visible = false;
                 }
                 field("Replenishment System"; Rec."Replenishment System")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies which kind of order to use to create replenishment orders and order proposals.';
                     Visible = false;
                 }
                 field("Supply From"; Rec."Supply From")
                 {
                     ApplicationArea = Planning;
                     Visible = false;
-                    ToolTip = 'Specifies a value, according to the selected replenishment system, before a supply order can be created for the line.';
                 }
                 field("Ref. Order Type"; Rec."Ref. Order Type")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies whether the order is a purchase order, a production order, or a transfer order.';
                 }
                 field("Ref. Order No."; Rec."Ref. Order No.")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the number of the relevant production or purchase order.';
                 }
                 field("Ref. Order Status"; Rec."Ref. Order Status")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the status of the production order.';
                 }
                 field("Ref. Line No."; Rec."Ref. Line No.")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the number of the purchase or production order line.';
                     Visible = false;
                 }
                 field("Planning Flexibility"; Rec."Planning Flexibility")
@@ -385,13 +367,11 @@ page 99000852 "Planning Worksheet"
                 {
                     ApplicationArea = Planning;
                     BlankZero = true;
-                    ToolTip = 'Specifies if a blanket purchase order exists for the item on the requisition line.';
                     Visible = false;
                 }
                 field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
-                    ToolTip = 'Specifies how many units of this item have been reserved.';
                     Visible = false;
 
                     trigger OnDrillDown()
@@ -402,31 +382,26 @@ page 99000852 "Planning Worksheet"
                 field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                     Visible = false;
                 }
                 field("Gen. Business Posting Group"; Rec."Gen. Business Posting Group")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the code of the general business posting group to be used for the item when you post the planning worksheet.';
                     Visible = false;
                 }
                 field("Cost Amount"; Rec."Cost Amount")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the total costs for the requisition worksheet line.';
                     Visible = false;
                 }
                 field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies the number of the vendor who will ship the items in the purchase order.';
                     Visible = false;
                 }
             }
@@ -467,6 +442,15 @@ page 99000852 "Planning Worksheet"
                 ApplicationArea = Planning;
                 SubPageLink = "No." = field("No.");
                 Visible = false;
+            }
+            part(WorkflowStatusBatch; "Workflow Status FactBox")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Batch Workflows';
+                Editable = false;
+                Enabled = false;
+                ShowFilter = false;
+                Visible = ShowWorkflowStatusOnBatch;
             }
             part(Control11; "Item Planning FactBox")
             {
@@ -630,6 +614,21 @@ page 99000852 "Planning Worksheet"
                     }
                 }
             }
+            action(Approvals)
+            {
+                AccessByPermission = TableData "Approval Entry" = R;
+                ApplicationArea = Suite;
+                Caption = 'Approvals';
+                Image = Approvals;
+                ToolTip = 'View a list of the records that are waiting to be approved. For example, you can see who requested the record to be approved, when it was sent, and when it is due to be approved.';
+
+                trigger OnAction()
+                var
+                    ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                begin
+                    ApprovalsMgmt.ShowWorksheetApprovalEntries(Rec);
+                end;
+            }
         }
         area(processing)
         {
@@ -723,6 +722,49 @@ page 99000852 "Planning Worksheet"
                             Rec.SetUpNewLine(Rec);
                     end;
                 }
+                group("Drop Shipment")
+                {
+                    Caption = 'Drop Shipment';
+                    Image = Delivery;
+                    action("Get Sales Orders")
+                    {
+                        AccessByPermission = TableData "Drop Shpt. Post. Buffer" = R;
+                        ApplicationArea = Planning;
+                        Caption = 'Get Sales Orders';
+                        Ellipsis = true;
+                        Image = "Order";
+                        ToolTip = 'Copy sales lines to the planning worksheet. You can use the batch job to create planning worksheet proposal lines from sales lines for drop shipments or special orders.';
+
+                        trigger OnAction()
+                        var
+                            GetSalesOrder: Report "Get Sales Orders";
+                        begin
+                            GetSalesOrder.SetReqWkshLine(Rec, 0);
+                            GetSalesOrder.RunModal();
+                            Clear(GetSalesOrder);
+                        end;
+                    }
+                    action("Sales Order")
+                    {
+                        AccessByPermission = TableData "Sales Header" = R;
+                        ApplicationArea = Planning;
+                        Caption = 'Sales Order';
+                        Image = Document;
+                        Enabled = Rec."Sales Order No." <> '';
+                        ToolTip = 'View the sales order that is the source of the line. This applies only to drop shipments and special orders.';
+
+                        trigger OnAction()
+                        var
+                            SalesHeader: Record "Sales Header";
+                            SalesOrder: Page "Sales Order";
+                        begin
+                            SalesHeader.SetRange("No.", Rec."Sales Order No.");
+                            SalesOrder.SetTableView(SalesHeader);
+                            SalesOrder.Editable := false;
+                            SalesOrder.Run();
+                        end;
+                    }
+                }
                 separator(Action32)
                 {
                 }
@@ -807,6 +849,134 @@ page 99000852 "Planning Worksheet"
                     end;
                 }
             }
+            group("Request Approval")
+            {
+                Caption = 'Request Approval';
+                group(SendApprovalRequest)
+                {
+                    Caption = 'Send Approval Request';
+                    Image = SendApprovalRequest;
+                    action(SendApprovalRequestWkshBatch)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Worksheet Batch';
+                        Enabled = not OpenApprovalEntriesOnWkshBatchExist and CanRequestFlowApprovalForWkshBatch and EnabledWkshBatchWorkflowsExist;
+                        Image = SendApprovalRequest;
+                        ToolTip = 'Send all worksheet lines for approval, also those that you may not see because of filters.';
+
+                        trigger OnAction()
+                        var
+                            ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                        begin
+                            ApprovalsMgmt.TrySendWorksheetBatchApprovalRequest(Rec);
+                            SetControlAppearanceFromWkshBatch();
+                        end;
+                    }
+                }
+                group(CancelApprovalRequest)
+                {
+                    Caption = 'Cancel Approval Request';
+                    Image = Cancel;
+                    action(CancelApprovalRequestWkshBatch)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Worksheet Batch';
+                        Enabled = CanCancelApprovalForWkshBatch or CanCancelFlowApprovalForWkshBatch;
+                        Image = CancelApprovalRequest;
+                        ToolTip = 'Cancel sending all worksheet lines for approval, also those that you may not see because of filters.';
+
+                        trigger OnAction()
+                        var
+                            ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                        begin
+                            ApprovalsMgmt.TryCancelWorksheetBatchApprovalRequest(Rec);
+                            SetControlAppearanceFromWkshBatch();
+                        end;
+                    }
+                }
+                group(Flow)
+                {
+                    Caption = 'Power Automate';
+                    Image = Flow;
+
+                    customaction(CreateApprovalFlowFromTemplate)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Create approval flow';
+                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
+                        Visible = IsSaaS and IsPowerAutomatePrivacyNoticeApproved;
+                        CustomActionType = FlowTemplateGallery;
+                        FlowTemplateCategoryName = 'd365bc_approval_requisitionworksheet';
+                    }
+                }
+            }
+            group(Approval)
+            {
+                Caption = 'Approval';
+                action(Approve)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Approve';
+                    Image = Approve;
+                    ToolTip = 'Approve the requested changes.';
+                    Visible = OpenApprovalEntriesExistForCurrUser;
+
+                    trigger OnAction()
+                    var
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                    begin
+                        ApprovalsMgmt.ApproveRequisitionWkshRequest(Rec);
+                    end;
+                }
+                action(Reject)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Reject';
+                    Image = Reject;
+                    ToolTip = 'Reject the approval request.';
+                    Visible = OpenApprovalEntriesExistForCurrUser;
+
+                    trigger OnAction()
+                    var
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                    begin
+                        ApprovalsMgmt.RejectRequisitionWkshRequest(Rec);
+                    end;
+                }
+                action(Delegate)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Delegate';
+                    Image = Delegate;
+                    ToolTip = 'Delegate the approval to a substitute approver.';
+                    Visible = OpenApprovalEntriesExistForCurrUser;
+
+                    trigger OnAction()
+                    var
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                    begin
+                        ApprovalsMgmt.DelegateRequisitionWkshRequest(Rec);
+                    end;
+                }
+                action(Comments)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Comments';
+                    Image = ViewComments;
+                    ToolTip = 'View or add comments for the record.';
+                    Visible = OpenApprovalEntriesExistForCurrUser or ApprovalEntriesExistSentByCurrentUser;
+
+                    trigger OnAction()
+                    var
+                        RequisitionWkshName: Record "Requisition Wksh. Name";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                    begin
+                        if OpenApprovalEntriesOnWkshBatchExist then
+                            if RequisitionWkshName.Get(Rec."Worksheet Template Name", Rec."Journal Batch Name") then
+                                ApprovalsMgmt.GetApprovalComment(RequisitionWkshName);
+                    end;
+                }
+            }
             group("Page")
             {
                 Caption = 'Page';
@@ -863,6 +1033,55 @@ page 99000852 "Planning Worksheet"
                 {
                 }
             }
+            group(Category_Category9)
+            {
+                Caption = 'Drop Shipment', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Get Sales Orders_Promoted"; "Get Sales Orders")
+                {
+                }
+                actionref("Sales Order_Promoted"; "Sales Order")
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Approve', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref(Approve_Promoted; Approve)
+                {
+                }
+                actionref(Reject_Promoted; Reject)
+                {
+                }
+                actionref(Comments_Promoted; Comments)
+                {
+                }
+                actionref(Delegate_Promoted; Delegate)
+                {
+                }
+            }
+            group("Category_Request Approval")
+            {
+                Caption = 'Request Approval';
+
+                group("Category_Send Approval Request")
+                {
+                    Caption = 'Send Approval Request';
+
+                    actionref(SendApprovalRequestWkshBatch_Promoted; SendApprovalRequestWkshBatch)
+                    {
+                    }
+                }
+                group("Category_Cancel Approval Request")
+                {
+                    Caption = 'Cancel Approval Request';
+
+                    actionref(CancelApprovalRequestWkshBatch_Promoted; CancelApprovalRequestWkshBatch)
+                    {
+                    }
+                }
+            }
             group(Category_Category5)
             {
                 Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 4.';
@@ -874,6 +1093,9 @@ page 99000852 "Planning Worksheet"
                 {
                 }
                 actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Approvals_Promoted; Approvals)
                 {
                 }
                 actionref(Components_Promoted; Components)
@@ -915,8 +1137,16 @@ page 99000852 "Planning Worksheet"
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
     begin
         PlanningWkshManagement.GetDescriptionAndRcptName(Rec, ItemDescription, RoutingDescription);
+        if RequisitionWkshName.Get(Rec.GetRangeMax("Worksheet Template Name"), CurrentWkshBatchName) then begin
+            RequisitionWkshName.SetApprovalStateForWkshBatch(RequisitionWkshName, Rec, OpenApprovalEntriesExistForCurrUser, OpenApprovalEntriesOnWkshBatchExist, CanCancelApprovalForWkshBatch, CanRequestFlowApprovalForWkshBatch, CanCancelFlowApprovalForWkshBatch, ApprovalEntriesExistSentByCurrentUser, EnabledWkshBatchWorkflowsExist);
+            ShowWorkflowStatusOnBatch := CurrPage.WorkflowStatusBatch.Page.SetFilterOnWorkflowRecord(RequisitionWkshName.RecordId());
+        end;
+
+        ApprovalMgmt.GetRequisitionWkshBatchApprovalStatus(Rec, RequisitionWkshBatchApprovalStatus, EnabledWkshBatchWorkflowsExist);
     end;
 
     trigger OnAfterGetRecord()
@@ -932,10 +1162,20 @@ page 99000852 "Planning Worksheet"
             VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
     end;
 
+    trigger OnInit()
+    begin
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+    end;
+
     trigger OnDeleteRecord(): Boolean
     begin
         Rec."Accept Action Message" := false;
         Rec.DeleteMultiLevel();
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        ApprovalMgmt.CleanRequisitionWkshApprovalStatus(Rec, RequisitionWkshBatchApprovalStatus);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -949,9 +1189,11 @@ page 99000852 "Planning Worksheet"
     var
         ClientTypeManagement: Codeunit "Client Type Management";
         ServerSetting: Codeunit "Server Setting";
+        EnvironmentInfo: Codeunit "Environment Information";
         JnlSelected: Boolean;
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        IsSaaS := EnvironmentInfo.IsSaaS();
         // if called from API (such as edit-in-excel), do not filter 
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
@@ -959,6 +1201,7 @@ page 99000852 "Planning Worksheet"
         if OpenedFromBatch then begin
             CurrentWkshBatchName := Rec."Journal Batch Name";
             ReqJnlManagement.OpenJnl(CurrentWkshBatchName, Rec);
+            SetControlAppearanceFromWkshBatch();
             exit;
         end;
         ReqJnlManagement.WkshTemplateSelection(
@@ -968,18 +1211,34 @@ page 99000852 "Planning Worksheet"
         if NewOpenFromItemAvailabilityByEvent then
             CurrentWkshBatchName := Rec."Journal Batch Name";
         ReqJnlManagement.OpenJnl(CurrentWkshBatchName, Rec);
+
+        SetControlAppearanceFromWkshBatch();
     end;
 
     var
         PlanningTransparency: Codeunit "Planning Transparency";
         ReqJnlManagement: Codeunit ReqJnlManagement;
         ReqLineAvailabilityMgt: Codeunit "Req. Line Availability Mgt.";
+        ApprovalMgmt: Codeunit "Approvals Mgmt.";
+        PrivacyNotice: Codeunit "Privacy Notice";
+        FlowServiceManagement: Codeunit "Flow Service Management";
+        RequisitionWkshBatchApprovalStatus: Text[20];
         CurrentWkshBatchName: Code[10];
         ExcelFileNameTxt: Label 'Planning Worksheet - JournalBatchName %1 - WorksheetTemplateName %2', Comment = '%1 = Journal Batch Name; %2 = Worksheet Template Name';
         OpenedFromBatch: Boolean;
         VariantCodeMandatory: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         NewOpenFromItemAvailabilityByEvent: Boolean;
+        ApprovalEntriesExistSentByCurrentUser: Boolean;
+        OpenApprovalEntriesExistForCurrUser: Boolean;
+        OpenApprovalEntriesOnWkshBatchExist: Boolean;
+        EnabledWkshBatchWorkflowsExist: Boolean;
+        ShowWorkflowStatusOnBatch: Boolean;
+        CanCancelApprovalForWkshBatch: Boolean;
+        CanRequestFlowApprovalForWkshBatch: Boolean;
+        CanCancelFlowApprovalForWkshBatch: Boolean;
+        IsPowerAutomatePrivacyNoticeApproved: Boolean;
+        IsSaaS: Boolean;
         Warning: Option " ",Emergency,Exception,Attention;
 
     protected var
@@ -999,6 +1258,7 @@ page 99000852 "Planning Worksheet"
     begin
         CurrPage.SaveRecord();
         ReqJnlManagement.SetName(CurrentWkshBatchName, Rec);
+        SetControlAppearanceFromWkshBatch();
         CurrPage.Update(false);
     end;
 
@@ -1072,6 +1332,17 @@ page 99000852 "Planning Worksheet"
     procedure CallFromItemAvailabilityByEvent(OpenFromItemAvailabilityByEvent: Boolean)
     begin
         NewOpenFromItemAvailabilityByEvent := OpenFromItemAvailabilityByEvent;
+    end;
+
+    local procedure SetControlAppearanceFromWkshBatch()
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        if not RequisitionWkshName.Get(Rec.GetRangeMax("Worksheet Template Name"), CurrentWkshBatchName) then
+            exit;
+
+        ShowWorkflowStatusOnBatch := CurrPage.WorkflowStatusBatch.Page.SetFilterOnWorkflowRecord(RequisitionWkshName.RecordId());
+        RequisitionWkshName.SetApprovalStateForWkshBatch(RequisitionWkshName, Rec, OpenApprovalEntriesExistForCurrUser, OpenApprovalEntriesOnWkshBatchExist, CanCancelApprovalForWkshBatch, CanRequestFlowApprovalForWkshBatch, CanCancelFlowApprovalForWkshBatch, ApprovalEntriesExistSentByCurrentUser, EnabledWkshBatchWorkflowsExist);
     end;
 
     [IntegrationEvent(false, false)]

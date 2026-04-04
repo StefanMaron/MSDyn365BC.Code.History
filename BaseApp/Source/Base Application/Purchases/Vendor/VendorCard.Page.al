@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -76,7 +76,6 @@ page 26 "Vendor Card"
                     ApplicationArea = All;
                     Importance = Promoted;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the vendor''s name. You can enter a maximum of 30 characters, both numbers and letters.';
 
                     trigger OnValidate()
                     begin
@@ -87,25 +86,21 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = All;
                     Importance = Additional;
-                    ToolTip = 'Specifies an additional part of the name.';
                     Visible = false;
                 }
                 field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies which transactions with the vendor that cannot be processed, for example a vendor that is declared insolvent.';
                 }
                 field("Privacy Blocked"; Rec."Privacy Blocked")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies when the vendor card was last modified.';
                 }
                 field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
@@ -119,6 +114,8 @@ page 26 "Vendor Card"
                 }
                 field(BalanceAsCustomer; BalanceAsCustomer)
                 {
+                    AutoFormatType = 2;
+                    AutoFormatExpression = '';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balance (LCY) As Customer';
                     Editable = false;
@@ -153,13 +150,11 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the preferred method of sending documents to this vendor, so that you do not have to select a sending option every time that you post and send a document to the vendor. Documents to this vendor will be sent using the specified sending profile and will override the default document sending profile.';
                 }
                 field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                 }
                 field("IC Partner Code"; Rec."IC Partner Code")
                 {
@@ -171,25 +166,21 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies which purchaser is assigned to the vendor.';
                 }
                 field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
                 }
                 field("Disable Search by Name"; Rec."Disable Search by Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies that you can change the vendor name on open purchase documents. The change applies only to the documents.';
                 }
                 field("Company Size Code"; Rec."Company Size Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the size of the vendor''s company.';
                 }
                 field("Statistics Group"; Rec."Statistics Group")
                 {
@@ -211,12 +202,10 @@ page 26 "Vendor Card"
                     field("Address 2"; Rec."Address 2")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies additional address information.';
                     }
                     field("Country/Region Code"; Rec."Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the country/region of the address.';
 
                         trigger OnValidate()
                         begin
@@ -226,7 +215,6 @@ page 26 "Vendor Card"
                     field(City; Rec.City)
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the vendor''s city.';
                     }
                     group(Control199)
                     {
@@ -235,14 +223,12 @@ page 26 "Vendor Card"
                         field(County; Rec.County)
                         {
                             ApplicationArea = Basic, Suite;
-                            ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
                     field("Post Code"; Rec."Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
-                        ToolTip = 'Specifies the postal code.';
                     }
                     field(ShowMap; ShowMapLbl)
                     {
@@ -263,49 +249,41 @@ page 26 "Vendor Card"
                 field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the vendor''s telephone number.';
                 }
                 field(MobilePhoneNo; Rec."Mobile Phone No.")
                 {
                     Caption = 'Mobile Phone No.';
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = PhoneNo;
-                    ToolTip = 'Specifies the vendor''s mobile telephone number.';
                 }
                 field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = EMail;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the vendor''s email address.';
                 }
                 field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the vendor''s fax number.';
                 }
                 field("Home Page"; Rec."Home Page")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the vendor''s web site.';
                 }
                 field("Our Account No."; Rec."Our Account No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies your account number with the vendor, if you have one.';
                 }
                 field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
                 }
                 field("Format Region"; Rec."Format Region")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the region format to be used on printouts for this vendor.';
                 }
                 group(Contact)
                 {
@@ -314,14 +292,12 @@ page 26 "Vendor Card"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Primary Contact Code';
-                        ToolTip = 'Specifies the primary contact number for the vendor.';
                     }
                     field(Control16; Rec.Contact)
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = ContactEditable;
                         Importance = Promoted;
-                        ToolTip = 'Specifies the name of the person you regularly contact when you do business with this vendor.';
 
                         trigger OnValidate()
                         begin
@@ -339,7 +315,6 @@ page 26 "Vendor Card"
                 field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = VAT;
-                    ToolTip = 'Specifies the vendor''s VAT registration number.';
 
                     trigger OnDrillDown()
                     var
@@ -351,55 +326,55 @@ page 26 "Vendor Card"
                 field("EORI Number"; Rec."EORI Number")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
                     Visible = false;
                 }
                 field(GLN; Rec.GLN)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the vendor in connection with electronic document receiving.';
+                }
+                field("Copy Buy-from Add. to Qte From"; Rec."Copy Buy-from Add. to Qte From")
+                {
+                    ApplicationArea = Basic, Suite;
                 }
                 field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
-                    ToolTip = 'Specifies if the customer is liable for sales tax.';
                 }
                 field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
-                    ToolTip = 'Specifies a tax area code for the company.';
                 }
                 field("Pay-to Vendor No."; Rec."Pay-to Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the number of a different vendor whom you pay for products delivered by the vendor on the vendor card.';
                 }
                 field("Invoice Disc. Code"; Rec."Invoice Disc. Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     NotBlank = true;
-                    ToolTip = 'Specifies the vendor''s invoice discount code. When you set up a new vendor card, the number you have entered in the No. field is automatically inserted.';
                 }
                 field("Prices Including VAT"; Rec."Prices Including VAT")
                 {
                     ApplicationArea = VAT;
-                    ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
+                }
+                field("Self-Billing Agreement"; Rec."Self-Billing Agreement")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                 }
                 field("Price Calculation Method"; Rec."Price Calculation Method")
                 {
                     Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the default price calculation method.';
                 }
                 field("Registration Number"; Rec."Registration Number")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the registration number of the vendor. You can enter a maximum of 20 characters, both numbers and letters.';
                 }
                 group("Posting Details")
                 {
@@ -409,20 +384,17 @@ page 26 "Vendor Card"
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ShowMandatory = true;
-                        ToolTip = 'Specifies the vendor''s trade type to link transactions made for this vendor with the appropriate general ledger account according to the general posting setup.';
                     }
                     field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
-                        ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     }
                     field("Vendor Posting Group"; Rec."Vendor Posting Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         ShowMandatory = true;
-                        ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
                     }
                     field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
                     {
@@ -439,7 +411,6 @@ page 26 "Vendor Card"
                     {
                         ApplicationArea = Suite;
                         Importance = Additional;
-                        ToolTip = 'Specifies the currency code that is inserted by default when you create purchase documents or journal lines for the vendor.';
                     }
                 }
             }
@@ -453,34 +424,28 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = Prepayments;
                     Importance = Additional;
-                    ToolTip = 'Specifies a prepayment percentage that applies to all orders for this vendor, regardless of the items or services on the order lines.';
                 }
                 field("Application Method"; Rec."Application Method")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how to apply payments to entries for this vendor.';
                 }
                 field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                 }
                 field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                 }
                 field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the importance of the vendor when suggesting payments using the Suggest Vendor Payments function.';
                 }
                 field("Block Payment Tolerance"; Rec."Block Payment Tolerance")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the vendor allows payment tolerance.';
 
                     trigger OnValidate()
                     var
@@ -497,34 +462,28 @@ page 26 "Vendor Card"
                 field("Preferred Bank Account Code"; Rec."Preferred Bank Account Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the vendor bank account that will be used by default on payment journal lines for export to a payment bank file.';
                 }
                 field("Partner Type"; Rec."Partner Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the vendor is a person or a company.';
                 }
                 field("Intrastat Partner Type"; Rec."Intrastat Partner Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies for Intrastat reporting if the vendor is a person or a company.';
                 }
                 field("Cash Flow Payment Terms Code"; Rec."Cash Flow Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a payment term that will be used for calculating cash flow.';
                 }
                 field("Creditor No."; Rec."Creditor No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the vendor.';
                 }
                 field("Exclude from Pmt. Practices"; Rec."Exclude from Pmt. Practices")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies that the vendor must be excluded from Payment Practices calculations.';
                 }
             }
             group(Receiving)
@@ -534,25 +493,21 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = Location;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the warehouse location where items from the vendor must be received by default.';
                 }
                 field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                 }
                 field("Lead Time Calculation"; Rec."Lead Time Calculation")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies a date formula for the amount of time it takes to replenish the item.';
                 }
                 field("Base Calendar Code"; Rec."Base Calendar Code")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
-                    ToolTip = 'Specifies a customizable calendar for delivery planning that holds the vendor''s working days and holidays.';
                 }
                 field("Customized Calendar"; format(CalendarMgmt.CustomizedChangesExist(Rec)))
                 {
@@ -572,7 +527,6 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = All;
                     Visible = OverReceiptAllowed;
-                    ToolTip = 'Specifies the policy that will be used for the vendor if more items than ordered are received.';
                 }
             }
         }
@@ -584,19 +538,6 @@ page 26 "Vendor Card"
                 SubPageLink = "No." = field("No.");
                 Visible = not IsOfficeAddin;
             }
-#if not CLEAN25
-            part("Attached Documents"; "Document Attachment Factbox")
-            {
-                ObsoleteTag = '25.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
-                ApplicationArea = All;
-                Visible = false;
-                Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(Database::Vendor),
-                              "No." = field("No.");
-            }
-#endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
             {
                 ApplicationArea = All;
@@ -862,7 +803,6 @@ page 26 "Vendor Card"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN25
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -870,9 +810,6 @@ page 26 "Vendor Card"
                     Image = LineDiscount;
                     Visible = false;
                     ToolTip = 'View or set up different discounts for products that you buy from the vendor. An product discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action PriceLists shows all purchase price lists with prices and discounts';
-                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     var
@@ -882,8 +819,6 @@ page 26 "Vendor Card"
                         PriceUXManagement.ShowPriceLists(Rec, AmountType::Discount);
                     end;
                 }
-#endif
-#if not CLEAN25
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -894,9 +829,6 @@ page 26 "Vendor Card"
                     RunPageLink = "Vendor No." = field("No.");
                     RunPageView = sorting("Vendor No.");
                     ToolTip = 'View or set up different prices for items that you buy from the vendor. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
                 action("Line Discounts")
                 {
@@ -908,11 +840,7 @@ page 26 "Vendor Card"
                     RunPageLink = "Vendor No." = field("No.");
                     RunPageView = sorting("Vendor No.");
                     ToolTip = 'View or set up different discounts for items that you buy from the vendor. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
                 action("Prepa&yment Percentages")
                 {
                     ApplicationArea = Prepayments;
@@ -1575,18 +1503,23 @@ page 26 "Vendor Card"
         }
         area(reporting)
         {
+#if not CLEAN28
             action("Vendor - Summary Aging")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Vendor - Summary Aging';
+                Caption = 'Vendor - Summary Aging (Obsolete)';
                 Image = "Report";
                 ToolTip = 'View a summary of the payables owed to each vendor, divided into three time periods.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report is obsolete and will be removed in a future release. See the documentation for alternative options.';
+                ObsoleteTag = '28.0';
 
                 trigger OnAction()
                 begin
                     RunReport(REPORT::"Vendor - Summary Aging");
                 end;
             }
+#endif
             action("Vendor - Labels")
             {
                 ApplicationArea = Basic, Suite;
@@ -1751,22 +1684,12 @@ page 26 "Vendor Card"
                 actionref(DiscountLines_Promoted; DiscountLines)
                 {
                 }
-#if not CLEAN25
                 actionref(Prices_Promoted; Prices)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
-#if not CLEAN25
                 actionref("Line Discounts_Promoted"; "Line Discounts")
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
             }
             group(Category_Category7)
             {
@@ -1779,9 +1702,14 @@ page 26 "Vendor Card"
                 actionref("Vendor - Balance to Date_Promoted"; "Vendor - Balance to Date")
                 {
                 }
+#if not CLEAN28
                 actionref("Vendor - Summary Aging_Promoted"; "Vendor - Summary Aging")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report is obsolete and will be removed in a future release. See the documentation for alternative options.';
+                    ObsoleteTag = '28.0';
                 }
+#endif
                 actionref(Purchases_Promoted; Purchases)
                 {
                 }

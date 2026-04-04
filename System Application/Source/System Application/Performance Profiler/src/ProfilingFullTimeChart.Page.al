@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 namespace System.Tooling;
+
 using System.Integration;
 using System.Visualization;
 
