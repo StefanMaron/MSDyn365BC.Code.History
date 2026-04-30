@@ -4,10 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Company;
 using System.Environment;
 using System.Utilities;
-using Microsoft.Finance.GeneralLedger.Setup;
 
 xmlport 11766 "VAT Statement DPHDP3 CZL"
 {
@@ -1472,10 +1472,13 @@ xmlport 11766 "VAT Statement DPHDP3 CZL"
     var
         BufferAmount: Decimal;
     begin
-        if XMLTagAmount.Get(XMLTag, BufferAmount) then
-            if BufferAmount <> 0 then
-                exit(Format(BufferAmount, 0, 9));
-        exit('');
+        if not XMLTagAmount.Get(XMLTag, BufferAmount) then
+            exit('');
+        if BufferAmount = 0 then
+            exit('');
+        if PrintInIntegers then
+            BufferAmount := Round(BufferAmount, 1, GetAmtRoundingDirection());
+        exit(Format(BufferAmount, 0, 9));
     end;
 
     procedure AddAmount(XMLTag: Code[20]; Amount: Decimal)
@@ -1552,14 +1555,9 @@ xmlport 11766 "VAT Statement DPHDP3 CZL"
     begin
         VATStatement.InitializeRequestCZL(
           VATStatementName, VATStatementLine, Selection,
-          PeriodSelection, PrintInIntegers, UseAmtsInAddCurr,
-          SettlementNoFilter, RoundingDirection);
-
+          PeriodSelection, false, UseAmtsInAddCurr,
+          SettlementNoFilter, RoundingDirection); // Calculate with decimals, rounding will be applied in GetAmount function
         VATStatement.CalcLineTotal(VATStatementLine, ColumnValue, 0);
-        if PrintInIntegers then
-            ColumnValue := Round(ColumnValue, 1, VATStatement.GetAmtRoundingDirectionCZL());
-
-        ColumnValue := ColumnValue;
 
         if VATStatementLine."Print with" = VATStatementLine."Print with"::"Opposite Sign" then
             ColumnValue := -ColumnValue;
@@ -1568,6 +1566,18 @@ xmlport 11766 "VAT Statement DPHDP3 CZL"
     procedure CopyAttachmentFilter(var VATStatementAttachmentCZL: Record "VAT Statement Attachment CZL")
     begin
         VATStatementAttachmentCZL.CopyFilters(Attachment);
+    end;
+
+    local procedure GetAmtRoundingDirection() Direction: Text[1]
+    begin
+        case RoundingDirection of
+            RoundingDirection::Nearest:
+                Direction := '=';
+            RoundingDirection::Up:
+                Direction := '>';
+            RoundingDirection::Down:
+                Direction := '<';
+        end;
     end;
 }
 

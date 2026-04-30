@@ -25,7 +25,7 @@ codeunit 31140 "VAT Statement Handler CZL"
         InvalidValueErr: Label 'You have entered an invalid value or a nonexistent row number.';
 
     [EventSubscriber(ObjectType::Report, Report::"VAT Statement", 'OnAfterGetAmtRoundingDirection', '', false, false)]
-    local procedure GetRoundingDirectionOnAfterGetAmtRoundingDirection(Direction: Text[1])
+    local procedure GetRoundingDirectionOnAfterGetAmtRoundingDirection(var Direction: Text[1])
     begin
         Direction := VATStatement.GetAmtRoundingDirectionCZL();
     end;

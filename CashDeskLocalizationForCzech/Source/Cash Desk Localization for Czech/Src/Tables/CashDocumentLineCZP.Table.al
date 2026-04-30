@@ -1833,7 +1833,6 @@ table 11733 "Cash Document Line CZP"
                 PostedGLAccount.Get(FAPostingGroup."Acquisition Cost Account");
             end;
         PostedGLAccount.CheckGLAcc();
-        PostedGLAccount.TestField("Gen. Prod. Posting Group");
         "Posting Group" := FADepreciationBook."FA Posting Group";
         Validate("Gen. Posting Type", PostedGLAccount."Gen. Posting Type");
         Validate("VAT Bus. Posting Group", PostedGLAccount."VAT Bus. Posting Group");
