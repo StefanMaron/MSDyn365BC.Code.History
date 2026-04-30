@@ -780,6 +780,80 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         Assert.AreNearlyEqual(-Round(DeductibleVATAmt), VATEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision", AmountMustBeEqualErr);
         Assert.AreNearlyEqual(-Round(NonDeductibleVATAmt), VATEntry."Non-Deductible VAT Amount", GeneralLedgerSetup."Amount Rounding Precision", AmountMustBeEqualErr);
     end;
+    
+    [Test]
+    procedure DeductibleVATBaseNotZeroedWhenNonDedVATPctIsZero()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        Vendor: Record Vendor;
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        DocNo: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 629330] Post Purchase Credit Memo with G/L Account lines including negative line when "Allow Non-Deductible VAT" is "Do Not Allow" and Prices Incl. VAT
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with "Allow Non-Deductible VAT" = "Do Not Allow"
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 20));
+        VATPostingSetup."Allow Non-Deductible VAT" := VATPostingSetup."Allow Non-Deductible VAT"::"Do Not Allow";
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Vendor "V" with VAT Bus. Posting Group
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+
+        // [GIVEN] G/L Account "GL" with the VAT Posting Setup
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        GLAccountNo := GLAccount."No.";
+
+        // [GIVEN] Ensure General Posting Setup is not blocked
+        if GeneralPostingSetup.Get(Vendor."Gen. Bus. Posting Group", GLAccount."Gen. Prod. Posting Group") then begin
+            GeneralPostingSetup.Blocked := false;
+            GeneralPostingSetup.Modify(true);
+        end else begin
+            LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, Vendor."Gen. Bus. Posting Group", GLAccount."Gen. Prod. Posting Group");
+            LibraryERM.SetGeneralPostingSetupPurchAccounts(GeneralPostingSetup);
+            GeneralPostingSetup.Modify(true);
+        end;
+
+        // [GIVEN] Purchase Credit Memo "PCM" with "Prices Including VAT" = true
+        LibraryPurchase.CreatePurchHeader(
+            PurchHeader, PurchHeader."Document Type"::"Credit Memo", Vendor."No.");
+        PurchHeader.Validate("Prices Including VAT", true);
+        PurchHeader.Modify(true);
+
+        // [GIVEN] G/L Account line with positive amount = 1200
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 2000));
+        PurchLine.Modify(true);
+
+        // [GIVEN] G/L Account line with positive amount = 1000
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 1500));
+        PurchLine.Modify(true);
+
+        // [GIVEN] G/L Account line with negative quantity = -1 and amount = 200 (negative line)
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::"G/L Account", GLAccountNo, -1);
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchLine.Modify(true);
+
+        // [WHEN] Post the Purchase Credit Memo
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+
+        // [THEN] VAT Entry is posted with no Non-Deductible VAT values
+        FindVATEntry(VATEntry, DocNo);
+        Assert.AreEqual(0, VATEntry."Non-Deductible VAT Base",
+            'Non-Deductible VAT Base should be 0 when Allow Non-Deductible VAT is Do Not Allow');
+        Assert.AreEqual(0, VATEntry."Non-Deductible VAT Amount",
+            'Non-Deductible VAT Amount should be 0 when Allow Non-Deductible VAT is Do Not Allow');
+    end;
 
     local procedure Initialize()
     var

@@ -72,6 +72,11 @@ page 1351 "Posted Purch. Invoice - Update"
                     Editable = true;
                     ToolTip = 'Specifies any text that is entered to accompany the posting, for example for information to auditors.';
                 }
+                field("Dispute Status"; Rec."Dispute Status")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if there is an ongoing dispute for this document.';
+                }
             }
             group(Shipping)
             {
@@ -117,7 +122,8 @@ page 1351 "Posted Purch. Invoice - Update"
             (Rec."Payment Method Code" <> xPurchInvHeader."Payment Method Code") or
             (Rec."Creditor No." <> xPurchInvHeader."Creditor No.") or
             (Rec."Ship-to Code" <> xPurchInvHeader."Ship-to Code") or
-            (Rec."Posting Description" <> xPurchInvHeader."Posting Description");
+            (Rec."Posting Description" <> xPurchInvHeader."Posting Description") or
+            (Rec."Dispute Status" <> xPurchInvHeader."Dispute Status");
 
         OnAfterRecordChanged(Rec, xRec, IsChanged, xPurchInvHeader);
     end;
