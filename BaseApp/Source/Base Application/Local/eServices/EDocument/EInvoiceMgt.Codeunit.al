@@ -4018,13 +4018,11 @@ codeunit 10145 "E-Invoice Mgt."
         exit('0' + Month);
     end;
 
-    local procedure FormatEquivalenciaDR(ExchangeRate: Decimal; DocsCount: Integer): Text
+    local procedure FormatEquivalenciaDR(ExchangeRate: Decimal): Text
     begin
         if ExchangeRate = 1 then
-            if DocsCount = 1 then
-                exit('1')
-            else
-                exit('1.0000000000'); // 10 decimal places
+            exit('1');
+
         exit(FormatDecimal(ExchangeRate, 10));
     end;
 
@@ -5526,7 +5524,7 @@ codeunit 10145 "E-Invoice Mgt."
                 AddAttribute(XMLDoc, XMLCurrNode, 'MonedaDR', ConvertCurrency(CustLedgerEntry2."Currency Code"));
 
                 EquivalenciaDR := TempDetailedCustLedgEntry."Remaining Pmt. Disc. Possible";
-                AddAttribute(XMLDoc, XMLCurrNode, 'EquivalenciaDR', FormatEquivalenciaDR(EquivalenciaDR, TempDetailedCustLedgEntry.Count()));
+                AddAttribute(XMLDoc, XMLCurrNode, 'EquivalenciaDR', FormatEquivalenciaDR(EquivalenciaDR));
 
                 SumStampedPayments(CustLedgerEntry2, SumOfStamped, PaymentNo);
                 AddAttribute(XMLDoc, XMLCurrNode, 'NumParcialidad', Format(PaymentNo));
@@ -5658,7 +5656,7 @@ codeunit 10145 "E-Invoice Mgt."
                 WriteOutStr(OutStream, ConvertCurrency(CustLedgerEntry2."Currency Code") + '|');
                 // MonedaDR
                 EquivalenciaDR := TempDetailedCustLedgEntry."Remaining Pmt. Disc. Possible";
-                WriteOutStr(OutStream, FormatEquivalenciaDR(EquivalenciaDR, TempDetailedCustLedgEntry.Count()) + '|');
+                WriteOutStr(OutStream, FormatEquivalenciaDR(EquivalenciaDR) + '|');
 
                 SumStampedPayments(CustLedgerEntry2, SumOfStamped, PaymentNo);
                 WriteOutStr(OutStream, Format(PaymentNo) + '|');// NumParcialidad
