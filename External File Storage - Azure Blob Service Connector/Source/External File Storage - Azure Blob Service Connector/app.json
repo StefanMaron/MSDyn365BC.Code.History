@@ -4,13 +4,13 @@
   "publisher": "Microsoft",
   "brief": "Enables file and folder operations for Azure Blob Service Containers via the External File Storage Module with Business Central.",
   "description": "This app enables file and folder operations for Azure Blob Service Containers via the External File Storage Module with Business Central.",
-  "version": "26.12.48244.0",
+  "version": "26.13.49690.0",
   "privacyStatement": "https://go.microsoft.com/fwlink/?linkid=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://go.microsoft.com/fwlink/?linkid=2134520",
   "url": "https://go.microsoft.com/fwlink/?linkid=724011",
   "logo": "ExtensionLogo.png",
-  "application": "26.12.0.0",
+  "application": "26.13.0.0",
   "platform": "26.0.0.0",
   "internalsVisibleTo": [
     {
