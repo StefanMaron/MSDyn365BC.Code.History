@@ -20,6 +20,7 @@ using Microsoft.CRM.Team;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Sales.Customer;
 
 permissionset 6092 "Payables - Admin"
 {
@@ -32,6 +33,7 @@ permissionset 6092 "Payables - Admin"
                   tabledata "Currency for Fin. Charge Terms" = RIMD,
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
+                  tabledata "Dispute Status" = RIMD,
                   tabledata "Employee Posting Group" = RIMD,
                   tabledata "Finance Charge Terms" = RIMD,
                   tabledata "G/L Account" = R,

@@ -626,6 +626,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit GST On Purchase Tests - NamedType IGSTLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2041524065 - NamedType 2977109535" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[GST Reversal Distribution Nos. must have a value in General Ledger Setup]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit GST On Purchase Tests - NamedType ReversalDistNosErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2041524065 - NamedType 2570334075" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[SGST]]></Val>

@@ -94,11 +94,21 @@ codeunit 18201 "GST Distribution Subcsribers"
     begin
         if GSTDistributionHeader."No." = '' then begin
             GeneralLedgerSetup.Get();
-            if GeneralLedgerSetup."GST Distribution Nos." <> '' then begin
-                GeneralLedgerSetup.TestField("GST Distribution Nos.");
-                NoSeries.Get(GeneralLedgerSetup."GST Distribution Nos.");
-                GSTDistributionHeader."No." := NoSeriesCodeunit.GetNextNo(NoSeries.Code);
-                GSTDistributionHeader."No. Series" := GeneralLedgerSetup."GST Distribution Nos.";
+            case GSTDistributionHeader.Reversal of
+                false:
+                    if GeneralLedgerSetup."GST Distribution Nos." <> '' then begin
+                        GeneralLedgerSetup.TestField("GST Distribution Nos.");
+                        NoSeries.Get(GeneralLedgerSetup."GST Distribution Nos.");
+                        GSTDistributionHeader."No." := NoSeriesCodeunit.GetNextNo(NoSeries.Code);
+                        GSTDistributionHeader."No. Series" := GeneralLedgerSetup."GST Distribution Nos.";
+                    end;
+                true:
+                    if GeneralLedgerSetup."GST Reversal Distribution Nos." <> '' then begin
+                        GeneralLedgerSetup.TestField("GST Reversal Distribution Nos.");
+                        NoSeries.Get(GeneralLedgerSetup."GST Reversal Distribution Nos.");
+                        GSTDistributionHeader."No." := NoSeriesCodeunit.GetNextNo(NoSeries.Code);
+                        GSTDistributionHeader."No. Series" := GeneralLedgerSetup."GST Reversal Distribution Nos.";
+                    end;
             end;
         end;
 
@@ -321,7 +331,7 @@ codeunit 18201 "GST Distribution Subcsribers"
                 GSTDistributionLine."Distribution No." := GSTDistributionHeader."No.";
                 GSTDistributionLine."Posting Date" := GSTDistributionHeader2."Posting Date";
                 GSTDistributionLine."Distribution Amount" := 0;
-                GSTDistributionLine."Location Posting No. Series" := PostedGSTDistributionLine."Location Posting No. Series";
+                GetDistributionLinePostingNoSeries(GSTDistributionLine);
                 GSTDistributionLine.Insert(true);
             until PostedGSTDistributionLine.Next() = 0;
     end;

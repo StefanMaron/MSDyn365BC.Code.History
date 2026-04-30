@@ -9,8 +9,8 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Service.Contract;
 using Microsoft.Service.Document;
-using Microsoft.Service.Loaner;
 using Microsoft.Service.History;
+using Microsoft.Service.Loaner;
 using System.IO;
 
 codeunit 6473 "Serv. Item Track Navigate Mgt"
@@ -192,6 +192,20 @@ codeunit 6473 "Serv. Item Track Navigate Mgt"
         case ReservationEntry."Source Type" of
             Database::"Service Line":
                 FindServiceLines(ReservationEntry, sender);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnCanIncludeReservEntryToTrackingSpecOnCaseElse', '', true, false)]
+    local procedure OnCanIncludeReservEntryToTrackingSpecOnCaseElse(TempReservEntry: Record "Reservation Entry"; var Result: Boolean);
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        if (TempReservEntry."Reservation Status" = TempReservEntry."Reservation Status"::Prospect) and
+       (TempReservEntry."Source Type" = Database::"Service Line") and
+       (TempReservEntry."Source Subtype" = 2) then begin
+            ServiceLine.Get(TempReservEntry."Source Subtype", TempReservEntry."Source ID", TempReservEntry."Source Ref. No.");
+            if ServiceLine."Shipment No." <> '' then
+                Result := false;
         end;
     end;
 

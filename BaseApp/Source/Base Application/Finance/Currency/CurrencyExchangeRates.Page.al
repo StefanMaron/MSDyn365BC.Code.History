@@ -83,6 +83,9 @@ page 483 "Currency Exchange Rates"
     var
         CurrExchRate: Record "Currency Exchange Rate";
     begin
+        if Rec."Exchange Rate Amount" <> 0 then
+            exit;
+
         CurrExchRate := xRec;
         if not BelowxRec then begin
             CurrExchRate.CopyFilters(Rec);
