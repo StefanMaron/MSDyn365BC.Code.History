@@ -1522,7 +1522,6 @@ codeunit 139160 "CRM Setup Test"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmYes')]
     [Scope('OnPrem')]
     procedure IntegrationTableMappingNameCannotBeBlank()
     var

@@ -72,6 +72,7 @@ permissionset 7946 "Payables Documents - Edit"
                   tabledata "Default Dimension" = R,
                   tabledata "Default Dimension Priority" = R,
                   tabledata "Detailed Vendor Ledg. Entry" = R,
+                  tabledata "Dispute Status" = RIMD,
                   tabledata "Dtld. Price Calculation Setup" = R,
                   tabledata "Duplicate Price Line" = R,
                   tabledata "Employee Ledger Entry" = R,
