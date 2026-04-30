@@ -1358,22 +1358,28 @@ codeunit 22 "Item Jnl.-Post Line"
                     ReservEntry2.SetLoadFields("Source Type", "Source Ref. No.", "Item No.", "Quantity (Base)");
                     OnApplyItemLedgEntryOnAfterSetLoadFieldsOnReservEntry(ReservEntry2);
                     ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
-                    if ReservEntry2."Source Type" <> DATABASE::"Item Ledger Entry" then
+                    if (ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Transfer) and (ReservEntry2."Source Type" = 39) and (ItemLedgEntry.Quantity < 0) then begin
+                        ReservEngineMgt.CloseReservEntry(ReservEntry, false, false);
+                        UseReservationApplication := false;
+                        StartApplication := true;
+                    end else begin
+                        if ReservEntry2."Source Type" <> DATABASE::"Item Ledger Entry" then
+                            if ItemLedgEntry.Quantity < 0 then
+                                Error(Text003, ReservEntry."Item No.");
+                        OldItemLedgEntry.Get(ReservEntry2."Source Ref. No.");
                         if ItemLedgEntry.Quantity < 0 then
-                            Error(Text003, ReservEntry."Item No.");
-                    OldItemLedgEntry.Get(ReservEntry2."Source Ref. No.");
-                    if ItemLedgEntry.Quantity < 0 then
-                        if OldItemLedgEntry."Remaining Quantity" < ReservEntry2."Quantity (Base)" then
-                            Error(Text003, ReservEntry2."Item No.");
+                            if OldItemLedgEntry."Remaining Quantity" < ReservEntry2."Quantity (Base)" then
+                                Error(Text003, ReservEntry2."Item No.");
 
-                    OldItemLedgEntry.TestField("Item No.", ItemJnlLine."Item No.");
-                    OldItemLedgEntry.TestField("Variant Code", ItemJnlLine."Variant Code");
-                    OldItemLedgEntry.TestField("Location Code", ItemJnlLine."Location Code");
-                    OnApplyItemLedgEntryOnBeforeCloseReservEntry(OldItemLedgEntry, ItemJnlLine, ItemLedgEntry, ReservEntry);
-                    ReservEngineMgt.CloseReservEntry(ReservEntry, false, false);
-                    OnApplyItemLedgEntryOnAfterCloseReservEntry(OldItemLedgEntry, ItemJnlLine, ItemLedgEntry, ReservEntry);
-                    OldItemLedgEntry.CalcReservedQuantity();
-                    AppliedQty := -Abs(ReservEntry."Quantity (Base)");
+                        OldItemLedgEntry.TestField("Item No.", ItemJnlLine."Item No.");
+                        OldItemLedgEntry.TestField("Variant Code", ItemJnlLine."Variant Code");
+                        OldItemLedgEntry.TestField("Location Code", ItemJnlLine."Location Code");
+                        OnApplyItemLedgEntryOnBeforeCloseReservEntry(OldItemLedgEntry, ItemJnlLine, ItemLedgEntry, ReservEntry);
+                        ReservEngineMgt.CloseReservEntry(ReservEntry, false, false);
+                        OnApplyItemLedgEntryOnAfterCloseReservEntry(OldItemLedgEntry, ItemJnlLine, ItemLedgEntry, ReservEntry);
+                        OldItemLedgEntry.CalcReservedQuantity();
+                        AppliedQty := -Abs(ReservEntry."Quantity (Base)");
+                    end;
                 end;
             end else
                 StartApplication := true;
@@ -3480,7 +3486,10 @@ codeunit 22 "Item Jnl.-Post Line"
         CostCalcMgt: Codeunit "Cost Calculation Management";
     begin
         if Expected then begin
-            DirCost := ItemJnlLine."Unit Cost" * ItemJnlLine.Quantity + RoundingResidualAmount;
+            if ShouldUseCumulativeRoundingForExpectedCost() then
+                DirCost := ItemJnlLine.Amount + Round(CostCalcMgt.CalcOvhdCost(ItemJnlLine.Amount, ItemJnlLine."Indirect Cost %", ItemJnlLine."Overhead Rate", ItemJnlLine.Quantity), GLSetup."Amount Rounding Precision") + RoundingResidualAmount
+            else
+                DirCost := ItemJnlLine."Unit Cost" * ItemJnlLine.Quantity + RoundingResidualAmount;
             PurchVar := 0;
             PurchVarACY := 0;
             OvhdCost := 0;
@@ -7580,6 +7589,21 @@ codeunit 22 "Item Jnl.-Post Line"
 
         CostAmt := ItemJnlLine.Amount;
         CostAmtACY := ItemJnlLine."Amount (ACY)";
+    end;
+
+    local procedure ShouldUseCumulativeRoundingForExpectedCost(): Boolean
+    begin
+        if ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Purchase then
+            exit(false);
+
+        if not (InvtSetup."Automatic Cost Posting") or not (InvtSetup."Expected Cost Posting to G/L") then
+            exit(false);
+
+        if Item."Cost is Adjusted" or Item."Allow Online Adjustment" or
+            (Item."Flushing Method" <> Item."Flushing Method"::Manual) then
+            exit(false);
+
+        exit(true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sequence No. Mgt.", 'OnPreviewableLedgerEntry', '', false, false)]

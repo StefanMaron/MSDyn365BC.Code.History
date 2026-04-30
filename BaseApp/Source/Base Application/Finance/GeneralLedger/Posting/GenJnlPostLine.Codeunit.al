@@ -5376,7 +5376,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                         DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode,
                                         CalcAmountSrcCurr(GenJournalLine, -DetailedCVLedgEntryBuffer."Amount (LCY)"));
                                 end else
-                                    if LedgEntryInserted or not IsInvoicestoCartera(GenJournalLine."Payment Method Code") then
+                                    if LedgEntryInserted or not IsInvoicestoCartera(GenJournalLine."Payment Method Code") or MultiplePostingGroups then
                                         PostDtldVendLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, VendPostingGr, AdjAmount);
                             else
                                 PostDtldVendLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, VendPostingGr, AdjAmount);
@@ -5404,7 +5404,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     if (PayableAccAmtLCY <> 0) or
                     ((PayableAccAmtAddCurr <> 0) and (AddCurrencyCode <> ''))
                     then
-                        if not (LedgEntryInserted and MultiplePostingGroups and (DocAmountLCY <> 0)) then begin
+                        if LedgEntryInserted or not (MultiplePostingGroups and IDInvoiceSettlement and not IDBillSettlement and (DocAmountLCY <> 0)) then begin
                             InitGLEntry(
                                 GenJournalLine, GLEntry, AccNo, PayableAccAmtLCY, PayableAccAmtAddCurr, true, true,
                                 CalcAmountSrcCurr(GenJournalLine, PayableAccAmtLCY));
@@ -5427,10 +5427,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
         OnPostDtldVendLedgEntriesOnAfterCreateGLEntriesForTotalAmounts(TempGLEntryBuf, GlobalGLEntry, NextTransactionNo);
 
-        if (IDInvoiceSettlement or IDBillSettlement) and (MultiplePostingGroups) and (DocAmountLCY <> 0) then
-            PostPayableDocsForMultiplePostingGroups(GenJournalLine, DetailedCVLedgEntryBuffer)
-        else
-            PostPayableDocs(GenJournalLine, VendPostingGr);
+        if LedgEntryInserted or not (MultiplePostingGroups and IDInvoiceSettlement and not IDBillSettlement and (DocAmountLCY <> 0)) then
+            if (IDInvoiceSettlement or IDBillSettlement) and (MultiplePostingGroups) and (DocAmountLCY <> 0) then
+                PostPayableDocsForMultiplePostingGroups(GenJournalLine, DetailedCVLedgEntryBuffer)
+            else
+                PostPayableDocs(GenJournalLine, VendPostingGr);
 
         DetailedCVLedgEntryBuffer.DeleteAll();
     end;

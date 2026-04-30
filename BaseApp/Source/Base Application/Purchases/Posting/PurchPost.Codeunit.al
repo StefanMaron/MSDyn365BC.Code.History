@@ -326,6 +326,7 @@ codeunit 90 "Purch.-Post"
         CheckTotalAmountVATPurchLinesErr: Label '%1 (%2) is not equal to total of VAT on lines (%3)', Comment = '%1 - Doc. Amount VAT; %2 - Doc. Amount VAT; %3 - Amount Including VAT - PurchHeader.Amount';
         PurchSetup: Record "Purchases & Payables Setup";
         GLSetup: Record "General Ledger Setup";
+        InventorySetup: Record "Inventory Setup";
         [SecurityFiltering(SecurityFilter::Ignored)]
         GLEntry: Record "G/L Entry";
         TempPurchLineGlobal: Record "Purchase Line" temporary;
@@ -409,6 +410,7 @@ codeunit 90 "Purch.-Post"
         RoundingLineInserted: Boolean;
         DropShipOrder: Boolean;
         GLSetupRead: Boolean;
+        InvtSetupRead: Boolean;
         LogErrorMode: Boolean;
         PurchSetupRead: Boolean;
         PostponedValueEntries: List of [Integer];
@@ -1680,6 +1682,10 @@ codeunit 90 "Purch.-Post"
 
     local procedure CalcItemJnlLineToBeReceivedAmounts(var ItemJnlLine: Record "Item Journal Line"; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; QtyToBeReceived: Decimal)
     var
+        TotalReceivedQty: Decimal;
+        TotalAmount: Decimal;
+        PrevAmount: Decimal;
+        UnitAmount: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1687,13 +1693,18 @@ codeunit 90 "Purch.-Post"
         if IsHandled then
             exit;
 
+        UnitAmount := PurchaseLine."Direct Unit Cost" * (1 - PurchaseLine."Line Discount %" / 100);
         if PurchaseHeader."Prices Including VAT" then
-            ItemJnlLine.Amount :=
-                (QtyToBeReceived * PurchaseLine."Direct Unit Cost" * (1 - PurchaseLine."Line Discount %" / 100) /
-                (1 + PurchaseLine."VAT %" / 100)) + RemAmt
-        else
-            ItemJnlLine.Amount :=
-                (QtyToBeReceived * PurchaseLine."Direct Unit Cost" * (1 - PurchaseLine."Line Discount %" / 100)) + RemAmt;
+            UnitAmount := UnitAmount / (1 + PurchaseLine."VAT %" / 100);
+
+        GetInventorySetup();
+        if InventorySetup."Automatic Cost Posting" and InventorySetup."Expected Cost Posting to G/L" then begin
+            TotalReceivedQty := PurchaseLine."Quantity Received" + QtyToBeReceived;
+            TotalAmount := TotalReceivedQty * UnitAmount;
+            PrevAmount := PurchaseLine."Quantity Received" * UnitAmount;
+            ItemJnlLine.Amount := (TotalAmount - Round(PrevAmount)) + RemAmt;
+        end else
+            ItemJnlLine.Amount := (QtyToBeReceived * UnitAmount) + RemAmt;
         RemAmt := ItemJnlLine.Amount - Round(ItemJnlLine.Amount);
         if PurchaseHeader."Currency Code" <> '' then
             ItemJnlLine.Amount :=
@@ -8956,6 +8967,13 @@ codeunit 90 "Purch.-Post"
            (PurchaseHeader."Applies-to Doc. No." <> '')
         then
             exit(true);
+    end;
+
+    local procedure GetInventorySetup()
+    begin
+        if not InvtSetupRead then
+            InventorySetup.Get();
+        InvtSetupRead := true;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]

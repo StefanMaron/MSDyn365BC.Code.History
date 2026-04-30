@@ -3254,6 +3254,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType IncorrectInvoiceDiscountAmountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1925620420 - NamedType 2468519111" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Posted Service Invoice Line should have the Invoice Discount Amount]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType InvDiscountAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1925620420 - NamedType 2535164967" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Invoice Discount Amount %1 must be equal to %2.]]></Val>
