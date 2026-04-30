@@ -116,6 +116,11 @@ page 1351 "Posted Purch. Invoice - Update"
                     Editable = true;
                     ToolTip = 'Specifies any text that is entered to accompany the posting, for example for information to auditors.';
                 }
+                field("Dispute Status"; Rec."Dispute Status")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if there is an ongoing dispute for this document.';
+                }
             }
             group(Shipping)
             {
@@ -172,7 +177,8 @@ page 1351 "Posted Purch. Invoice - Update"
           (Rec."ID Type" <> xPurchInvHeader."ID Type") or
           (Rec."Succeeded Company Name" <> xPurchInvHeader."Succeeded Company Name") or
           (Rec."Succeeded VAT Registration No." <> xPurchInvHeader."Succeeded VAT Registration No.") or
-          (Rec."Posting Description" <> xPurchInvHeader."Posting Description");
+          (Rec."Posting Description" <> xPurchInvHeader."Posting Description") or
+          (Rec."Dispute Status" <> xPurchInvHeader."Dispute Status");
 
         OnAfterRecordChanged(Rec, xRec, IsChanged, xPurchInvHeader);
     end;
