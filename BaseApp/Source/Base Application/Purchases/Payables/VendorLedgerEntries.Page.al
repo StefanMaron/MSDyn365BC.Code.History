@@ -276,6 +276,11 @@ page 29 "Vendor Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies whether the amount on the entry has been fully paid or there is still a remaining amount that must be applied to.';
                 }
+                field("Dispute Status"; Rec."Dispute Status")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
                 field("On Hold"; Rec."On Hold")
                 {
                     ApplicationArea = Basic, Suite;
