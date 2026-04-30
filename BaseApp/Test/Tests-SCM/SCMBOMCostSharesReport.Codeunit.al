@@ -28,6 +28,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         GLBShowLevelAs: Option "First BOM Level","BOM Leaves";
         GLBShowCostShareAs: Option "Single-level","Rolled-up";
         IncorrectValueErr: Label 'Incorrect value of %1.%2.';
+        UnitCostMustMatchStdCostErr: Label 'Unit cost in bom cost shares must match item standard cost';
 
     local procedure Initialize()
     begin
@@ -846,6 +847,80 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
 
         // [THEN] The page properly updates when RefreshPage is called.
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('AllLevelsStrMenuHandler')]
+    procedure BOMCostSharesUnitCostMatchesStandardCostForStdCostingItem()
+    var
+        BOMBuffer: Record "BOM Buffer";
+        FinishedItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        RawMaterialItem: Record Item;
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+        CalcBOMTree: Codeunit "Calculate BOM Tree";
+        StandardCostValue: Decimal;
+        TreeType: Enum "BOM Tree Type";
+    begin
+        // [FEATURE] [AI test]
+        // [SCENARIO 619962] BOM Cost Shares "Unit Cost" must match Item Card "Standard Cost" for Standard costing items
+        Initialize();
+
+        // [GIVEN] Raw Material Item "RM" with Costing Method = Standard, Rounding Precision = 0.00001, Flushing Method = Manual
+        LibraryInventory.CreateItem(RawMaterialItem);
+        RawMaterialItem.Validate("Costing Method", RawMaterialItem."Costing Method"::Standard);
+        RawMaterialItem.Validate("Rounding Precision", 0.00001);
+        RawMaterialItem.Validate("Flushing Method", RawMaterialItem."Flushing Method"::Manual);
+        RawMaterialItem.Modify(true);
+
+        // [GIVEN] Work Center "WC" for Routing
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Routing "R" with Work Center "WC"
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(10)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Run Time", LibraryRandom.RandDecInDecimalRange(0.00031, 0.00039, 5));
+        RoutingLine.Modify(true);
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Production BOM "BOM" containing Raw Material "RM" and certified
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, RawMaterialItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, RawMaterialItem."No.", LibraryRandom.RandDecInDecimalRange(0.051, 0.059, 3));
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Finished Product "FP" with Replenishment System = Prod. Order, Routing No., Production BOM No.
+        LibraryInventory.CreateItem(FinishedItem);
+        FinishedItem.Validate("Replenishment System", FinishedItem."Replenishment System"::"Prod. Order");
+        FinishedItem.Validate("Manufacturing Policy", FinishedItem."Manufacturing Policy"::"Make-to-Stock");
+        FinishedItem.Validate("Routing No.", RoutingHeader."No.");
+        FinishedItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        FinishedItem.Validate("Rounding Precision", 0.00001);
+        FinishedItem.Validate("Flushing Method", FinishedItem."Flushing Method"::Manual);
+        FinishedItem.Modify(true);
+
+        // [GIVEN] Standard Cost with high precision (5 decimals) set on Raw Material "RM"
+        StandardCostValue := LibraryRandom.RandDecInDecimalRange(25.98761, 25.98769, 5);
+        RawMaterialItem.Validate("Standard Cost", StandardCostValue);
+        RawMaterialItem.Modify(true);
+
+        // [GIVEN] Roll up Standard Cost for Finished Product "FP"
+        CalculateStandardCost.CalcItem(FinishedItem."No.", false);
+        FinishedItem.Find();
+
+        // [WHEN] Generate BOM Tree for Finished Product "FP" (same as opening BOM Cost Shares page)
+        CalcBOMTree.GenerateTreeForOneItem(FinishedItem, BOMBuffer, WorkDate(), TreeType::Cost);
+
+        // [THEN] Verify Unit Cost of Raw Material "RM" in BOM Buffer equals Item's Standard Cost exactly
+        BOMBuffer.SetRange(Type, BOMBuffer.Type::Item);
+        BOMBuffer.SetRange("No.", RawMaterialItem."No.");
+        BOMBuffer.FindFirst();
+        Assert.AreEqual(RawMaterialItem."Standard Cost", BOMBuffer."Unit Cost", UnitCostMustMatchStdCostErr);
     end;
 
     local procedure CreateRoutingWithWorkCenter(WorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; LotSize: Decimal): Code[20]
