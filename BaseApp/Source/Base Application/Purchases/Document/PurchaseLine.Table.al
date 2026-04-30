@@ -5602,6 +5602,22 @@ table 39 "Purchase Line"
                                 (TotalAmount + Amount) * (GetVatBaseDiscountPct(PurchHeader) / 100) * GetVATPct() / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
                               TotalAmountInclVAT - TotalInvDiscAmount - "Inv. Discount Amount";
+                            "Amount (ACY)" :=
+                              Round(
+                                CurrExchRate.ExchangeAmtLCYToFCY(
+                                  PurchHeader."Posting Date", GLSetup."Additional Reporting Currency",
+                                  Round(CurrExchRate.ExchangeAmtFCYToLCY(
+                                      PurchHeader."Posting Date", PurchHeader."Currency Code", Amount,
+                                      PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
+                                AddCurrency."Amount Rounding Precision");
+                            "VAT Base (ACY)" :=
+                              Round("Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+                            "Amount Including VAT (ACY)" :=
+                              TotalLineAmountACY + "Amount (ACY)" +
+                              Round(
+                                (TotalLineAmountACY + "Amount (ACY)") * (1 - PurchHeader."VAT Base Discount %" / 100) * "VAT %" / 100,
+                                Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
+                              TotalAmountInclVATACY;
                             NonDeductibleVAT.Update(Rec, Currency);
                             OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesIncludingVAT(Rec, PurchHeader, Currency, TotalAmount, TotalAmountInclVAT, PurchLine2);
                         end;
