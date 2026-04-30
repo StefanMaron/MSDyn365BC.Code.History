@@ -1480,16 +1480,20 @@ codeunit 6501 "Item Tracking Data Collection"
         if IsHandled then
             exit(Result);
 
-        if (TempReservEntry."Reservation Status" = TempReservEntry."Reservation Status"::Prospect) and
-               (TempReservEntry."Source Type" = Database::"Sales Line") and
-               (TempReservEntry."Source Subtype" = 2)
-        then begin
-            SalesLine.SetLoadFields("Shipment No.");
-            SalesLine.Get(TempReservEntry."Source Subtype", TempReservEntry."Source ID", TempReservEntry."Source Ref. No.");
-            if SalesLine."Shipment No." <> '' then
-                exit(false);
+        case TempReservEntry."Source Type" of
+            Database::"Sales Line":
+                if (TempReservEntry."Reservation Status" = TempReservEntry."Reservation Status"::Prospect) and (TempReservEntry."Source Subtype" = 2) then begin
+                    SalesLine.SetLoadFields("Shipment No.");
+                    SalesLine.Get(TempReservEntry."Source Subtype", TempReservEntry."Source ID", TempReservEntry."Source Ref. No.");
+                    if SalesLine."Shipment No." <> '' then
+                        exit(false);
+                end;
+            else begin
+                Result := true;
+                OnCanIncludeReservEntryToTrackingSpecOnCaseElse(TempReservEntry, Result);
+                exit(Result);
+            end;
         end;
-
         exit(true);
     end;
 
@@ -1545,6 +1549,11 @@ codeunit 6501 "Item Tracking Data Collection"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCanIncludeReservEntryToTrackingSpec(TempReservEntry: Record "Reservation Entry" temporary; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCanIncludeReservEntryToTrackingSpecOnCaseElse(TempReservEntry: Record "Reservation Entry" temporary; var Result: Boolean)
     begin
     end;
 
