@@ -540,6 +540,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                             DemandInvtProfile.SetRange("Item No.", ForecastEntry."Item No.");
                             DemandInvtProfile.SetRange(
                               "Due Date", ForecastEntry."Forecast Date", NextForecast."Forecast Date" - 1);
+                            DemandInvtProfile.SetRange("Source Type");
                             if ComponentForecast then begin
                                 DemandInvtProfile.SetSourceTypeFilter(5407); // Database::"Prod. Order Component"
                                 DemandInvtProfile.SetSourceTypeFilter(Database::"Planning Component");
@@ -2394,6 +2395,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         PrevTempEntryNo: Integer;
         PrevInsertedEntryNo: Integer;
         IsHandled: Boolean;
+        InsertedEntryNos: List of [Integer];
     begin
         IsHandled := false;
         OnBeforeCommitTracking(TempTrkgReservEntry, IsHandled);
@@ -2409,16 +2411,57 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     ReservEntry."Entry No." := 0;
                 ReservEntry.UpdateItemTracking();
                 UpdateAppliedItemEntry(ReservEntry);
-                ReservEntry.Insert();
-                OnCommitTrackingOnAfterInsertReservationEntry(ReservEntry);
-                PrevTempEntryNo := TempTrkgReservEntry."Entry No.";
-                PrevInsertedEntryNo := ReservEntry."Entry No.";
+                if (ReservEntry."Source Type" = Database::"Transfer Line") and (ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Surplus) then begin
+                    if not UpdateOrSkipDuplicateSurplusEntry(ReservEntry, InsertedEntryNos) then begin
+                        ReservEntry.Insert();
+                        OnCommitTrackingOnAfterInsertReservationEntry(ReservEntry);
+                        PrevInsertedEntryNo := ReservEntry."Entry No.";
+                        InsertedEntryNos.Add(ReservEntry."Entry No.");
+                    end;
+                end else begin
+                    ReservEntry.Insert();
+                    OnCommitTrackingOnAfterInsertReservationEntry(ReservEntry);
+                    PrevTempEntryNo := TempTrkgReservEntry."Entry No.";
+                    PrevInsertedEntryNo := ReservEntry."Entry No.";
+                end;
                 TempTrkgReservEntry.Delete();
             until TempTrkgReservEntry.Next() = 0;
             Clear(TempTrkgReservEntry);
         end;
 
         OnAfterCommitTracking(TempItemTrkgEntry);
+    end;
+
+    local procedure UpdateOrSkipDuplicateSurplusEntry(var NewReservEntry: Record "Reservation Entry"; InsertedEntryNos: List of [Integer]): Boolean
+    var
+        ExistingReservEntry: Record "Reservation Entry";
+    begin
+        if NewReservEntry."Reservation Status" <> NewReservEntry."Reservation Status"::Surplus then
+            exit(false);
+
+        if not NewReservEntry.TrackingExists() then
+            exit(false);
+
+        ExistingReservEntry.SetSourceFilterFromReservEntry(NewReservEntry);
+        ExistingReservEntry.SetRange("Reservation Status", ExistingReservEntry."Reservation Status"::Surplus);
+        ExistingReservEntry.SetRange(Positive, NewReservEntry.Positive);
+        ExistingReservEntry.SetTrackingFilterFromReservEntry(NewReservEntry);
+        if ExistingReservEntry.FindSet() then
+            repeat
+                // Only treat as duplicate if the entry existed before this CommitTracking call
+                if not InsertedEntryNos.Contains(ExistingReservEntry."Entry No.") then begin
+                    if ExistingReservEntry."Quantity (Base)" <> NewReservEntry."Quantity (Base)" then begin
+                        ExistingReservEntry."Quantity (Base)" := NewReservEntry."Quantity (Base)";
+                        ExistingReservEntry.Quantity := NewReservEntry.Quantity;
+                        ExistingReservEntry."Qty. to Handle (Base)" := NewReservEntry."Qty. to Handle (Base)";
+                        ExistingReservEntry."Qty. to Invoice (Base)" := NewReservEntry."Qty. to Invoice (Base)";
+                        ExistingReservEntry.Modify();
+                    end;
+                    exit(true);
+                end;
+            until ExistingReservEntry.Next() = 0;
+
+        exit(false);
     end;
 
     procedure MaintainPlanningLine(var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; NewPhase: Option " ","Line Created","Routing Created",Exploded,Obsolete; Direction: Option Forward,Backward)
@@ -4496,6 +4539,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
         xFromInventoryProfile: Record "Inventory Profile";
         xToInventoryProfile: Record "Inventory Profile";
         UntrackedQty: Decimal;
+        ToInventoryUntrackedQty: Decimal;
+        FromInventoryUntrackedQty: Decimal;
     begin
         xToInventoryProfile.CopyFilters(FromInventoryProfile);
         xFromInventoryProfile.CopyFilters(ToInventoryProfile);
@@ -4510,6 +4555,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 ToInventoryProfile.SetTrackingFilter(FromInventoryProfile);
                 OnDemandMatchedSupplyOnAfterSetFiltersToInvProfile(ToInventoryProfile, FromInventoryProfile);
                 ToInventoryProfile.CalcSums("Untracked Quantity");
+                ToInventoryUntrackedQty += ToInventoryProfile."Untracked Quantity";
+                FromInventoryUntrackedQty += FromInventoryProfile."Untracked Quantity";
                 UntrackedQty += ToInventoryProfile."Untracked Quantity";
                 UntrackedQty -= FromInventoryProfile."Untracked Quantity";
             until FromInventoryProfile.Next() = 0;
@@ -4525,6 +4572,12 @@ codeunit 99000854 "Inventory Profile Offsetting"
         end;
         FromInventoryProfile.CopyFilters(xToInventoryProfile);
         ToInventoryProfile.CopyFilters(xFromInventoryProfile);
+
+        if (Abs(ToInventoryUntrackedQty) = Abs(FromInventoryUntrackedQty)) and (ToInventoryUntrackedQty <> 0) and (FromInventoryUntrackedQty <> 0) and
+           (SKU."Replenishment System" = SKU."Replenishment System"::"Prod. Order") and
+           (SKU."Reordering Policy" <> SKU."Reordering Policy"::"Lot-for-Lot") then
+            exit(true);
+
         exit(false);
     end;
 
