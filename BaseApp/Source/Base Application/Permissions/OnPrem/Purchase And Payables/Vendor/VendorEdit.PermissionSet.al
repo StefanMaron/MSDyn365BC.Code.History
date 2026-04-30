@@ -48,6 +48,7 @@ using Microsoft.Warehouse.Activity.History;
 using Microsoft.Purchases.Remittance;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.History;
+using Microsoft.Sales.Customer;
 using Microsoft.Finance.SalesTax;
 using Microsoft.CRM.Task;
 using Microsoft.Warehouse.Activity;
@@ -82,6 +83,7 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Cust. Ledger Entry" = r,
                   tabledata "Default Dimension" = RIMD,
                   tabledata "Detailed Vendor Ledg. Entry" = Rim,
+                  tabledata "Dispute Status" = RIMD,
                   tabledata "Dtld. Price Calculation Setup" = Rid,
                   tabledata "Duplicate Price Line" = Rid,
                   tabledata "Duplicate Search String Setup" = R,

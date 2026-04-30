@@ -46,6 +46,7 @@ codeunit 137055 "SCM Warehouse Pick"
         ReservationAction: Option AutoReserve,GetQuantities;
         PickQuantityErr: Label 'Expected picked quantity %1 %2, but got %3 %2', Comment = '%1, %3 - Quantity; %2 - Unit of Measure Code';
         ShipQtyErr: Label 'Sales line should be fully shipped with no residual quantity';
+        PickNotFoundErr: Label 'Pick should be created for reserved Sales Order %1', Comment = '%1 = Document No.';
 
     [Test]
     [HandlerFunctions('ReservationPageHandler')]
@@ -1957,6 +1958,116 @@ codeunit 137055 "SCM Warehouse Pick"
         Assert.AreEqual(ExpectedPickQty2, WarehouseActivityLine.Quantity, 'Pick quantity for second sales order should be remaining inventory');
     end;
 
+    [Test]
+    [HandlerFunctions('ReservationPageHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure CreatePickPrioritizesReservedLinesAfterShipmentDeletion()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        Bin: Record Bin;
+        ShipmentBin: Record Bin;
+        SalesHeader: array[3] of Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseSourceFilter: Record "Warehouse Source Filter";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemJournalLine: Record "Item Journal Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 621155] Create Pick prioritizes reserved sales lines over unreserved lines even after warehouse shipment deletion and item reclassification
+        Initialize();
+
+        // [GIVEN] Create Location with Bin Mandatory, Require Shipment, Require Pick, Require Put-away enabled
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(ShipmentBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("Shipment Bin Code", ShipmentBin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Item with inventory, post inventory to a bin
+        LibraryInventory.CreateItem(Item);
+        Quantity := LibraryRandom.RandInt(100);
+        UpdateItemInventory(Item."No.", Location.Code, Bin.Code, Quantity);
+
+        // [GIVEN] Create Sales Order for customer half of the inventory, reserved, released
+        CreateReleaseAndReserveSalesOrder(SalesHeader[1], Location.Code, Item."No.", Quantity / 2, true);
+
+        // [GIVEN] Create Sales Order for customer with some units, unreserved
+        CreateSalesOrder(SalesHeader[2], Location.Code, Item."No.", LibraryRandom.RandInt(10));
+        LibrarySales.ReleaseSalesDocument(SalesHeader[2]);
+
+        // [GIVEN] Create Sales Order for customer with half of the inventory, reserved, released
+        CreateReleaseAndReserveSalesOrder(SalesHeader[3], Location.Code, Item."No.", Quantity / 2, true);
+
+        // [GIVEN] Create Warehouse Shipment with all three sales orders
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader[1]);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader[1]."No.");
+        LibraryWarehouse.CreateWarehouseSourceFilter(WarehouseSourceFilter, WarehouseSourceFilter.Type::Outbound);
+        WarehouseSourceFilter.Validate("Sales Orders", true);
+        WarehouseSourceFilter.SetFilter("Source No. Filter", '%1|%2', SalesHeader[2]."No.", SalesHeader[3]."No.");
+        LibraryWarehouse.GetSourceDocumentsShipment(WarehouseShipmentHeader, WarehouseSourceFilter, Location.Code);
+
+        // [GIVEN] Create Warehouse Pick for first sales order and third sales order, but not for second sales order as all inventory is reserved
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [GIVEN] Delete lines for of third sales order from the pick
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Source No.", SalesHeader[3]."No.");
+        WarehouseActivityLine.DeleteAll(true);
+
+        // [GIVEN] Register pick for first sales order from pick bin to shipment bin
+        FindWarehouseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::Pick, Location.Code, SalesHeader[1]."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Delete the warehouse shipment without posting (items remain in shipment bin)
+        WarehouseShipmentHeader.Find();
+        WarehouseShipmentHeader.Status := WarehouseShipmentHeader.Status::Open;
+        WarehouseShipmentHeader.Modify();
+        WarehouseShipmentHeader.Delete(true);
+
+        // [GIVEN] Reclassify transfer units from shipment bin back to pick bin (all units are now back in pick bin)
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::Transfer, Item."No.", Quantity / 2);
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Validate("Bin Code", ShipmentBin.Code);
+        ItemJournalLine.Validate("New Location Code", Location.Code);
+        ItemJournalLine.Validate("New Bin Code", Bin.Code);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [WHEN] Create new warehouse shipment for second sales order and third sales order only (excluding first sales order)
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader[2]);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader[2]."No.");
+        LibraryWarehouse.CreateWarehouseSourceFilter(WarehouseSourceFilter, WarehouseSourceFilter.Type::Outbound);
+        WarehouseSourceFilter.Validate("Sales Orders", true);
+        WarehouseSourceFilter.SetFilter("Source No. Filter", SalesHeader[3]."No.");
+        LibraryWarehouse.GetSourceDocumentsShipment(WarehouseShipmentHeader, WarehouseSourceFilter, Location.Code);
+
+        // [WHEN] Create pick from the new warehouse shipment
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [THEN] Pick is created only for third sales order (for reserved units)
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Source No.", SalesHeader[3]."No.");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.FindFirst();
+        Assert.AreEqual(Quantity / 2, WarehouseActivityLine.Quantity, StrSubstNo(PickNotFoundErr, SalesHeader[3]."No."));
+
+        // [THEN] Pick is not created for second sales order (for unreserved units) because all inventory is reserved for other sales orders
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Source No.", SalesHeader[2]."No.");
+        Assert.RecordIsEmpty(WarehouseActivityLine);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -3123,6 +3234,13 @@ codeunit 137055 "SCM Warehouse Pick"
     begin
         CreateInvtPutAwayPickMvmt.CInvtPick.SetValue(true);
         CreateInvtPutAwayPickMvmt.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 
