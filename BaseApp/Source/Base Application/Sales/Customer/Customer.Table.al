@@ -1902,6 +1902,7 @@ table 18 Customer
         VATRegistrationLogMgt.DeleteCustomerLog(Rec);
 
         DimMgt.DeleteDefaultDim(DATABASE::Customer, "No.");
+        DeleteDimValuePerAccount();
 
         CalendarManagement.DeleteCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Customer, "No.");
     end;
@@ -3242,10 +3243,10 @@ table 18 Customer
         Currency: Record Currency;
     begin
         Currency.SetLoadFields(Code);
-        if not IsNullGuid("Currency Id") then
+        if not IsNullGuid("Currency Id") then begin
             Currency.GetBySystemId("Currency Id");
-
-        Validate("Currency Code", Currency.Code);
+            Validate("Currency Code", Currency.Code);
+        end;
     end;
 
     local procedure UpdatePaymentTermsCode()
@@ -3566,6 +3567,16 @@ table 18 Customer
                         MyCustomer.ModifyAll("Phone No.", "Phone No.");
                 end;
         end;
+    end;
+
+    local procedure DeleteDimValuePerAccount()
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
+    begin
+        DimValuePerAccount.SetRange("Table ID", Database::Customer);
+        DimValuePerAccount.SetRange("No.", "No.");
+        if not DimValuePerAccount.IsEmpty() then
+            DimValuePerAccount.DeleteAll(true);
     end;
 
     [IntegrationEvent(false, false)]
