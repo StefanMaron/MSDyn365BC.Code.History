@@ -1,6 +1,7 @@
 ﻿namespace System.Security.AccessControl;
 
 using Microsoft.Foundation.Calendar;
+using Microsoft.Sales.Customer;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.HumanResources.Employee;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -32,6 +33,7 @@ permissionset 6092 "Payables - Admin"
                   tabledata "Currency for Fin. Charge Terms" = RIMD,
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
+                  tabledata "Dispute Status" = RIMD,
                   tabledata "Employee Posting Group" = RIMD,
                   tabledata "Finance Charge Terms" = RIMD,
                   tabledata "G/L Account" = R,
