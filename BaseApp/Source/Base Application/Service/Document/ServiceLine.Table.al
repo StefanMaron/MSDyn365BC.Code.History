@@ -23,12 +23,12 @@ using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Calculation;
-using Microsoft.Inventory.Journal;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
@@ -3534,6 +3534,30 @@ table 5902 "Service Line"
         UpdateRemainingCostsAndAmounts();
 
         OnAfterUpdateAmounts(Rec);
+    end;
+
+    procedure CalcServSalesTaxLines(var ServiceHeader: Record "Service Header"; var ServiceLine1: Record "Service Line")
+    var
+        TaxArea: Record "Tax Area";
+        SalesTaxCalculate: Codeunit "Sales Tax Calculate";
+    begin
+        if ServiceHeader."Tax Area Code" = '' then
+            exit;
+        TaxArea.Get(ServiceHeader."Tax Area Code");
+        SalesTaxCalculate.StartSalesTaxCalculation();
+
+        ServiceLine1.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine1.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine1.SetFilter(Type, '<>0');
+        ServiceLine1.SetFilter("Tax Group Code", '<>%1', '');
+        if ServiceLine1.FindSet() then
+            repeat
+                SalesTaxCalculate.AddServiceLine(ServiceLine1);
+            until ServiceLine1.Next() = 0;
+        SalesTaxCalculate.EndSalesTaxCalculation(ServiceHeader."Posting Date");
+
+        ServiceLine1.SetServHeader(ServiceHeader);
+        SalesTaxCalculate.DistTaxOverServLines(ServiceLine1);
     end;
 
     local procedure NotifyOnMissingSetup(FieldNumber: Integer)

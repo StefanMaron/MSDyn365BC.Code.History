@@ -393,7 +393,10 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
 
     local procedure UpdateQtySplitForPutAwayOnProdOrdLineTrackingBuffer(var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary; ProdOrderLine: Record "Prod. Order Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var QtyBaseAvailableToPutAway: Decimal; var RemainingHandledQtyBase: Decimal)
     begin
-        QtyBaseAvailableToPutAway := ItemLedgerEntry.Quantity - ProdOrderLine.GetUsedPutAwayQtyPerItemTracking(ItemLedgerEntry."Lot No.", ItemLedgerEntry."Serial No.", ItemLedgerEntry."Package No.");
+        QtyBaseAvailableToPutAway := CalcTotalOutputQtyBaseForTracking(ProdOrderLine, ItemLedgerEntry)
+       - ProdOrderLine.GetUsedPutAwayQtyPerItemTracking(ItemLedgerEntry."Lot No.", ItemLedgerEntry."Serial No.", ItemLedgerEntry."Package No.")
+       - TempProdOrdLineTrackingBuff."Qty. split for Put Away (Base)";
+
         if QtyBaseAvailableToPutAway < 0 then
             exit;
 
@@ -404,6 +407,20 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
             UOMMgt.QtyRndPrecision());
 
         OnAfterUpdateQtySplitForPutAwayOnProdOrdLineTrackingBuffer(TempProdOrdLineTrackingBuff, ProdOrderLine, ItemLedgerEntry, QtyBaseAvailableToPutAway, RemainingHandledQtyBase);
+    end;
+
+    local procedure CalcTotalOutputQtyBaseForTracking(ProdOrderLine: Record "Prod. Order Line"; ItemLedgerEntry: Record "Item Ledger Entry"): Decimal
+    var
+        TotalItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        TotalItemLedgerEntry.SetSourceFilterForProdOutputPutAway(ProdOrderLine);
+        TotalItemLedgerEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.", "Package No.");
+        TotalItemLedgerEntry.SetRange("Lot No.", ItemLedgerEntry."Lot No.");
+        TotalItemLedgerEntry.SetRange("Serial No.", ItemLedgerEntry."Serial No.");
+        TotalItemLedgerEntry.SetRange("Package No.", ItemLedgerEntry."Package No.");
+        TotalItemLedgerEntry.SetLoadFields(Quantity);
+        TotalItemLedgerEntry.CalcSums(Quantity);
+        exit(TotalItemLedgerEntry.Quantity);
     end;
 
     local procedure CalcQtyBaseToPutAway(var RemainingHandledQtyBase: Decimal; QtyBaseAvailableToPutAway: Decimal) Qty: Decimal
