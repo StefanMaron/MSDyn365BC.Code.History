@@ -293,6 +293,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Currency UT - NamedType ASCIILetterErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1713330930 - NamedType 2910590128" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Currency Code should not be cleared when Currency Id is blank]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Currency UT - NamedType CurrencyCodeShouldNotBeClearedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1713330930 - NamedType 1709501306" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[must contain numbers only]]></Val>
@@ -2066,6 +2075,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Create Finance Charge Memo - NamedType GLEntryMustNotBeEmpty)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2152312722 - NamedType 1310010525" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[NrOfDays should use Closed at Date for closed entries paid before Document Date.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Create Finance Charge Memo - NamedType NrOfDaysUseClosedAtDateForClosedEntriesLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2152312722 - NamedType 582169684" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The invoice rounding amount will be added to the finance charge memo when it is posted according to invoice rounding setup.\Do you want to continue?]]></Val>
@@ -3155,6 +3173,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM G/L Account Where-Used - NamedType InvalidTableCaptionErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 306780767 - NamedType 661619008" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G/L Account %1 is used as a Payables Account in Vendor Posting Group %2 and cannot be used for source currency revaluation.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = G/L Account No., %2 = Vendor Posting Group Code]D;]A;(LookupHint=Codeunit ERM G/L Currency Revaluation - NamedType AccUsedAsPayablesVendorErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 306780767 - NamedType 3838315178" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G/L Account %1 is used as a Receivables Account in Customer Posting Group %2 and cannot be used for source currency revaluation.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = G/L Account No., %2 = Customer Posting Group Code]D;]A;(LookupHint=Codeunit ERM G/L Currency Revaluation - NamedType AccUsedAsReceivablesErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 306780767 - NamedType 1265305747" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[currency revaluation lines have been created in the general journal]]></Val>
@@ -3198,6 +3234,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM G/L Currency Revaluation - NamedType PostingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 306780767 - NamedType 2165833728" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G/L Account %1 is configured for Source Currency Revaluation and is also used as a Receivables/Payables Account. Please correct the setup before running the adjustment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = G/L Account No.]D;]A;(LookupHint=Codeunit ERM G/L Currency Revaluation - NamedType SourceCurrRevalConflictErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 306780767 - NamedType 794857194" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G/L Account %1 has Source Currency Revaluation enabled or has a Source Currency Code and cannot be used as a Receivables Account.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = G/L Account No.]D;]A;(LookupHint=Codeunit ERM G/L Currency Revaluation - NamedType SourceCurrRevalNotAllowedCustErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 306780767 - NamedType 2868548466" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G/L Account %1 has Source Currency Revaluation enabled or has a Source Currency Code and cannot be used as a Payables Account.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = G/L Account No.]D;]A;(LookupHint=Codeunit ERM G/L Currency Revaluation - NamedType SourceCurrRevalNotAllowedVendErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2369040337 - NamedType 3158492200" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3279,6 +3342,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Insert Std. Sales Lines - NamedType InvalidNotificationIdMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 253409855 - NamedType 2042888969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be same.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Caption]D;]A;(LookupHint=Codeunit ERM Insert Std. Sales Lines - NamedType ReferenceValueMustBeSameErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 253409855 - NamedType 549624305" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4431,6 +4503,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Posting Outside Date - NamedType UnexpectedConfirmTextErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3810702948 - NamedType 1980795883" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 should be updated when Direct Unit Cost is changed with %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption, %2 = Prices Including/Excluding VAT]D;]A;(LookupHint=Codeunit ERM Posting Rounding - NamedType AmountACYShouldBeUpdatedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1514131158 - NamedType 4159681631" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -8058,6 +8139,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purch. Correct. Docs - NamedType CannotCancelSalesInvInventoryPeriodClosedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4208132312 - NamedType 1534972336" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incoming Document must be Posted after posting Sales Order]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purch. Correct. Docs - NamedType IncomingDocumentErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4208132312 - NamedType 3667684103" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ Incoming Document Posted must be reset after cancellation]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purch. Correct. Docs - NamedType IncomingDocumentPostedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4208132312 - NamedType 1517275207" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
