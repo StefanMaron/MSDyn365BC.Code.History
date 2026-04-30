@@ -13397,6 +13397,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse Pick - NamedType NoAllowedLocationsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3064124675 - NamedType 1810729089" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Pick should be created for reserved Sales Order %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Document No.]D;]A;(LookupHint=Codeunit SCM Warehouse Pick - NamedType PickNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3064124675 - NamedType 2094986865" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Expected picked quantity %1 %2, but got %3 %2]]></Val>
