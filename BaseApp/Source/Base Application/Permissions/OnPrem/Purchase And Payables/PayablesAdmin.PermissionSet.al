@@ -10,6 +10,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Customer;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Requisition;
@@ -32,6 +33,7 @@ permissionset 6092 "Payables - Admin"
                   tabledata "Currency for Fin. Charge Terms" = RIMD,
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
+                  tabledata "Dispute Status" = RIMD,
                   tabledata "Employee Posting Group" = RIMD,
                   tabledata "Finance Charge Terms" = RIMD,
                   tabledata "G/L Account" = R,
