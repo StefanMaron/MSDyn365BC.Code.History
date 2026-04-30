@@ -275,6 +275,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension - NamedType MandatoryError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2479698982 - NamedType 1096164651" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Notification message should warn about special filter characters]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension - NamedType NotificationMsgErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2479698982 - NamedType 2738988338" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[A dimension used in Gen. Journal Line %1, %2, %3 has caused an error. The %4 must be %5 for %6 %7 for %8 %9. Currently it's %10.]]></Val>
@@ -282,6 +291,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%4 = "Dimension value code" caption, %5 = expected "Dimension value code" value, %6 = "Dimension code" caption, %7 = "Dimension Code" value, %8 = Table caption (Vendor), %9 = Table value (XYZ), %10 = current "Dimension value code" value]D;]A;(LookupHint=Codeunit ERM Dimension - NamedType SameCodeOrNoCodeError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2479698982 - NamedType 1472838158" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[special meaning in filters]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension - NamedType SpecialFilterCharsTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2479698982 - NamedType 3098962420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

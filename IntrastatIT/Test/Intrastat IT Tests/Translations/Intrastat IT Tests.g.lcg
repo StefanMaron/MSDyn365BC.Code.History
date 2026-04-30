@@ -23,6 +23,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Intrastat IT Test - NamedType DataExchFileContentMissingErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4286973699 - NamedType 2226598662" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Date %1 is not within the reporting period.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Date]D;]A;(LookupHint=Codeunit Intrastat IT Test - NamedType DateNotInRageErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4286973699 - NamedType 296630764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[http://]]></Val>

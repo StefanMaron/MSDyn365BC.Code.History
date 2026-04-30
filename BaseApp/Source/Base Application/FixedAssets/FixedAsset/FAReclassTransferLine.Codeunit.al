@@ -277,6 +277,9 @@ codeunit 5642 "FA Reclass. Transfer Line"
 
         FAJnlLine."Posting No. Series" := FAJnlSetup.GetFANoSeries(FAJnlLine);
         FAJnlLine.Validate("Depreciation Book Code", FAReclassJnlLine."Depreciation Book Code");
+        if FAJnlLine."FA Posting Type" = FAJnlLine."FA Posting Type"::Depreciation then
+            EntryAmount := DepreciationCalc.CalcRounding(FAReclassJnlLine."Depreciation Book Code", EntryAmount);
+
         FAJnlLine.Validate(Amount, EntryAmount);
         FAJnlLine.Description := FAReclassJnlLine.Description;
         FAJnlLine."FA Reclassification Entry" := true;
