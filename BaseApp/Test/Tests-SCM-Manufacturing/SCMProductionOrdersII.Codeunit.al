@@ -31,19 +31,23 @@ using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
 using Microsoft.Sales.Setup;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.InventoryDocument;
 using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
+using System.Environment.Configuration;
 using System.TestLibraries.Utilities;
 using System.Utilities;
 
@@ -89,6 +93,7 @@ codeunit 137072 "SCM Production Orders II"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         ShopCalendarMgt: Codeunit "Shop Calendar Management";
         IsInitialized: Boolean;
         NothingToHandleErr: Label 'Nothing to handle';
@@ -7702,6 +7707,210 @@ codeunit 137072 "SCM Production Orders II"
         VerifyProductionOrderLines(MainItem."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SendNotificationHandler')]
+    procedure UndoPurchRcptDescrCopiedToWhseEntryAtBinMandLoc()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        WarehouseSetup: Record "Warehouse Setup";
+        CustomDescription: Text[100];
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 630127] Description from purchase receipt line is copied to reversal Warehouse Entry when undoing receipt at bin-mandatory location.
+        Initialize();
+
+        // [GIVEN] "Copy Item Descr. to Entries" is enabled in Warehouse Setup.
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate("Copy Item Descr. to Entries", true);
+        WarehouseSetup.Modify(true);
+
+        // [GIVEN] Create item with custom Description on Purchase Line at bin-mandatory Location.
+        LibraryInventory.CreateItem(Item);
+        CustomDescription := CopyStr(LibraryUtility.GenerateRandomText(50), 1, MaxStrLen(CustomDescription));
+        LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 0);
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+            PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
+            '', Item."No.", LibraryRandom.RandIntInRange(5, 10), LocationRed.Code, WorkDate());
+        PurchaseLine.Validate("Bin Code", Bin.Code);
+        PurchaseLine.Validate(Description, CustomDescription);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post Purchase Order as Receive.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Find Posted Purchase Receipt Line for Item.
+        FindPurchRcptLine(PurchRcptLine, Item."No.");
+
+        // [WHEN] Undo Purchase Receipt Line.
+        LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
+
+        // [THEN] Verify reversal Warehouse Entry has Description equal to custom description.
+        FindLastWarehouseEntry(WarehouseEntry, Item."No.", LocationRed.Code);
+        Assert.AreEqual(
+            CustomDescription, WarehouseEntry.Description,
+            StrSubstNo(ValueMustBeEqualErr, WarehouseEntry.FieldCaption(Description), CustomDescription, WarehouseEntry.TableCaption()));
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SendNotificationHandler')]
+    procedure UndoSalesShptDescrCopiedToWhseEntryAtBinMandLoc()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        WarehouseSetup: Record "Warehouse Setup";
+        CustomDescription: Text[100];
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 630127] Description from sales shipment line is copied to reversal Warehouse Entry when undoing shipment at bin-mandatory location.
+        Initialize();
+
+        // [GIVEN] "Copy Item Descr. to Entries" is enabled in Warehouse Setup.
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate("Copy Item Descr. to Entries", true);
+        WarehouseSetup.Modify(true);
+
+        // [GIVEN] Create Item with inventory at bin-mandatory Location and custom Description on Sales Line.
+        LibraryInventory.CreateItem(Item);
+        CustomDescription := CopyStr(LibraryUtility.GenerateRandomText(50), 1, MaxStrLen(CustomDescription));
+        LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 0);
+        CreateAndPostItemJournalLine(Item."No.", LibraryRandom.RandIntInRange(20, 30), Bin.Code, LocationRed.Code, false);
+
+        // [GIVEN] Create Sales Order with custom Description on Sales Line at bin-mandatory Location.
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
+            '', Item."No.", LibraryRandom.RandIntInRange(5, 10), LocationRed.Code, WorkDate());
+        SalesLine.Validate("Bin Code", Bin.Code);
+        SalesLine.Validate(Description, CustomDescription);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post Sales Order as Ship.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Find Posted Sales Shipment Line for Item.
+        FindSalesShipmentLine(SalesShipmentLine, Item."No.");
+
+        // [WHEN] Undo Sales Shipment Line.
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+
+        // [THEN] Create Reversal Warehouse Entry has Description equal to custom description.
+        FindLastWarehouseEntry(WarehouseEntry, Item."No.", LocationRed.Code);
+        Assert.AreEqual(
+            CustomDescription, WarehouseEntry.Description,
+            StrSubstNo(ValueMustBeEqualErr, WarehouseEntry.FieldCaption(Description), CustomDescription, WarehouseEntry.TableCaption()));
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    procedure ConsumpJnlDescrCopiedToWhseEntry()
+    var
+        Bin: Record Bin;
+        ComponentItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ParentItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        WarehouseEntry: Record "Warehouse Entry";
+        WarehouseSetup: Record "Warehouse Setup";
+        CustomDescription: Text[100];
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 630127] Custom Description on consumption journal line is copied to Warehouse Entry when posting at bin-mandatory location.
+        Initialize();
+
+        // [GIVEN] "Copy Item Descr. to Entries" is enabled in Warehouse Setup.
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate("Copy Item Descr. to Entries", true);
+        WarehouseSetup.Modify(true);
+
+        // [GIVEN] Create Parent Item with Production BOM containing Component Item and custom Description on consumption journal line at bin-mandatory Location.
+        CreateItemsSetup(ParentItem, ComponentItem);
+        CustomDescription := CopyStr(LibraryUtility.GenerateRandomText(50), 1, MaxStrLen(CustomDescription));
+
+        // [GIVEN] Create Inventory for Component Item at bin-mandatory Location.
+        LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 0);
+        CreateAndPostItemJournalLine(ComponentItem."No.", LibraryRandom.RandIntInRange(50, 100), Bin.Code, LocationRed.Code, false);
+
+        // [GIVEN] Create Released Production Order for Parent Item at Location with custom Description on consumption journal line.
+        CreateAndRefreshProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.",
+            LibraryRandom.RandIntInRange(1, 5), LocationRed.Code, Bin.Code);
+
+        // [GIVEN] Calculate Consumption and set custom Description on consumption journal line.
+        LibraryInventory.ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
+        LibraryManufacturing.CalculateConsumption(
+            ProductionOrder."No.", ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+        SelectItemJournalLine(ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+        ItemJournalLine.Validate(Description, CustomDescription);
+        ItemJournalLine.Modify(true);
+
+        // [WHEN] Post Consumption Journal.
+        LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+
+        // [THEN] Verify Warehouse Entry for consumption has Description equal to custom description.
+        FindLastWarehouseEntry(WarehouseEntry, ComponentItem."No.", LocationRed.Code);
+        Assert.AreEqual(
+            CustomDescription, WarehouseEntry.Description,
+            StrSubstNo(ValueMustBeEqualErr, WarehouseEntry.FieldCaption(Description), CustomDescription, WarehouseEntry.TableCaption()));
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    procedure OutputJnlDescrCopiedToWhseEntry()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
+        WarehouseEntry: Record "Warehouse Entry";
+        WarehouseSetup: Record "Warehouse Setup";
+        CustomDescription: Text[100];
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 630127] Custom Description on output journal line is copied to Warehouse Entry when posting at bin-mandatory location.
+        Initialize();
+
+        // [GIVEN] "Copy Item Descr. to Entries" is enabled in Warehouse Setup.
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate("Copy Item Descr. to Entries", true);
+        WarehouseSetup.Modify(true);
+
+        // [GIVEN] Create Item with inventory at bin-mandatory Location and custom Description on output journal line.
+        LibraryInventory.CreateItem(Item);
+        CustomDescription := CopyStr(LibraryUtility.GenerateRandomText(50), 1, MaxStrLen(CustomDescription));
+
+        // [GIVEN] Create Released Production Order for Item at bin-mandatory Location with custom Description on output journal line.
+        LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 0);
+        CreateAndRefreshProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, Item."No.",
+            LibraryRandom.RandIntInRange(1, 5), LocationRed.Code, Bin.Code);
+
+        // [GIVEN] Create Output Journal with custom Description.
+        CreateOutputJournalWithExlpodeRouting(ItemJournalLine, ProductionOrder."No.");
+        ItemJournalLine.Validate(Description, CustomDescription);
+        ItemJournalLine.Modify(true);
+
+        // [WHEN] Post Output Journal.
+        LibraryInventory.PostItemJournalLine(OutputItemJournalTemplate.Name, OutputItemJournalBatch.Name);
+
+        // [THEN] Verify Warehouse Entry for output has Description equal to custom description.
+        FindLastWarehouseEntry(WarehouseEntry, Item."No.", LocationRed.Code);
+        Assert.AreEqual(
+            CustomDescription, WarehouseEntry.Description,
+            StrSubstNo(ValueMustBeEqualErr, WarehouseEntry.FieldCaption(Description), CustomDescription, WarehouseEntry.TableCaption()));
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7728,6 +7937,7 @@ codeunit 137072 "SCM Production Orders II"
         ShopCalendarMgt.ClearInternals(); // clear single instance codeunit vars to avoid influence of other test codeunits
         LibrarySetupStorage.SaveInventorySetup();
         LibrarySetupStorage.SaveManufacturingSetup();
+        LibrarySetupStorage.Save(Database::"Warehouse Setup");
 
         IsInitialized := true;
         Commit();
@@ -9965,6 +10175,27 @@ codeunit 137072 "SCM Production Orders II"
         Assert.AreEqual(0.001, ItemLedgerEntry.Quantity, QtyMustBeEqualErr);
     end;
 
+    local procedure FindPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; ItemNo: Code[20])
+    begin
+        PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+        PurchRcptLine.SetRange("No.", ItemNo);
+        PurchRcptLine.FindFirst();
+    end;
+
+    local procedure FindSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; ItemNo: Code[20])
+    begin
+        SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
+        SalesShipmentLine.SetRange("No.", ItemNo);
+        SalesShipmentLine.FindFirst();
+    end;
+
+    local procedure FindLastWarehouseEntry(var WarehouseEntry: Record "Warehouse Entry"; ItemNo: Code[20]; LocationCode: Code[10])
+    begin
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Location Code", LocationCode);
+        WarehouseEntry.FindLast();
+    end;
+
     [ModalPageHandler]
     procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
     begin
@@ -10358,5 +10589,12 @@ codeunit 137072 "SCM Production Orders II"
         ProductionJournal.Filter.SetFilter("Entry Type", Format("Item Ledger Entry Type"::Consumption));
         ProductionJournal.Post.Invoke();
     end;
+
+    [SendNotificationHandler]
+    procedure SendNotificationHandler(var TheNotification: Notification): Boolean
+    begin
+        exit(true);
+    end;
+
 }
 
