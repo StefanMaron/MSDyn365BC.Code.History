@@ -559,7 +559,7 @@ codeunit 7324 "Whse.-Activity-Post"
                     OnUpdateSourceDocumentOnAfterGetPurchLine(PurchLine, TempWhseActivLine);
                     if TempWhseActivLine."Source Document" = TempWhseActivLine."Source Document"::"Purchase Order" then begin
                         OnUpdateSourceDocumentOnSourceDocumentIsPurchaseOrder(PurchLine, TempWhseActivLine);
-                        if (PurchLine."Outstanding Quantity" <> 0) and (TempWhseActivLine."Qty. to Handle" > PurchLine."Outstanding Quantity") then
+                        if (PurchLine."Outstanding Quantity" <> 0) and (Abs(TempWhseActivLine."Qty. to Handle") > Abs(PurchLine."Outstanding Quantity")) then
                             TempWhseActivLine."Qty. to Handle" := PurchLine."Outstanding Quantity";
                         PurchLine.Validate("Qty. to Receive", TempWhseActivLine."Qty. to Handle");
                         PurchLine."Qty. to Receive (Base)" := TempWhseActivLine."Qty. to Handle (Base)";
