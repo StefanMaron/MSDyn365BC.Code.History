@@ -284,6 +284,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Export Test Suite - NamedType GLAccTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3265399616 - NamedType 3810503215" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G/L Register SystemCreatedAt field must be configured correctly]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Export Test Suite - NamedType GLRegisterSystemCreatedAtFieldErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3265399616 - NamedType 1276742108" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Item 22~1]]></Val>
