@@ -18,11 +18,7 @@ report 1701 "Deferral Summary - Sales"
 {
     ApplicationArea = Suite;
     Caption = 'Deferral Summary - Sales';
-#if not CLEAN27
-    DefaultRenderingLayout = Word;
-#else
     DefaultRenderingLayout = Excel;
-#endif
     UsageCategory = ReportsAndAnalysis;
 
     dataset

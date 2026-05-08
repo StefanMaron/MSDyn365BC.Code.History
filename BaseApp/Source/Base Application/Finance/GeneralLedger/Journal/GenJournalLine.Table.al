@@ -926,6 +926,8 @@ table 81 "Gen. Journal Line"
                 if "Applies-to Doc. No." <> xRec."Applies-to Doc. No." then
                     ClearCustVendApplnEntry();
 
+                OnAppliesToDocNoOnValidateOnBeforeDelPmtTolApllnDocNo(Rec, SuppressCommit);
+
                 if ("Applies-to Doc. No." = '') and (xRec."Applies-to Doc. No." <> '') then begin
                     PaymentToleranceMgt.DelPmtTolApllnDocNo(Rec, xRec."Applies-to Doc. No.");
 
@@ -5865,7 +5867,7 @@ table 81 "Gen. Journal Line"
 
             if Amount = 0 then begin
                 CustLedgEntry.CalcFields("Remaining Amount");
-                OnGetCustLedgerEntryOnAfterCalcRemainingAmount(CustLedgEntry);
+                OnGetCustLedgerEntryOnAfterCalcRemainingAmount(CustLedgEntry, Rec);
 
                 if "Posting Date" <= CustLedgEntry."Pmt. Discount Date" then
                     Amount := -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible")
@@ -5913,7 +5915,7 @@ table 81 "Gen. Journal Line"
 
             if Amount = 0 then begin
                 VendLedgEntry.CalcFields("Remaining Amount");
-                OnGetVendLedgerEntryOnAfterCalcRemainingAmount(VendLedgEntry);
+                OnGetVendLedgerEntryOnAfterCalcRemainingAmount(VendLedgEntry, Rec);
 
                 if "Posting Date" <= VendLedgEntry."Pmt. Discount Date" then
                     Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible")
@@ -7967,11 +7969,16 @@ table 81 "Gen. Journal Line"
     local procedure GetFAAccount()
     var
         FA: Record "Fixed Asset";
+        SkipFixedAssetTestFields: Boolean;
     begin
+        SkipFixedAssetTestFields := false;
         FA.Get("Account No.");
-        FA.TestField(Blocked, false);
-        FA.TestField(Inactive, false);
-        FA.TestField("Budgeted Asset", false);
+        OnGetFAAccountOnBeforeFixedAssetTestField(Rec, FA, SkipFixedAssetTestFields);
+        if not SkipFixedAssetTestFields then begin
+            FA.TestField(Blocked, false);
+            FA.TestField(Inactive, false);
+            FA.TestField("Budgeted Asset", false);
+        end;
         UpdateDescription(FA.Description);
         GetFADeprBook("Account No.");
         GetFAVATSetup();
@@ -7983,11 +7990,16 @@ table 81 "Gen. Journal Line"
     local procedure GetFABalAccount()
     var
         FA: Record "Fixed Asset";
+        SkipFixedAssetTestFields: Boolean;
     begin
+        SkipFixedAssetTestFields := false;
         FA.Get("Bal. Account No.");
-        FA.TestField(Blocked, false);
-        FA.TestField(Inactive, false);
-        FA.TestField("Budgeted Asset", false);
+        OnGetFABalAccountOnBeforeFixedAssetTestField(Rec, FA, SkipFixedAssetTestFields);
+        if not SkipFixedAssetTestFields then begin
+            FA.TestField(Blocked, false);
+            FA.TestField(Inactive, false);
+            FA.TestField("Budgeted Asset", false);
+        end;
         UpdateDescriptionFromBalAccount(FA.Description);
         GetFADeprBook("Bal. Account No.");
         GetFAVATSetup();
@@ -9041,6 +9053,25 @@ table 81 "Gen. Journal Line"
     end;
 
     /// <summary>
+    /// Event triggered before the fixed asset validation TestFields (Blocked, Inactive, Budgeted Asset) are executed
+    /// in the GetFAAccount procedure. Subscribing to this event allows developers to skip the standard
+    /// validation checks for specific scenarios or business rules.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the fixed asset account is being processed.
+    /// </param>
+    /// <param name="FixedAsset">
+    /// The fixed asset record retrieved for the account number on the general journal line.
+    /// </param>
+    /// <param name="SkipFixedAssetTestFields">
+    /// Set to true to skip the Blocked, Inactive, and Budgeted Asset TestField validations.
+    /// </param>
+    [IntegrationEvent(false, false)]
+    local procedure OnGetFAAccountOnBeforeFixedAssetTestField(GenJournalLine: Record "Gen. Journal Line"; var FixedAsset: Record "Fixed Asset"; var SkipFixedAssetTestFields: Boolean)
+    begin
+    end;
+
+    /// <summary>
     /// Event triggered after retrieving a fixed asset record for the balancing account in the general journal line.
     /// Subscribing to this event allows developers to extend or customize the behavior
     /// when processing fixed asset data for the balancing account. This can be useful for implementing additional logic,
@@ -9054,6 +9085,25 @@ table 81 "Gen. Journal Line"
     /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetFABalAccount(var GenJournalLine: Record "Gen. Journal Line"; var FixedAsset: Record "Fixed Asset")
+    begin
+    end;
+
+    /// <summary>
+    /// Event triggered before the fixed asset validation TestFields (Blocked, Inactive, Budgeted Asset) are executed
+    /// in the GetFABalAccount procedure. Subscribing to this event allows developers to skip the standard
+    /// validation checks for specific scenarios or business rules.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the balancing fixed asset account is being processed.
+    /// </param>
+    /// <param name="FixedAsset">
+    /// The fixed asset record retrieved for the balancing account number on the general journal line.
+    /// </param>
+    /// <param name="SkipFixedAssetTestFields">
+    /// Set to true to skip the Blocked, Inactive, and Budgeted Asset TestField validations.
+    /// </param>
+    [IntegrationEvent(false, false)]
+    local procedure OnGetFABalAccountOnBeforeFixedAssetTestField(GenJournalLine: Record "Gen. Journal Line"; var FixedAsset: Record "Fixed Asset"; var SkipFixedAssetTestFields: Boolean)
     begin
     end;
 
@@ -9124,6 +9174,17 @@ table 81 "Gen. Journal Line"
     /// <param name="TempGenJnlLine">A temporary Gen. Journal Line record used for processing.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    begin
+    end;
+
+    /// <summary>
+    /// Event triggered before calling PaymentToleranceMgt.DelPmtTolApllnDocNo during the validation of the "Applies-to Doc. No." field.
+    /// This event allows developers to run additional checks and modify the Gen. Journal Line after ClearCustVendApplnEntry and before DelPmtTolApllnDocNo.
+    /// </summary>
+    /// <param name="GenJournalLine">The current Gen. Journal Line being processed.</param>
+    /// <param name="SuppressCommit">Indicates whether commits are suppressed.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnAppliesToDocNoOnValidateOnBeforeDelPmtTolApllnDocNo(var GenJournalLine: Record "Gen. Journal Line"; SuppressCommit: Boolean)
     begin
     end;
 
@@ -12583,8 +12644,9 @@ table 81 "Gen. Journal Line"
     /// This event allows developers to add custom logic after the "Remaining Amount" field has been calculated on the Vendor Ledger Entry.
     /// </summary>
     /// <param name="VendorLedgerEntry">The Vendor Ledger Entry record with the calculated "Remaining Amount".</param>
+    /// <param name="GenJournalLine">The Gen. Journal Line record.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnGetVendLedgerEntryOnAfterCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    local procedure OnGetVendLedgerEntryOnAfterCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -12593,8 +12655,9 @@ table 81 "Gen. Journal Line"
     /// This event allows developers to add custom logic after the "Remaining Amount" field has been calculated on the Customer Ledger Entry.
     /// </summary>
     /// <param name="CustLedgerEntry">The Customer Ledger Entry record with the calculated "Remaining Amount".</param>
+    /// <param name="GenJournalLine">The Gen. Journal Line record.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnGetCustLedgerEntryOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnGetCustLedgerEntryOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

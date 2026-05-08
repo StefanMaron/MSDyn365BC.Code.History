@@ -203,6 +203,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Cust Cred Lmt Approval - NamedType ApprovalEntryNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3786576731 - NamedType 2230163123" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Payment terms approval status should remain Created after credit limit approval.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Cust Cred Lmt Approval - NamedType PaymentTermsApprovalStatusErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3786576731 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
