@@ -238,7 +238,9 @@ codeunit 7324 "Whse.-Activity-Post"
         OnAfterCode(WhseActivLine, SuppressCommit, PrintDoc);
         if not SuppressCommit then
             Commit();
+#if not CLEAN29
         OnAfterPostWhseActivHeader(WhseActivHeader, PurchHeader, SalesHeader, TransHeader);
+#endif
 
         Clear(WhseJnlRegisterLine);
         OnAfterPostWhseActivityCompleted(WhseActivHeader, PurchHeader, SalesHeader, TransHeader, SuppressCommit, IsPreview);
@@ -560,7 +562,7 @@ codeunit 7324 "Whse.-Activity-Post"
                     OnUpdateSourceDocumentOnAfterGetPurchLine(PurchLine, TempWhseActivLine);
                     if TempWhseActivLine."Source Document" = TempWhseActivLine."Source Document"::"Purchase Order" then begin
                         OnUpdateSourceDocumentOnSourceDocumentIsPurchaseOrder(PurchLine, TempWhseActivLine);
-                        if (PurchLine."Outstanding Quantity" <> 0) and (TempWhseActivLine."Qty. to Handle" > PurchLine."Outstanding Quantity") then
+                        if (PurchLine."Outstanding Quantity" <> 0) and (Abs(TempWhseActivLine."Qty. to Handle") > Abs(PurchLine."Outstanding Quantity")) then
                             TempWhseActivLine."Qty. to Handle" := PurchLine."Outstanding Quantity";
                         PurchLine.Validate("Qty. to Receive", TempWhseActivLine."Qty. to Handle");
                         PurchLine."Qty. to Receive (Base)" := TempWhseActivLine."Qty. to Handle (Base)";
@@ -1499,10 +1501,13 @@ codeunit 7324 "Whse.-Activity-Post"
     begin
     end;
 
+#if not CLEAN29
     [IntegrationEvent(false, false)]
+    [Obsolete('Use OnAfterPostWhseActivityCompleted instead. This event fires before PostRelatedInboundTransfer completes.', '29.0')]
     local procedure OnAfterPostWhseActivHeader(WhseActivHeader: Record "Warehouse Activity Header"; var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var TransferHeader: Record "Transfer Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostWhseActivityCompleted(WhseActivHeader: Record "Warehouse Activity Header"; var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var TransferHeader: Record "Transfer Header"; SuppressCommit: Boolean; IsPreview: Boolean)
