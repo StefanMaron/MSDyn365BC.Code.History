@@ -1057,9 +1057,9 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
 
         // [GIVEN] Get a Receivable Account.
         GLAccount.Get(CustomerPostingGroup."Receivables Account");
-        GLAccount.Validate("Source Currency Posting", GLAccount."Source Currency Posting"::"Same Currency");
-        GLAccount.Validate("Source Currency Code", CurrencyCode);
-        GLAccount.Modify(true);
+        // GLAccount.Validate("Source Currency Posting", GLAccount."Source Currency Posting"::"Same Currency");
+        // GLAccount.Validate("Source Currency Code", CurrencyCode);
+        // GLAccount.Modify(true);
 
         // [GIVEN] Create a General Journal Batch.
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplateType);

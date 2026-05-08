@@ -1200,4 +1200,17 @@ table 17 "G/L Entry"
     local procedure OnBeforeShowValueEntries(var ValueEntry: Record "Value Entry"; var GLItemLedgRelation: Record "G/L - Item Ledger Relation")
     begin
     end;
+
+    /// <summary>
+    /// Integration event raised by the local functionality report G/L Account Statement.
+    /// Enables apps to filter out G/L Entries based on their review status
+    /// </summary>
+    /// <param name="GLEntry">G/L entry record for filtering</param>
+    /// <param name="ReviewStatus">Specifies whether to filter on reviewed or not reviewed entries</param>
+    /// <param name="EvaluationDate">Specifies the date to be used for filtering on review date</param>
+    /// <param name="Skip">Specifies true if and only if the report should skip the G/L entry based on its review status</param>
+    [IntegrationEvent(false, false)]
+    procedure OnSkipGLEntryByReviewStatus(var GLEntry: Record "G/L Entry"; ReviewStatus: Option All,Reviewed,"Not Reviewed"; EvaluationDate: Date; var Skip: Boolean)
+    begin
+    end;
 }
