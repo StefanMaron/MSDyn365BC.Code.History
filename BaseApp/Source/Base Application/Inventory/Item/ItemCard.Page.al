@@ -46,8 +46,10 @@ using System.Privacy;
 using System.Text;
 
 #pragma warning disable AS0106 // Protected variable ItemReferenceVisible was removed before AS0106 was introduced.
+#pragma warning disable AS0031 // Action Ref Update Variant Attributes_Promoted was removed before AS0031 was introduced.
 page 30 "Item Card"
 #pragma warning restore AS0106
+#pragma warning restore AS0031
 {
     Caption = 'Item Card';
     PageType = Card;

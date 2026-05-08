@@ -501,7 +501,7 @@ report 130 "EC Sales List"
         RBMgt: Codeunit "File Management";
         IsHandled: Boolean;
     begin
-        IsHandled := true;
+        IsHandled := false;
         OnBeforeCreateXMLDocument(IsHandled);
         if IsHandled then
             exit;

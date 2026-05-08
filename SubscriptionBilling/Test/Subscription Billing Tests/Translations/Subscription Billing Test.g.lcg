@@ -14,6 +14,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Contracts Test - NamedType CustShipToCodeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 2867664679" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount should equal Deferral Base Amount.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType AmountMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1775220250 - NamedType 3198757034" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[If you change the Quantity, the amount for open subscription lines will be recalculated.\\Do you want to continue?]]></Val>
@@ -21,6 +30,141 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType ConfirmQuestionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 1745239345" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[First partial month Number of Days mismatch.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType FirstPartialMonthDaysMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 2479929517" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[First partial month Number of Days should equal remaining days in January.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType FirstPartialMonthRemainingDaysMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 3637109895" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Full month Number of Days should equal calendar days in that month.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType FullMonthDaysMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 1442128433" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Last partial month Number of Days mismatch.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType LastPartialMonthDaysMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 2469348679" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Last partial month Number of Days should equal day-of-month of end date.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType LastPartialMonthDaysOfEndDateMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 330234950" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected multiple deferral periods.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType MultipleDeferralPeriodsExpectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 10467379" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected at least 3 deferral periods for partial-full-partial scenario.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType MultiplePartialDeferralPeriodsExpectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 3064939177" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Number of Days should equal actual date range days.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType NumberOfDaysDateRangeMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 4021111713" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Number of Days should equal full month days.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType NumberOfDaysFullMonthMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 1265282780" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Number of Days should equal remaining days in month.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType NumberOfDaysRemainingMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 1326559259" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Number of Days should equal actual schedule days, not full month.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType NumberOfDaysScheduleMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 683123631" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected a single deferral period for full month billing.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType SingleDeferralFullMonthExpectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 2319078086" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected a single deferral period for mid-to-end-of-month billing.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType SingleDeferralMidToEndExpectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 2664423759" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected a single deferral period for mid-to-mid-month billing.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType SingleDeferralMidToMidExpectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1775220250 - NamedType 1226766967" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected a single deferral period for start-to-mid-month billing.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Customer Deferrals Test - NamedType SingleDeferralStartToMidExpectedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 32521736 - NamedType 4144059976" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -84,6 +228,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=Field Caption, %2=Field Caption]D;]A;(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Service Object Test - NamedType NaturalNumberRatioErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 567495954 - NamedType 3676554599" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Released Contract Deferrals were not reversed properly]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Vendor Deferrals Test - NamedType ReleasedContractDeferralErr)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

@@ -761,6 +761,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry2.SetCurrentKey("Table ID", "Document Type", "Document No.", "Sequence No.");
         ApprovalEntry2.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
         ApprovalEntry2.SetRange(Status, ApprovalEntry2.Status::Created);
+        ApprovalEntry2.SetRange("Workflow Step Instance ID", ApprovalEntry."Workflow Step Instance ID");
         OnSendApprovalRequestFromApprovalEntryOnAfterSetApprovalEntry2Filters(ApprovalEntry2, ApprovalEntry);
 
         if ApprovalEntry2.FindFirst() then begin

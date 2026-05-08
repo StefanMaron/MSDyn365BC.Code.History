@@ -312,11 +312,12 @@ table 5767 "Warehouse Activity Line"
             begin
                 IsHandled := false;
                 OnBeforeValidateQtyToHandle(Rec, IsHandled);
-                if not IsHandled then begin
-                    QuantityRounded := UOMMgt.RoundAndValidateQty("Qty. to Handle", "Qty. Rounding Precision", FieldCaption("Qty. to Handle"));
-                    if QuantityRounded > "Qty. Outstanding" then
-                        Error(Text002, "Qty. Outstanding");
-                end;
+                if not OverReceiptProcessing() then
+                    if not IsHandled then begin
+                        QuantityRounded := UOMMgt.RoundAndValidateQty("Qty. to Handle", "Qty. Rounding Precision", FieldCaption("Qty. to Handle"));
+                        if QuantityRounded > "Qty. Outstanding" then
+                            Error(Text002, "Qty. Outstanding");
+                    end;
 
                 GetLocation("Location Code");
                 if Location."Bin Capacity Policy" <> Location."Bin Capacity Policy"::"Never Check Capacity" then
@@ -3232,6 +3233,24 @@ table 5767 "Warehouse Activity Line"
             QuantityUpdated := true;
         end
     end;
+
+    local procedure OverReceiptProcessing(): Boolean
+    var
+        OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
+    begin
+        if ("Source Document" <> "Source Document"::"Purchase Order") then
+            exit(false);
+
+        if CurrFieldNo <> FieldNo("Qty. to Handle") then
+            exit(false);
+
+        if not OverReceiptMgt.IsOverReceiptAllowed() or ("Qty. to Handle" <= "Qty. Outstanding") then
+            exit(false);
+
+        Validate("Over-Receipt Quantity", "Qty. to Handle" - Quantity + "Qty. Handled" + "Over-Receipt Quantity");
+        exit(true);
+    end;
+
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutofillQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
