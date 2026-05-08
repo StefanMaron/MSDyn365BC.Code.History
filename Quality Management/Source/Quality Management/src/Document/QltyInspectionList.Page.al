@@ -32,6 +32,7 @@ page 20408 "Qlty. Inspection List"
     SourceTableView = sorting("No.", "Re-inspection No.") order(descending);
     UsageCategory = Lists;
     ApplicationArea = QualityManagement;
+    RefreshOnActivate = true;
     AboutTitle = 'About Quality Inspections';
     AboutText = 'Review all quality inspections created by rules or manually. Track their progress through the inspection process and take action when needed.';
 
@@ -62,15 +63,18 @@ page 20408 "Qlty. Inspection List"
                 {
                     AboutTitle = 'Inspection status at a glance';
                     AboutText = '**Status** shows whether the inspection is still in progress or finished. Finished inspections are locked and can''t be changed.';
+                    StyleExpr = StatusStyleExpr;
                 }
                 field("Result Code"; Rec."Result Code")
                 {
                     Visible = false;
+                    StyleExpr = ResultStyleExpr;
                 }
                 field("Result Description"; Rec."Result Description")
                 {
                     AboutTitle = 'Inspection results';
                     AboutText = '**Result** shows the outcome of the inspection. It''s automatically calculated from the test values on the lines and the result conditions in the quality test page.';
+                    StyleExpr = ResultStyleExpr;
                 }
                 field("Finished Date"; Rec."Finished Date")
                 {
@@ -214,13 +218,19 @@ page 20408 "Qlty. Inspection List"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Create Re-inspection';
+                ToolTip = 'Create a new re-inspection based on this inspection. If the inspection is still open, it will be finished first. Finishing may be blocked if the current result does not allow it.';
                 Enabled = CanCreateReinspection;
 
                 trigger OnAction()
+                var
+                    ReinspectionQltyInspectionHeader: Record "Qlty. Inspection Header";
                 begin
-                    Rec.CreateReinspection();
+                    Rec.CreateReinspection(ReinspectionQltyInspectionHeader);
                     CurrPage.Update(false);
+                    if not IsNullGuid(ReinspectionQltyInspectionHeader.SystemId) then begin
+                        Commit();
+                        Page.Run(Page::"Qlty. Inspection", ReinspectionQltyInspectionHeader);
+                    end;
                 end;
             }
             action(TakePicture)
@@ -691,19 +701,19 @@ page 20408 "Qlty. Inspection List"
     var
         QltyPermissionMgmt: Codeunit "Qlty. Permission Mgmt.";
         QltyMiscHelpers: Codeunit "Qlty. Misc Helpers";
+        ResultStyleExpr: Text;
         CanAssignToSelf: Boolean;
         CanCreateReinspection: Boolean;
         CanUnassign: Boolean;
         CanFinish: Boolean;
         CanReopen: Boolean;
         RowActionsAreEnabled: Boolean;
+        StatusStyleExpr: Text;
 
-    trigger OnOpenPage()
+    trigger OnAfterGetRecord()
     begin
-        RowActionsAreEnabled := not IsNullGuid(Rec.SystemId);
-        CanReopen := RowActionsAreEnabled and not Rec.HasMoreRecentReinspection();
-        CanFinish := RowActionsAreEnabled and (Rec.Status <> Rec.Status::Finished);
-        CanCreateReinspection := RowActionsAreEnabled;
+        ResultStyleExpr := Rec.GetResultStyle();
+        StatusStyleExpr := Rec.GetStatusStyleExpression();
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -711,6 +721,7 @@ page 20408 "Qlty. Inspection List"
         CanAssignToSelf := false;
         CanUnassign := false;
         RowActionsAreEnabled := not IsNullGuid(Rec.SystemId);
+        CanCreateReinspection := RowActionsAreEnabled;
         CanReopen := RowActionsAreEnabled and not Rec.HasMoreRecentReinspection();
         CanFinish := RowActionsAreEnabled and (Rec.Status <> Rec.Status::Finished);
 
