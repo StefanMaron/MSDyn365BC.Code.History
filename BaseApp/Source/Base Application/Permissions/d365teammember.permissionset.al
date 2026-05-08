@@ -758,6 +758,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Experience Tier Setup" = RM,
                   tabledata "Extended Text Header" = RM,
                   tabledata "Extended Text Line" = RM,
+                  tabledata "Adv. Bonus Depreciation Setup" = RM,
                   tabledata "FA Allocation" = RM,
                   tabledata "FA Buffer Projection" = RM,
                   tabledata "FA Class" = RM,
