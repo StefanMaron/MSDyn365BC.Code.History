@@ -384,6 +384,7 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyAllocationAccounts();
         ClassifyAgents();
         ClassifyOrderTakerAgent();
+        ClassifySalesValidationAgent();
         ClasifyScheduledPerformanceProfiling();
     end;
 
@@ -763,6 +764,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Aged Report Entity");
         SetTableFieldsToNormal(DATABASE::"Acc. Schedule Line Entity");
         SetTableFieldsToNormal(DATABASE::"Fixed Asset");
+        SetTableFieldsToNormal(DATABASE::"Adv. Bonus Depreciation Setup");
         SetTableFieldsToNormal(DATABASE::"FA Setup");
         SetTableFieldsToNormal(DATABASE::"FA Posting Type Setup");
         SetTableFieldsToNormal(DATABASE::"FA Posting Group");
@@ -3797,6 +3799,11 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(4592, 10); // Sender Name
     end;
 
+    local procedure ClassifySalesValidationAgent()
+    begin
+        SetTableFieldsToNormal(53607); // "Sales Val. Agent KPI"
+    end;
+
     local procedure ClassifyAgents()
     var
         DummyAgent: Record "Agent";
@@ -3809,6 +3816,7 @@ codeunit 1751 "Data Classification Eval. Data"
         DummyAgentTaskTimelineStepDetail: Record "Agent Task Timeline Step Det.";
         DummyAgentTaskTimeline: Record "Agent Task Timeline";
         DummyAgentTaskLogEntry: Record "Agent Task Log Entry";
+        DummyAgentCreationControl: Record "Agent Creation Control";
         TableNo: Integer;
     begin
         TableNo := DATABASE::"Agent";
@@ -3866,6 +3874,10 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyAgentTaskLogEntry.FieldNo("Details"));
         SetFieldToCompanyConfidential(TableNo, DummyAgentTaskLogEntry.FieldNo("Description"));
         SetFieldToCompanyConfidential(TableNo, DummyAgentTaskLogEntry.FieldNo("Page Caption"));
+
+        TableNo := DATABASE::"Agent Creation Control";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyAgentCreationControl.FieldNo("User Security ID"));
 
         // Agent Designer
         SetTableFieldsToNormal(4350); // "Custom Agent Setup"

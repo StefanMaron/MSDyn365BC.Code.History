@@ -53,6 +53,26 @@ page 5607 "Fixed Asset Setup"
                     ApplicationArea = FixedAssets;
                     Importance = Additional;
                 }
+                field("Bonus Depreciation Percentage"; Rec."Bonus Depreciation %")
+                {
+                    ApplicationArea = FixedAssets;
+                    Importance = Additional;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateActionVisibility();
+                    end;
+                }
+                field("Bonus Depr. Effective Date"; Rec."Bonus Depr. Effective Date")
+                {
+                    ApplicationArea = FixedAssets;
+                    Importance = Additional;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateActionVisibility();
+                    end;
+                }
                 field("Employee No. Mandatory"; Rec."Employee No. Mandatory")
                 {
                     ApplicationArea = FixedAssets;
@@ -283,6 +303,15 @@ page 5607 "Fixed Asset Setup"
                 RunObject = Page "FA Locations";
                 ToolTip = 'Set up different locations, such as a warehouse or a location within a warehouse, that you can assign to fixed assets.';
             }
+            action("Advanced Bonus Depreciation Setup")
+            {
+                ApplicationArea = FixedAssets;
+                Caption = 'Advanced Bonus Depreciation Setup';
+                Image = SetupList;
+                RunObject = Page "Adv. Bonus Depr. Setup";
+                ToolTip = 'Set up multiple bonus depreciation percentages per effective date and asset class.';
+                Enabled = BonusDeprEnabled;
+            }
             group(Posting)
             {
                 Caption = 'Posting';
@@ -350,6 +379,9 @@ page 5607 "Fixed Asset Setup"
                 actionref("Depreciation Tables_Promoted"; "Depreciation Tables")
                 {
                 }
+                actionref("Advanced Bonus Depreciation Setup_Promoted"; "Advanced Bonus Depreciation Setup")
+                {
+                }
             }
             group(Category_Category6)
             {
@@ -383,6 +415,15 @@ page 5607 "Fixed Asset Setup"
             Rec.Init();
             Rec.Insert();
         end;
+        UpdateActionVisibility();
     end;
+
+    local procedure UpdateActionVisibility()
+    begin
+        BonusDeprEnabled := Rec.BonusDepreciationCorrectlySetup();
+    end;
+
+    var
+        BonusDeprEnabled: Boolean;
 }
 

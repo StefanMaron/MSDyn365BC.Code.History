@@ -302,8 +302,10 @@ page 729 "Copy Item"
                 if InfoFieldRef.Type() = FieldType::Boolean then
                     InfoFieldRef.Value := ShouldCopyAllInformation;
             end;
-        RecRef.Modify();
+
         RecRef.SetTable(Rec);
+        OnValidateShouldCopyAllInformationOnBeforeModifyRec(Rec, ShouldCopyAllInformation);
+        Rec.Modify();
 
         OnAfterValidateShouldCopyAllInformation(Rec, ShouldCopyAllInformation);
     end;
@@ -325,6 +327,11 @@ page 729 "Copy Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShouldCopyAllInformation(var CopyAllInformation: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShouldCopyAllInformationOnBeforeModifyRec(var CopyItemBuffer: Record "Copy Item Buffer"; ShouldCopyAllInformation: Boolean)
     begin
     end;
 }
