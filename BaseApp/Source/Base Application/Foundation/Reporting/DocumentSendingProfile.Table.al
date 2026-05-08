@@ -553,7 +553,7 @@ table 60 "Document Sending Profile"
         IsCustomer: Boolean;
     begin
         IsCustomer := true;
-        OnBeforeTrySendToEMail(ReportUsage, RecordVariant, DocumentNoFieldNo, DocName, CustomerFieldNo, ShowDialog, Handled, IsCustomer);
+        OnBeforeTrySendToEMail(ReportUsage, RecordVariant, DocumentNoFieldNo, DocName, CustomerFieldNo, ShowDialog, Handled, IsCustomer, Rec);
         if Handled then
             exit;
 
@@ -680,7 +680,7 @@ table 60 "Document Sending Profile"
     begin
         SendWithReportDistributionManagement := true;
         OnSendWithReportDistributionManagement(Rec, SendWithReportDistributionManagement);
-        
+
         if (not SendWithReportDistributionManagement) or ("Electronic Document" = "Electronic Document"::No) then
             exit;
 
@@ -1096,7 +1096,7 @@ table 60 "Document Sending Profile"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTrySendToEMail(ReportUsage: Integer; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerFieldNo: Integer; var ShowDialog: Boolean; var Handled: Boolean; var IsCustomer: Boolean)
+    local procedure OnBeforeTrySendToEMail(ReportUsage: Integer; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerFieldNo: Integer; var ShowDialog: Boolean; var Handled: Boolean; var IsCustomer: Boolean; var DocumentSendingProfile: Record "Document Sending Profile")
     begin
     end;
 

@@ -866,6 +866,8 @@ codeunit 5940 ServContractManagement
         ServHeader2."Bill-to Contact No." := ServContract."Bill-to Contact No.";
         ServHeader2."Bill-to Contact" := ServContract."Bill-to Contact";
         ServHeader2."Gen. Bus. Posting Group" := Cust."Gen. Bus. Posting Group";
+        ServHeader2."Tax Area Code" := Cust."Tax Area Code";
+        ServHeader2."Tax Liable" := Cust."Tax Liable";
         if GLSetup."Bill-to/Sell-to VAT Calc." = GLSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No." then
             ServHeader2."VAT Bus. Posting Group" := Cust."VAT Bus. Posting Group";
         OnCreateOrGetCreditHeaderOnAfterCopyFromCustomer(ServHeader2, ServContract, Cust);
