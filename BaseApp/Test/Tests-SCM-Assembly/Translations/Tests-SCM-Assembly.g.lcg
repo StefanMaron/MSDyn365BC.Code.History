@@ -266,6 +266,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Assembly Order - NamedType CnfmRefreshLinesQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3611501519 - NamedType 1527931532" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Component %1 Quantity should be %2 but was %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Assembly Order - NamedType ComponentQuantityshouldErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3611501519 - NamedType 134290712" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dimensions are not matching on header and line.]]></Val>

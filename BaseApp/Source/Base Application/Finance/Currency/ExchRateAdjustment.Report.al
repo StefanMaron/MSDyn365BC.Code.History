@@ -45,16 +45,34 @@ report 596 "Exch. Rate Adjustment"
         {
             DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
+
+            trigger OnPreDataItem()
+            begin
+                if not AdjCust then
+                    CurrReport.Break();
+            end;
         }
         dataitem(VendorFilter; Vendor)
         {
             DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
+
+            trigger OnPreDataItem()
+            begin
+                if not AdjVend then
+                    CurrReport.Break();
+            end;
         }
         dataitem(EmployeeFilter; Employee)
         {
             DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
+
+            trigger OnPreDataItem()
+            begin
+                if not AdjEmpl then
+                    CurrReport.Break();
+            end;
         }
     }
 

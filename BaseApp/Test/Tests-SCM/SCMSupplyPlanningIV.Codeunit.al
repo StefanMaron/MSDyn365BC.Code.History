@@ -56,6 +56,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         AmountErr: Label '%1 must be equal to %2', Comment = '%1 = Cost Amount, %2 = Expected Amount';
         DimSetIDErr: Label 'Dimension set id on Requisition Line does not match the updated dimension set id on production order line.';
         AssemblyOrderCreatedErr: Label 'The assembly order has been created.';
+        SurplusReservationEntryDuplicateErr: Label 'Surplus reservation entry count should not change after planning - no duplicates should be created.';
 
     [Test]
     [Scope('OnPrem')]
@@ -4428,6 +4429,59 @@ codeunit 137077 "SCM Supply Planning -IV"
         VerifyNotPrintedAsmOrders(AssemblyHeader);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GenericMessageHandler')]
+    procedure NoDuplicateSurplusEntriesAfterChangeOrderTrackingPolicyAndRegenPlan()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ReservationEntry: Record "Reservation Entry";
+        ItemJournalLine: Record "Item Journal Line";
+        LotNo: Code[50];
+        Quantity: Decimal;
+        ReservEntryCountBeforePlan: Integer;
+    begin
+        // [FEATURE] [AI test]
+        // [SCENARIO 625209] Reservation Entry should not be duplicated after running Planning Worksheet Regenerative Calculation multiple times.
+        Initialize();
+        Quantity := LibraryRandom.RandIntInRange(5, 10);
+
+        // [GIVEN] Lot-tracked item "I" with Order Tracking Policy = "Tracking & Action Message".
+        CreateLotTrackedItemWithOrderTracking(Item);
+
+        // [GIVEN] Post positive inventory at LocationRed with lot "L".
+        LotNo := LibraryUtility.GenerateGUID();
+        CreateItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
+        ItemJournalLine.Validate("Location Code", LocationRed.Code);
+        ItemJournalLine.Modify(true);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo, Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Create Transfer Order "T" from RED to BLUE with lot tracking.
+        CreateTransferOrderWithLotTracking(TransferHeader, TransferLine, Item."No.", LocationRed.Code, LocationBlue.Code, Quantity, LotNo);
+
+        // [GIVEN] Post transfer shipment (not receipt) - items are now in-transit.
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
+
+        // [GIVEN] Run Calculate Regenerative Plan first time.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<+1M>', WorkDate()));
+
+        // [GIVEN] Count surplus reservation entries for "T" after first planning run.
+        ReservEntryCountBeforePlan := CountTransferLineSurplusReservationEntries(TransferHeader."No.", LotNo);
+
+        // [WHEN] Run Calculate Regenerative Plan second time.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<+1M>', WorkDate()));
+
+        // [THEN] Surplus reservation entries for "T" should NOT be doubled after second planning run.
+        Assert.AreEqual(
+            ReservEntryCountBeforePlan,
+            CountTransferLineSurplusReservationEntries(TransferHeader."No.", LotNo),
+            SurplusReservationEntryDuplicateErr);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -5961,6 +6015,39 @@ codeunit 137077 "SCM Supply Planning -IV"
             LibraryReportDataset.AssertElementWithValueNotExist('No_AssemblyHeader', AssemblyHeader."No.");
             LibraryReportDataset.GetNextRow();
         until AssemblyHeader.Next() = 0;
+    end;
+
+    local procedure CreateLotTrackedItemWithOrderTracking(var Item: Record Item)
+    begin
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
+        Item.Validate("Reorder Point", LibraryRandom.RandIntInRange(100, 200));
+        Item.Validate("Reorder Quantity", LibraryRandom.RandIntInRange(50, 100));
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking & Action Msg.");
+        Item.Modify(true);
+    end;
+
+    local procedure CreateTransferOrderWithLotTracking(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; ItemNo: Code[20]; FromLocationCode: Code[10]; ToLocationCode: Code[10]; Quantity: Decimal; LotNo: Code[50])
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        SelectTransferRoute(FromLocationCode, ToLocationCode);
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, LocationInTransit.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
+        LibraryItemTracking.CreateTransferOrderItemTracking(ReservationEntry, TransferLine, '', LotNo, Quantity);
+    end;
+
+    local procedure CountTransferLineSurplusReservationEntries(TransferNo: Code[20]; LotNo: Code[50]): Integer
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Source Type", Database::"Transfer Line");
+        ReservationEntry.SetRange("Source Subtype", 1); // Outbound
+        ReservationEntry.SetRange("Source ID", TransferNo);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        exit(ReservationEntry.Count);
     end;
 
     [RequestPageHandler]

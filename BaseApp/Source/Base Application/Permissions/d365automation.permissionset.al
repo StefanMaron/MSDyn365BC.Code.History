@@ -772,6 +772,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Experience Tier Setup" = RIMD,
                   tabledata "Extended Text Header" = RIMD,
                   tabledata "Extended Text Line" = RIMD,
+                  tabledata "Adv. Bonus Depreciation Setup" = RIMD,
                   tabledata "FA Allocation" = RIMD,
                   tabledata "FA Buffer Projection" = RIMD,
                   tabledata "FA Class" = RIMD,

@@ -464,8 +464,6 @@ table 210 "Job Journal Line"
                     exit;
 
                 TestField(Type, Type::Resource);
-                if not IsLineDiscountHandled then
-                    Validate("Line Discount %", 0);
                 if ("Work Type Code" = '') and (xRec."Work Type Code" <> '') then begin
                     Res.Get("No.");
                     "Unit of Measure Code" := Res."Base Unit of Measure";
@@ -483,6 +481,8 @@ table 210 "Job Journal Line"
                     end;
                 OnBeforeValidateWorkTypeCodeQty(Rec, xRec, Res, WorkType);
                 Validate(Quantity);
+                if not IsLineDiscountHandled then
+                    Validate("Line Discount %", 0);
             end;
         }
         field(34; "Customer Price Group"; Code[10])
@@ -2089,7 +2089,7 @@ table 210 "Job Journal Line"
 
         if ("Cost Factor" <> 0) and
            ((("Unit Cost" <> xRec."Unit Cost") or ("Cost Factor" <> xRec."Cost Factor")) or
-            ((Quantity <> xRec.Quantity) or ("Location Code" <> xRec."Location Code")))
+            ((Quantity <> xRec.Quantity) or ("Location Code" <> xRec."Location Code") or ("Variant Code" <> xRec."Variant Code")))
         then
             "Unit Price" := Round("Unit Cost" * "Cost Factor", UnitAmountRoundingPrecisionFCY)
         else
