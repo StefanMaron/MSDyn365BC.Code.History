@@ -28,9 +28,6 @@
 			"path": "..\\Tests\\DotNet-Internal"
 		},
 		{
-			"path": "..\\Tests\\DotNet-Internal"
-		},
-		{
 			"path": "..\\Tests\\ERM"
 		},
 		{
@@ -137,7 +134,7 @@
 		},
 		{
 			"path": "..\\Tests\\BCPT-SampleTests"
-		},
+		}
 	],
 	"settings": {}
 }

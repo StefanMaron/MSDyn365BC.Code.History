@@ -11,7 +11,7 @@ using Microsoft.Purchases.Vendor;
 
 report 99000789 "Subcontractor - Dispatch List"
 {
-    DefaultRenderingLayout = WordLayout;
+    DefaultRenderingLayout = ExcelLayout;
     ApplicationArea = Manufacturing;
     Caption = 'Subcontractor - Dispatch List';
     UsageCategory = ReportsAndAnalysis;
