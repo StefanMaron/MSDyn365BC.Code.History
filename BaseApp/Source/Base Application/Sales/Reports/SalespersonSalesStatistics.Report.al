@@ -17,7 +17,7 @@ report 114 "Salesperson - Sales Statistics"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Salesperson - Sales Statistics';
-    DefaultRenderingLayout = Word;
+    DefaultRenderingLayout = Excel;
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
 

@@ -475,9 +475,13 @@ table 483 "Change Global Dim. Log Entry"
     var
         DefaultDimension: Record "Default Dimension";
         PKFieldRef: FieldRef;
+        PKValue: Text;
     begin
         PKFieldRef := RecRef.Field("Primary Key Field No.");
-        if DefaultDimension.Get(RecRef.Number, Format(PKFieldRef.Value()), DimensionCode) then
+        PKValue := Format(PKFieldRef.Value());
+        if StrLen(PKValue) > MaxStrLen(DefaultDimension."No.") then
+            exit('');
+        if DefaultDimension.Get(RecRef.Number, PKValue, DimensionCode) then
             exit(DefaultDimension."Dimension Value Code");
         exit('');
     end;

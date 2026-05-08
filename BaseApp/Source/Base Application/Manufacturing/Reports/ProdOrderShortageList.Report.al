@@ -9,7 +9,7 @@ using Microsoft.Manufacturing.Document;
 
 report 99000788 "Prod. Order - Shortage List"
 {
-    DefaultRenderingLayout = Word;
+    DefaultRenderingLayout = Excel;
     ApplicationArea = Manufacturing;
     Caption = 'Prod. Order - Shortage List';
     UsageCategory = ReportsAndAnalysis;
