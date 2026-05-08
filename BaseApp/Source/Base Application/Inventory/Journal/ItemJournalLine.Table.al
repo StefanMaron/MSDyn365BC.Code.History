@@ -3284,6 +3284,8 @@ table 83 "Item Journal Line"
         DimMgt.EditReclasDimensionSet(
           "Dimension Set ID", "New Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."),
           "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "New Shortcut Dimension 1 Code", "New Shortcut Dimension 2 Code");
+
+        OnAfterShowReclasDimensions(Rec, xRec);
     end;
 
     /// <summary>
@@ -3832,6 +3834,7 @@ table 83 "Item Journal Line"
             "New Shortcut Dimension 1 Code", "New Shortcut Dimension 2 Code", 0, 0);
         OnCreateNewDimOnBeforeUpdateGlobalDimFromDimSetID(Rec);
         DimMgt.UpdateGlobalDimFromDimSetID("New Dimension Set ID", "New Shortcut Dimension 1 Code", "New Shortcut Dimension 2 Code");
+        OnAfterCreateNewDimFromDefaultDim(Rec, xRec);
     end;
 
     local procedure GetTableValuePair(FieldNo: Integer) TableValuePair: Dictionary of [Integer, Code[20]]
@@ -5011,6 +5014,11 @@ table 83 "Item Journal Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowReclasDimensions(var ItemJournalLine: Record "Item Journal Line"; var xItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
     /// <summary>
     /// Event triggered before assigning indirect cost percentage and overhead rate during validation of the "Item No." field.
     /// This event allows developers to modify these fields or execute additional logic before the values have been assigned.
@@ -5300,6 +5308,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateNewDimOnBeforeUpdateGlobalDimFromDimSetID(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateNewDimFromDefaultDim(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line")
     begin
     end;
 

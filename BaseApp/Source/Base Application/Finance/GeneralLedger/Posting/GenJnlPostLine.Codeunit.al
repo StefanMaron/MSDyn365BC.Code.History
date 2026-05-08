@@ -1691,6 +1691,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if BankAccLedgEntry.Amount <> 0 then begin
             BankAccLedgEntry.Open := true;
             BankAccLedgEntry."Remaining Amount" := BankAccLedgEntry.Amount;
+        end
+        else begin
+            BankAccLedgEntry."Closed at Date" := GenJnlLine."Posting Date";
+            BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Closed;
         end;
         BankAccLedgEntry.Positive := BankAccLedgEntry.Amount > 0;
         OnBeforeBankAccLedgEntryUpdateAmounts(BankAccLedgEntry, GenJnlLine, BankAcc, TaxAmount, TaxAmountLCY);

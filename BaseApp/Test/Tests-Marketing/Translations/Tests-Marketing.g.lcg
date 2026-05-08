@@ -806,6 +806,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Opportunity Mgmt - NamedType CampaignNoErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1409019018 - NamedType 1908882902" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Chances of Success %% should be overridden by Stage value on %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Action Type]D;]A;(LookupHint=Codeunit Marketing Opportunity Mgmt - NamedType ChancesOfSuccessOverrideErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1409019018 - NamedType 2271284926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 for %2  must not exist.]]></Val>

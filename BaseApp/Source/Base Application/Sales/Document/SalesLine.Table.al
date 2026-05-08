@@ -816,6 +816,8 @@ table 37 "Sales Line"
                         end;
 
                     UpdateUnitPriceByField(FieldNo(Quantity));
+                    if Type = Type::Resource then
+                        ApplyResUnitCost(FieldNo(Quantity));
                     UpdatePrePaymentAmounts();
 
                     CheckWMS();
@@ -4356,12 +4358,12 @@ table 37 "Sales Line"
             SalesLineReserve.VerifyQuantity(Rec, xRec);
         end;
         LockTable();
-        SalesHeader."No." := '';
         if (Type = Type::Item) and ("No." <> '') then
             CheckInventoryPickConflict();
         OnInsertOnAfterCheckInventoryConflict(Rec, xRec, SalesLine2);
         if ("Deferral Code" <> '') and (GetDeferralAmount() <> 0) then
             UpdateDeferralAmounts();
+        SalesHeader."No." := '';
         OnAfterInsertOnAfterUpdateDeferralAmounts(Rec, CurrFieldNo);
     end;
 
