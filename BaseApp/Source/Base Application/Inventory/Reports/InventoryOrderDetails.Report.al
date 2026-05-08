@@ -13,7 +13,7 @@ report 708 "Inventory Order Details"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Inventory Order Details';
-    DefaultRenderingLayout = Word;
+    DefaultRenderingLayout = Excel;
     UsageCategory = ReportsAndAnalysis;
 
     dataset

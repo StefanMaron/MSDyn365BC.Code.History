@@ -15,9 +15,14 @@ table 5310 "Item Statistics Cache"
     InherentEntitlements = RIMD;
     InherentPermissions = RIMD;
 
+    DataCaptionFields = "Item No.", Description;
+
     fields
     {
         field(1; "Item No."; Code[20])
+        {
+        }
+        field(22; Description; Text[100])
         {
         }
         field(2; ItemLedgerEntryNoLatest; Integer)
@@ -132,10 +137,24 @@ table 5310 "Item Statistics Cache"
         }
     }
 
+#if not CLEAN29
+    [Obsolete('Use InitAndInsert with ItemNo and ItemDescription parameters instead.', '29.0')]
     procedure InitAndInsert(ItemNo: Code[20])
+    var
+        Item: Record Item;
+    begin
+        if Item.Get(ItemNo) then
+            InitAndInsert(ItemNo, Item.Description)
+        else
+            InitAndInsert(ItemNo, '');
+    end;
+#endif
+
+    procedure InitAndInsert(ItemNo: Code[20]; ItemDescription: Text[100])
     begin
         Rec.Init();
         Rec."Item No." := ItemNo;
+        Rec.Description := ItemDescription;
         Rec.Insert();
     end;
 

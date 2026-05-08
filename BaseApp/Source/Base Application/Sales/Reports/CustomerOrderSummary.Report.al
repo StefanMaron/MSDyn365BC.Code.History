@@ -20,7 +20,7 @@ report 107 "Customer - Order Summary"
     Caption = 'Customer - Order Summary';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = Word;
+    DefaultRenderingLayout = Excel;
 
     dataset
     {

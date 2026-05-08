@@ -11,7 +11,7 @@ using System.Utilities;
 
 report 99000753 "Quantity Explosion of BOM"
 {
-    DefaultRenderingLayout = WordLayout;
+    DefaultRenderingLayout = ExcelLayout;
     ApplicationArea = Manufacturing;
     Caption = 'Quantity Explosion of BOM';
     UsageCategory = ReportsAndAnalysis;

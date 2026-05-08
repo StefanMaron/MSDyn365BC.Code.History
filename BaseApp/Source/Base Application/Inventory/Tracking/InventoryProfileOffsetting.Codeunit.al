@@ -73,6 +73,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
 #pragma warning restore AA0074
         UseParm: Boolean;
         PlanningResiliency: Boolean;
+        PlanningSkippedForMissingSKUPolicy: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text002: Label 'The %1 from ''%2'' to ''%3'' does not exist.';
@@ -95,8 +96,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
         NextStateTxt: Label 'StartOver,MatchDates,MatchQty,CreateSupply,ReduceSupply,CloseDemand,CloseSupply,CloseLoop';
         NextState: Option StartOver,MatchDates,MatchQty,CreateSupply,ReduceSupply,CloseDemand,CloseSupply,CloseLoop;
         LotAccumulationPeriodStartDate: Date;
-        PlanningParametersTakenFromItemCardTxt: Label 'Planning Parameters were take Item card becuase %1 is %2 but SKU does not exist for Item %3 at Location %4', Comment = '%1: FieldCaption, %2: Missing SKU Policy, %3: Item No., %4: Location Code';
-        SKUNotPlannedTxt: Label 'Item %1 at Location %2 was not planned because SKU does not exist and %3 at Location is %4', Comment = '%1: Item No., %2: Location Code, %3: FieldCaption, %4: Missing SKU Policy';
+        PlanningParametersTakenFromItemCardTxt: Label 'Planning Parameters were taken from Item card because %1 is %2 but SKU does not exist for Item %3 at Location %4', Comment = '%1: Field Caption, %2: Missing SKU Policy, %3: Item No., %4: Location Code';
+        SKUNotPlannedTxt: Label 'Item %1 at Location %2 was not planned because SKU does not exist and %3 at Location is %4', Comment = '%1: Item No., %2: Location Code, %3: Field Caption, %4: Missing SKU Policy';
 
 #if not CLEAN27
     [Obsolete('Replaced by same procedure without parameter Manufacturing Setup', '27.0')]
@@ -535,6 +536,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                             DemandInvtProfile.SetRange("Item No.", ForecastEntry."Item No.");
                             DemandInvtProfile.SetRange(
                               "Due Date", ForecastEntry."Forecast Date", NextForecast."Forecast Date" - 1);
+                            DemandInvtProfile.SetRange("Source Type");
                             if ComponentForecast then begin
                                 DemandInvtProfile.SetSourceTypeFilter(5407); // Database::"Prod. Order Component"
                                 DemandInvtProfile.SetSourceTypeFilter(Database::"Planning Component");
@@ -812,7 +814,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
             exit;
 
         if not TempSKU.Find('=') then begin
-            PlanningGetParameters.SetLotForLot();
+            if not IsMissingSKUPlanningPolicyItemCard(TempSKU."Location Code") then
+                PlanningGetParameters.SetLotForLot();
             PlanningGetParameters.AtSKU(SKU2, TempSKU."Item No.", TempSKU."Variant Code", TempSKU."Location Code");
             TempSKU := SKU2;
             if TempSKU."Reordering Policy" <> TempSKU."Reordering Policy"::" " then begin
@@ -2389,6 +2392,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         PrevTempEntryNo: Integer;
         PrevInsertedEntryNo: Integer;
         IsHandled: Boolean;
+        InsertedEntryNos: List of [Integer];
     begin
         IsHandled := false;
         OnBeforeCommitTracking(TempTrkgReservEntry, IsHandled);
@@ -2404,16 +2408,57 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     ReservEntry."Entry No." := 0;
                 ReservEntry.UpdateItemTracking();
                 UpdateAppliedItemEntry(ReservEntry);
-                ReservEntry.Insert();
-                OnCommitTrackingOnAfterInsertReservationEntry(ReservEntry);
-                PrevTempEntryNo := TempTrkgReservEntry."Entry No.";
-                PrevInsertedEntryNo := ReservEntry."Entry No.";
+                if (ReservEntry."Source Type" = Database::"Transfer Line") and (ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Surplus) then begin
+                    if not UpdateOrSkipDuplicateSurplusEntry(ReservEntry, InsertedEntryNos) then begin
+                        ReservEntry.Insert();
+                        OnCommitTrackingOnAfterInsertReservationEntry(ReservEntry);
+                        PrevInsertedEntryNo := ReservEntry."Entry No.";
+                        InsertedEntryNos.Add(ReservEntry."Entry No.");
+                    end;
+                end else begin
+                    ReservEntry.Insert();
+                    OnCommitTrackingOnAfterInsertReservationEntry(ReservEntry);
+                    PrevTempEntryNo := TempTrkgReservEntry."Entry No.";
+                    PrevInsertedEntryNo := ReservEntry."Entry No.";
+                end;
                 TempTrkgReservEntry.Delete();
             until TempTrkgReservEntry.Next() = 0;
             Clear(TempTrkgReservEntry);
         end;
 
         OnAfterCommitTracking(TempItemTrkgEntry);
+    end;
+
+    local procedure UpdateOrSkipDuplicateSurplusEntry(var NewReservEntry: Record "Reservation Entry"; InsertedEntryNos: List of [Integer]): Boolean
+    var
+        ExistingReservEntry: Record "Reservation Entry";
+    begin
+        if NewReservEntry."Reservation Status" <> NewReservEntry."Reservation Status"::Surplus then
+            exit(false);
+
+        if not NewReservEntry.TrackingExists() then
+            exit(false);
+
+        ExistingReservEntry.SetSourceFilterFromReservEntry(NewReservEntry);
+        ExistingReservEntry.SetRange("Reservation Status", ExistingReservEntry."Reservation Status"::Surplus);
+        ExistingReservEntry.SetRange(Positive, NewReservEntry.Positive);
+        ExistingReservEntry.SetTrackingFilterFromReservEntry(NewReservEntry);
+        if ExistingReservEntry.FindSet() then
+            repeat
+                // Only treat as duplicate if the entry existed before this CommitTracking call
+                if not InsertedEntryNos.Contains(ExistingReservEntry."Entry No.") then begin
+                    if ExistingReservEntry."Quantity (Base)" <> NewReservEntry."Quantity (Base)" then begin
+                        ExistingReservEntry."Quantity (Base)" := NewReservEntry."Quantity (Base)";
+                        ExistingReservEntry.Quantity := NewReservEntry.Quantity;
+                        ExistingReservEntry."Qty. to Handle (Base)" := NewReservEntry."Qty. to Handle (Base)";
+                        ExistingReservEntry."Qty. to Invoice (Base)" := NewReservEntry."Qty. to Invoice (Base)";
+                        ExistingReservEntry.Modify();
+                    end;
+                    exit(true);
+                end;
+            until ExistingReservEntry.Next() = 0;
+
+        exit(false);
     end;
 
     procedure MaintainPlanningLine(var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; NewPhase: Option " ","Line Created","Routing Created",Exploded,Obsolete; Direction: Option Forward,Backward)
@@ -4255,9 +4300,30 @@ codeunit 99000854 "Inventory Profile Offsetting"
         PlanningResiliency := true;
     end;
 
+    /// <summary>
+    /// Gets the policy whether planning should be skipped for missing SKU policy.
+    /// </summary>
+    /// <returns>true if planning should be skipped for missing SKU policy otherwise, false.</returns>
+    procedure GetPlanningSkippedForMissingSKUPolicy(): Boolean
+    begin
+        exit(PlanningSkippedForMissingSKUPolicy);
+    end;
+
     procedure GetResiliencyError(var PlanningErrorLog: Record "Planning Error Log"): Boolean
     begin
         if ReqLine.GetResiliencyError(PlanningErrorLog) then
+            exit(true);
+        exit(PlanningLineManagement.GetResiliencyError(PlanningErrorLog));
+    end;
+
+    /// <summary>
+    /// Gets all resiliency errors from the planning error log.
+    /// </summary>
+    /// <param name="PlanningErrorLog">The planning error log record to populate with errors.</param>
+    /// <returns>true if there are resiliency errors; otherwise, false.</returns>
+    procedure GetResiliencyErrors(var PlanningErrorLog: Record "Planning Error Log"): Boolean
+    begin
+        if ReqLine.GetResiliencyErrors(PlanningErrorLog) then
             exit(true);
         exit(PlanningLineManagement.GetResiliencyError(PlanningErrorLog));
     end;
@@ -4479,12 +4545,12 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         Enum::"Missing SKU Planning Policy"::"Item Card":
                             begin
                                 ReqLine.SetResiliencyError(StrSubstNo(PlanningParametersTakenFromItemCardTxt, Location.FieldCaption("Missing SKU Planning Policy"), Location."Missing SKU Planning Policy", SKU."Item No.", SKU."Location Code"), Database::Item, Item.GetPosition());
-                                Error('');
+                                PlanningSkippedForMissingSKUPolicy := true;
                             end;
                         Enum::"Missing SKU Planning Policy"::"Dont Plan":
                             begin
                                 ReqLine.SetResiliencyError(StrSubstNo(SKUNotPlannedTxt, SKU."Item No.", SKU."Location Code", Location.FieldCaption("Missing SKU Planning Policy"), Location."Missing SKU Planning Policy"), Database::Item, Item.GetPosition());
-                                Error('');
+                                PlanningSkippedForMissingSKUPolicy := true;
                             end;
                     end;
                 end;
@@ -4517,6 +4583,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
         xFromInventoryProfile: Record "Inventory Profile";
         xToInventoryProfile: Record "Inventory Profile";
         UntrackedQty: Decimal;
+        ToInventoryUntrackedQty: Decimal;
+        FromInventoryUntrackedQty: Decimal;
     begin
         xToInventoryProfile.CopyFilters(FromInventoryProfile);
         xFromInventoryProfile.CopyFilters(ToInventoryProfile);
@@ -4531,6 +4599,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 ToInventoryProfile.SetTrackingFilter(FromInventoryProfile);
                 OnDemandMatchedSupplyOnAfterSetFiltersToInvProfile(ToInventoryProfile, FromInventoryProfile);
                 ToInventoryProfile.CalcSums("Untracked Quantity");
+                ToInventoryUntrackedQty += ToInventoryProfile."Untracked Quantity";
+                FromInventoryUntrackedQty += FromInventoryProfile."Untracked Quantity";
                 UntrackedQty += ToInventoryProfile."Untracked Quantity";
                 UntrackedQty -= FromInventoryProfile."Untracked Quantity";
             until FromInventoryProfile.Next() = 0;
@@ -4546,6 +4616,12 @@ codeunit 99000854 "Inventory Profile Offsetting"
         end;
         FromInventoryProfile.CopyFilters(xToInventoryProfile);
         ToInventoryProfile.CopyFilters(xFromInventoryProfile);
+
+        if (Abs(ToInventoryUntrackedQty) = Abs(FromInventoryUntrackedQty)) and (ToInventoryUntrackedQty <> 0) and (FromInventoryUntrackedQty <> 0) and
+           (SKU."Replenishment System" = SKU."Replenishment System"::"Prod. Order") and
+           (SKU."Reordering Policy" <> SKU."Reordering Policy"::"Lot-for-Lot") then
+            exit(true);
+
         exit(false);
     end;
 
@@ -4868,6 +4944,23 @@ codeunit 99000854 "Inventory Profile Offsetting"
             OnCheckIsSNSpecificTracking(ItemTrackingCode, SerialSepecificTracking);
 
         exit(SerialSepecificTracking);
+    end;
+
+    /// <summary>
+    /// Determines if the missing SKU planning policy for a location is set to Item Card.
+    /// </summary>
+    /// <param name="LocationCode">The location code to check. If empty, returns false.</param>
+    /// <returns>True if the location's Missing SKU Planning Policy is set to Item Card; otherwise, false.</returns>
+    local procedure IsMissingSKUPlanningPolicyItemCard(LocationCode: Code[10]): Boolean
+    var
+        Location: Record Location;
+    begin
+        if LocationCode = '' then
+            exit(false);
+
+        Location.Get(LocationCode);
+
+        exit(Location."Missing SKU Planning Policy" = Location."Missing SKU Planning Policy"::"Item Card");
     end;
 
     [IntegrationEvent(false, false)]
@@ -5300,7 +5393,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPlanItemOnBeforePlanThisSKULoopIteration(var StockkeepingUnit: Record "Stockkeeping Unit"; NextState: Option; var DemandInventoryProfile: Record "Inventory Profile"; var SupplyInventoryProfile: Record "Inventory Profile"; var SupplyExists: Boolean; var DemandExists: Boolean; var LotAccumulationPeriodStartDate: Date)
+    local procedure OnPlanItemOnBeforePlanThisSKULoopIteration(var StockkeepingUnit: Record "Stockkeeping Unit"; var NextState: Option; var DemandInventoryProfile: Record "Inventory Profile"; var SupplyInventoryProfile: Record "Inventory Profile"; var SupplyExists: Boolean; var DemandExists: Boolean; var LotAccumulationPeriodStartDate: Date)
     begin
     end;
 
