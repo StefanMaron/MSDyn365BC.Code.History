@@ -1853,6 +1853,7 @@ page 51 "Purchase Invoice"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
+        Rec."Document Type" := Rec."Document Type"::Invoice;
         Rec."Responsibility Center" := UserMgt.GetPurchasesFilter();
 
         if (not DocNoVisible) and (Rec."No." = '') then begin

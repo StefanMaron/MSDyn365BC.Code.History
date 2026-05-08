@@ -15,7 +15,7 @@ report 718 "Inventory - Sales Back Orders"
     ApplicationArea = Basic, Suite;
     Caption = 'Inventory - Sales Back Orders';
     UsageCategory = ReportsAndAnalysis;
-    DefaultRenderingLayout = Word;
+    DefaultRenderingLayout = Excel;
 
     dataset
     {
