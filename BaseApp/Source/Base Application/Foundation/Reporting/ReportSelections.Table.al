@@ -258,7 +258,7 @@ table 77 "Report Selections"
         field(32; "Report Layout Caption"; Text[250])
         {
             Caption = 'Report Layout';
-            ToolTip = 'Specifies the Name of the report layout that is used.';
+            ToolTip = 'Specifies the name of the report layout that is used.';
             FieldClass = FlowField;
             CalcFormula = lookup("Report Layout List".Caption where("Report ID" = field("Report ID"), Name = field("Report Layout Name")));
 
@@ -281,7 +281,7 @@ table 77 "Report Selections"
         field(33; "Report Layout Publisher"; Text[250])
         {
             Caption = 'Report Layout Publisher';
-            ToolTip = 'Specifies the publisher of the email Attachment layout that is used.';
+            ToolTip = 'Specifies the publisher of the report layout that is used.';
             FieldClass = FlowField;
             CalcFormula = lookup("Report Layout List"."Layout Publisher" where("Report ID" = field("Report ID"), "Application ID" = field("Report Layout AppID")));
             Editable = false;
@@ -1705,6 +1705,7 @@ table 77 "Report Selections"
             TempReportSelections.SaveReportAsPDFInTempBlob(TempBlob, TempReportSelections."Report ID", RecordVariant, TempReportSelections."Custom Report Layout Code", ReportUsage);
             TempBlob.CreateInStream(AttachmentInStream);
             ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(RecordVariant, DocNo, DocName, 'pdf');
+            OnSendToDiskForCustOnBeforeDownloadAttachment(TempReportSelections, RecordVariant, DocNo, DocName, 'pdf', ClientAttachmentFileName);
             DownloadAttachmentFromStream(TempReportSelections, RecordVariant, AttachmentInStream, ClientAttachmentFileName);
         until TempReportSelections.Next() = 0;
     end;
@@ -2756,6 +2757,11 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnSendEmailDirectlyOnAfterAddRelatedReminderInvoiceSource(var SourceTableIDs: List of [Integer]; var SourceRelationTypes: List of [Integer]; var SourceIDs: List of [Guid]; ReminderLines: Record "Issued Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendToDiskForCustOnBeforeDownloadAttachment(var TempReportSelections: Record "Report Selections" temporary; RecordVariant: Variant; DocumentNo: Code[20]; DocumentName: Text; Extension: Code[3]; var ClientAttachmentFileName: Text)
     begin
     end;
 }

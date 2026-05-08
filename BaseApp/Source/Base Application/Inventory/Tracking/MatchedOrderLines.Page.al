@@ -4,6 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
+using System.Telemetry;
+
 page 5818 "Matched Order Lines"
 {
     ApplicationArea = Suite;
@@ -249,7 +251,10 @@ page 5818 "Matched Order Lines"
     }
 
     trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000SJ3', MatchedOrderLinesTok, Enum::"Feature Uptake Status"::Discovered);
         MatchedOrderLineMgmt.LoadLines(MatchedOrderLineSource, Rec, ShowFromHeader, SourceRecordSystemId);
     end;
 
@@ -283,6 +288,7 @@ page 5818 "Matched Order Lines"
         SourceIsOpenDocument: Boolean;
         SourceRecordSystemId: Guid;
         LevelStyleExpr: Text;
+        MatchedOrderLinesTok: Label 'Matched Order Lines', Locked = true;
 
     internal procedure InitializePage(MatchedOrderLineSource2: Enum "Matched Order Line Source"; ShowFromHeader2: Boolean; SourceRecordSystemId2: Guid)
     begin

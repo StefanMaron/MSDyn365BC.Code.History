@@ -429,6 +429,16 @@ page 116 "G/L Registers"
         }
     }
 
+    analysisviews
+    {
+        analysisview("GL Entries By Source")
+        {
+            Caption = 'GL entries by source';
+            DefinitionFile = './Finance/GeneralLedger/Ledger/GLEntriesBySource.analysis.json';
+            ToolTip = 'Get an overview of the types of transactions that happen to your general ledger and the types of sources for them.';
+        }
+    }
+
     var
         PaymentRecJournalAlreadyReversedMsg: Label 'This Payment Reconciliation Journal has already been reversed.';
 

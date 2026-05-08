@@ -1422,6 +1422,7 @@ codeunit 99000845 "Reservation Management"
                 ItemTrackingCode.Init();
             PlanningGetParameters.AtSKU(
               SKU, ReservEntry."Item No.", ReservEntry."Variant Code", ReservEntry."Location Code");
+            OnAfterGetItemSetup(ReservEntry, Item);
         end;
     end;
 
@@ -2910,6 +2911,11 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutoReserveToShip(var FullAutoReservation: Boolean; Description: Text[100]; AvailabilityDate: Date; QuantityToShip: Decimal; QuantityToShipBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetItemSetup(var ReservationEntry: Record "Reservation Entry"; var Item: Record Item)
     begin
     end;
 }

@@ -9,6 +9,7 @@ using Microsoft.Assembly.Document;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
 using Microsoft.Bank.DirectDebit;
+using Microsoft.Bank.Ledger;
 using Microsoft.Bank.Payment;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.Setup;
@@ -25,6 +26,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.FixedAssets.Depreciation;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Setup;
 using Microsoft.Foundation.Address;
@@ -244,6 +246,8 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeSalesShptLineFields();
         UpgradeServiceShptLineFields();
         UpgradeFinancialReportAuditLogAddRetentionPolicy();
+        UpgradeZeroClosedBankAccountLedgerEntries();
+        UpgradeDepreciationBooksGLIntegration();
     end;
 
     local procedure ClearTemporaryTables()
@@ -4028,6 +4032,48 @@ codeunit 104000 "Upgrade - BaseApp"
         ServiceShptLineDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetServiceShptLineFieldsUpgradeTag());
+    end;
+
+    local procedure UpgradeZeroClosedBankAccountLedgerEntries()
+    var
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        BankAccLedgEntryDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetZeroClosedBankAccountLedgerEntriesUpgradeTag()) then
+            exit;
+        // Bank account ledger entries created from processes like currency exchange adjustments, have a zero amount, but with a non-zero "Amount (LCY)"
+        // The general posting of journal lines considers such entries as closed by setting the Open flag to false, but other properties like "Closed at Date" and "Statement Status" were previously not set.
+        // This upgrade will set the "Closed at Date" to the "Posting Date" and "Statement Status" to "Closed" for those entries, to avoid confusion in bank statements and reconciliation processes.
+        BankAccLedgEntryDataTransfer.SetTables(Database::"Bank Account Ledger Entry", Database::"Bank Account Ledger Entry");
+        BankAccLedgEntryDataTransfer.AddSourceFilter(BankAccountLedgerEntry.FieldNo(Amount), '=%1', 0);
+        BankAccLedgEntryDataTransfer.AddSourceFilter(BankAccountLedgerEntry.FieldNo("Amount (LCY)"), '<>%1', 0);
+        BankAccLedgEntryDataTransfer.AddSourceFilter(BankAccountLedgerEntry.FieldNo(Open), '=%1', false);
+        BankAccLedgEntryDataTransfer.AddFieldValue(BankAccountLedgerEntry.FieldNo("Posting Date"), BankAccountLedgerEntry.FieldNo("Closed at Date"));
+        BankAccLedgEntryDataTransfer.AddConstantValue(BankAccountLedgerEntry."Statement Status"::Closed, BankAccountLedgerEntry.FieldNo("Statement Status"));
+        BankAccLedgEntryDataTransfer.CopyFields();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetZeroClosedBankAccountLedgerEntriesUpgradeTag());
+    end;
+
+    local procedure UpgradeDepreciationBooksGLIntegration()
+    var
+        DepreciationBook: Record "Depreciation Book";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        DepreciationBookDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDepreciationBooksGLIntegrationUpgradeTag()) then
+            exit;
+
+        // Make sure that "G/L Integration - Bonus Depr." is initialized to the same value as "G/L Integration - Depreciation"
+        // This is a new field and should have the same value as "G/L Integration - Depreciation" to avoid issues in the ledger when bonus depreciation is calculated differently than regular depreciation
+        DepreciationBookDataTransfer.SetTables(Database::"Depreciation Book", Database::"Depreciation Book");
+        DepreciationBookDataTransfer.AddFieldValue(DepreciationBook.FieldNo("G/L Integration - Depreciation"), DepreciationBook.FieldNo("G/L Integration - Bonus Depr."));
+        DepreciationBookDataTransfer.CopyFields();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDepreciationBooksGLIntegrationUpgradeTag());
     end;
 
     local procedure SEPACAMT05300108(): Code[20]

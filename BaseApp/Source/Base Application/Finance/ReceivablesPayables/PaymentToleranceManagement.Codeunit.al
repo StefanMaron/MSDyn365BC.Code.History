@@ -2360,7 +2360,8 @@ codeunit 426 "Payment Tolerance Management"
                         if (AppliedCustLedgEntry."Remaining Pmt. Disc. Possible" - AppliedCustLedgEntry."Remaining Amount") <> NewCustLedgEntry.Amount then
                             if NewCustLedgEntry.Amount < (AppliedCustLedgEntry."Remaining Pmt. Disc. Possible" - AppliedCustLedgEntry."Remaining Amount") then begin
                                 NewCustLedgEntry.Amount += AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
-                                UpdateGenJournalLineAmount(NewCustLedgEntry.Amount);
+                                if GenJnlLineApplID = '' then
+                                    UpdateGenJournalLineAmount(NewCustLedgEntry.Amount);
                                 AdjustRemainingAmount(NewCustLedgEntry, AppliedCustLedgEntry."Remaining Amount");
                                 if not SuppressCommit then
                                     Commit();
