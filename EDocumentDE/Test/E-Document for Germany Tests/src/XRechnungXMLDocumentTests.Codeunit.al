@@ -2632,9 +2632,9 @@ codeunit 13918 "XRechnung XML Document Tests"
         CompanyInformation."SWIFT Code" := LibraryUtility.GenerateGUID();
         CompanyInformation."E-Mail" := LibraryUtility.GenerateRandomEmail();
         CompanyInformation.Modify();
-        
+
         GeneralLedgerSetup.Get();
-        
+
         EDocumentService.DeleteAll();
         EDocumentService.Get(LibraryEdocument.CreateService("E-Document Format"::XRechnung, "Service Integration"::"No Integration"));
         Commit();

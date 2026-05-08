@@ -324,6 +324,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Exchange Folder" = D,
                   tabledata "Exchange Service Setup" = RIMD,
                   tabledata "Exp. Invt. Order Tracking" = RIMD,
+                  tabledata "Adv. Bonus Depreciation Setup" = RIMD,
                   tabledata "FA Setup" = Rimd,
                   tabledata "Fin. Charge Comment Line" = D,
                   tabledata "Finance Charge Interest Rate" = RIMD,

@@ -2402,6 +2402,8 @@ table 5080 "To-do"
     var
         Salesperson: Record "Salesperson/Purchaser";
     begin
+        OnBeforeCheckStatus(Rec);
+
         if Date = 0D then
             ErrorMessage(FieldCaption(Date));
 
@@ -3045,7 +3047,7 @@ table 5080 "To-do"
         if CreateExchangeAppointment then
             InitializeExchangeAppointment(Appointment, ExchangeWebServicesServer);
         repeat
-            if FindAttendeeTask(Task2, Attendee) then
+            if FindAttendeeTask(Task2, Attendee) then begin
                 if Attendee."Attendee Type" = Attendee."Attendee Type"::Salesperson then
                     if Salesperson2.Get(Task2."Salesperson Code") and
                        Salesperson.Get(Task."Salesperson Code")
@@ -3065,6 +3067,8 @@ table 5080 "To-do"
                         LogTaskInteraction(Task, Task2, true);
                         SetAttendeeInvitationSent(Attendee);
                     end;
+                OnProcessAttendeeAppointmentOnAfterFindAttendeeTask(Attendee, Task, Task2, SalesPersonList, CreateExchangeAppointment);
+            end;
         until Attendee.Next() = 0;
         if CreateExchangeAppointment and (SalesPersonList <> '') then begin
             Body := MakeAppointmentBody(Task, SalesPersonList, Salesperson.Name);
@@ -3340,6 +3344,16 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignDefaultAttendeeInfo(var Todo: Record "To-do"; var AttendeeLineNo: Integer; var TempAttendee: Record Attendee temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessAttendeeAppointmentOnAfterFindAttendeeTask(var Attendee: Record Attendee; var Todo: Record "To-do"; var Todo2: Record "To-do"; var SalesPersonList: Text; CreateExchangeAppointment: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckStatus(var Todo: Record "To-do")
     begin
     end;
 }

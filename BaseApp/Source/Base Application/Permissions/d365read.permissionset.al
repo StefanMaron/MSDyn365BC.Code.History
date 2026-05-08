@@ -722,6 +722,7 @@ permissionset 1044 "D365 READ"
                   tabledata "Experience Tier Setup" = R,
                   tabledata "Extended Text Header" = R,
                   tabledata "Extended Text Line" = R,
+                  tabledata "Adv. Bonus Depreciation Setup" = R,
                   tabledata "FA Allocation" = R,
                   tabledata "FA Buffer Projection" = R,
                   tabledata "FA Class" = R,
