@@ -10,14 +10,19 @@ pageextension 11759 "VAT Entries Preview CZL" extends "VAT Entries Preview"
 {
     layout
     {
-        addafter("Posting Date")
+        addafter("VAT Date")
         {
+#if not CLEAN29
             field("VAT Reporting Date CZL"; Rec."VAT Reporting Date")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
-                Visible = VATDateEnabled;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteTag = '29.0';
+                ObsoleteReason = 'The field is duplicated with "VAT Reporting Date" field. Use the "VAT Reporting Date" field instead.';
             }
+#endif
             field("Original Doc. VAT Date CZL"; Rec."Original Doc. VAT Date CZL")
             {
                 ApplicationArea = Basic, Suite;
@@ -105,6 +110,22 @@ pageextension 11759 "VAT Entries Preview CZL" extends "VAT Entries Preview"
                 AutoFormatType = 1;
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the VAT amount of the entry before the deduction by the coefficient.';
+                Visible = NonDeductibleVATVisible;
+            }
+            field("Original VAT Base ACY CZL"; Rec."Original VAT Base ACY CZL")
+            {
+                AutoFormatExpression = Rec.GetAdditionalReportingCurrency();
+                AutoFormatType = 1;
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the additional-currency VAT base of the entry before the deduction by the coefficient.';
+                Visible = NonDeductibleVATVisible;
+            }
+            field("Original VAT Amount ACY CZL"; Rec."Original VAT Amount ACY CZL")
+            {
+                AutoFormatExpression = Rec.GetAdditionalReportingCurrency();
+                AutoFormatType = 1;
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the additional-currency VAT amount of the entry before the deduction by the coefficient.';
                 Visible = NonDeductibleVATVisible;
             }
             field("Non-Deductible VAT % CZL"; Rec."Non-Deductible VAT %")

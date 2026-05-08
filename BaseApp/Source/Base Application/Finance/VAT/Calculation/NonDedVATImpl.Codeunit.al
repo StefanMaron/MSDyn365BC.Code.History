@@ -387,7 +387,7 @@ codeunit 6201 "Non-Ded. VAT Impl."
         VATAmountLine."Calc. Non-Ded. VAT Amount" := Round(VATAmountLine."Calc. Non-Ded. VAT Amount", Currency."Amount Rounding Precision");
         VATAmountLine."Non-Deductible VAT Diff." += PurchaseLine."Non-Deductible VAT Diff.";
         // Ensure deductible amounts are not negative due to rounding
-        if VATAmountLine."Deductible VAT Base" < 0 then begin
+        if (VATAmountLine."Deductible VAT Base" < 0) and (VATAmountLine.Quantity > 0) and (VATAmountLine."Non-Deductible VAT %" > 0) then begin
             VATAmountLine."Non-Deductible VAT Base" += VATAmountLine."Deductible VAT Base";
             VATAmountLine."Deductible VAT Base" := 0;
             VATAmountLine."Non-Deductible VAT Amount" += VATAmountLine."Deductible VAT Amount";
@@ -1176,7 +1176,7 @@ codeunit 6201 "Non-Ded. VAT Impl."
     begin
         if (GenJournalLine."Document Type" = GenJournalLine."Document Type"::Invoice) and
             (GenJournalLine."VAT Calculation Type" = GenJournalLine."VAT Calculation Type"::"Normal VAT") and
-            (Vendor.Get(GenJournalLine."Bill-to/Pay-to No.") and (Vendor."Prices Including VAT")) then
+            ((Vendor.Get(GenJournalLine."Bill-to/Pay-to No.") and (Vendor."Prices Including VAT")) or (GenJournalLine."Non-Deductible VAT Diff." = 0)) then
             exit(true);
         exit(false);
     end;

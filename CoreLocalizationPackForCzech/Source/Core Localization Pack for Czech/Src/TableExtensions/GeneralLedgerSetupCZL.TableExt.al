@@ -209,6 +209,11 @@ tableextension 11713 "General Ledger Setup CZL" extends "General Ledger Setup"
         exit((GetAdditionalCurrencyCodeCZL() <> '') and not IsManufacturingUsed());
     end;
 
+    internal procedure IsFunctionalCurrencyEnabledCZL(): Boolean
+    begin
+        exit((GetAdditionalCurrencyCodeCZL() <> '') and "Functional Currency CZL");
+    end;
+
     procedure GetAdditionalCurrencyFactorCZL(Date: Date): Decimal
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";

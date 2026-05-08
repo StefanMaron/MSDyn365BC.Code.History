@@ -17,11 +17,7 @@ report 115 "Salesperson - Commission"
 {
     ApplicationArea = Suite;
     Caption = 'Salesperson - Commission';
-#if not CLEAN27
-    DefaultRenderingLayout = Word;
-#else
     DefaultRenderingLayout = Excel;
-#endif
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -321,8 +317,10 @@ report 115 "Salesperson - Commission"
 
             trigger OnAfterGetRecord()
             begin
+#if not CLEAN28
                 if PrintOnlyOnePerPageReq then
                     PageGroupNo := PageGroupNo + 1;
+#endif
 
                 // Reset SubTotals for Word Layout
                 SubtotalsSales := 0;
@@ -389,12 +387,20 @@ report 115 "Salesperson - Commission"
                 group(Options)
                 {
                     Caption = 'Options';
+#if not CLEAN28
                     field(PrintOnlyOnePerPage; PrintOnlyOnePerPageReq)
                     {
                         ApplicationArea = Suite;
                         Caption = 'New Page per Person';
                         ToolTip = 'Specifies if each person''s information is printed on a new page if you have chosen two or more persons to be included in the report.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The New Page per Person option is only supported by the RDLC layout which has been deprecated.';
+                        ObsoleteTag = '28.0';
+#if CLEAN27
+                        Visible = false;
+#endif
                     }
+#endif
                     // Used to set the Period on the report header across multiple languages
                     field(RequestPeriodText; PeriodText)
                     {
@@ -508,7 +514,9 @@ report 115 "Salesperson - Commission"
         ProfitCommissionAmt: Decimal;
         AdjProfitCommissionAmt: Decimal;
         SalesCommissionAmt: Decimal;
+#if not CLEAN28
         PrintOnlyOnePerPageReq: Boolean;
+#endif
         PageGroupNo: Integer;
         // SubTotals for the Word Layout
         SubtotalsSales: Decimal;

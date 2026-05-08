@@ -377,6 +377,10 @@ report 11757 "Documentation for VAT CZL"
                             if UseAmtsInAddCurr then begin
                                 VATEntry.Base := VATEntry."Additional-Currency Base";
                                 VATEntry.Amount := VATEntry."Additional-Currency Amount";
+                                VATEntry."Non-Deductible VAT Base" := VATEntry."Non-Deductible VAT Base ACY";
+                                VATEntry."Non-Deductible VAT Amount" := VATEntry."Non-Deductible VAT Amount ACY";
+                                VATEntry."Original VAT Base CZL" := VATEntry."Original VAT Base ACY CZL";
+                                VATEntry."Original VAT Amount CZL" := VATEntry."Original VAT Amount ACY CZL";
                             end;
 
                             if MergeByDocumentNo then begin
