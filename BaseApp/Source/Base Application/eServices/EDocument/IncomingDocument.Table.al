@@ -959,6 +959,7 @@ table 130 "Incoming Document"
         CurrIncomingDocument: Record "Incoming Document";
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         IncomingDocumentAttachmentCopy: Record "Incoming Document Attachment";
+        TempBlob: Codeunit "Temp Blob";
         RelatedRecordRef: RecordRef;
         RelatedRecord: Variant;
     begin
@@ -988,6 +989,8 @@ table 130 "Incoming Document"
             if CurrIncomingDocument."Entry No." <> 0 then begin
                 IncomingDocumentAttachmentCopy := IncomingDocumentAttachment;
                 IncomingDocumentAttachmentCopy."Incoming Document Entry No." := CurrIncomingDocument."Entry No.";
+                TempBlob.FromRecord(IncomingDocumentAttachment, IncomingDocumentAttachment.FieldNo(Content));
+                IncomingDocumentAttachmentCopy.SetContentFromBlob(TempBlob);
                 IncomingDocumentAttachmentCopy.Insert();
             end;
             IncomingDocumentAttachment."Document No." := "Document No.";

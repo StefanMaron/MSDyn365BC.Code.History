@@ -241,7 +241,7 @@ table 36 "Sales Header"
 
                 if xRec."Sell-to Customer No." <> "Sell-to Customer No." then begin
                     CopyCFDIFieldsFromCustomer();
-                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
+                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, not IsNullGuid(Rec.SystemId));
                 end;
             end;
         }
@@ -350,7 +350,7 @@ table 36 "Sales Header"
 
                 if xRec."Bill-to Customer No." <> "Bill-to Customer No." then begin
                     CopyCFDIFieldsFromCustomer();
-                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
+                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, not IsNullGuid(Rec.SystemId));
                 end;
             end;
         }
@@ -854,7 +854,7 @@ table 36 "Sales Header"
         field(28; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
-            ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
+            ToolTip = 'Specifies the code for the location from where the items are shipped. When you select the customer and the customer has a location assigned, the value is taken from the Customer card. If the customer has no location, but a Responsibility Center is populated, the location code is taken from the Responsibility Center. If neither is specified, the value is taken from Company Information. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
@@ -958,7 +958,7 @@ table 36 "Sales Header"
                     StandardCodesMgt.CheckShowSalesRecurringLinesNotification(Rec);
 
                 if "Currency Code" <> xRec."Currency Code" then
-                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
+                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, not IsNullGuid(Rec.SystemId));
 
                 if Status = Status::Open then
                     SetCompanyBankAccount();
@@ -2253,7 +2253,7 @@ table 36 "Sales Header"
                 TestStatusOpen();
                 if xRec."VAT Bus. Posting Group" <> "VAT Bus. Posting Group" then begin
                     RecreateSalesLines(FieldCaption("VAT Bus. Posting Group"));
-                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
+                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, not IsNullGuid(Rec.SystemId));
                 end;
             end;
         }
@@ -3312,8 +3312,14 @@ table 36 "Sales Header"
             TableRelation = "Responsibility Center";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 TestStatusOpen();
+                IsHandled := false;
+                OnBeforeResponsibilityCenterValidate(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
                 if not UserSetupMgt.CheckRespCenter(0, "Responsibility Center") then
                     Error(
                       Text027,
@@ -4753,7 +4759,7 @@ table 36 "Sales Header"
 
                 SalesLine.Init();
                 SalesLine."Line No." := 0;
-                OnRecreateSalesLinesOnBeforeTempSalesLineFindSet(TempSalesLine);
+                OnRecreateSalesLinesOnBeforeTempSalesLineFindSet(TempSalesLine, SalesLine);
                 TempSalesLine.FindSet();
                 ExtendedTextAdded := false;
                 SalesLine.BlockDynamicTracking(true);
@@ -6892,7 +6898,7 @@ table 36 "Sales Header"
         ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, '');
         IsSuccess := CODEUNIT.Run(PostingCodeunitID, Rec);
 
-        OnSendToPostingOnAfterPost(Rec);
+        OnSendToPostingOnAfterPost(Rec, IsSuccess);
         if not IsSuccess then begin
             if Rec.Status <> Rec.Status::Released then
                 DeleteWarehouseRequest();
@@ -7135,6 +7141,7 @@ table 36 "Sales Header"
         MinValue: Code[20];
         MaxValue: Code[20];
     begin
+        OnBeforeGetFilterCustNo(Rec);
         if GetFilter("Sell-to Customer No.") <> '' then
             if TryGetFilterCustNoRange(MinValue, MaxValue) then
                 if MinValue = MaxValue then
@@ -8135,12 +8142,13 @@ table 36 "Sales Header"
                 "Responsibility Center" := UserSetupMgt.GetRespCenter(0, SellToCustomer."Responsibility Center");
                 OnCopySelltoCustomerAddressFieldsFromCustomerOnAfterAssignRespCenter(Rec, SellToCustomer, CurrFieldNo);
             end;
-            UpdateLocationCode(SellToCustomer."Location Code");
-            UpdateTaxAreaCode();
+
             IsHandled := false;
             OnCopySellToCustomerAddressFieldsFromCustomerOnBeforeUpdateLocation(Rec, SellToCustomer, IsHandled);
             if not IsHandled then
                 UpdateLocationCode(SellToCustomer."Location Code");
+
+            UpdateTaxAreaCode();
         end;
 
         OnAfterCopySellToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer, CurrFieldNo, SkipBillToContact, SkipSellToContact);
@@ -8545,6 +8553,11 @@ table 36 "Sales Header"
         InstructionMgt: Codeunit "Instruction Mgt.";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConfirmCloseUnposted(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if SalesLinesExist() then begin
             IsHandled := false;
             OnConfirmCloseUnpostedOnSalesLinesExist(Rec, Result, IsHandled);
@@ -9415,10 +9428,13 @@ table 36 "Sales Header"
     local procedure CalcQuoteValidUntilDate()
     var
         BlankDateFormula: DateFormula;
+        QuoteValidityCalculation: DateFormula;
     begin
         GetSalesSetup();
-        if SalesSetup."Quote Validity Calculation" <> BlankDateFormula then
-            "Quote Valid Until Date" := CalcDate(SalesSetup."Quote Validity Calculation", "Document Date");
+        QuoteValidityCalculation := SalesSetup."Quote Validity Calculation";
+        OnCalcQuoteValidUntilDateOnBeforeAssign(Rec, xRec, QuoteValidityCalculation, UpdateDocumentDate);
+        if QuoteValidityCalculation <> BlankDateFormula then
+            "Quote Valid Until Date" := CalcDate(QuoteValidityCalculation, "Document Date");
     end;
 
     /// <summary>
@@ -13074,7 +13090,7 @@ table 36 "Sales Header"
     /// </summary>
     /// <param name="TempSalesLine">The temporary sales line record.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnRecreateSalesLinesOnBeforeTempSalesLineFindSet(var TempSalesLine: Record "Sales Line" temporary)
+    local procedure OnRecreateSalesLinesOnBeforeTempSalesLineFindSet(var TempSalesLine: Record "Sales Line" temporary; var SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -13944,8 +13960,9 @@ table 36 "Sales Header"
     /// Raised after posting when sending to posting.
     /// </summary>
     /// <param name="SalesHeader">The sales header record that was posted.</param>
+    /// <param name="IsSuccess">Indicates whether the posting was successful.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnSendToPostingOnAfterPost(var SalesHeader: Record "Sales Header")
+    local procedure OnSendToPostingOnAfterPost(var SalesHeader: Record "Sales Header"; IsSuccess: Boolean)
     begin
     end;
 
@@ -14003,6 +14020,26 @@ table 36 "Sales Header"
     /// <param name="TempSalesLine">The temporary sales line record used as source.</param>
     [IntegrationEvent(false, false)]
     local procedure OnRecreateSalesLinesHandleSupplementTypesOnAfterCreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    /// <summary>
+    /// Raised before confirming close unposted.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header record.</param>
+    /// <param name="Result">The result indicating whether to proceed with closing.</param>
+    /// <param name="IsHandled">Set to true to skip the default confirmation logic.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmCloseUnposted(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    /// <summary>
+    /// Raised before getting filter customer number.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header record.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFilterCustNo(var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -14435,6 +14472,16 @@ table 36 "Sales Header"
     /// <param name="CustomerName">The customer name text.</param>
     [IntegrationEvent(false, false)]
     local procedure OnLookupSellToCustomerNameOnBeforeSelectCustomer(SalesHeader: Record "Sales Header"; var Customer: Record Customer; var CustomerName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQuoteValidUntilDateOnBeforeAssign(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var QuoteValidityCalculation: DateFormula; UpdateDocumentDate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResponsibilityCenterValidate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }
