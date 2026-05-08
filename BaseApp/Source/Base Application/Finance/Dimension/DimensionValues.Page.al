@@ -41,6 +41,11 @@ page 537 "Dimension Values"
                     Style = Strong;
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the code for the dimension value.';
+                    
+                    trigger OnValidate()
+                    begin
+                        SendSpecialCharNotification(Rec.Code);
+                    end;
                 }
                 field(Name; Rec.Name)
                 {
@@ -181,9 +186,32 @@ page 537 "Dimension Values"
         end;
     end;
 
+    local procedure SendSpecialCharNotification(InputValue: Text[20])
+    var
+        SpecialCharNotification: Notification;
+    begin
+        if HasSpecialFilterChars(InputValue) then begin
+            SpecialCharNotification.Scope := NotificationScope::LocalScope;
+            SpecialCharNotification.Message := NotificationMsg;
+            SpecialCharNotification.Send();
+        end;
+    end;
+
+    local procedure HasSpecialFilterChars(InputValue: Text[20]): Boolean
+    begin
+        exit(
+            InputValue.Contains('&') or
+            InputValue.Contains('|') or
+            InputValue.Contains('<') or
+            InputValue.Contains('>') or
+            InputValue.Contains('=')
+            );
+    end;
+
     var
         Emphasize: Boolean;
         NameIndent: Integer;
+        NotificationMsg: Label 'The dimension value code contains characters such as &, |, <, >, or = that have special meaning in filters. This may cause unexpected results when the dimension value is used in financial reports, analysis views, or other areas that apply dimension filters. Consider using a code without these characters.';
 
     local procedure FormatLine()
     begin

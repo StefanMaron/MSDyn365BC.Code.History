@@ -1730,7 +1730,8 @@ page 50 "Purchase Order"
                             IncomingDocument: Record "Incoming Document";
                         begin
                             if IncomingDocument.Get(Rec."Incoming Document Entry No.") then
-                                IncomingDocument.RemoveLinkToRelatedRecord();
+                                if not IncomingDocument.Posted then
+                                    IncomingDocument.RemoveLinkToRelatedRecord();
                             Rec."Incoming Document Entry No." := 0;
                             Rec.Modify(true);
                         end;
