@@ -85,6 +85,7 @@ codeunit 416 "Release Service Document"
         ServLine.CalcVATAmountLines(1, ServiceHeader, ServLine, TempVATAmountLine1, ServLine.IsShipment());
         ServLine.UpdateVATOnLines(0, ServiceHeader, ServLine, TempVATAmountLine0);
         ServLine.UpdateVATOnLines(1, ServiceHeader, ServLine, TempVATAmountLine1);
+        ServLine.CalcServSalesTaxLines(ServiceHeader, ServLine);
         ServiceHeader.Modify(true);
 
         if ServiceHeader."Document Type" = ServiceHeader."Document Type"::Order then

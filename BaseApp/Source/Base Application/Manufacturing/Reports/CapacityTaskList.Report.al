@@ -10,7 +10,7 @@ using Microsoft.Manufacturing.WorkCenter;
 
 report 99000780 "Capacity Task List"
 {
-    DefaultRenderingLayout = WordLayout;
+    DefaultRenderingLayout = ExcelLayout;
     ApplicationArea = Manufacturing;
     Caption = 'Capacity Task List';
     UsageCategory = ReportsAndAnalysis;
@@ -136,6 +136,11 @@ report 99000780 "Capacity Task List"
                         IncludeCaption = true;
                     }
                 }
+                trigger OnPreDataItem()
+                begin
+                    "Prod. Order Routing Line Group".CopyFilter("Starting Date", "Starting Date");
+                end;
+
                 trigger OnAfterGetRecord()
                 var
                     MachineCenter: Record "Machine Center";

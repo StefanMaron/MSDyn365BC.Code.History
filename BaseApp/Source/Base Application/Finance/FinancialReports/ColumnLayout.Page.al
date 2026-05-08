@@ -188,6 +188,7 @@ page 489 "Column Layout"
                 }
                 field(Show; Rec.Show)
                 {
+                    Caption = 'Show number';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when you want the amounts in the column to be shown in reports.';
                 }

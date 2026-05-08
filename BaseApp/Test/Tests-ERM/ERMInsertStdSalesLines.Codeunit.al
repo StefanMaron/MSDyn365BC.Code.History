@@ -10,16 +10,18 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
 
     var
         Assert: Codeunit Assert;
-        LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryUTUtility: Codeunit "Library UT Utility";
-        ValueMustExistMsg: Label '%1 must exist.';
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemReference: Codeunit "Library - Item Reference";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryApplicationArea: Codeunit "Library - Application Area";
-        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
-        LibraryERM: Codeunit "Library - ERM";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryUTUtility: Codeunit "Library UT Utility";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
+        ValueMustExistMsg: Label '%1 must exist.';
         InvalidNotificationIdMsg: Label 'Invalid notification ID';
         RefDocType: Option Quote,"Order",Invoice,"Credit Memo";
         RefMode: Option Manual,Automatic,"Always Ask";
@@ -27,6 +29,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         StdCodeDeleteConfirmLbl: Label 'If you delete the code %1, the related records in the %2 table will also be deleted. Do you want to continue?';
         CompanyBankAccountCodeErr: Label 'The Company Bank Account Code is missing on Sales Invoice.';
         DateErr: Label '%1 must be %2 in %3.', Comment = '%1= Field Caption, %2= Field Value, %3=Table Caption.';
+        ReferenceValueMustBeSameErr: Label '%1 must be same.', Comment = '%1= Field Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -1203,6 +1206,87 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
                 SalesHeader[2].TableCaption()));
     end;
 
+    [Test]
+    procedure CreateSalesInvoiceWithDeferralCodeInRecurringLines()
+    var
+        SalesHeader: Record "Sales Header";
+        DeferralTemplate: Record "Deferral Template";
+        Item: Record Item;
+        CustomerNo: Code[20];
+        StandardSalesCode: Code[10];
+    begin
+        // [SCENARIO 621455s] No error when creating Sales Invoice for Customer with Recurring Sales Lines that have Deferral Code
+        Initialize();
+
+        // [GIVEN] Deferral Template with "Calc. Method" = "Straight-Line" and 2 periods
+        LibraryERM.CreateDeferralTemplate(
+            DeferralTemplate, DeferralTemplate."Calc. Method"::"Straight-Line",
+            DeferralTemplate."Start Date"::"Posting Date", 2);
+
+        // [GIVEN] Item with Deferral Code
+        Item.Get(LibraryInventory.CreateItemNo());
+        Item.Validate("Default Deferral Template Code", DeferralTemplate."Deferral Code");
+        Item.Modify(true);
+
+        // [GIVEN] Standard Sales Code with Item that has Deferral Code
+        StandardSalesCode := CreateStandardSalesCodeWithDeferralItem(Item."No.");
+
+        // [GIVEN] Customer with Standard Sales Code where Insert Rec. Lines On Invoices = Automatic
+        CustomerNo := GetNewCustNoWithStandardSalesCodeForCode(RefDocType::Invoice, RefMode::Automatic, StandardSalesCode);
+
+        // [WHEN] Create new Sales Invoice, set Customer and Posting Date
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Posting Date", WorkDate());
+
+        // [THEN] No error occurs and recurring sales line with deferral code is created
+        VerifySalesLine(SalesHeader);
+        VerifySalesLineDeferralCode(SalesHeader, DeferralTemplate."Deferral Code");
+    end;
+
+    [Test]
+    procedure RecurringSalesLinesItemReferenceDescriptionUpdated()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 629733] Sales Line Description is updated from Item Reference when recurring sales lines are applied.
+        Initialize();
+
+        // [GIVEN] Create a new Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a new Item with Item Reference.
+        LibraryInventory.CreateItem(Item);
+        LibraryItemReference.CreateItemReference(ItemReference, Item."No.", "Item Reference Type"::Customer, Customer."No.");
+
+        // [GIVEN] Update Item Reference Description.
+        ItemReference.Validate(Description, LibraryUTUtility.GetNewCode());
+        ItemReference.Modify(true);
+
+        // [GIVEN] Standard Customer Sales Code with Item where Insert Rec. Lines On Orders = Automatic
+        CreateStdCustSalesCodeWithItem(StandardCustomerSalesCode, Customer."No.", Item."No.", RefDocType::Order, RefMode::Automatic);
+
+        // [WHEN] Create Sales Order and set Sell-to Customer No.
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Insert(true);
+
+        // [THEN] Sales Line Description matches Item Reference Description/
+        FilterOnSalesLine(SalesLine, SalesHeader);
+        SalesLine.FindFirst();
+        Assert.AreEqual(SalesLine.Description, SalesLine.Description, StrSubstNo(ReferenceValueMustBeSameErr, SalesLine.FieldCaption(Description)));
+        Assert.AreEqual(SalesLine."Item Reference No.", ItemReference."Reference No.", StrSubstNo(ReferenceValueMustBeSameErr, SalesLine.FieldCaption("Item Reference No.")));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1262,7 +1346,6 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     local procedure CreateStandardSalesCodeWithItemLine(): Code[10]
     var
         StandardSalesLine: Record "Standard Sales Line";
-        LibraryInventory: Codeunit "Library - Inventory";
     begin
         StandardSalesLine."Standard Sales Code" := CreateStandardSalesCode();
         StandardSalesLine.Type := StandardSalesLine.Type::Item;
@@ -1496,6 +1579,57 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         AllocationAccount.Insert();
 
         exit(AllocationAccount."No.");
+    end;
+
+    local procedure CreateStandardSalesCodeWithDeferralItem(ItemNo: Code[20]): Code[10]
+    var
+        StandardSalesLine: Record "Standard Sales Line";
+    begin
+        StandardSalesLine."Standard Sales Code" := CreateStandardSalesCode();
+        StandardSalesLine.Type := StandardSalesLine.Type::Item;
+        StandardSalesLine."No." := ItemNo;
+        StandardSalesLine.Quantity := LibraryRandom.RandDec(10, 2);
+        StandardSalesLine.Insert();
+        exit(StandardSalesLine."Standard Sales Code")
+    end;
+
+    local procedure CreateStdCustSalesCodeWithItem(var StandardCustomerSalesCode: Record "Standard Customer Sales Code"; CustomerNo: Code[20]; ItemNo: Code[20]; DocType: Option; Mode: Integer)
+    var
+        StandardSalesLine: Record "Standard Sales Line";
+        StandardSalesCode: Record "Standard Sales Code";
+    begin
+        LibrarySales.CreateStandardSalesCode(StandardSalesCode);
+        StandardSalesLine.Init();
+        StandardSalesLine."Standard Sales Code" := StandardSalesCode.Code;
+        StandardSalesLine."Line No." := 10000;
+        StandardSalesLine.Type := StandardSalesLine.Type::Item;
+        StandardSalesLine."No." := ItemNo;
+        StandardSalesLine.Quantity := LibraryRandom.RandDec(10, 2);
+        StandardSalesLine.Insert();
+
+        StandardCustomerSalesCode.Init();
+        StandardCustomerSalesCode."Customer No." := CustomerNo;
+        StandardCustomerSalesCode.Code := StandardSalesCode.Code;
+        case DocType of
+            RefDocType::Quote:
+                StandardCustomerSalesCode."Insert Rec. Lines On Quotes" := Mode;
+            RefDocType::Order:
+                StandardCustomerSalesCode."Insert Rec. Lines On Orders" := Mode;
+            RefDocType::Invoice:
+                StandardCustomerSalesCode."Insert Rec. Lines On Invoices" := Mode;
+            RefDocType::"Credit Memo":
+                StandardCustomerSalesCode."Insert Rec. Lines On Cr. Memos" := Mode;
+        end;
+        StandardCustomerSalesCode.Insert();
+    end;
+
+    local procedure VerifySalesLineDeferralCode(SalesHeader: Record "Sales Header"; ExpectedDeferralCode: Code[10])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        FilterOnSalesLine(SalesLine, SalesHeader);
+        SalesLine.FindFirst();
+        SalesLine.TestField("Deferral Code", ExpectedDeferralCode);
     end;
 
     [ModalPageHandler]

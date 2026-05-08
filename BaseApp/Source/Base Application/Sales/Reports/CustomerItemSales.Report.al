@@ -18,7 +18,7 @@ report 113 "Customer/Item Sales"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Customer/Item Sales';
-    DefaultRenderingLayout = Word;
+    DefaultRenderingLayout = Excel;
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
@@ -32,9 +32,14 @@ report 113 "Customer/Item Sales"
             column(STRSUBSTNO_Text000_PeriodText_; StrSubstNo(PeriodTxt, PeriodText))
             {
             }
+#if not CLEAN28
             column(PrintOnlyOnePerPage; PrintOnlyOnePerPageReq)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The New Page per Customer option is only supported by the RDLC layout which has been deprecated.';
+                ObsoleteTag = '28.0';
             }
+#endif
             column(Customer_TABLECAPTION__________CustFilter; CustFilterHeading)
             {
             }
@@ -384,12 +389,20 @@ report 113 "Customer/Item Sales"
                 group(Options)
                 {
                     Caption = 'Options';
+#if not CLEAN28
                     field(PrintOnlyOnePerPage; PrintOnlyOnePerPageReq)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'New Page per Customer';
                         ToolTip = 'Specifies if each customer''s information is printed on a new page if you have chosen two or more customers to be included in the report.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'The New Page per Customer option is only supported by the RDLC layout which has been deprecated.';
+                        ObsoleteTag = '28.0';
+#if CLEAN27
+                        Visible = false;
+#endif
                     }
+#endif
                     // Used to set a report header across multiple languages
                     field(RequestPeriodText; PeriodText)
                     {
@@ -502,7 +515,9 @@ report 113 "Customer/Item Sales"
         CustFilterHeading: Text;
         ValueEntryFilterHeading: Text;
         PeriodText: Text;
+#if not CLEAN28
         PrintOnlyOnePerPageReq: Boolean;
+#endif
         Profit: Decimal;
         ProfitPct: Decimal;
         SubtotalsAmount: Decimal;
@@ -535,14 +550,19 @@ report 113 "Customer/Item Sales"
         Item: Record Item;
         TempValueEntryBuffer: Record "Value Entry" temporary;
 
+#if not CLEAN28
+#pragma warning disable AS0072
     /// <summary>
     /// Initializes the report request options for the Customer Item Sales report.
     /// </summary>
     /// <param name="NewPagePerCustomer">True to start a new page per customer.</param>
+    [Obsolete('The New Page per Customer option is only supported by the RDLC layout which has been deprecated.', '28.0')]
     procedure InitializeRequest(NewPagePerCustomer: Boolean)
     begin
         PrintOnlyOnePerPageReq := NewPagePerCustomer;
     end;
+#pragma warning restore AS0072
+#endif
 
     /// <summary>
     /// Calculates the profit percentage based on amount and profit.
