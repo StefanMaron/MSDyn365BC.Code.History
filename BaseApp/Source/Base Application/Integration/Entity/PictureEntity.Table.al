@@ -76,6 +76,7 @@ table 5468 "Picture Entity"
         MultipleParentsFoundErr: Label 'Multiple parents have been found for the specified criteria.';
         MediaExtensionWithNumNameTxt: Label '%1 %2.%3', Locked = true;
         MediaExtensionWithNumFullNameTxt: Label '%1 %2 %3 %4.%5', Locked = true;
+        MediaExtensionWithNumOnlyTxt: Label '%1.%2', Locked = true;
 
     [Scope('OnPrem')]
     procedure LoadData(IdFilter: Text)
@@ -105,6 +106,7 @@ table 5468 "Picture Entity"
     var
         Customer: Record Customer;
         Item: Record Item;
+        ItemVariant: Record "Item Variant";
         Vendor: Record Vendor;
         Employee: Record Employee;
         Contact: Record Contact;
@@ -152,6 +154,13 @@ table 5468 "Picture Entity"
                     Contact.Image.ImportStream(ImageInStream, GetDefaultMediaDescription(Contact));
                     Contact.Modify(true);
                 end;
+            DATABASE::"Item Variant":
+                begin
+                    ItemVariant.Get(ParentRecordRef.RecordId);
+                    Clear(ItemVariant.Picture);
+                    ItemVariant.Picture.ImportStream(ImageInStream, GetDefaultMediaDescription(ItemVariant));
+                    ItemVariant.Modify(true);
+                end;
             else begin
                 OnSavePictureElseCase(ParentRecordRef, IsHandled);
                 if not IsHandled then
@@ -169,6 +178,7 @@ table 5468 "Picture Entity"
         Vendor: Record Vendor;
         Employee: Record Employee;
         Contact: Record Contact;
+        ItemVariant: Record "Item Variant";
         ImageInStream: InStream;
     begin
         Content.CreateInStream(ImageInStream);
@@ -205,6 +215,12 @@ table 5468 "Picture Entity"
                     Contact.Image.ImportStream(ImageInStream, GetDefaultMediaDescription(Contact));
                     Contact.Modify(true);
                 end;
+            "Parent Type"::"Item Variant":
+                if ItemVariant.GetBySystemId(Id) then begin
+                    Clear(ItemVariant.Picture);
+                    ItemVariant.Picture.ImportStream(ImageInStream, GetDefaultMediaDescription(ItemVariant));
+                    ItemVariant.Modify(true);
+                end;
             else
                 Error(EntityNotSupportedErr);
         end;
@@ -219,6 +235,7 @@ table 5468 "Picture Entity"
         Vendor: Record Vendor;
         Employee: Record Employee;
         Contact: Record Contact;
+        ItemVariant: Record "Item Variant";
         ParentRecordRef: RecordRef;
         IsHandled: Boolean;
     begin
@@ -255,6 +272,12 @@ table 5468 "Picture Entity"
                     Clear(Contact.Image);
                     Contact.Modify(true);
                 end;
+            DATABASE::"Item Variant":
+                begin
+                    ItemVariant.Get(ParentRecordRef.RecordId);
+                    Clear(ItemVariant.Picture);
+                    ItemVariant.Modify(true);
+                end;
             else begin
                 IsHandled := false;
                 OnDeletePictureElseCase(ParentRecordRef, IsHandled);
@@ -274,6 +297,7 @@ table 5468 "Picture Entity"
         Vendor: Record Vendor;
         Employee: Record Employee;
         Contact: Record Contact;
+        ItemVariant: Record "Item Variant";
         TempId: Guid;
         TempParentType: Enum "Picture Entity Parent Type";
     begin
@@ -303,6 +327,11 @@ table 5468 "Picture Entity"
                     Clear(Contact.Image);
                     Contact.Modify(true);
                 end;
+            "Parent Type"::"Item Variant":
+                if ItemVariant.GetBySystemId(Id) then begin
+                    Clear(ItemVariant.Picture);
+                    ItemVariant.Modify(true);
+                end;
             else
                 Error(EntityNotSupportedErr);
         end;
@@ -321,6 +350,7 @@ table 5468 "Picture Entity"
         Vendor: Record Vendor;
         Employee: Record Employee;
         Contact: Record Contact;
+        ItemVariant: Record "Item Variant";
         MediaID: Guid;
     begin
         case ParentType of
@@ -340,6 +370,10 @@ table 5468 "Picture Entity"
             "Parent Type"::Contact:
                 if Contact.GetBySystemId(ParentId) then
                     MediaID := Contact.Image.MediaId;
+            "Parent Type"::"Item Variant":
+                if ItemVariant.GetBySystemId(ParentId) then
+                    if ItemVariant.Picture.Count > 0 then
+                        MediaID := ItemVariant.Picture.Item(1);
             else
                 Error(EntityNotSupportedErr);
         end;
@@ -354,6 +388,7 @@ table 5468 "Picture Entity"
         Vendor: Record Vendor;
         Employee: Record Employee;
         Contact: Record Contact;
+        ItemVariant: Record "Item Variant";
         MediaID: Guid;
         IsHandled: Boolean;
     begin
@@ -384,6 +419,12 @@ table 5468 "Picture Entity"
                     Contact.Get(ParentRecordRef.RecordId);
                     MediaID := Contact.Image.MediaId;
                 end;
+            DATABASE::"Item Variant":
+                begin
+                    ItemVariant.Get(ParentRecordRef.RecordId);
+                    if ItemVariant.Picture.Count > 0 then
+                        MediaID := ItemVariant.Picture.Item(1);
+                end;
             else begin
                 OnGetMediaIDElseCase(ParentRecordRef, MediaID, IsHandled);
                 IsHandled := false;
@@ -402,6 +443,7 @@ table 5468 "Picture Entity"
         Vendor: Record Vendor;
         Employee: Record Employee;
         Contact: Record Contact;
+        ItemVariant: Record "Item Variant";
         RecordFound: Boolean;
     begin
         Item.SetFilter(SystemId, IDFilter);
@@ -438,6 +480,14 @@ table 5468 "Picture Entity"
         if Contact.FindFirst() then
             if not RecordFound then begin
                 ParentRecordRef.GetTable(Contact);
+                RecordFound := true;
+            end else
+                Error(MultipleParentsFoundErr);
+
+        ItemVariant.SetFilter(SystemId, IDFilter);
+        if ItemVariant.FindFirst() then
+            if not RecordFound then begin
+                ParentRecordRef.GetTable(ItemVariant);
                 RecordFound := true;
             end else
                 Error(MultipleParentsFoundErr);
@@ -503,7 +553,10 @@ table 5468 "Picture Entity"
             DATABASE::Item:
                 begin
                     ParentRecordRef.SetTable(Item);
-                    MediaDescription := StrSubstNo(MediaExtensionWithNumNameTxt, Item."No.", Item.Description, GetDefaultExtension());
+                    if Item.Description <> '' then
+                        MediaDescription := StrSubstNo(MediaExtensionWithNumNameTxt, Item."No.", Item.Description, GetDefaultExtension())
+                    else
+                        MediaDescription := StrSubstNo(MediaExtensionWithNumOnlyTxt, Item."No.", GetDefaultExtension());
                 end;
             DATABASE::Customer:
                 begin
@@ -530,7 +583,10 @@ table 5468 "Picture Entity"
             Database::"Item Variant":
                 begin
                     ParentRecordRef.SetTable(ItemVariant);
-                    MediaDescription := StrSubstNo(MediaExtensionWithNumFullNameTxt, ItemVariant."Item No.", ItemVariant.Code, ItemVariant.Description, GetDefaultExtension());
+                    if ItemVariant.Description <> '' then
+                        MediaDescription := StrSubstNo(MediaExtensionWithNumFullNameTxt, ItemVariant."Item No.", ItemVariant.Code, ItemVariant.Description, GetDefaultExtension())
+                    else
+                        MediaDescription := StrSubstNo(MediaExtensionWithNumNameTxt, ItemVariant."Item No.", ItemVariant.Code, GetDefaultExtension());
                 end;
             else begin
                 IsHandled := false;

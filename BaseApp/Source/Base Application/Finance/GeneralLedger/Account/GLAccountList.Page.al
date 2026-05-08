@@ -25,6 +25,7 @@ using System.Text;
 /// </remarks>
 page 18 "G/L Account List"
 {
+    ApplicationArea = Basic, Suite;
     Caption = 'G/L Account List';
     CardPageID = "G/L Account Card";
     DataCaptionFields = "Search Name";
@@ -32,6 +33,9 @@ page 18 "G/L Account List"
     PageType = List;
     RefreshOnActivate = true;
     SourceTable = "G/L Account";
+    UsageCategory = ReportsAndAnalysis;
+    AboutTitle = 'About G/L Account List';
+    AboutText = 'View general ledger (G/L) accounts and see whether an account belongs to the Income Statement or Balance Sheet, its Account Category, and whether it allows Direct Posting. Use it to validate how accounts participate in general posting setup and to ensure correct posting behavior before transactions are entered. Select an account to open detailed settings, review balances, or navigate to related entries and reports.';
 
     layout
     {

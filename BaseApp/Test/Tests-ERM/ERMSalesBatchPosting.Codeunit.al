@@ -1896,6 +1896,61 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PmtDiscCalculatedOnSalesOrderWhenNoCustInvDisc()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        SalesRecvSetup: Record "Sales & Receivables Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
+        PaymentDiscountPct: Decimal;
+        ExpectedPmtDiscAmount: Decimal;
+    begin
+        // [FEATURE] [AI test 0.3]
+        // [SCENARIO 624431] Payment Discount is calculated on Sales Order lines when running Sales-Calc. Discount with no Customer Invoice Discount records
+        Initialize();
+
+        // [GIVEN] Enable "Calc. Inv. Discount" in Sales & Receivables Setup.
+        SalesRecvSetup.Get();
+        SalesRecvSetup.Validate("Calc. Inv. Discount", true);
+        SalesRecvSetup.Validate("Post Invoice Discount", true);
+        SalesRecvSetup.Validate("Post Line Discount", true);
+        SalesRecvSetup.Validate("Post Payment Discount", true);
+        SalesRecvSetup.Modify(true);
+
+        // [GIVEN] Sales Order "SO" with Payment Discount % 
+        PaymentDiscountPct := LibraryRandom.RandInt(5);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Payment Discount %", PaymentDiscountPct);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Sales Line "SL" with Item, Qty = 1, Unit Price
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
+        SalesLine.Modify(true);
+
+        // [GIVEN] GL Setup with "Calc. Pmt. Disc. on Lines" and "Line Disc. * Inv. Disc. * Payment Disc."
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Payment Discount Type", GeneralLedgerSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines");
+        GeneralLedgerSetup.Validate("Discount Calculation", GeneralLedgerSetup."Discount Calculation"::"Line Disc. * Inv. Disc. * Payment Disc.");
+        GeneralLedgerSetup.Modify(true);
+
+        // [WHEN] Run "Sales-Calc. Discount"
+        SalesCalcDiscount.CalculateInvoiceDiscountOnLine(SalesLine);
+
+        // [THEN] Pmt. Discount Amount is calculated on "SL"
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        ExpectedPmtDiscAmount := Round(SalesLine."Line Amount" * PaymentDiscountPct / 100, 0.01);
+        Assert.AreEqual(ExpectedPmtDiscAmount, SalesLine."Pmt. Discount Amount", 'Pmt. Discount Amount must be calculated.');
+
+        // [THEN] Amount on "SL" is reduced by the Pmt. Discount
+        Assert.AreEqual(
+          SalesLine."Line Amount" - ExpectedPmtDiscAmount, SalesLine.Amount,
+          'Amount must be reduced by Pmt. Discount Amount.');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

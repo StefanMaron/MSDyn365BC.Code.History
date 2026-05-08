@@ -1710,6 +1710,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
         BankAccLedgEntry."Amount (LCY)" := GenJnlLine."Amount (LCY)";
         OnBeforeBankAccLedgEntryUpdateAmounts(BankAccLedgEntry, GenJnlLine, BankAcc, TaxAmount, TaxAmountLCY);
         BankAccLedgEntry.Open := GenJnlLine.Amount <> 0;
+        if not BankAccLedgEntry.Open then begin
+            BankAccLedgEntry."Closed at Date" := GenJnlLine."Posting Date";
+            BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Closed;
+        end;
         BankAccLedgEntry."Remaining Amount" := BankAccLedgEntry.Amount;
         BankAccLedgEntry.Positive := GenJnlLine.Amount > 0;
         BankAccLedgEntry.UpdateDebitCredit(GenJnlLine.Correction);
@@ -5434,7 +5438,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                         DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode,
                                         CalcAmountSrcCurr(GenJournalLine, -DetailedCVLedgEntryBuffer."Amount (LCY)"));
                                 end else
-                                    if LedgEntryInserted or not IsInvoicestoCartera(GenJournalLine."Payment Method Code") then
+                                    if LedgEntryInserted or not IsInvoicestoCartera(GenJournalLine."Payment Method Code") or MultiplePostingGroups then
                                         PostDtldVendLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, VendPostingGr, AdjAmount);
                             else
                                 PostDtldVendLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, VendPostingGr, AdjAmount);
@@ -5462,7 +5466,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     if (PayableAccAmtLCY <> 0) or
                     ((PayableAccAmtAddCurr <> 0) and (AddCurrencyCode <> ''))
                     then
-                        if not (LedgEntryInserted and MultiplePostingGroups and (DocAmountLCY <> 0)) then begin
+                        if LedgEntryInserted or not (MultiplePostingGroups and IDInvoiceSettlement and not IDBillSettlement and (DocAmountLCY <> 0)) then begin
                             InitGLEntry(
                                 GenJournalLine, GLEntry, AccNo, PayableAccAmtLCY, PayableAccAmtAddCurr, true, true,
                                 CalcAmountSrcCurr(GenJournalLine, PayableAccAmtLCY));
@@ -5485,10 +5489,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
         OnPostDtldVendLedgEntriesOnAfterCreateGLEntriesForTotalAmounts(TempGLEntryBuf, GlobalGLEntry, NextTransactionNo);
 
-        if (IDInvoiceSettlement or IDBillSettlement) and (MultiplePostingGroups) and (DocAmountLCY <> 0) then
-            PostPayableDocsForMultiplePostingGroups(GenJournalLine, DetailedCVLedgEntryBuffer)
-        else
-            PostPayableDocs(GenJournalLine, VendPostingGr);
+        if LedgEntryInserted or not (MultiplePostingGroups and IDInvoiceSettlement and not IDBillSettlement and (DocAmountLCY <> 0)) then
+            if (IDInvoiceSettlement or IDBillSettlement) and (MultiplePostingGroups) and (DocAmountLCY <> 0) then
+                PostPayableDocsForMultiplePostingGroups(GenJournalLine, DetailedCVLedgEntryBuffer)
+            else
+                PostPayableDocs(GenJournalLine, VendPostingGr);
 
         DetailedCVLedgEntryBuffer.DeleteAll();
     end;
@@ -12677,7 +12682,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 
-	[IntegrationEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSendDocToCartera(var GenJnlLine: Record "Gen. Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry"; var CustLedgEntry: Record "Cust. Ledger Entry"; DocType: Option Sale,Purchase; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer")
     begin
     end;

@@ -392,6 +392,7 @@ table 225 "Post Code"
         PostCodes.LookupMode := true;
         if PostCodes.RunModal() = ACTION::LookupOK then begin
             PostCodes.GetRecord(PostCodeRec);
+            OnLookupPostCodeOnAfterSelectPostCode(PostCodeRec);
             PostCode := PostCodeRec.Code;
             CityTxt := PostCodeRec.City;
             CountryCode := PostCodeRec."Country/Region Code";
@@ -456,6 +457,11 @@ table 225 "Post Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePostCodeOnAfterSelectPostCode(var PostCodeRec: Record "Post Code"; var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupPostCodeOnAfterSelectPostCode(var PostCodeRec: Record "Post Code")
     begin
     end;
 }

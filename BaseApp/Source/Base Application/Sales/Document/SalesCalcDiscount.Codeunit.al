@@ -128,7 +128,7 @@ codeunit 60 "Sales-Calc. Discount"
 
         CustInvDiscFound := CustInvDisc.GetRecord(SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, (ChargeBase - TotalChargeItemLineAmount));
 
-        OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(CustInvDisc, SalesHeader, CurrencyDate, ChargeBase);
+        OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(CustInvDisc, SalesHeader, CurrencyDate, ChargeBase, CustInvDiscFound);
         if CustInvDiscFound and (CustInvDisc."Service Charge" <> 0) then begin
             OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(CustPostingGr);
             Currency.Initialize(SalesHeader."Currency Code");
@@ -300,7 +300,12 @@ codeunit 60 "Sales-Calc. Discount"
                 SalesLine2.SetSalesHeader(SalesHeader);
                 SalesLine2.UpdateVATOnLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
                 UpdatePrepmtLineAmount(SalesHeader);
-            end;
+            end else
+                if GLSetup."Payment Discount Type" = GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then begin
+                    SalesLine2.CalcVATAmountLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
+                    SalesLine2.SetSalesHeader(SalesHeader);
+                    SalesLine2.UpdateVATOnLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
+                end;
 
         SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(SalesHeader);
         OnAfterCalcSalesDiscount(SalesHeader, TempVATAmountLine, SalesLine2);
@@ -504,7 +509,7 @@ codeunit 60 "Sales-Calc. Discount"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var SalesHeader: Record "Sales Header"; CurrencyDate: Date; ChargeBase: Decimal)
+    local procedure OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var SalesHeader: Record "Sales Header"; CurrencyDate: Date; ChargeBase: Decimal; var CustInvDiscFound: Boolean)
     begin
     end;
 
