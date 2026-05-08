@@ -5,4 +5,22 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 2879919098 - NamedType 393564163" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document No should match the ledger entry]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.ExcelReports.Test)(LookupHint=Codeunit Trial Balance Excel Reports - NamedType DocumentNoShouldMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2879919098 - NamedType 1821207847" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document Type should be Invoice]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.ExcelReports.Test)(LookupHint=Codeunit Trial Balance Excel Reports - NamedType DocumentTypeShouldBeInvoiceErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

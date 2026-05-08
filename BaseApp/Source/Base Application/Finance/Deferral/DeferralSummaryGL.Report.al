@@ -17,11 +17,7 @@ report 1700 "Deferral Summary - G/L"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Deferral Summary - G/L';
-#if not CLEAN27
-    DefaultRenderingLayout = Word;
-#else
     DefaultRenderingLayout = Excel;
-#endif
     UsageCategory = ReportsAndAnalysis;
 
     dataset

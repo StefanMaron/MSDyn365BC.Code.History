@@ -704,7 +704,7 @@ table 5900 "Service Header"
         field(28; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
-            ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines.';
+            ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines. When you select the customer and the customer has a location assigned, the value is taken from the Customer card. If the customer has no location, but a Responsibility Center is populated, the location code is taken from the Responsibility Center. If neither is specified, the value is taken from Company Information.';
             TableRelation = Location;
 
             trigger OnValidate()
@@ -4307,52 +4307,53 @@ table 5900 "Service Header"
     begin
         IsHandled := false;
         OnBeforeSetDefaultNoSeries(Rec, xRec, IsHandled);
-        if IsHandled then
-            exit;
-
-        GeneralLedgerSetup.GetRecordOnce();
-        if GeneralLedgerSetup."Journal templ. Name Mandatory" then begin
-            if "Journal Templ. Name" = '' then begin
-                if not IsCreditDocType() then
-                    GenJournalTemplate.Get(ServiceMgtSetup."Serv. Inv. Template Name")
-                else
-                    GenJournalTemplate.Get(ServiceMgtSetup."Serv. Cr. Memo Templ. Name");
-                "Journal Templ. Name" := GenJournalTemplate.Name;
+        if not IsHandled then begin
+            GeneralLedgerSetup.GetRecordOnce();
+            if GeneralLedgerSetup."Journal templ. Name Mandatory" then begin
+                if "Journal Templ. Name" = '' then begin
+                    if not IsCreditDocType() then
+                        GenJournalTemplate.Get(ServiceMgtSetup."Serv. Inv. Template Name")
+                    else
+                        GenJournalTemplate.Get(ServiceMgtSetup."Serv. Cr. Memo Templ. Name");
+                    "Journal Templ. Name" := GenJournalTemplate.Name;
+                end else
+                    GenJournalTemplate.Get("Journal Templ. Name");
+                PostingNoSeries := GenJournalTemplate."Posting No. Series";
             end else
-                GenJournalTemplate.Get("Journal Templ. Name");
-            PostingNoSeries := GenJournalTemplate."Posting No. Series";
-        end else
-            if IsCreditDocType() then
-                PostingNoSeries := ServiceMgtSetup."Posted Serv. Credit Memo Nos."
-            else
-                PostingNoSeries := ServiceMgtSetup."Posted Service Invoice Nos.";
+                if IsCreditDocType() then
+                    PostingNoSeries := ServiceMgtSetup."Posted Serv. Credit Memo Nos."
+                else
+                    PostingNoSeries := ServiceMgtSetup."Posted Service Invoice Nos.";
 
-        case "Document Type" of
-            "Document Type"::Quote, "Document Type"::Order:
-                begin
-                    if NoSeries.IsAutomatic(PostingNoSeries) then
-                        "Posting No. Series" := PostingNoSeries;
-                    if NoSeries.IsAutomatic(ServiceMgtSetup."Posted Service Shipment Nos.") then
-                        "Shipping No. Series" := ServiceMgtSetup."Posted Service Shipment Nos.";
-                end;
-            "Document Type"::Invoice:
-                begin
-                    if ("No. Series" <> '') and (ServiceMgtSetup."Service Invoice Nos." = PostingNoSeries) then
+            case "Document Type" of
+                "Document Type"::Quote, "Document Type"::Order:
+                    begin
+                        if NoSeries.IsAutomatic(PostingNoSeries) then
+                            "Posting No. Series" := PostingNoSeries;
+                        if NoSeries.IsAutomatic(ServiceMgtSetup."Posted Service Shipment Nos.") then
+                            "Shipping No. Series" := ServiceMgtSetup."Posted Service Shipment Nos.";
+                    end;
+                "Document Type"::Invoice:
+                    begin
+                        if ("No. Series" <> '') and (ServiceMgtSetup."Service Invoice Nos." = PostingNoSeries) then
+                            "Posting No. Series" := "No. Series"
+                        else
+                            if NoSeries.IsAutomatic(PostingNoSeries) then
+                                "Posting No. Series" := PostingNoSeries;
+                        if ServiceMgtSetup."Shipment on Invoice" then
+                            if NoSeries.IsAutomatic(ServiceMgtSetup."Posted Service Shipment Nos.") then
+                                "Shipping No. Series" := ServiceMgtSetup."Posted Service Shipment Nos.";
+                    end;
+                "Document Type"::"Credit Memo":
+                    if ("No. Series" <> '') and (ServiceMgtSetup."Service Credit Memo Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
                         if NoSeries.IsAutomatic(PostingNoSeries) then
                             "Posting No. Series" := PostingNoSeries;
-                    if ServiceMgtSetup."Shipment on Invoice" then
-                        if NoSeries.IsAutomatic(ServiceMgtSetup."Posted Service Shipment Nos.") then
-                            "Shipping No. Series" := ServiceMgtSetup."Posted Service Shipment Nos.";
-                end;
-            "Document Type"::"Credit Memo":
-                if ("No. Series" <> '') and (ServiceMgtSetup."Service Credit Memo Nos." = PostingNoSeries) then
-                    "Posting No. Series" := "No. Series"
-                else
-                    if NoSeries.IsAutomatic(PostingNoSeries) then
-                        "Posting No. Series" := PostingNoSeries;
+            end;
         end;
+
+        OnAfterSetDefaultNoSeries(Rec);
     end;
 
     local procedure InitRecordFromContact()
@@ -6093,6 +6094,11 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDefaultNoSeries(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDefaultNoSeries(var ServiceHeader: Record "Service Header")
     begin
     end;
 
