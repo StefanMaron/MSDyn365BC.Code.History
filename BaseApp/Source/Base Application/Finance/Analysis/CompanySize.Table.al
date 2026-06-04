@@ -14,6 +14,13 @@ table 532 "Company Size"
     {
         field(1; Code; Code[20]) { }
         field(2; Description; Text[100]) { }
+        /// <summary>
+        /// Indicates whether the company size category represents a small business.
+        /// </summary>
+        field(3; "Small Business"; Boolean)
+        {
+            DataClassification = CustomerContent;
+        }
     }
 
     keys

@@ -19,6 +19,12 @@
       "version": "$(app_minimumVersion)"
     },
     {
+      "id": "cc329ed7-8840-45f6-860b-3eb99c408998",
+      "name": "Payment Practices Test Library",
+      "publisher": "Microsoft",
+      "version": "$(app_minimumVersion)"
+    },
+    {
       "id": "5d86850b-0d76-4eca-bd7b-951ad998e997",
       "name": "Tests-TestLibraries",
       "publisher": "Microsoft",
@@ -41,7 +47,7 @@
   "platform": "$(app_platformVersion)",
   "idRanges": [
     {
-      "from": 134196,
+      "from": 134197,
       "to": 134197
     }
   ],

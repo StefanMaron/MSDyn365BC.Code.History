@@ -7449,6 +7449,7 @@ codeunit 90 "Purch.-Post"
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         ReplaceVATDate: Boolean;
+        SkipTestPostingDate: Boolean;
         IsHandled: Boolean;
     begin
         OnBeforeValidatePostingAndDocumentDate(PurchaseHeader, SuppressCommit);
@@ -7487,6 +7488,13 @@ codeunit 90 "Purch.-Post"
         if VATDateExists and (ReplaceVATDate) then begin
             PurchaseHeader."VAT Reporting Date" := VATDate;
             ModifyHeader := true;
+        end;
+
+        if not ReplacePostingDate then begin
+            SkipTestPostingDate := false;
+            OnValidatePostingAndDocumentDateOnBeforeTestPostingDate(PurchaseHeader, PostingDateExists, SkipTestPostingDate);
+            if not SkipTestPostingDate then
+                PurchaseHeader.TestPostingDate(PostingDateExists);
         end;
 
         OnValidatePostingAndDocumentDateOnBeforePurchaseHeaderModify(PurchaseHeader, ModifyHeader);
@@ -7867,6 +7875,7 @@ codeunit 90 "Purch.-Post"
     local procedure PostUpdateOrderLine(PurchHeader: Record "Purchase Header")
     var
         TempPurchLine: Record "Purchase Line" temporary;
+        OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
         SetDefaultQtyBlank: Boolean;
     begin
         OnBeforePostUpdateOrderLine(PurchHeader, TempPurchLineGlobal, SuppressCommit, PurchSetup);
@@ -7881,7 +7890,8 @@ codeunit 90 "Purch.-Post"
                 if PurchHeader.Receive then begin
                     TempPurchLine."Quantity Received" += TempPurchLine."Qty. to Receive";
                     TempPurchLine."Qty. Received (Base)" += TempPurchLine."Qty. to Receive (Base)";
-                    TempPurchLine."Over-Receipt Quantity" := 0;
+                    if not OverReceiptMgt.IsOverReceiptPendingOnWarehouseReceiptLine(TempPurchLine) then
+                        TempPurchLine."Over-Receipt Quantity" := 0;
                     OnPostUpdateOrderLineOnPurchHeaderReceive(TempPurchLine, PurchRcptHeader);
                 end;
                 OnPostUpdateOrderLineOnAfterReceive(PurchHeader, TempPurchLine);
@@ -9184,6 +9194,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdatePurchLineDimSetIDFromAppliedEntry(var PurchLineToPost: Record "Purchase Line"; PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePostingAndDocumentDateOnBeforeTestPostingDate(var PurchaseHeader: Record "Purchase Header"; ReplacePostingDate: Boolean; var SkipTestPostingDate: Boolean)
     begin
     end;
 
