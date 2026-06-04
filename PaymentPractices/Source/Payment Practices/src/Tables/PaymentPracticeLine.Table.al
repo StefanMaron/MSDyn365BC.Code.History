@@ -50,6 +50,8 @@ table 688 "Payment Practice Line"
         }
         field(9; "Pct Paid on Time"; Decimal)
         {
+            AutoFormatType = 0;
+
             trigger OnValidate()
             begin
                 Rec."Modified Manually" := true;
@@ -57,6 +59,8 @@ table 688 "Payment Practice Line"
         }
         field(10; "Pct Paid in Period"; Decimal)
         {
+            AutoFormatType = 0;
+
             trigger OnValidate()
             begin
                 Rec."Modified Manually" := true;
@@ -64,6 +68,8 @@ table 688 "Payment Practice Line"
         }
         field(11; "Pct Paid in Period (Amount)"; Decimal)
         {
+            AutoFormatType = 0;
+
             trigger OnValidate()
             begin
                 Rec."Modified Manually" := true;
@@ -78,7 +84,16 @@ table 688 "Payment Practice Line"
         }
         field(13; "Modified Manually"; Boolean)
         {
-
+        }
+        field(15; "Invoice Count"; Integer)
+        {
+            ToolTip = 'Specifies the number of invoices in this period.';
+        }
+        field(16; "Invoice Value"; Decimal)
+        {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
+            ToolTip = 'Specifies the total value of invoices in this period.';
         }
     }
 
