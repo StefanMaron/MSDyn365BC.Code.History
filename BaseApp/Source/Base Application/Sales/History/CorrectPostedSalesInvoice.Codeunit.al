@@ -992,12 +992,19 @@ codeunit 1303 "Correct Posted Sales Invoice"
         SalesLine: Record "Sales Line";
         UndoPostingManagement: Codeunit "Undo Posting Management";
     begin
-        if SalesLine.Get(SalesLine."Document Type"::Order, SalesInvoiceLine."Order No.", SalesInvoiceLine."Order Line No.") then begin
+        if not SalesLine.Get(SalesLine."Document Type"::Order, SalesInvoiceLine."Order No.", SalesInvoiceLine."Order Line No.") then
+            exit;
+
+        if SalesLine.Type = SalesLine.Type::Item then
             SalesInvoiceLine.GetItemLedgEntries(TempItemLedgerEntry, false);
-            UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesCrMemoLine.Quantity, SalesCrMemoLine."Quantity (Base)");
-            UpdateSalesOrderLinePrepmtAmount(SalesInvoiceLine);
+
+        UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesCrMemoLine.Quantity, SalesCrMemoLine."Quantity (Base)");
+        UpdateSalesOrderLinePrepmtAmount(SalesInvoiceLine);
+
+        if SalesLine.Type = SalesLine.Type::Item then begin
             if SalesLine."Qty. to Ship" = 0 then
                 UpdateWhseRequest(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Location Code");
+
             TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
             UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, SalesInvoiceLine."Shipment Date", true);
         end;

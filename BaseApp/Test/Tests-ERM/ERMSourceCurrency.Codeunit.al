@@ -21,7 +21,7 @@ codeunit 134897 "ERM Source Currency"
         SourceCurrencyCodeErr: Label 'The Source Currency Code should be equal to the Currency Code on the General Journal Line', Locked = true;
         SourceCurrencyCodeFXGainLossErr: Label 'The Source Currency Code should be empty on the G/L Entry for FX Gain/Loss', Locked = true;
         SourceCurrencyAmountShouldBeZeroErr: Label 'The Source Currency Amount should be 0', Locked = true;
-        SourceCurrencyAmountShouldMatchEnteredAmount: Label 'Source Currency Amount should match manually entered amount', Locked = true;
+        SourceCurrencyAmountShouldMatchEnteredAmountErr: Label 'Source Currency Amount should match manually entered amount', Locked = true;
 
     [Test]
     procedure GenJournalPurchaseNormalVATLCY()
@@ -906,7 +906,7 @@ codeunit 134897 "ERM Source Currency"
         AmountLCYRealisedLoss: Decimal;
     begin
         exit;
-        
+
         Initialize();
 
         // [GIVEN] Vendor with new posting groups with normal VAT.
@@ -1375,7 +1375,7 @@ codeunit 134897 "ERM Source Currency"
                     Assert.AreEqual(Factor, GLEntry."Source Currency Amount" / Abs(GLEntry."Source Currency Amount"), AmountIncorrectSignErr);
                 GenJournalLine."Bal. Account No.":
                     // [THEN] Balancing account should have the negative of the manually entered amount
-                    Assert.AreEqual(-ManualFCYAmount, GLEntry."Source Currency Amount", SourceCurrencyAmountShouldMatchEnteredAmount);
+                    Assert.AreEqual(-ManualFCYAmount, GLEntry."Source Currency Amount", SourceCurrencyAmountShouldMatchEnteredAmountErr);
             end;
         until GLEntry.Next() = 0;
     end;
@@ -1552,6 +1552,9 @@ codeunit 134897 "ERM Source Currency"
         GLEntriesPreview.Close();
         GLPostingPreview.Close();
     end;
+
+    // VendorFCYInvoicePayablesGLEntryHasCorrectSCYAmount and VendorFCYPaymentWithGainLossPayablesSCYBalances
+    // are intentionally not included in RU — the required helper procedures do not exist in this layer.
 
     local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; GLAccountNo: Code[20]; WithForeignCurrency: Boolean)
     var
@@ -1798,3 +1801,6 @@ codeunit 134897 "ERM Source Currency"
         end;
     end;
 }
+
+
+
