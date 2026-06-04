@@ -165,6 +165,7 @@ tableextension 11738 "VAT Posting Setup CZL" extends "VAT Posting Setup"
             else
                 "Allow Non-Deductible VAT" := "Allow Non-Deductible VAT"::"Allow";
         end;
+        "Non-Deductible VAT %" := 0;
     end;
 
     [IntegrationEvent(false, false)]

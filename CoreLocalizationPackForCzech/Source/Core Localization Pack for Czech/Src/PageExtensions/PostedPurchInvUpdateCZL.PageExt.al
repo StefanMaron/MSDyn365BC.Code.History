@@ -3,7 +3,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.History;
-
 using System.Security.User;
 
 pageextension 31144 "Posted Purch. Inv. Update CZL" extends "Posted Purch. Invoice - Update"
