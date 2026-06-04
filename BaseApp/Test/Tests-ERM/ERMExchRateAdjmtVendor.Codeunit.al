@@ -11,12 +11,15 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
     var
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryUtility: Codeunit "Library - Utility";
         isInitialized: Boolean;
         AmountMismatchErr: Label '%1 field must be %2 in %3 table for %4 field %5.';
+        ExpectedUnrealizedDtldVendEntryErr: Label 'Expected Unrealized Loss/Gain Detailed Vendor Ledger Entry for vendor %1.', Comment = '%1 = Vendor No.';
+        PostingGroupMismatchErr: Label 'Posting Group in Detailed Vendor Ledger Entry must be %1 for vendor %2.', Comment = '%1 = Expected Posting Group Code, %2 = Vendor No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -256,6 +259,110 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
         VerifyExchRateAdjmtLedgEntry("Exch. Rate Adjmt. Account Type"::Vendor, GenJournalLine."Account No.");
     end;
 
+    [Test]
+    procedure ExchRateAdjmtVendorDtldEntryHasPostingGroup()
+    var
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Adjust Exchange Rate] [Detailed Ledger Entry] [Posting Group]
+        // [SCENARIO 634159] Detailed Vendor Ledger Entry created by Exchange Rate Adjustment has Posting Group populated
+        Initialize();
+
+        // [GIVEN] Create a new Currency with exchange rate.
+        CurrencyCode := CreateCurrency();
+
+        // [GIVEN] Create a new Vendor with Vendor Posting Group and currency.
+        CreateVendorWithNewPostingGroup(Vendor, VendorPostingGroup, CurrencyCode);
+
+        // [GIVEN] Post a purchase invoice for the Vendor.
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        CreateVendorInvoiceJnlLine(GenJournalLine, GenJournalBatch, Vendor."No.", -LibraryRandom.RandIntInRange(500, 1000));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Exchange rate is changed.
+        ModifyExchRateForCurrency(CurrencyCode, LibraryRandom.RandInt(50));
+
+        // [WHEN] Run Adjust Exchange Rates report.
+        LibraryERM.RunExchRateAdjustmentForDocNo(CurrencyCode, GenJournalLine."Document No.");
+
+        // [THEN] The Unrealized Loss/Gain Detailed Vendor Ledger Entry has Posting Group = Vendor's Vendor Posting Group.
+        DetailedVendorLedgEntry.SetRange("Vendor No.", Vendor."No.");
+        DetailedVendorLedgEntry.SetFilter(
+            "Entry Type", '%1|%2',
+            DetailedVendorLedgEntry."Entry Type"::"Unrealized Loss",
+            DetailedVendorLedgEntry."Entry Type"::"Unrealized Gain");
+        Assert.IsTrue(DetailedVendorLedgEntry.FindFirst(), StrSubstNo(ExpectedUnrealizedDtldVendEntryErr, Vendor."No."));
+        Assert.AreEqual(
+            VendorPostingGroup.Code, DetailedVendorLedgEntry."Posting Group",
+            StrSubstNo(
+                PostingGroupMismatchErr, VendorPostingGroup.Code, Vendor."No."));
+    end;
+
+    [Test]
+    procedure ExchRateAdjmtVendorDtldEntryPostingGroupMatchesVendor()
+    var
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Vendor1: Record Vendor;
+        Vendor2: Record Vendor;
+        VendorPostingGroup1: Record "Vendor Posting Group";
+        VendorPostingGroup2: Record "Vendor Posting Group";
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [Adjust Exchange Rate] [Detailed Ledger Entry] [Posting Group]
+        // [SCENARIO 634159] Two vendors with different Posting Groups each get correct Posting Group in their Detailed Vendor Ledger Entries
+        Initialize();
+
+        // [GIVEN] Create a new Currency with exchange rate.
+        CurrencyCode := CreateCurrency();
+
+        // [GIVEN] Create the first Vendor with Vendor Posting Group and currency.
+        CreateVendorWithNewPostingGroup(Vendor1, VendorPostingGroup1, CurrencyCode);
+
+        // [GIVEN] Create the second Vendor with Vendor Posting Group and currency.
+        CreateVendorWithNewPostingGroup(Vendor2, VendorPostingGroup2, CurrencyCode);
+
+        // [GIVEN] Post purchase invoices for both vendors.
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        CreateVendorInvoiceJnlLine(GenJournalLine, GenJournalBatch, Vendor1."No.", -LibraryRandom.RandIntInRange(500, 1000));
+        CreateVendorInvoiceJnlLine(GenJournalLine, GenJournalBatch, Vendor2."No.", -LibraryRandom.RandIntInRange(500, 1000));
+        GenJournalLine.Validate("Document No.", Vendor1."No.");
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Exchange rate is changed
+        ModifyExchRateForCurrency(CurrencyCode, LibraryRandom.RandInt(50));
+
+        // [WHEN] Run Adjust Exchange Rates
+        LibraryERM.RunExchRateAdjustmentForDocNo(CurrencyCode, LibraryUtility.GenerateGUID());
+
+        // [THEN] Detailed Vendor Ledger Entry for first vendor has Posting Group.
+        DetailedVendorLedgEntry.SetRange("Vendor No.", Vendor1."No.");
+        DetailedVendorLedgEntry.SetFilter(
+            "Entry Type", '%1|%2',
+            DetailedVendorLedgEntry."Entry Type"::"Unrealized Loss",
+            DetailedVendorLedgEntry."Entry Type"::"Unrealized Gain");
+        Assert.IsTrue(DetailedVendorLedgEntry.FindFirst(), StrSubstNo(ExpectedUnrealizedDtldVendEntryErr, Vendor1."No."));
+        Assert.AreEqual(
+            VendorPostingGroup1.Code, DetailedVendorLedgEntry."Posting Group",
+            StrSubstNo(PostingGroupMismatchErr, VendorPostingGroup1.Code, Vendor1."No."));
+
+        // [THEN] Detailed Vendor Ledger Entry for second vendor has Posting Group.
+        DetailedVendorLedgEntry.SetRange("Vendor No.", Vendor2."No.");
+        Assert.IsTrue(DetailedVendorLedgEntry.FindFirst(), StrSubstNo(ExpectedUnrealizedDtldVendEntryErr, Vendor2."No."));
+        Assert.AreEqual(
+            VendorPostingGroup2.Code, DetailedVendorLedgEntry."Posting Group",
+            StrSubstNo(PostingGroupMismatchErr, VendorPostingGroup2.Code, Vendor2."No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -402,6 +509,31 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
         exit(
           AmountLCY -
           Amount * CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount");
+    end;
+
+    local procedure ModifyExchRateForCurrency(CurrencyCode: Code[10]; ExchRateAmount: Decimal)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        UpdateExchangeRate(CurrencyExchangeRate, CurrencyCode, ExchRateAmount);
+    end;
+
+    local procedure CreateVendorWithNewPostingGroup(var Vendor: Record Vendor; var VendorPostingGroup: Record "Vendor Posting Group"; CurrencyCode: Code[10])
+    begin
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        VendorPostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNo());
+        VendorPostingGroup.Modify(true);
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreateVendorInvoiceJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; Amount: Decimal)
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
     end;
 }
 
