@@ -6203,9 +6203,9 @@ table 38 "Purchase Header"
     /// </param>
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
-        DummyReportSelections: Record "Report Selections";
-        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        ReportSelections: Record "Report Selections";
         IsHandled: Boolean;
+        DocTxt: Text[150];
     begin
         IsHandled := false;
         OnBeforeSendProfile(Rec, DocumentSendingProfile, IsHandled);
@@ -6213,12 +6213,13 @@ table 38 "Purchase Header"
             exit;
 
         CheckMixedDropShipment();
+        GetReportSelectionsUsageFromDocumentType(ReportSelections.Usage, DocTxt);
         IsHandled := false;
         OnSendProfileOnBeforeSendVendor(Rec, IsHandled);
         if not IsHandled then
             DocumentSendingProfile.SendVendor(
-                DummyReportSelections.Usage::"P.Order".AsInteger(), Rec, "No.", "Buy-from Vendor No.",
-                ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Buy-from Vendor No."), FieldNo("No."));
+                ReportSelections.Usage.AsInteger(), Rec, "No.", "Buy-from Vendor No.",
+                DocTxt, FieldNo("Buy-from Vendor No."), FieldNo("No."));
     end;
 
     local procedure CheckMixedDropShipment()
@@ -6994,6 +6995,14 @@ table 38 "Purchase Header"
                 ReportSelectionsUsage := ReportSelections.Usage::"P.Order";
             "Document Type"::Quote:
                 ReportSelectionsUsage := ReportSelections.Usage::"P.Quote";
+            "Document Type"::Invoice:
+                ReportSelectionsUsage := ReportSelections.Usage::"P.Invoice";
+            "Document Type"::"Credit Memo":
+                ReportSelectionsUsage := ReportSelections.Usage::"P.Cr.Memo";
+            "Document Type"::"Blanket Order":
+                ReportSelectionsUsage := ReportSelections.Usage::"P.Blanket";
+            "Document Type"::"Return Order":
+                ReportSelectionsUsage := ReportSelections.Usage::"P.Return";
         end;
 
         ReportUsage := ReportSelectionsUsage.AsInteger();
