@@ -1226,6 +1226,58 @@
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandlerSimple')]
+    [Scope('OnPrem')]
+    procedure PostWhseShipmentDirectTransferModeRequireShipmentLocation()
+    var
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TransferHeader: Record "Transfer Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        DirectTransferHeader: Record "Direct Trans. Header";
+        InventorySetup: Record "Inventory Setup";
+        Quantity: Decimal;
+    begin
+        // [FEATURE] [Direct Transfer] [Warehouse Shipment]
+        // [SCENARIO 629350] Posting a Warehouse Shipment for a Direct Transfer order with Inventory Setup "Direct Transfer Posting" = "Direct Transfer" does not error and creates a posted Direct Transfer.
+        Initialize();
+        Quantity := LibraryRandom.RandIntInRange(10, 100);
+
+        // [GIVEN] Inventory Setup has "Direct Transfer Posting" = "Direct Transfer"
+        InventorySetup.Get();
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Direct Transfer";
+        InventorySetup.Modify();
+
+        // [GIVEN] Location "FROM" with "Require Shipment" = TRUE
+        LibraryWarehouse.CreateLocationWMS(LocationFrom, false, false, false, false, true);
+
+        // [GIVEN] Location "TO" without warehouse requirements
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationTo);
+
+        // [GIVEN] Item "I" with positive inventory at location "FROM"
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationFrom.Code, '', Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Released Direct Transfer Order from "FROM" to "TO"
+        CreateAndReleaseDirectTransferOrder(TransferHeader, LocationFrom.Code, LocationTo.Code, Item."No.", Quantity);
+
+        // [GIVEN] Warehouse Shipment "WS" is created from Transfer Order
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+        FindWarehouseShipmentHeaderBySource(WarehouseShipmentHeader, DATABASE::"Transfer Line", 0, TransferHeader."No.", -1);
+        LibraryWarehouse.AutofillQtyToShipWhseShipment(WarehouseShipmentHeader);
+
+        // [WHEN] Post Warehouse Shipment.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] Direct Transfer Header is created (no error occurred)
+        DirectTransferHeader.SetRange("Transfer Order No.", TransferHeader."No.");
+        Assert.RecordCount(DirectTransferHeader, 1);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('MessageHandlerSimple,ConfirmHandlerAsTrue')]
     procedure DirectTransferOrderWithInventoryPickDirectTransferPosting()
