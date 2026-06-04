@@ -1,3 +1,5 @@
+#pragma warning disable AS0049
+
 namespace Microsoft.Bank.StatementImport.Yodlee;
 
 using Microsoft.Bank.Setup;
@@ -9,6 +11,7 @@ using System.Privacy;
 
 table 1450 "MS - Yodlee Bank Service Setup"
 {
+    Access = Internal;
     ReplicateData = false;
     DataClassification = CustomerContent;
 
@@ -609,3 +612,4 @@ table 1450 "MS - Yodlee Bank Service Setup"
         exit(DELCHR("Service URL", '>', ' '));
     end;
 }
+#pragma warning restore AS0049
