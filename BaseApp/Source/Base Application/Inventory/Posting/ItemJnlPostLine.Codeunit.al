@@ -21,6 +21,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Projects.Project.Planning;
+using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Warehouse.Journal;
@@ -1358,8 +1359,7 @@ codeunit 22 "Item Jnl.-Post Line"
                     ReservEntry2.SetLoadFields("Source Type", "Source Ref. No.", "Item No.", "Quantity (Base)");
                     OnApplyItemLedgEntryOnAfterSetLoadFieldsOnReservEntry(ReservEntry2);
                     ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
-                    if (ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Transfer) and (ReservEntry2."Source Type" = 39) and (ItemLedgEntry.Quantity < 0) then begin
-                        ReservEngineMgt.CloseReservEntry(ReservEntry, false, false);
+                    if (ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Transfer) and (ReservEntry2."Source Type" = DATABASE::"Purchase Line") and (ItemLedgEntry.Quantity < 0) then begin
                         UseReservationApplication := false;
                         StartApplication := true;
                     end else begin
@@ -7625,8 +7625,8 @@ codeunit 22 "Item Jnl.-Post Line"
 
     internal procedure RestoreTempTrackingSpecification(var TempTrackingSpecificationFrom: Record "Tracking Specification" temporary)
     begin
-        TempSplitItemJnlLine.Reset();
-        TempSplitItemJnlLine.DeleteAll();
+        TempTrackingSpecification.Reset();
+        TempTrackingSpecification.DeleteAll();
         if TempTrackingSpecificationFrom.FindSet() then
             repeat
                 TempTrackingSpecification := TempTrackingSpecificationFrom;
