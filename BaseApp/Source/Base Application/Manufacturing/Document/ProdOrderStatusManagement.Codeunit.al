@@ -248,6 +248,8 @@ codeunit 5407 "Prod. Order Status Management"
         ProductionOrder."Reopened" := true;
         ProductionOrder.Insert();
 
+        ToProdOrder := ProductionOrder;
+
         OnAfterTransferReopenProdOrder(ProductionOrder, FromProdOrder);
     end;
 
@@ -455,6 +457,8 @@ codeunit 5407 "Prod. Order Status Management"
         InventoryPostingToGL: Codeunit "Inventory Posting To G/L";
     begin
         InventoryPostingToGL.SetRunOnlyCheck(true, false, false);
+        if NewPostingDate <> 0D then
+            ValueEntry."Posting Date" := NewPostingDate;
         if not InventoryPostingToGL.AdjustPostedWIPForProduction(ValueEntry) then
             exit;
 
