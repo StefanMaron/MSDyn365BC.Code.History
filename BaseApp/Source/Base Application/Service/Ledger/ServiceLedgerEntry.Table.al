@@ -218,7 +218,7 @@ table 5907 "Service Ledger Entry"
         field(40; "Job No."; Code[20])
         {
             Caption = 'Project No.';
-            TableRelation = Job."No." where("Bill-to Customer No." = field("Bill-to Customer No."));
+            TableRelation = Job."No.";
         }
         field(41; "Gen. Bus. Posting Group"; Code[20])
         {
