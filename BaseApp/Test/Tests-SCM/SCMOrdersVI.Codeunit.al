@@ -3186,6 +3186,57 @@
         Assert.AreEqual(TotalReservedQtyInEntries, SalesLine."Reserved Quantity", ReservedQuantityErr);
     end;
 
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandlerVendorOnly,EmptyMessageHandler')]
+    procedure RequisitionLinesMustNotAccumulateAfterCreatePurchaseOrderFromSalesOrderRepeatedRun()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 620307] Verify repeated Create Purchase Order from Sales Order does not leave stranded requisition lines.
+        Initialize();
+
+        // [GIVEN] Create Item and Vendor.
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Update Purchasing Code on Item.
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+
+        // [GIVEN] Create Sales Order with drop shipment.
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(1000, 2000, 2), '');
+        SalesLine.Validate("Drop Shipment", false);
+        SalesLine.Modify();
+
+        // [GIVEN] Enqueue "Vendor No."
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+
+        // [GIVEN] Open Sales Order page.
+        PurchaseOrder.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+
+        // [WHEN] Create Purchase Order from Sales Order first time.
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Verify no requisition lines remain after first run.
+        AssertNoRequisitionLinesForSalesOrder(SalesHeader);
+
+        // [GIVEN] Enqueue "Vendor No."
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+
+        // [WHEN] Create Purchase Order from Sales Order second time.
+        FindSalesLine(SalesLine, SalesHeader);
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Verify no requisition lines remain after repeated run.
+        AssertNoRequisitionLinesForSalesOrder(SalesHeader);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders VI");
@@ -4862,7 +4913,15 @@
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindSet();
     end;
-    
+
+    local procedure AssertNoRequisitionLinesForSalesOrder(SalesHeader: Record "Sales Header")
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        RequisitionLine.SetRange("Demand Order No.", SalesHeader."No.");
+        Assert.RecordIsEmpty(RequisitionLine);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -5013,6 +5072,13 @@
     procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
     begin
         SalesList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PurchOrderFromSalesOrderModalPageHandlerVendorOnly(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
+        PurchOrderFromSalesOrder.OK().Invoke();
     end;
 
     [RequestPageHandler]

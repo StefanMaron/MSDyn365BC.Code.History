@@ -107,6 +107,7 @@ table 37 "Sales Line"
             trigger OnValidate()
             var
                 TempSalesLine: Record "Sales Line" temporary;
+                JobCreateInvoice: Codeunit "Job Create-Invoice";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -162,7 +163,8 @@ table 37 "Sales Line"
                     OnValidateTypeOnAfterVerifyChange(Rec, xRec);
                 end;
                 CheckReceiptOrderStatus();
-
+                if (Rec.Type <> xRec.Type) and (Rec."Job Contract Entry No." <> 0) then
+                    JobCreateInvoice.DeleteSalesLine(Rec);
                 OnValidateTypeOnBeforeInitRec(Rec, xRec, CurrFieldNo);
                 TempSalesLine := Rec;
                 Init();
@@ -5199,6 +5201,7 @@ table 37 "Sales Line"
         SalesLine2.SetRange("VAT Identifier", "VAT Identifier");
         SalesLine2.SetRange("Tax Group Code", "Tax Group Code");
         SalesLine2.SetRange("Tax Area Code", "Tax Area Code");
+        SalesLine2.SetRange("VAT Calculation Type", "VAT Calculation Type");
 
         IsHandled := false;
         OnUpdateVATAmountsOnAfterSetSalesLineFilters(Rec, SalesLine2, IsHandled);
