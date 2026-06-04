@@ -74,7 +74,9 @@ table 4560 "Ext. Blob Storage Account"
             if IsolatedStorage.Delete(Rec."Secret Key") then;
     end;
 
-    procedure SetSecret(Secret: SecretText)
+#pragma warning disable AS0022
+    internal procedure SetSecret(Secret: SecretText)
+#pragma warning restore AS0022
     begin
         if IsNullGuid(Rec."Secret Key") then
             Rec."Secret Key" := CreateGuid();
@@ -83,7 +85,9 @@ table 4560 "Ext. Blob Storage Account"
             Error(UnableToSetSecretMsg);
     end;
 
-    procedure GetSecret(SecretKey: Guid) Secret: SecretText
+#pragma warning disable AS0022
+    internal procedure GetSecret(SecretKey: Guid) Secret: SecretText
+#pragma warning restore AS0022
     begin
         if not IsolatedStorage.Get(Format(SecretKey), DataScope::Company, Secret) then
             Error(UnableToGetSecretMsg);
