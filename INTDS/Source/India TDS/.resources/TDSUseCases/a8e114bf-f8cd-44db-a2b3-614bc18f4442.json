@@ -2,7 +2,7 @@
   {
     "CaseID": "{A8E114BF-F8CD-44DB-A2B3-614BC18F4442}",
     "Description": "Calculation of Tax Deduction at Source on Vendor Invoice where  PAN No. is specified without Concessional Codes.\n",
-    "Version": 33,
+    "Version": 34,
     "MinorVersion": 0,
     "TaxType": "TDS",
     "ChangedBy": "Microsoft",
@@ -806,7 +806,7 @@
             "Lookup": {
               "SourceType": "Table",
               "TableName": "TDS Entry",
-              "TableFieldName": "Invoice Amount",
+              "TableFieldName": "Original Invoice Amount",
               "Method": "Sum",
               "TableFilters": [
                 {
@@ -883,7 +883,7 @@
             "Lookup": {
               "SourceType": "Table",
               "TableName": "TDS Entry",
-              "TableFieldName": "Invoice Amount",
+              "TableFieldName": "Original Invoice Amount",
               "Method": "Sum",
               "TableFilters": [
                 {
@@ -1117,16 +1117,32 @@
           },
           "Body": [
             {
-              "ActivityType": "SETVARIABLE",
+              "ActivityType": "NUMERICEXPRESSION",
               "Activity": {
-                "OutputVariableName": "PrevInvAmountLCY",
-                "OutputValue": {
-                  "Type": "Lookup",
-                  "Lookup": {
-                    "SourceType": "Variable",
-                    "VariableName": "PaymentAmount"
+                "VariableName": "PrevInvAmountLCY",
+                "Expression": "PostedInvoiceAmount+PostedPaymentAmount",
+                "Tokens": [
+                  {
+                    "TokenName": "PostedInvoiceAmount",
+                    "TokenValue": {
+                      "Type": "Lookup",
+                      "Lookup": {
+                        "SourceType": "Variable",
+                        "VariableName": "InvoiceAmount"
+                      }
+                    }
+                  },
+                  {
+                    "TokenName": "PostedPaymentAmount",
+                    "TokenValue": {
+                      "Type": "Lookup",
+                      "Lookup": {
+                        "SourceType": "Variable",
+                        "VariableName": "PaymentAmount"
+                      }
+                    }
                   }
-                }
+                ]
               }
             }
           ],
@@ -9250,7 +9266,7 @@
             "Lookup": {
               "SourceType": "Table",
               "TableName": "TDS Entry",
-              "TableFieldName": "Invoice Amount",
+              "TableFieldName": "Original Invoice Amount",
               "Method": "Sum",
               "TableFilters": [
                 {
@@ -13248,6 +13264,36 @@
     ],
     "Components": [
       {
+        "ComponentName": "TDS",
+        "Sequence": 1,
+        "Formula": {
+          "VariableName": "TDS",
+          "Expression": "TDSTaxableAmount*TDSPercent/100",
+          "Tokens": [
+            {
+              "TokenName": "TDSPercent",
+              "TokenValue": {
+                "Type": "Lookup",
+                "Lookup": {
+                  "SourceType": "Component Percent",
+                  "ComponentName": "TDS"
+                }
+              }
+            },
+            {
+              "TokenName": "TDSTaxableAmount",
+              "TokenValue": {
+                "Type": "Lookup",
+                "Lookup": {
+                  "SourceType": "Variable",
+                  "VariableName": "TDSTaxableAmount"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
         "ComponentName": "eCESS",
         "Sequence": 3,
         "Formula": {
@@ -13261,6 +13307,56 @@
                 "Lookup": {
                   "SourceType": "Component Percent",
                   "ComponentName": "eCESS"
+                }
+              }
+            },
+            {
+              "TokenName": "SurchargeAmount",
+              "TokenValue": {
+                "Type": "Lookup",
+                "Lookup": {
+                  "SourceType": "Component",
+                  "ComponentName": "Surcharge"
+                }
+              }
+            },
+            {
+              "TokenName": "TDSAmount",
+              "TokenValue": {
+                "Type": "Lookup",
+                "Lookup": {
+                  "SourceType": "Component",
+                  "ComponentName": "TDS"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "ComponentName": "Total TDS Amount",
+        "Sequence": 5,
+        "Formula": {
+          "VariableName": "Total TDS Amount",
+          "Expression": "TDSAmount+SurchargeAmount+ECessAmount+SHECessAmount",
+          "Tokens": [
+            {
+              "TokenName": "ECessAmount",
+              "TokenValue": {
+                "Type": "Lookup",
+                "Lookup": {
+                  "SourceType": "Component",
+                  "ComponentName": "eCESS"
+                }
+              }
+            },
+            {
+              "TokenName": "SHECessAmount",
+              "TokenValue": {
+                "Type": "Lookup",
+                "Lookup": {
+                  "SourceType": "Component",
+                  "ComponentName": "SHE Cess "
                 }
               }
             },
@@ -13348,56 +13444,6 @@
         }
       },
       {
-        "ComponentName": "Total TDS Amount",
-        "Sequence": 5,
-        "Formula": {
-          "VariableName": "Total TDS Amount",
-          "Expression": "TDSAmount+SurchargeAmount+ECessAmount+SHECessAmount",
-          "Tokens": [
-            {
-              "TokenName": "ECessAmount",
-              "TokenValue": {
-                "Type": "Lookup",
-                "Lookup": {
-                  "SourceType": "Component",
-                  "ComponentName": "eCESS"
-                }
-              }
-            },
-            {
-              "TokenName": "SHECessAmount",
-              "TokenValue": {
-                "Type": "Lookup",
-                "Lookup": {
-                  "SourceType": "Component",
-                  "ComponentName": "SHE Cess "
-                }
-              }
-            },
-            {
-              "TokenName": "SurchargeAmount",
-              "TokenValue": {
-                "Type": "Lookup",
-                "Lookup": {
-                  "SourceType": "Component",
-                  "ComponentName": "Surcharge"
-                }
-              }
-            },
-            {
-              "TokenName": "TDSAmount",
-              "TokenValue": {
-                "Type": "Lookup",
-                "Lookup": {
-                  "SourceType": "Component",
-                  "ComponentName": "TDS"
-                }
-              }
-            }
-          ]
-        }
-      },
-      {
         "ComponentName": "Surcharge",
         "Sequence": 2,
         "Formula": {
@@ -13421,36 +13467,6 @@
                 "Lookup": {
                   "SourceType": "Variable",
                   "VariableName": "SurchargeBaseAmt"
-                }
-              }
-            }
-          ]
-        }
-      },
-      {
-        "ComponentName": "TDS",
-        "Sequence": 1,
-        "Formula": {
-          "VariableName": "TDS",
-          "Expression": "TDSTaxableAmount*TDSPercent/100",
-          "Tokens": [
-            {
-              "TokenName": "TDSPercent",
-              "TokenValue": {
-                "Type": "Lookup",
-                "Lookup": {
-                  "SourceType": "Component Percent",
-                  "ComponentName": "TDS"
-                }
-              }
-            },
-            {
-              "TokenName": "TDSTaxableAmount",
-              "TokenValue": {
-                "Type": "Lookup",
-                "Lookup": {
-                  "SourceType": "Variable",
-                  "VariableName": "TDSTaxableAmount"
                 }
               }
             }
