@@ -108,6 +108,8 @@ codeunit 20 "Posting Preview Event Handler"
 
     procedure IsTransactionConsistent(): Boolean
     begin
+        if TempGLEntry.IsEmpty() then
+            exit(true);
         exit(TransactionConsistent);
     end;
 

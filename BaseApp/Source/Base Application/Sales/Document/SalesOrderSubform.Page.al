@@ -104,7 +104,6 @@ page 46 "Sales Order Subform"
                         UpdateEditableOnRow();
                         Rec.ShowShortcutDimCode(ShortcutDimCode);
 
-                        QuantityOnAfterValidate();
                         UpdateTypeText();
                         DeltaUpdateTotals();
 
