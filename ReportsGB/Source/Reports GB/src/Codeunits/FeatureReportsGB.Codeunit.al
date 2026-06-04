@@ -22,6 +22,7 @@ using System.Upgrade;
 codeunit 10580 "Feature - Reports GB" implements "Feature Data Update"
 {
     Access = Internal;
+    Permissions = TableData "Feature Data Update Status" = rm;
     InherentEntitlements = X;
     InherentPermissions = X;
     ObsoleteReason = 'Feature Reports GB will be enabled by default in version 30.0.';

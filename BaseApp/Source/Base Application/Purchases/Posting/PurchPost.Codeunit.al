@@ -7475,8 +7475,8 @@ codeunit 90 "Purch.-Post"
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         ReplaceVATDate: Boolean;
-        IsHandled: Boolean;
         SkipTestPostingDate: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeValidatePostingAndDocumentDate(PurchaseHeader, SuppressCommit);
 
@@ -7901,6 +7901,7 @@ codeunit 90 "Purch.-Post"
     local procedure PostUpdateOrderLine(PurchHeader: Record "Purchase Header")
     var
         TempPurchLine: Record "Purchase Line" temporary;
+        OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
         SetDefaultQtyBlank: Boolean;
     begin
         OnBeforePostUpdateOrderLine(PurchHeader, TempPurchLineGlobal, SuppressCommit, PurchSetup);
@@ -7915,7 +7916,8 @@ codeunit 90 "Purch.-Post"
                 if PurchHeader.Receive then begin
                     TempPurchLine."Quantity Received" += TempPurchLine."Qty. to Receive";
                     TempPurchLine."Qty. Received (Base)" += TempPurchLine."Qty. to Receive (Base)";
-                    TempPurchLine."Over-Receipt Quantity" := 0;
+                    if not OverReceiptMgt.IsOverReceiptPendingOnWarehouseReceiptLine(TempPurchLine) then
+                        TempPurchLine."Over-Receipt Quantity" := 0;
                     OnPostUpdateOrderLineOnPurchHeaderReceive(TempPurchLine, PurchRcptHeader);
                 end;
                 OnPostUpdateOrderLineOnAfterReceive(PurchHeader, TempPurchLine);

@@ -3977,7 +3977,7 @@ codeunit 80 "Sales-Post"
         IsHandled: Boolean;
     begin
 
-        if (CalledFromStatistics) and (IsInvoiceRoundingLine(SalesHeader, SalesLine)) and (SalesLine."System-Created Entry") then
+        if (CalledFromStatistics) and (not RoundingLineInserted) and (IsInvoiceRoundingLine(SalesHeader, SalesLine)) and (SalesLine."System-Created Entry") then
             exit;
 
         IsHandled := false;
@@ -5264,6 +5264,8 @@ codeunit 80 "Sales-Post"
                         TempPrepmtSalesLine."Prepayment Line" := true;
                         TempPrepmtSalesLine."Shortcut Dimension 1 Code" := TempSalesLine."Shortcut Dimension 1 Code";
                         TempPrepmtSalesLine."Shortcut Dimension 2 Code" := TempSalesLine."Shortcut Dimension 2 Code";
+                        TempPrepmtSalesLine."Gen. Bus. Posting Group" := TempSalesLine."Gen. Bus. Posting Group";
+                        TempPrepmtSalesLine."Gen. Prod. Posting Group" := TempSalesLine."Gen. Prod. Posting Group";
                         TempPrepmtSalesLine."Dimension Set ID" := TempSalesLine."Dimension Set ID";
                         TempPrepmtSalesLine."Line No." := NextLineNo;
                         NextLineNo := NextLineNo + 10000;
@@ -10373,7 +10375,7 @@ codeunit 80 "Sales-Post"
 
         ReservEntry.CalcSums("Qty. to Handle (Base)");
         SurplusQtyToHandle := Abs(ReservEntry."Qty. to Handle (Base)");
-        if (QtyReservedForCurrLine + SurplusQtyToHandle) < SalesLine."Qty. to Ship (Base)" then
+        if (QtyReservedForCurrLine + SurplusQtyToHandle) <= SalesLine."Qty. to Ship (Base)" then
             exit;
 
         ReservEntry.ModifyAll("Qty. to Handle (Base)", 0);
@@ -12032,5 +12034,6 @@ codeunit 80 "Sales-Post"
     [IntegrationEvent(false, false)]
     local procedure OnBeforeArchiveRelatedJob(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
-    end;
+    end;   
+     
 }
