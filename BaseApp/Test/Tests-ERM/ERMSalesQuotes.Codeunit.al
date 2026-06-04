@@ -43,6 +43,7 @@ codeunit 134379 "ERM Sales Quotes"
         CopyCustTemplateErr: Label 'Customer template copied incorrectly.';
         DifferentCustomerTemplateMsg: Label 'Sales quote %1 with original customer template %2 was assigned to the customer created from template %3.', Comment = '%1=Document No.,%2=Original Customer Template Code,%3=Customer Template Code';
         NoOriginalCustomerTemplateMsg: Label 'Sales quote %1 without an original customer template was assigned to the customer created from template %2.', Comment = '%1=Document No.,%2=Customer Template Code';
+        DocNoOccurrencePreservedErr: Label 'Doc. No. Occurrence should be preserved after Bill-to Customer No. validation';
 
     [Test]
     [Scope('OnPrem')]
@@ -1796,6 +1797,34 @@ codeunit 134379 "ERM Sales Quotes"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
+ [Test]
+    procedure DocNoOccurrencePreservedWhenBillToCustomerNoValidated()
+    var
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        DocNoOccurrence: Integer;
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 626915] "Doc. No. Occurrence" is preserved when "Bill-to Customer No." is validated on a Sales Quote with empty previous value
+
+        Initialize();
+
+        // [GIVEN] Create Sales Quote without a customer, having "Doc. No. Occurrence"
+        SalesHeader.Init();
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
+        SalesHeader.Insert(true);
+        DocNoOccurrence := SalesHeader."Doc. No. Occurrence";
+
+        // [GIVEN] Create Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [WHEN] Validate "Bill-to Customer No." with Customer (from empty).
+        SalesHeader.Validate("Bill-to Customer No.", Customer."No.");
+
+        // [THEN] Verify "Doc. No. Occurrence" remains the same.
+        Assert.AreEqual(DocNoOccurrence, SalesHeader."Doc. No. Occurrence", DocNoOccurrencePreservedErr);
+    end;
+    
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

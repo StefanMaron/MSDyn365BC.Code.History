@@ -223,8 +223,12 @@ codeunit 5748 "Transfer Whse. Post Shipment"
                         WhsePostShipment.RunOnPostSourceDocumentOnBeforePrintTransferShipment(DummyTransferShipmentHeader, IsHandled, TransHeader);
 #endif                        
                         if not IsHandled then
-                            InsertDocumentEntryToPrint(
-                                DocumentEntryToPrint, Database::"Transfer Shipment Header", TransHeader."Last Shipment No.");
+                            if TransHeader."Direct Transfer" then
+                                InsertDocumentEntryToPrint(
+                                    DocumentEntryToPrint, Database::"Direct Trans. Header", TransHeader."Last Shipment No.")
+                            else
+                                InsertDocumentEntryToPrint(
+                                    DocumentEntryToPrint, Database::"Transfer Shipment Header", TransHeader."Last Shipment No.");
                     end;
 
                     OnAfterTransferPostShipment(WhseShptLine, TransHeader, WhsePostParameters);
@@ -371,6 +375,7 @@ codeunit 5748 "Transfer Whse. Post Shipment"
     local procedure PrintDocuments(var DocumentEntryToPrint: Record "Document Entry")
     var
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        DirectTransHeader: Record "Direct Trans. Header";
     begin
         DocumentEntryToPrint.SetRange("Table ID", Database::"Transfer Shipment Header");
         if not DocumentEntryToPrint.IsEmpty() then begin
@@ -382,6 +387,18 @@ codeunit 5748 "Transfer Whse. Post Shipment"
 
             TransferShipmentHeader.MarkedOnly(true);
             TransferShipmentHeader.PrintRecords(false);
+        end;
+
+        DocumentEntryToPrint.SetRange("Table ID", Database::"Direct Trans. Header");
+        if not DocumentEntryToPrint.IsEmpty() then begin
+            if DocumentEntryToPrint.FindSet() then
+                repeat
+                    DirectTransHeader.Get(DocumentEntryToPrint."Document No.");
+                    DirectTransHeader.Mark(true);
+                until DocumentEntryToPrint.Next() = 0;
+
+            DirectTransHeader.MarkedOnly(true);
+            DirectTransHeader.PrintRecords(false);
         end;
     end;
 

@@ -1,10 +1,15 @@
 namespace Microsoft.Finance.ExcelReports.Test;
 
-using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.GeneralLedger.Ledger;
-using Microsoft.Finance.ExcelReports;
-using Microsoft.Finance.Dimension;
 using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.ExcelReports;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Receivables;
 
 codeunit 139544 "Trial Balance Excel Reports"
 {
@@ -14,8 +19,10 @@ codeunit 139544 "Trial Balance Excel Reports"
 
     var
         LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         Assert: Codeunit Assert;
+        ReportingDateShouldMatchPostingDateErr: Label 'Reporting Date should match the Posting Date when aging by Posting Date';
 
     [Test]
     [HandlerFunctions('EXRTrialBalanceExcelHandler')]
@@ -361,6 +368,101 @@ codeunit 139544 "Trial Balance Excel Reports"
         Assert.AreEqual(ValuesToSplitInCreditAndDebit[3], Abs(EXRTrialBalanceBuffer."Balance (Debit) (ACY)" + EXRTrialBalanceBuffer."Balance (Credit) (ACY)"), 'Split in line in credit and debit should be the same as the inserted value.');
     end;
 
+    [Test]
+    [HandlerFunctions('EXRAgedAccPayablePostingDateHandler')]
+    procedure AgedAccountsPayableReportAgesByPostingDate()
+    var
+        Vendor: Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Variant: Variant;
+        RequestPageXml: Text;
+        ReportingDateText: Text;
+        ReportingDate: Date;
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO] Aged Accounts Payable report uses Posting Date as Reporting Date when aging by Posting Date
+        InitializeAgingData();
+
+        // [GIVEN] Vendor "V" with an open ledger entry where Posting Date, Document Date, and Due Date are distinct
+        CreateMinimalVendor(Vendor);
+        CreateVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", "Gen. Journal Document Type"::Invoice);
+        VendorLedgerEntry."Document Date" := WorkDate() - 10;
+        VendorLedgerEntry.Modify();
+        Commit();
+
+        // [WHEN] Running the Aged Accounts Payable Excel report with Aging By = Posting Date
+        RequestPageXml := Report.RunRequestPage(Report::"EXR Aged Acc Payable Excel", RequestPageXml);
+        LibraryReportDataset.RunReportAndLoad(Report::"EXR Aged Acc Payable Excel", Variant, RequestPageXml);
+
+        // [THEN] The Reporting Date matches the Posting Date of the vendor ledger entry
+        LibraryReportDataset.SetXmlNodeList('DataItem[@name="AgingData"]');
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.FindCurrentRowValue('ReportingDate', Variant);
+        ReportingDateText := Variant;
+        Evaluate(ReportingDate, ReportingDateText);
+        Assert.AreEqual(VendorLedgerEntry."Posting Date", ReportingDate, ReportingDateShouldMatchPostingDateErr);
+    end;
+
+    local procedure InitializeAgingData()
+    var
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        DetailedVendorLedgEntry.DeleteAll();
+        DetailedCustLedgEntry.DeleteAll();
+        VendorLedgerEntry.DeleteAll();
+        CustLedgerEntry.DeleteAll();
+        Vendor.DeleteAll();
+        Customer.DeleteAll();
+    end;
+
+    local procedure CreateMinimalVendor(var Vendor: Record Vendor)
+    begin
+        Vendor.Init();
+        Vendor."No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen(Vendor."No."));
+        Vendor.Name := Vendor."No.";
+        Vendor.Insert();
+    end;
+
+    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
+    var
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        EntryNo: Integer;
+        Amount: Decimal;
+    begin
+        if VendorLedgerEntry.FindLast() then;
+        EntryNo := VendorLedgerEntry."Entry No." + 1;
+
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := EntryNo;
+        VendorLedgerEntry."Vendor No." := VendorNo;
+        VendorLedgerEntry."Vendor Name" := VendorNo;
+        VendorLedgerEntry."Document Type" := DocumentType;
+        VendorLedgerEntry."Document No." := 'DOC' + Format(EntryNo);
+        VendorLedgerEntry."Posting Date" := WorkDate();
+        VendorLedgerEntry."Document Date" := WorkDate();
+        VendorLedgerEntry."Due Date" := WorkDate() + 30;
+        VendorLedgerEntry.Open := true;
+        VendorLedgerEntry.Insert();
+
+        // Create detailed vendor ledger entry for remaining amount
+        Amount := -LibraryRandom.RandDec(1000, 2);
+        if DetailedVendorLedgEntry.FindLast() then;
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry."Entry No." + 1;
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
+        DetailedVendorLedgEntry."Vendor No." := VendorNo;
+        DetailedVendorLedgEntry."Posting Date" := WorkDate();
+        DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::"Initial Entry";
+        DetailedVendorLedgEntry.Amount := Amount;
+        DetailedVendorLedgEntry."Amount (LCY)" := Amount;
+        DetailedVendorLedgEntry.Insert();
+    end;
+
     local procedure CreateSampleBusinessUnits(HowMany: Integer)
     var
         BusinessUnit: Record "Business Unit";
@@ -471,4 +573,11 @@ codeunit 139544 "Trial Balance Excel Reports"
         EXRConsolidatedTrialBalance.OK().Invoke();
     end;
 
+    [RequestPageHandler]
+    procedure EXRAgedAccPayablePostingDateHandler(var EXRAgedAccPayableExcel: TestRequestPage "EXR Aged Acc Payable Excel")
+    begin
+        EXRAgedAccPayableExcel.AgedAsOfOption.SetValue(WorkDate());
+        EXRAgedAccPayableExcel.AgingbyOption.SetValue('Posting Date');
+        EXRAgedAccPayableExcel.OK().Invoke();
+    end;
 }

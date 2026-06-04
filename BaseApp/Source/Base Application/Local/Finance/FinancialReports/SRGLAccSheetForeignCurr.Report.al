@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -415,10 +415,11 @@ report 11564 "SR G/L Acc Sheet Foreign Curr"
 #endif
                         CalcFields("Net Change");
                         GlBalance := "Net Change";
-                        GLAccountSourceCurrency.Get("No.", "Source Currency Code");
-                        GLAccountSourceCurrency.SetRange("Date Filter", 0D, ClosingDate(StartDate - 1));
-                        GLAccountSourceCurrency.CalcFields("Source Curr. Balance at Date");
-                        FcyAcyBalance := GLAccountSourceCurrency."Source Curr. Balance at Date";
+                        if ("Source Currency Code" <> '') and GLAccountSourceCurrency.Get("No.", "Source Currency Code") then begin
+                            GLAccountSourceCurrency.SetRange("Date Filter", 0D, ClosingDate(StartDate - 1));
+                            GLAccountSourceCurrency.CalcFields("Source Curr. Balance at Date");
+                            FcyAcyBalance := GLAccountSourceCurrency."Source Curr. Balance at Date";
+                        end;
 #if not CLEAN25
                     end;
 #endif
