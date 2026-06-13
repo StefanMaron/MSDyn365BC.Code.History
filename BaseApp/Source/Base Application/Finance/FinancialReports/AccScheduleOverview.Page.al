@@ -315,7 +315,11 @@ page 490 "Acc. Schedule Overview"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(DateFilter);
-                        Rec.SetFilter("Date Filter", DateFilter);
+                        if DateFilter = '' then begin
+                            TempFinancialReport.DateFilter := '';
+                            FinReportMgt.CalcAccScheduleLineDateFilter(TempFinancialReport, Rec);
+                        end else
+                            Rec.SetFilter("Date Filter", DateFilter);
                         DateFilter := Rec.GetFilter("Date Filter");
                         TempFinancialReport.DateFilter := DateFilter;
                         UpdateColumnCaptions();
