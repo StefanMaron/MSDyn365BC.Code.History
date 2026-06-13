@@ -1472,6 +1472,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Vendor Overdue Payment - NamedType ValueNotExistsForMultipleApplicationToPaymentErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1167517720 - NamedType 553415696" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption, %2 = Expected Value (true/false), %3 = Table Name]D;]A;(LookupHint=Codeunit Due Date Modified Payment Days - NamedType DueDateModifiedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3343777107 - NamedType 1634632836" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Expected two Application GL entries for Payables Accounts, found %1.]]></Val>

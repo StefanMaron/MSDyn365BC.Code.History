@@ -5,6 +5,7 @@
 namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.CostAccounting.Account;
+using System.Environment;
 using System.Environment.Configuration;
 using System.Integration;
 using System.Integration.Excel;
@@ -559,12 +560,16 @@ page 104 "Account Schedule"
 
     trigger OnOpenPage()
     var
+        ClientTypeManagement: Codeunit "Client Type Management";
         FinancialReportMgt: Codeunit "Financial Report Mgt.";
         ServerSetting: Codeunit "Server Setting";
         OriginalSchedName: Code[10];
         CurrentPageCaption: Text;
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
+            exit;
 
         FinancialReportMgt.LaunchEditRowsWarningNotification();
         OriginalSchedName := CurrentSchedName;

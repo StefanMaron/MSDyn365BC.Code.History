@@ -1042,13 +1042,26 @@ codeunit 1303 "Correct Posted Sales Invoice"
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
         SalesLine: Record "Sales Line";
         UndoPostingManagement: Codeunit "Undo Posting Management";
+        IsHandled: Boolean;
     begin
-        if SalesLine.Get(SalesLine."Document Type"::Order, SalesInvoiceLine."Order No.", SalesInvoiceLine."Order Line No.") then begin
+        IsHandled := false;
+        OnBeforeUpdateSalesOrderLinesFromCreditMemo(SalesInvoiceLine, SalesCrMemoLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not SalesLine.Get(SalesLine."Document Type"::Order, SalesInvoiceLine."Order No.", SalesInvoiceLine."Order Line No.") then
+            exit;
+
+        if SalesLine.Type = SalesLine.Type::Item then
             SalesInvoiceLine.GetItemLedgEntries(TempItemLedgerEntry, false);
-            UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesCrMemoLine.Quantity, SalesCrMemoLine."Quantity (Base)");
-            UpdateSalesOrderLinePrepmtAmount(SalesInvoiceLine);
+
+        UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesCrMemoLine.Quantity, SalesCrMemoLine."Quantity (Base)");
+        UpdateSalesOrderLinePrepmtAmount(SalesInvoiceLine);
+
+        if SalesLine.Type = SalesLine.Type::Item then begin
             if SalesLine."Qty. to Ship" = 0 then
                 UpdateWhseRequest(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Location Code");
+
             TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
             UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, SalesInvoiceLine."Shipment Date", true);
         end;
@@ -1268,7 +1281,13 @@ codeunit 1303 "Correct Posted Sales Invoice"
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
         TempSalesShipmentLine: Record "Sales Shipment Line" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestIfDropShipmentDocument(SalesInvoiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
         SalesInvoiceLine.SetRange("Drop Shipment", true);
         if SalesInvoiceLine.FindFirst() then begin
@@ -1284,6 +1303,16 @@ codeunit 1303 "Correct Posted Sales Invoice"
     /// <param name="SalesInvoiceHeader">The posted sales invoice being copied from.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateCopyDocument(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    /// <summary>
+    /// Raised before testing whether to drop shipment document exists for the posted sales invoice.
+    /// </summary>
+    /// <param name="SalesInvoiceHeader">The posted sales invoice being validated.</param>
+    /// <param name="IsHandled">Set to true to skip default drop shipment document validation.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestIfDropShipmentDocument(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1594,6 +1623,17 @@ codeunit 1303 "Correct Posted Sales Invoice"
     /// <param name="IsHandled">Set to true to skip default order line update.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSalesOrderLinesFromCancelledInvoice(SalesInvoiceHeaderNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    /// <summary>
+    /// Raised before updating sales order lines from a credit memo.
+    /// </summary>
+    /// <param name="SalesInvoiceLine">The sales invoice line being processed.</param>
+    /// <param name="SalesCrMemoLine">The sales credit memo line that triggered the update.</param>
+    /// <param name="IsHandled">Set to true to skip default order line update.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesOrderLinesFromCreditMemo(var SalesInvoiceLine: Record "Sales Invoice Line"; var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var IsHandled: Boolean)
     begin
     end;
 
