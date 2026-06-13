@@ -538,7 +538,6 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // Verify Requisition Line after Changing User ID in Requisition Line.
         // Setup.
         Initialize();
-        RequisitionLine.DeleteAll(true);
         Quantity := LibraryRandom.RandInt(10);
         CreateMultipleItems(
           Item2, Item3, Item, Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase,
@@ -575,7 +574,6 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // Verify Requisition Line with User ID after Calculating Order Plan.
         // Setup.
         Initialize();
-        RequisitionLine.DeleteAll(true);
         Quantity := LibraryRandom.RandInt(10);
         CreateMultipleItems(
           Item2, Item3, Item, Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase,
@@ -611,7 +609,6 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // Verify Purchase Line after making Purchase Order form Requisition line.
         // Setup.
         Initialize();
-        RequisitionLine.DeleteAll(true);
         Quantity := LibraryRandom.RandInt(10);
         CreateMultipleItems(
           Item2, Item3, Item, Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase,
