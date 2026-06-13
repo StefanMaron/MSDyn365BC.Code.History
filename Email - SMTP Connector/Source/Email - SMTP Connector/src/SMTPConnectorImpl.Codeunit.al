@@ -125,6 +125,7 @@ codeunit 4513 "SMTP Connector Impl." implements "Email Connector"
     var
         Account: Record "SMTP Account";
         SMTPAuthentication: Codeunit "SMTP Authentication";
+        EmptyPassword: SecretText;
         Result: Boolean;
         SMTPErrorCode: Text;
     begin
@@ -156,7 +157,10 @@ codeunit 4513 "SMTP Connector Impl." implements "Email Connector"
 
         if SMTPAccount."Authentication Type" <> SMTPAccount."Authentication Type"::Anonymous then begin
             ClearLastError();
-            SMTPAuthentication.SetBasicAuthInfo(Account."User Name", Account.GetPassword(Account."Password Key"), AccountId);
+            if Account."Authentication Type" in [Account."Authentication Type"::Basic, Account."Authentication Type"::NTLM] then
+                SMTPAuthentication.SetBasicAuthInfo(Account."User Name", Account.GetPassword(Account."Password Key"), AccountId)
+            else
+                SMTPAuthentication.SetBasicAuthInfo(Account."User Name", EmptyPassword, AccountId);
             SMTPAuthentication.SetServer(Account.Server);
             Result := SMTPClient.Authenticate(Account."Authentication Type", SMTPAuthentication);
 
@@ -443,7 +447,10 @@ codeunit 4513 "SMTP Connector Impl." implements "Email Connector"
         NewSMTPAccount.TransferFields(SMTPAccountToCopy);
 
         NewSMTPAccount.Id := CreateGuid();
-        NewSMTPAccount.SetPassword(Password);
+        Clear(NewSMTPAccount."Password Key");
+
+        if NewSMTPAccount."Authentication Type" in [NewSMTPAccount."Authentication Type"::Basic, NewSMTPAccount."Authentication Type"::NTLM] then
+            NewSMTPAccount.SetPassword(Password);
 
         NewSMTPAccount.Insert();
 

@@ -257,7 +257,7 @@ table 5907 "Service Ledger Entry"
         {
             Caption = 'Project No.';
             ToolTip = 'Specifies the number of the related project.';
-            TableRelation = Job."No." where("Bill-to Customer No." = field("Bill-to Customer No."));
+            TableRelation = Job."No.";
         }
         field(41; "Gen. Bus. Posting Group"; Code[20])
         {
