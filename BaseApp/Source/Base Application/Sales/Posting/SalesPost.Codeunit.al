@@ -1580,7 +1580,7 @@ codeunit 80 "Sales-Post"
         end;
 
         ItemShptEntryNo := ItemJnlLine."Item Shpt. Entry No.";
-        OnAfterPostItemJnlLine(ItemJnlLine, SalesLine, SalesHeader, ItemJnlPostLine, WhseJnlPostLine, OriginalItemJnlLine, ItemShptEntryNo, IsATO, TempHandlingSpecification, TempATOTrackingSpecification, TempWhseJnlLine, ShouldPostItemJnlLine, WhseShip, WhseRcptHeader);
+        OnAfterPostItemJnlLine(ItemJnlLine, SalesLine, SalesHeader, ItemJnlPostLine, WhseJnlPostLine, OriginalItemJnlLine, ItemShptEntryNo, IsATO, TempHandlingSpecification, TempATOTrackingSpecification, TempWhseJnlLine, ShouldPostItemJnlLine, WhseShip, WhseRcptHeader, WhseShptHeader);
 
         exit(ItemShptEntryNo);
     end;
@@ -3231,6 +3231,7 @@ codeunit 80 "Sales-Post"
             UpdateItemChargeAssgnt(SalesHeader);
             OnFinalizePostingOnAfterUpdateItemChargeAssgnt(SalesHeader, TempDropShptPostBuffer, GenJnlPostLine);
         end else begin
+            OnFinalizePostingOnBeforeInsertTrackingSpecification(TempDropShptPostBuffer, TempItemChargeAssgntSales, SalesHeader, TempTrackingSpecification, EverythingInvoiced, TempSalesLine, TempSalesLineGlobal, this);
             case SalesHeader."Document Type" of
                 SalesHeader."Document Type"::Invoice:
                     begin
@@ -4014,7 +4015,7 @@ codeunit 80 "Sales-Post"
     var
         IsHandled: Boolean;
     begin
-        if (CalledFromStatistics) and (IsInvoiceRoundingLine(SalesHeader, SalesLine)) and (SalesLine."System-Created Entry") then
+        if (CalledFromStatistics) and (not RoundingLineInserted) and (IsInvoiceRoundingLine(SalesHeader, SalesLine)) and (SalesLine."System-Created Entry") then
             exit;
 
         IsHandled := false;
@@ -5331,6 +5332,8 @@ codeunit 80 "Sales-Post"
                         TempPrepmtSalesLine."Prepayment Line" := true;
                         TempPrepmtSalesLine."Shortcut Dimension 1 Code" := TempSalesLine."Shortcut Dimension 1 Code";
                         TempPrepmtSalesLine."Shortcut Dimension 2 Code" := TempSalesLine."Shortcut Dimension 2 Code";
+                        TempPrepmtSalesLine."Gen. Bus. Posting Group" := TempSalesLine."Gen. Bus. Posting Group";
+                        TempPrepmtSalesLine."Gen. Prod. Posting Group" := TempSalesLine."Gen. Prod. Posting Group";
                         TempPrepmtSalesLine."Dimension Set ID" := TempSalesLine."Dimension Set ID";
                         TempPrepmtSalesLine."Line No." := NextLineNo;
                         NextLineNo := NextLineNo + 10000;
@@ -5783,7 +5786,8 @@ codeunit 80 "Sales-Post"
         DiffToLineDiscAmt: Decimal;
         IsHandled: Boolean;
     begin
-        OnBeforeAdjustFinalInvWith100PctPrepmt(TempPrepmtDeductLCYSalesLine, CombinedSalesLine);
+        IsHandled := false;
+        OnBeforeAdjustFinalInvWith100PctPrepmt(TempPrepmtDeductLCYSalesLine, CombinedSalesLine, IsHandled);
         if IsHandled then
             exit;
         TempPrepmtDeductLCYSalesLine.Reset();
@@ -9522,7 +9526,7 @@ codeunit 80 "Sales-Post"
     /// <param name="WhseShip">Indicates whether warehouse shipment is involved.</param>
     /// <param name="WhseRcptHeader">The warehouse receipt header.</param>
     [IntegrationEvent(true, false)]
-    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line"; OriginalItemJnlLine: Record "Item Journal Line"; var ItemShptEntryNo: Integer; IsATO: Boolean; var TempHandlingSpecification: Record "Tracking Specification"; var TempATOTrackingSpecification: Record "Tracking Specification"; TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; ShouldPostItemJnlLine: Boolean; WhseShip: Boolean; WhseRcptHeader: Record "Warehouse Receipt Header")
+    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line"; OriginalItemJnlLine: Record "Item Journal Line"; var ItemShptEntryNo: Integer; IsATO: Boolean; var TempHandlingSpecification: Record "Tracking Specification"; var TempATOTrackingSpecification: Record "Tracking Specification"; TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; ShouldPostItemJnlLine: Boolean; WhseShip: Boolean; WhseRcptHeader: Record "Warehouse Receipt Header"; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 
@@ -12068,7 +12072,7 @@ codeunit 80 "Sales-Post"
 
         ReservEntry.CalcSums("Qty. to Handle (Base)");
         SurplusQtyToHandle := Abs(ReservEntry."Qty. to Handle (Base)");
-        if (QtyReservedForCurrLine + SurplusQtyToHandle) < SalesLine."Qty. to Ship (Base)" then
+        if (QtyReservedForCurrLine + SurplusQtyToHandle) <= SalesLine."Qty. to Ship (Base)" then
             exit;
 
         IsHandled := false;
@@ -12841,6 +12845,11 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnFinalizePostingOnAfterUpdateItemChargeAssgnt(var SalesHeader: Record "Sales Header"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizePostingOnBeforeInsertTrackingSpecification(var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; var TempItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; SalesHeader: Record "Sales Header"; var TempTrackingSpecification: Record "Tracking Specification" temporary; EverythingInvoiced: Boolean; var TempSalesLine: Record "Sales Line" temporary; var TempSalesLineGlobal: Record "Sales Line" temporary; SalesPost: Codeunit "Sales-Post")
     begin
     end;
 
@@ -14034,7 +14043,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAdjustFinalInvWith100PctPrepmt(var TempPrepmtDeductLCYSalesLine: Record "Sales Line" temporary; var CombinedSalesLine: Record "Sales Line")
+    local procedure OnBeforeAdjustFinalInvWith100PctPrepmt(var TempPrepmtDeductLCYSalesLine: Record "Sales Line" temporary; var CombinedSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
