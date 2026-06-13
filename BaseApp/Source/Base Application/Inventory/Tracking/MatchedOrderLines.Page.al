@@ -174,6 +174,8 @@ page 5818 "Matched Order Lines"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show Document';
                 Image = View;
+                Scope = Repeater;
+                ShortCutKey = 'Return';
                 ToolTip = 'View the document that this line is matched to.';
 
                 trigger OnAction()
