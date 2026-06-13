@@ -763,6 +763,8 @@ page 16 "Chart of Accounts"
         NoEmphasize: Boolean;
         NameEmphasize: Boolean;
         NameIndent: Integer;
+
+    protected var
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
 
