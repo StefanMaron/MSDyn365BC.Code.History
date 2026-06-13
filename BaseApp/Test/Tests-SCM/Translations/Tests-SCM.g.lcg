@@ -4226,6 +4226,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Misc. IV - NamedType LocCodeIsModifiedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 210072710 - NamedType 683038769" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Over-Receipt Quantity should be preserved after partial posting]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Misc. IV - NamedType OverReceiptQtyPreservedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 210072710 - NamedType 2542250129" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Qty. Outstanding should reflect remaining quantity]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Misc. IV - NamedType QtyOutstandingMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 210072710 - NamedType 2866395174" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity Received should match partial receipt quantity]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Misc. IV - NamedType QtyReceivedMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 210072710 - NamedType 534239464" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The field Automatic Cost Posting should not be set to Yes if field Use Legacy G/L Entry Locking in General Ledger Setup table is set to No because of possibility of deadlocks.]]></Val>
@@ -5612,6 +5639,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Analysis View - NamedType InvPickCreatedMessageTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 566219988 - NamedType 1021850354" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G3: chain must contain at least %1 consumption entries, got %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = expected min count, %2 = actual count]D;]A;(LookupHint=Codeunit SCM Item Appln. Entry Perf - NamedType ChainTooShortErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 566219988 - NamedType 4117436879" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Hit count of %1 is not linear in N. N1=%2:%3, N2=%4:%5, N3=%6:%7.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = proc name, %2, %3,%4, %5, %6, %7 = sizes and hit counts]D;]A;(LookupHint=Codeunit SCM Item Appln. Entry Perf - NamedType NotLinearErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 566219988 - NamedType 4062902762" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Hit count for %1 exceeds expected bound: got %2, expected <= %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = function name, %2 = actual hits, %3 = expected upper bound]D;]A;(LookupHint=Codeunit SCM Item Appln. Entry Perf - NamedType UnexpectedHitCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3348869921 - NamedType 431092131" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The item attribute '%1' is blocked.]]></Val>
@@ -6078,6 +6132,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1: Changed field name; %2: Item No.]D;]A;(LookupHint=Codeunit SCM Item Tracking - NamedType CannotChangeITWhseEntriesExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4274535345 - NamedType 3039557070" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[New Expiration Date must be equal to '%1'  in Tracking Specification]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Expiration Date]D;]A;(LookupHint=Codeunit SCM Item Tracking - NamedType ExpirationDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4274535345 - NamedType 669928843" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -8409,6 +8472,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Plan-Req. Wksht - NamedType WrongPrecisionItemAndUOMExpectedQtyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1380943308 - NamedType 1013421198" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Action Message should be New]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning - NamedType ActionMessageShouldBeNewErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1380943308 - NamedType 930868457" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Planned quantity should not exceed safety stock quantity.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning - NamedType PlannedQtyShouldNotExceedSafetyStockErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1380943308 - NamedType 1346266061" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
