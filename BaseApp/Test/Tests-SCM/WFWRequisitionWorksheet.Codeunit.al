@@ -1217,6 +1217,31 @@ codeunit 139506 "WFW Requisition Worksheet"
         Assert.ExpectedError(PreventInsertRecordWithOpenApprovalEntryForCurrUserMsg);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandler,RejectConfirmHandler')]
+    procedure TestModifyRequisitionLineIsNotAllowedForOpenApprovalEntryWhenUserIsNotApprover()
+    var
+        RequestorUserSetup: Record "User Setup";
+        RequisitionLine: Record "Requisition Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        // [FEATURE] [AI test]
+        // [SCENARIO 631789] Verify that modifying a Requisition Line is not allowed when an open approval entry exists where the current user is the approver.
+        Initialize();
+
+        // [GIVEN] A Requisition Worksheet with an open approval request.
+        SendApprovalRequestForRequisitionWorksheetWithSetup(RequisitionWkshName, RequestorUserSetup);
+        FindRequisitionLine(RequisitionLine, RequisitionWkshName);
+
+        // [WHEN] Modify the Requisition Line while declining the cancel approval confirmation.
+        RequisitionLine.Validate(Quantity, RequisitionLine.Quantity + 1);
+        asserterror RequisitionLine.Modify(true);
+
+        // [THEN] Verify that the modification was blocked.
+        Assert.ExpectedError('');
+    end;
+
     local procedure Initialize()
     var
         Workflow: Record Workflow;
@@ -1612,6 +1637,29 @@ codeunit 139506 "WFW Requisition Worksheet"
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.RequisitionWkshBatchApprovalWorkflowCode());
     end;
 
+    local procedure SendApprovalRequestForRequisitionWorksheetWithSetup(var RequisitionWkshName: Record "Requisition Wksh. Name"; var RequestorUserSetup: Record "User Setup")
+    var
+        Workflow: Record Workflow;
+        ApproverUserSetup: Record "User Setup";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        CreateDirectApprovalEnabledWorkflow(Workflow);
+        CreateRequisitionWkshNameWithOneRequisitionLine(RequisitionWkshName, RequisitionLine);
+        CreateApprovalSetup(ApproverUserSetup, RequestorUserSetup);
+
+        Commit();
+
+        SendApprovalRequestForRequisitionWorksheet(RequisitionWkshName.Name);
+    end;
+
+    local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Record "Requisition Wksh. Name")
+    begin
+        RequisitionLine.Reset();
+        RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
+        RequisitionLine.FindFirst();
+    end;
+
     [MessageHandler]
     procedure MessageHandler(Message: Text[1024])
     begin
@@ -1621,6 +1669,12 @@ codeunit 139506 "WFW Requisition Worksheet"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure RejectConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 
     [PageHandler]
