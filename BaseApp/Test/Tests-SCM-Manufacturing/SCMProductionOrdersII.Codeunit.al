@@ -17,6 +17,7 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Capacity;
@@ -8032,6 +8033,90 @@ codeunit 137072 "SCM Production Orders II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure FinishProdOrderWIPAdjustmentsUseFinishPostingDate()
+    var
+        Item: array[2] of Record Item;
+        Location: Record Location;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        InventorySetup: Record "Inventory Setup";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        ConsumptionPostingDate: Date;
+        FinishPostingDate: Date;
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO] When finishing a Production Order on date "D2", WIP adjustment G/L entries use "D2" as Posting Date, not original consumption date "D1".
+        Initialize();
+
+        // [GIVEN] Consumption date "D1" = WorkDate - 1 month, finish date "D2" = WorkDate.
+        ConsumptionPostingDate := CalcDate('<-1M>', WorkDate());
+        FinishPostingDate := WorkDate();
+
+        // [GIVEN] Enable Automatic Cost Posting in Inventory Setup.
+        InventorySetup.Get();
+        InventorySetup."Automatic Cost Posting" := true;
+        InventorySetup.Modify();
+
+        // [GIVEN] Create a Location "L" with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create component Item "I1" with FIFO costing.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Costing Method", Item[1]."Costing Method"::FIFO);
+        Item[1].Modify(true);
+
+        // [GIVEN] Post inventory for Item "I1" on date "D1" at Location "L".
+        LibraryInventory.CreateItemJnlLine(
+            ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.",
+            ConsumptionPostingDate, Item[1]."No.", LibraryRandom.RandIntInRange(10, 20), Location.Code);
+        LibraryInventory.PostItemJournalLine(
+            ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create a certified Production BOM with Item "I1".
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, Item[1]."No.", 1);
+
+        // [GIVEN] Create produced Item "I2" with FIFO costing and Production BOM.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Costing Method", Item[2]."Costing Method"::FIFO);
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Create and refresh a Released Production Order for Item "I2" at Location "L".
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released,
+            ProductionOrder."Source Type"::Item, Item[2]."No.", 1);
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Post consumption journal on date "D1".
+        LibraryManufacturing.CreateProdItemJournal(
+            ItemJournalBatch, Item[2]."No.",
+            ItemJournalBatch."Template Type"::Consumption, ProductionOrder."No.");
+        SetItemJournalLinePostingDate(ItemJournalBatch, ConsumptionPostingDate);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Restrict Allow Posting From to finish date "D2" so posting on "D1" would fail.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Allow Posting From" := FinishPostingDate;
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] Change Production Order status to Finished with posting date "D2".
+        ProdOrderStatusMgt.SetFinishOrderWithoutOutput(true);
+        ProdOrderStatusMgt.ChangeProdOrderStatus(
+            ProductionOrder, ProductionOrder.Status::Finished, FinishPostingDate, false);
+
+        // [THEN] WIP adjustment G/L entries have Posting Date = "D2".
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::Finished);
+        ProductionOrder.SetRange("No.", ProductionOrder."No.");
+        Assert.RecordIsNotEmpty(ProductionOrder);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -10337,6 +10422,15 @@ codeunit 137072 "SCM Production Orders II"
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetFilter("Lot No.", '<>%1', '');
         Assert.RecordIsNotEmpty(ItemLedgerEntry);
+    end;
+
+    local procedure SetItemJournalLinePostingDate(ItemJournalBatch: Record "Item Journal Batch"; PostingDate: Date)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.ModifyAll("Posting Date", PostingDate);
     end;
 
     [ModalPageHandler]
