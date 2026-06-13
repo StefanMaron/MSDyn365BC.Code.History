@@ -218,8 +218,10 @@ codeunit 5826 "Matched Order Line Mgmt."
                     PostedMatchedOrderLine."Qty. Invoiced" := MatchedOrderLine2."Qty. to Invoice";
                     PostedMatchedOrderLine."Qty. Invoiced (Base)" := MatchedOrderLine2."Qty. to Invoice (Base)";
                 end;
-                if PostedMatchedOrderLine."Qty. Invoiced" <> 0 then
+                if PostedMatchedOrderLine."Qty. Invoiced" <> 0 then begin
+                    OnInsertPostedMatchedOrderLinesOnBeforeInsertPostedMatchedOrderLine(PostedMatchedOrderLine, MatchedOrderLine, PurchInvLine, PurchaseLine);
                     PostedMatchedOrderLine.Insert();
+                end;
             until MatchedOrderLine.Next() = 0;
 
         MatchedOrderLine.DeleteAll();
@@ -501,6 +503,8 @@ codeunit 5826 "Matched Order Line Mgmt."
                 end;
             until MatchedOrderLine.Next() = 0;
         end;
+
+        OnAfterLoadOneLineForPurchaseInvoice(DetailedMatchedOrderLine, SourceLineSystemId, PurchaseLineInvoice);
     end;
 
     internal procedure LoadOneLineForPostedPurchaseInvoice(var DetailedMatchedOrderLine: Record "Detailed Matched Order Line"; SourceLineSystemId: Guid)
@@ -592,6 +596,8 @@ codeunit 5826 "Matched Order Line Mgmt."
                 end;
             until PostedMatchedOrderLine.Next() = 0;
         end;
+
+        OnAfterLoadOneLineForPostedPurchaseInvoice(DetailedMatchedOrderLine, SourceLineSystemId, PurchaseLineInvoice);
     end;
 
     internal procedure GetOrderLines(MatchedOrderLineSource: Enum "Matched Order Line Source"; DetailedMatchedOrderLine: Record "Detailed Matched Order Line")
@@ -817,9 +823,11 @@ codeunit 5826 "Matched Order Line Mgmt."
         if MatchedOrderLine.FindFirst() then begin
             MatchedOrderLine."Qty. to Invoice" := DetailedMatchedOrderLine."Qty. to Invoice";
             MatchedOrderLine."Qty. to Invoice (Base)" := DetailedMatchedOrderLine."Qty. to Invoice (Base)";
+            OnValidateQtyToInvoiceOnBeforeModifyMatchedOrderLine(MatchedOrderLine, DetailedMatchedOrderLine);
             MatchedOrderLine.Modify();
         end;
 
+        OnValidateQtyToInvoiceOnBeforeUpdateQtyOnParentLines(MatchedOrderLine, DetailedMatchedOrderLine, xDetailedMatchedOrderLine);
         UpdateQtyOnParentLines(DetailedMatchedOrderLine, false, DetailedMatchedOrderLine."Qty. to Invoice" - xDetailedMatchedOrderLine."Qty. to Invoice", DetailedMatchedOrderLine."Qty. to Invoice (Base)" - xDetailedMatchedOrderLine."Qty. to Invoice (Base)");
         UpdateQtyOnParentLines(DetailedMatchedOrderLine, true, DetailedMatchedOrderLine."Qty. to Invoice" - xDetailedMatchedOrderLine."Qty. to Invoice", DetailedMatchedOrderLine."Qty. to Invoice (Base)" - xDetailedMatchedOrderLine."Qty. to Invoice (Base)");
     end;
@@ -840,6 +848,7 @@ codeunit 5826 "Matched Order Line Mgmt."
         if TempDetailedMatchedOrderLine.FindFirst() then begin
             TempDetailedMatchedOrderLine."Qty. to Invoice" += QtyToInvoiceDiff;
             TempDetailedMatchedOrderLine."Qty. to Invoice (Base)" += QtyToInvoiceBaseDiff;
+            OnUpdateQtyOnParentLinesOnBeforeModifyTempDetailedMatchedOrderLine(TempDetailedMatchedOrderLine, DetailedMatchedOrderLine, UpdateInvoiceLine, QtyToInvoiceDiff, QtyToInvoiceBaseDiff);
             TempDetailedMatchedOrderLine.Modify();
         end;
     end;
@@ -1142,6 +1151,36 @@ codeunit 5826 "Matched Order Line Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnGetPurchaseOrderLinesOnBeforeModifyPurchaseLineInvoice(var PurchaseLineInvoice: Record "Purchase Line"; PurchaseLineOrder: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQtyToInvoiceOnBeforeModifyMatchedOrderLine(var MatchedOrderLine: Record "Matched Order Line"; DetailedMatchedOrderLine: Record "Detailed Matched Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQtyToInvoiceOnBeforeUpdateQtyOnParentLines(MatchedOrderLine: Record "Matched Order Line"; DetailedMatchedOrderLine: Record "Detailed Matched Order Line"; xDetailedMatchedOrderLine: Record "Detailed Matched Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPostedMatchedOrderLinesOnBeforeInsertPostedMatchedOrderLine(var PostedMatchedOrderLine: Record "Posted Matched Order Line"; MatchedOrderLine: Record "Matched Order Line"; var PurchInvLine: Record "Purch. Inv. Line"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLoadOneLineForPurchaseInvoice(var DetailedMatchedOrderLine: Record "Detailed Matched Order Line"; SourceLineSystemId: Guid; PurchaseLineInvoice: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateQtyOnParentLinesOnBeforeModifyTempDetailedMatchedOrderLine(var TempDetailedMatchedOrderLine: Record "Detailed Matched Order Line" temporary; var DetailedMatchedOrderLine: Record "Detailed Matched Order Line"; UpdateInvoiceLine: Boolean; QtyToInvoiceDiff: Decimal; QtyToInvoiceBaseDiff: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLoadOneLineForPostedPurchaseInvoice(var DetailedMatchedOrderLine: Record "Detailed Matched Order Line"; SourceLineSystemId: Guid; PurchInvLine: Record "Purch. Inv. Line")
     begin
     end;
 }

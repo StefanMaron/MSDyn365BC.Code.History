@@ -574,6 +574,17 @@ codeunit 5510 "Production Journal Mgt"
             OnBeforeDeleteAllItemJnlLine(ItemJnlLine2);
             ItemJnlLine2.DeleteAll(true);
         end;
+
+        // Delete reservation entries whose item journal lines are missing
+        ReservEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line");
+        ReservEntry.SetRange("Source Type", Database::"Item Journal Line");
+        ReservEntry.SetRange("Source ID", TemplateName);
+        ReservEntry.SetRange("Source Batch Name", BatchName);
+        if ReservEntry.Findset() then
+            repeat
+                if not ItemJnlLine2.Get(TemplateName, BatchName, ReservEntry."Source Ref. No.") then
+                    ReservEntry.Delete(true);
+            until ReservEntry.Next() = 0;
     end;
 
     local procedure DataHasChanged(TemplateName: Code[10]; BatchName: Code[10]; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer): Boolean

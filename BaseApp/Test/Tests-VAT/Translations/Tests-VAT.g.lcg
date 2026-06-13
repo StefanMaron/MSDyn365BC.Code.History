@@ -734,6 +734,15 @@
       <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM VAT Sales/Purchase - NamedType TooManyValuableSalesEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 70057887 - NamedType 418366100" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Total VAT Amount must be zero]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Sales/Purchase - NamedType TotalVATAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 70057887 - NamedType 3499056126" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must not exceed %2 = 0]]></Val>
