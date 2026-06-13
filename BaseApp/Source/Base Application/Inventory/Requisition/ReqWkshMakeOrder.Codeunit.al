@@ -250,7 +250,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                         end;
             end;
 
-        OnAfterCode(ReqLine, OrderLineCounter, OrderCounter, PrintPurchOrders, SuppressCommit, PurchOrderHeader);
+        OnAfterCode(ReqLine, OrderLineCounter, OrderCounter, PrintPurchOrders, SuppressCommit, PurchOrderHeader, this);
     end;
 
     local procedure CheckRunPrintPurchOrders()
@@ -1415,12 +1415,17 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     local procedure PurchasingParametersMatch(PurchaseHeader: Record "Purchase Header"; ReqLine: Record "Requisition Line"): Boolean
+    var
+        IsMatch: Boolean;
     begin
-        exit(
+        IsMatch :=
           (PurchaseHeader."Buy-from Vendor No." = ReqLine."Vendor No.") and
           (PurchaseHeader."Currency Code" = ReqLine."Currency Code") and
           (PrevPurchCode = ReqLine."Purchasing Code") and
-          not CheckAddressDetails(ReqLine."Sales Order No.", ReqLine."Sales Order Line No.", false));
+          not CheckAddressDetails(ReqLine."Sales Order No.", ReqLine."Sales Order Line No.", false);
+
+          OnAfterPurchasingParametersMatch(PurchaseHeader, ReqLine, PrevPurchCode, IsMatch);
+          exit(IsMatch);
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
@@ -1585,7 +1590,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCode(var RequisitionLine: Record "Requisition Line"; OrderLineCounter: Integer; OrderCounter: Integer; PrintPurchOrders: Boolean; SuppressCommit: Boolean; var PurchOrderHeader: Record "Purchase Header")
+    local procedure OnAfterCode(var RequisitionLine: Record "Requisition Line"; OrderLineCounter: Integer; OrderCounter: Integer; PrintPurchOrders: Boolean; SuppressCommit: Boolean; var PurchOrderHeader: Record "Purchase Header"; Sender: Codeunit "Req. Wksh.-Make Order")
     begin
     end;
 
@@ -1891,6 +1896,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(true, false)]
     local procedure OnCodeOnBeforeSetPurchOrderHeader(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPurchasingParametersMatch(var PurchaseHeader: Record "Purchase Header"; var RequisitionLine: Record "Requisition Line"; PrevPurchCode: Code[10]; var IsMatch: Boolean)
     begin
     end;
 
