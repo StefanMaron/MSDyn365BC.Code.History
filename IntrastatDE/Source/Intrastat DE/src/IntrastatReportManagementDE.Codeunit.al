@@ -434,7 +434,10 @@ codeunit 11029 IntrastatReportManagementDE
         TempBlob.CreateInStream(XMLInStream);
         Xmlport.Import(Xmlport::"Imp / Exp Data Exch Def & Map", XMLInStream);
 
-        IntrastatReportSetup.Get();
+        if not IntrastatReportSetup.Get() then begin
+            IntrastatReportSetup.Init();
+            IntrastatReportSetup.Insert();
+        end;
         IntrastatReportSetup."Zip Files" := true;
         IntrastatReportSetup."Data Exch. Def. Code" := 'INTRA-2022-DE';
         IntrastatReportSetup.Modify();

@@ -5,4 +5,13 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 3665199299 - NamedType 553559745" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G/L Entry %1 should be reviewed]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Entry No.]D;]A;(LookupHint=Codeunit Review G/L Entries Tests - NamedType EntryNotReviewedErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>
