@@ -4,6 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
@@ -185,15 +186,15 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
     var
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
-        EntryNo: Integer;
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         QtyHandledBase: Decimal;
         RemQtyHandledBase: Decimal;
     begin
-        EntryNo := WhseItemTrackingLine.GetLastEntryNo() + 1;
         QtyHandledBase := 0;
 
         ItemLedgerEntry.SetSourceFilterForProdOutputPutAway(ProdOrderLine);
         if ItemLedgerEntry.FindSet() then begin
+            SequenceNoMgt.AllocateSeqNoBuffer(Database::"Whse. Item Tracking Line", ItemLedgerEntry.Count());
             WhseItemTrackingLine.SetSourceFilter(SourceType, ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", false);
             WhseItemTrackingLine.DeleteAll();
             WhseItemTrackingLine.Init();
@@ -210,8 +211,7 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
 
                 if not WhseItemTrackingLine.FindFirst() then begin
                     WhseItemTrackingLine.Init();
-                    WhseItemTrackingLine."Entry No." := EntryNo;
-                    EntryNo := EntryNo + 1;
+                    WhseItemTrackingLine."Entry No." := WhseItemTrackingLine.GetNextEntryNo();
 
                     WhseItemTrackingLine."Item No." := ItemLedgerEntry."Item No.";
                     WhseItemTrackingLine."Location Code" := ItemLedgerEntry."Location Code";
@@ -272,18 +272,17 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
-        EntryNo: Integer;
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         QtyToApply: Decimal;
     begin
         WhseItemTrackingLine.Reset();
-        EntryNo := WhseItemTrackingLine.GetLastEntryNo();
 
         ItemLedgerEntry.SetSourceFilterForProdOutputPutAway(WhseWkshLine);
-        if ItemLedgerEntry.FindSet() then
+        if ItemLedgerEntry.FindSet() then begin
+            SequenceNoMgt.AllocateSeqNoBuffer(Database::"Whse. Item Tracking Line", ItemLedgerEntry.Count());
             repeat
                 WhseItemTrackingLine.Init();
-                EntryNo += 1;
-                WhseItemTrackingLine."Entry No." := EntryNo;
+                WhseItemTrackingLine."Entry No." := WhseItemTrackingLine.GetNextEntryNo();
                 WhseItemTrackingLine."Item No." := WhseWkshLine."Item No.";
                 WhseItemTrackingLine."Variant Code" := WhseWkshLine."Variant Code";
                 WhseItemTrackingLine."Location Code" := WhseWkshLine."Location Code";
@@ -304,6 +303,7 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
                     WhseItemTrackingLine.Insert();
                 end;
             until ItemLedgerEntry.Next() = 0;
+        end;
     end;
 
     internal procedure SplitProdOrderLineForOutputPutAway(ProdOrderLine: Record "Prod. Order Line"; var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary; SplitUpToQtyBase: Decimal)

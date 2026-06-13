@@ -242,7 +242,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                         end;
             end;
 
-        OnAfterCode(ReqLine, OrderLineCounter, OrderCounter, PrintPurchOrders, SuppressCommit, PurchOrderHeader);
+        OnAfterCode(ReqLine, OrderLineCounter, OrderCounter, PrintPurchOrders, SuppressCommit, PurchOrderHeader, this);
     end;
 
     local procedure CheckRunPrintPurchOrders()
@@ -1535,7 +1535,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCode(var RequisitionLine: Record "Requisition Line"; OrderLineCounter: Integer; OrderCounter: Integer; PrintPurchOrders: Boolean; SuppressCommit: Boolean; var PurchOrderHeader: Record "Purchase Header")
+    local procedure OnAfterCode(var RequisitionLine: Record "Requisition Line"; OrderLineCounter: Integer; OrderCounter: Integer; PrintPurchOrders: Boolean; SuppressCommit: Boolean; var PurchOrderHeader: Record "Purchase Header"; Sender: Codeunit "Req. Wksh.-Make Order")
     begin
     end;
 

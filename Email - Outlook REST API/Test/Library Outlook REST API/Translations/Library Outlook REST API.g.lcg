@@ -5,6 +5,15 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";EnumExtension 300918312 - EnumValue 1904210777 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Outlook REST API]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 1993094577)(Namespace=System.Email)(LookupHint=EnumExtension Test Outlook Connector - EnumValue Test Outlook REST API - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3929733566 - NamedType 2917787611" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Could not send the email, because the user is delegated or external.]]></Val>

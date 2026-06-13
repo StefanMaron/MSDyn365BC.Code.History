@@ -238,7 +238,8 @@ table 36 "Sales Header"
                     Rec.RecallModifyAddressNotification(GetModifyCustomerAddressNotificationId());
 
                 if xRec."Sell-to Customer No." <> "Sell-to Customer No." then
-                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, not IsNullGuid(Rec.SystemId));
+                    if not IsNullGuid(Rec.SystemId) then
+                        SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
             end;
         }
         /// <summary>
@@ -284,9 +285,10 @@ table 36 "Sales Header"
                     exit;
 
                 if BilltoCustomerNoChanged and not IsHandled then
-                    if xRec."Bill-to Customer No." = '' then
-                        InitRecord()
-                    else
+                    if xRec."Bill-to Customer No." = '' then begin
+                        SkipDocNoOccurrenceReset := true;
+                        InitRecord();
+                    end else
                         if ConfirmBillToCustomerChange() then begin
                             OnValidateBillToCustomerNoOnAfterConfirmed(Rec);
 
@@ -347,7 +349,8 @@ table 36 "Sales Header"
                     Rec.RecallModifyAddressNotification(Rec.GetModifyBillToCustomerAddressNotificationId());
 
                 if xRec."Bill-to Customer No." <> "Bill-to Customer No." then
-                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, not IsNullGuid(Rec.SystemId));
+                    if not IsNullGuid(Rec.SystemId) then
+                        SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
             end;
         }
         /// <summary>
@@ -953,7 +956,8 @@ table 36 "Sales Header"
                     StandardCodesMgt.CheckShowSalesRecurringLinesNotification(Rec);
 
                 if "Currency Code" <> xRec."Currency Code" then
-                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, not IsNullGuid(Rec.SystemId));
+                    if not IsNullGuid(Rec.SystemId) then
+                        SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
 
                 if Status = Status::Open then
                     SetCompanyBankAccount();
@@ -2251,7 +2255,8 @@ table 36 "Sales Header"
                 TestStatusOpen();
                 if xRec."VAT Bus. Posting Group" <> "VAT Bus. Posting Group" then begin
                     RecreateSalesLines(FieldCaption("VAT Bus. Posting Group"));
-                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, not IsNullGuid(Rec.SystemId));
+                    if not IsNullGuid(Rec.SystemId) then
+                        SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
                 end;
             end;
         }
@@ -3100,7 +3105,9 @@ table 36 "Sales Header"
                     end;
                 end;
 
-                if ("Sell-to Customer No." <> '') and ("Sell-to Contact No." <> '') then
+                if ("Sell-to Customer No." <> '') and ("Sell-to Contact No." <> '') and
+                   ("Document Type" <> "Document Type"::Quote)
+                then
                     CheckContactRelatedToCustomerCompany("Sell-to Contact No.", "Sell-to Customer No.", CurrFieldNo);
 
                 IsHandled := false;
@@ -3999,6 +4006,7 @@ table 36 "Sales Header"
         SkipSellToContact: Boolean;
         SkipBillToContact: Boolean;
         SkipTaxCalculation: Boolean;
+        SkipDocNoOccurrenceReset: Boolean;
 
     /// <summary>
     /// Initializes a new sales header with a new document number from the number series.
@@ -4091,8 +4099,9 @@ table 36 "Sales Header"
 
         IsHandled := false;
         OnInitRecordOnBeforeGetNextArchiveDocOccurrenceNo(Rec, IsHandled);
-        if not IsHandled then
+        if (not IsHandled) and (not SkipDocNoOccurrenceReset) then
             "Doc. No. Occurrence" := ArchiveManagement.GetNextOccurrenceNo(DATABASE::"Sales Header", Rec."Document Type".AsInteger(), Rec."No.");
+        SkipDocNoOccurrenceReset := false;
 
         OnAfterInitRecord(Rec);
     end;
@@ -5729,6 +5738,10 @@ table 36 "Sales Header"
             Validate("Sell-to Phone No.", Cont."Phone No.");
         end else begin
             if "Document Type" = "Document Type"::Quote then begin
+                if "Sell-to Customer No." <> '' then begin
+                    "Sell-to Customer No." := '';
+                    "Bill-to Customer No." := '';
+                end;
                 if not GetContactAsCompany(Cont, SearchContact) then
                     SearchContact := Cont;
                 "Sell-to Customer Name" := SearchContact."Company Name";
@@ -6913,6 +6926,7 @@ table 36 "Sales Header"
         SalesLine2.SetRange("Document No.", "No.");
         SalesLine2.SetRange("Drop Shipment", false);
         SalesLine2.SetRange(Type, SalesLine.Type::Item);
+        OnCheckShippingAdviceOnAfterSetLineFilters(SalesLine2, Rec);
         Result := true;
         if SalesLine2.FindSet() then
             repeat
@@ -9715,7 +9729,7 @@ table 36 "Sales Header"
             exit(Result);
 
         Contact.FilterGroup(2);
-        if "Sell-to Customer No." <> '' then
+        if ("Sell-to Customer No." <> '') and ("Document Type" <> "Document Type"::Quote) then
             if Contact.Get("Sell-to Contact No.") then
                 Contact.SetRange("Company No.", Contact."Company No.")
             else
@@ -10079,6 +10093,11 @@ table 36 "Sales Header"
     /// <param name="Result">The result of the shipping advice check.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckShippingAdvice(var SalesHeader: Record "Sales Header"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckShippingAdviceOnAfterSetLineFilters(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
     begin
     end;
 
