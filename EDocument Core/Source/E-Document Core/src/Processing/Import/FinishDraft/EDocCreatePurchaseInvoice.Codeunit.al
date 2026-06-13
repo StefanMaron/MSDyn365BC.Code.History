@@ -112,6 +112,7 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
         PurchaseLine: Record "Purchase Line";
         EDocRecordLink: Record "E-Doc. Record Link";
+        EDocPurchaseDocumentHelper: Codeunit "E-Doc. Purch. Doc. Helper";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         EDocLineByReceipt: Query "E-Doc. Line by Receipt";
         LastReceiptNo: Code[20];
@@ -132,9 +133,9 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         PurchaseHeader."Pay-to Vendor No." := EDocumentPurchaseHeader."[BC] Vendor No.";
         PurchaseHeader."Posting Description" := EDocumentPurchaseHeader."Posting Description";
         if EDocumentPurchaseHeader."Document Date" <> 0D then
-            PurchaseHeader.Validate("Document Date", EDocumentPurchaseHeader."Document Date");
+            EDocPurchaseDocumentHelper.ValidateFieldWithContext(PurchaseHeader, PurchaseHeader.FieldNo("Document Date"), EDocumentPurchaseHeader."Document Date");
         if EDocumentPurchaseHeader."Due Date" <> 0D then
-            PurchaseHeader.Validate("Due Date", EDocumentPurchaseHeader."Due Date");
+            EDocPurchaseDocumentHelper.ValidateFieldWithContext(PurchaseHeader, PurchaseHeader.FieldNo("Due Date"), EDocumentPurchaseHeader."Due Date");
 
         VendorInvoiceNo := CopyStr(EDocumentPurchaseHeader."Sales Invoice No.", 1, MaxStrLen(PurchaseHeader."Vendor Invoice No."));
         VendorLedgerEntry.SetLoadFields("Entry No.");
@@ -145,16 +146,17 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
             Error(InvoiceAlreadyExistsErr, VendorInvoiceNo, EDocumentPurchaseHeader."[BC] Vendor No.");
         end;
 
-        PurchaseHeader.Validate("Vendor Invoice No.", VendorInvoiceNo);
+        EDocPurchaseDocumentHelper.ValidateFieldWithContext(PurchaseHeader, PurchaseHeader.FieldNo("Vendor Invoice No."), VendorInvoiceNo);
         PurchaseHeader.Insert(true);
 
         PurchaseHeader."Invoice Received Date" := PurchaseHeader."Document Date";
+        EDocPurchaseDocumentHelper.ApplyDefaultPostingDateFromSetup(PurchaseHeader, EDocumentPurchaseHeader);
         PurchaseHeader.Modify();
 
         // Validate of currency has to happen after insert.
         GLSetup.GetRecordOnce();
         if EDocumentPurchaseHeader."Currency Code" <> GLSetup.GetCurrencyCode('') then begin
-            PurchaseHeader.Validate("Currency Code", EDocumentPurchaseHeader."Currency Code");
+            EDocPurchaseDocumentHelper.ValidateFieldWithContext(PurchaseHeader, PurchaseHeader.FieldNo("Currency Code"), EDocumentPurchaseHeader."Currency Code");
             PurchaseHeader.Modify();
         end;
         EDocRecordLink.InsertEDocumentHeaderLink(EDocumentPurchaseHeader, PurchaseHeader);
@@ -194,6 +196,7 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         EDocLineByReceipt.Close();
         PurchaseHeader.Modify();
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(EDocumentPurchaseHeader."Total Discount", PurchaseHeader);
+        EDocPurchaseDocumentHelper.ApplyVATDifferenceToLines(PurchaseHeader, EDocumentPurchaseHeader);
         exit(PurchaseHeader);
     end;
 
@@ -203,6 +206,7 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         EDocRecordLink: Record "E-Doc. Record Link";
         EDocumentPurchaseHistMapping: Codeunit "E-Doc. Purchase Hist. Mapping";
         DimensionManagement: Codeunit DimensionManagement;
+        EDocPurchaseDocumentHelper: Codeunit "E-Doc. Purch. Doc. Helper";
         PurchaseLineCombinedDimensions: array[10] of Integer;
         GlobalDim1, GlobalDim2 : Code[20];
     begin
@@ -214,6 +218,9 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         PurchaseLine."Variant Code" := EDocumentPurchaseLine."[BC] Variant Code";
         PurchaseLine.Type := EDocumentPurchaseLine."[BC] Purchase Line Type";
         PurchaseLine.Validate("No.", EDocumentPurchaseLine."[BC] Purchase Type No.");
+        if EDocumentPurchaseLine."[BC] VAT Prod. Posting Group" <> '' then
+            EDocPurchaseDocumentHelper.ValidateFieldWithContext(
+                PurchaseLine, PurchaseLine.FieldNo("VAT Prod. Posting Group"), EDocumentPurchaseLine."[BC] VAT Prod. Posting Group");
         if (PurchaseLine.Type = PurchaseLine.Type::"G/L Account") and HasTotalDiscount then
             PurchaseLine.Validate("Allow Invoice Disc.", true);
         PurchaseLine.Description := EDocumentPurchaseLine.Description;

@@ -7031,4 +7031,3 @@
         SuggestWorksheetLines.OK().Invoke();
     end;
 }
-

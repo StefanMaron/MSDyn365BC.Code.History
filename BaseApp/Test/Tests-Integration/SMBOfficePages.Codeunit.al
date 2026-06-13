@@ -34,6 +34,7 @@ codeunit 139048 "SMB Office Pages"
     var
         CompanyInformation: Record "Company Information";
         OfficeAddinContext: Record "Office Add-in Context";
+        ReportSelections: Record "Report Selections";
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
@@ -51,6 +52,11 @@ codeunit 139048 "SMB Office Pages"
         InitializeWithHostType(OfficeHostType.OutlookTaskPane);
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+
+        // [GIVEN] Report selection for Sales Invoice has no email body or attachment configured.
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"S.Invoice");
+        ReportSelections.ModifyAll("Use for Email Body", false);
+        ReportSelections.ModifyAll("Use for Email Attachment", false);
 
         // [GIVEN] Company information allows blank info (prevents unexpected confirm)
         CompanyInformation.Get();
@@ -2173,8 +2179,11 @@ codeunit 139048 "SMB Office Pages"
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
         OfficeAddinSetup.Get();
+        if(OfficeAddinSetup."Office Host Codeunit ID" = ProviderId) then
+            exit;
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
         OfficeAddinSetup.Modify();
+        Commit();
     end;
 
     [Normal]

@@ -186,6 +186,7 @@ report 108 "Customer - Order Detail"
                     }
                     trigger OnAfterGetRecord()
                     begin
+                        ReportHasData := true;
                         OrderNoAndDate := StrSubstNo(OrderNoAndDateLbl, "Sales Header"."No.", Format("Sales Header"."Order Date", 0, '<Closing><Day> <Month Text> <Year4>'));
                         NewOrder := "Document No." <> SalesHeader."No.";
                         if NewOrder then
@@ -452,6 +453,12 @@ report 108 "Customer - Order Detail"
         TotalLbl = 'Total';
     }
 
+    trigger OnPreRendering(var RenderingPayload: JsonObject)
+    begin
+        if not ReportHasData then
+            Error(EmptyReportDatasetErr);
+    end;
+
     trigger OnPreReport()
     var
         FormatDocument: Codeunit "Format Document";
@@ -495,6 +502,8 @@ report 108 "Customer - Order Detail"
         Counter1: Integer;
         CurrencyCode2: Code[10];
         PageGroupNo: Integer;
+        ReportHasData: Boolean;
+        EmptyReportDatasetErr: Label 'The report couldn''t be generated, because it was empty. Adjust your filters and try again.';
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
