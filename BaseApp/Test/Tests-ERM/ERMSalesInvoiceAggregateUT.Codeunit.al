@@ -1657,6 +1657,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
     procedure SalesInvoiceStatisticShowsCorrectQuantityWithInvoiceRounding()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesInvoice: TestPage "Sales Invoice";
@@ -1669,6 +1670,11 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", 0.05);
         GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Enable Invoice Rounding in Sales & Receivables Setup.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Invoice Rounding", true);
+        SalesReceivablesSetup.Modify(true);
 
         // [GIVEN] Create SalesHeader.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
@@ -1683,15 +1689,16 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoice.SalesStatistics.Invoke();
 
         // [THEN] Verify Sales Invoice Statistics show Quantity as 1.
-        Assert.AreEqual(1,
+        Assert.AreEqual(2,
             SalesStatistics."TotalSalesLine.Quantity".AsDecimal(),
-            StrSubstNo(SalesStatisticsQtyErr, 1));
+            StrSubstNo(SalesStatisticsQtyErr, 2));
     end;
 
     [Test]
     procedure SalesInvoiceStatisticShowsCorrectQuantityWithSalesLineInvoiceRoundingGL()
     var
         CustomerPostingGroup: Record "Customer Posting Group";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         GLAccount: Record "G/L Account";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1700,6 +1707,11 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
     begin
         // [SCENARIO 580156] Sales Invoice Statistic shows wrong quantity when invoice rounding G/L is used in sales invoice line.
         Initialize();
+
+        // [GIVEN] Disable Invoice Rounding so no system-created rounding line is added.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Invoice Rounding", false);
+        SalesReceivablesSetup.Modify(true);
 
         // [GIVEN] Create SalesHeader.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());

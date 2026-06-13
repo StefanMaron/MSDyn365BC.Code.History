@@ -961,15 +961,19 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         if not PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchInvLine."Order No.", PurchInvLine."Order Line No.") then
             exit;
 
-        PurchInvLine.GetItemLedgEntries(TempItemLedgerEntry, false);
+        if PurchInvLine.Type = PurchInvLine.Type::Item then
+            PurchInvLine.GetItemLedgEntries(TempItemLedgerEntry, false);
+
         UpdatePurchaseOrderLineInvoicedQuantity(PurchaseLine, PurchCrMemoLine.Quantity, PurchCrMemoLine."Quantity (Base)");
         UpdatePurchaseOrderLinePrepmtAmount(PurchInvLine);
 
-        if PurchaseLine."Qty. to Receive" = 0 then
-            UpdateWhseRequest(Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Location Code");
+        if PurchInvLine.Type = PurchInvLine.Type::Item then begin
+            if PurchaseLine."Qty. to Receive" = 0 then
+                UpdateWhseRequest(Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Location Code");
 
-        TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
-        UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, PurchInvLine."Posting Date", true);
+            TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
+            UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, PurchInvLine."Posting Date", true);
+        end;
     end;
 
     local procedure UpdatePurchaseOrderLinePrepmtAmount(PurchInvLine: Record "Purch. Inv. Line")

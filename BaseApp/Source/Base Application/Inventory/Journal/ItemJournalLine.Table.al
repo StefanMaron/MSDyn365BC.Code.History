@@ -76,6 +76,7 @@ table 83 "Item Journal Line"
                 DummyMachineCenter: Record Microsoft.Manufacturing.MachineCenter."Machine Center";
                 DummyWorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center";
 #endif
+                SkipInventoryValueZeroCheck: Boolean;
             begin
                 if "Item No." <> xRec."Item No." then begin
                     "Variant Code" := '';
@@ -108,11 +109,12 @@ table 83 "Item Journal Line"
                 end;
 
                 GetItem();
-                OnValidateItemNoOnAfterGetItem(Rec, Item);
+                SkipInventoryValueZeroCheck := false;
+                OnValidateItemNoOnAfterGetItem(Rec, Item, SkipInventoryValueZeroCheck);
                 DisplayErrorIfItemIsBlocked(Item);
                 ValidateTypeWithItemNo();
 
-                if "Value Entry Type" = "Value Entry Type"::Revaluation then
+                if ("Value Entry Type" = "Value Entry Type"::Revaluation) and not SkipInventoryValueZeroCheck then
                     Item.TestField("Inventory Value Zero", false);
                 OnValidateItemNoOnBeforeSetDescription(Rec, Item);
                 Description := Item.Description;
@@ -4731,7 +4733,7 @@ table 83 "Item Journal Line"
     /// <param name="ItemJournalLine">The current item journal line record being processed.</param>
     /// <param name="Item">The retrived "Item" record.</param>
     [IntegrationEvent(false, false)]
-    local procedure OnValidateItemNoOnAfterGetItem(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
+    local procedure OnValidateItemNoOnAfterGetItem(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item; var SkipInventoryValueZeroCheck: Boolean)
     begin
     end;
 
