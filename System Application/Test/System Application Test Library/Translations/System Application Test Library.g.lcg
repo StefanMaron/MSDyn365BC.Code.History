@@ -2246,6 +2246,24 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.MCP)(LookupHint=Page Mock Card - Control Name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Query 2296724020 - Property 2879900210" ItemType=";Query - Query" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Mock API Query]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.MCP)(LookupHint=Query Mock API Query - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Query 3826689712 - Property 2879900210" ItemType=";Query - Query" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Mock APIV2 Query]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.MCP)(LookupHint=Query Mock APIV2 Query - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 1782757628 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[My Video Source]]></Val>

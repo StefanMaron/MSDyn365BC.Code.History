@@ -329,6 +329,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Office host type]D;]A;(LookupHint=Codeunit SMB Office Pages - NamedType AttachAvailableErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3032490288 - NamedType 3984601750" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must select an email body or attachment in report selection for]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Usage, for example Sales Invoice]D;]A;(LookupHint=Codeunit SMB Office Pages - NamedType MustSelectAndEmailBodyOrAttahmentErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1573783294 - NamedType 1789753926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The access token is empty.]]></Val>
@@ -534,6 +543,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Web Services Tests - NamedType UnpublishedPageTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";EnumExtension 3540184235 - EnumValue 3150094508 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Report]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 3466494917)(LookupHint=EnumExtension PBI Test Deployable Reports - EnumValue Test Report - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>
