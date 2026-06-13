@@ -461,9 +461,9 @@ codeunit 139058 "Office OCR Test"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Office OCR Test");
 
         LibraryApplicationArea.EnableFoundationSetup();
+        ResetOCRSetup();
         if CryptographyManagement.IsEncryptionEnabled() then
             DeleteEncryptionKey();
-        ResetOCRSetup();
         InitializeWithHostType(HostType);
     end;
 
@@ -473,6 +473,7 @@ codeunit 139058 "Office OCR Test"
         Workflow: Record Workflow;
         AddinManifestManagement: Codeunit "Add-in Manifest Management";
     begin
+        if UnbindSubscription(LibraryOfficeHostProvider) then;
         Clear(LibraryOfficeHostProvider);
 
         Workflow.SetRange(Template, false);

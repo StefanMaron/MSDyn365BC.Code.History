@@ -1670,6 +1670,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Kitting - Undo - NamedType ATO_MUST_BE_NO)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2198777358 - NamedType 1631003675" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Number of Invt. Movement activities]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Kitting - Undo - NamedType INVT_MVMT_CREATED_Msg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2198777358 - NamedType 2477368592" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[has been created.]]></Val>
@@ -1767,6 +1776,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Kitting - Undo - NamedType MSG_WANT_UNDO)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2198777358 - NamedType 201321100" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Whse. Item Tracking Lines should be deleted after undo and recreate]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Kitting - Undo - NamedType WhseItemTrackingLinesShouldBeDeletedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2198777358 - NamedType 2943079835" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Whse. Item Tracking Lines should exist after registering inventory movement]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Kitting - Undo - NamedType WhseItemTrackingLinesShouldExistErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1583753357 - NamedType 1769477864" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
