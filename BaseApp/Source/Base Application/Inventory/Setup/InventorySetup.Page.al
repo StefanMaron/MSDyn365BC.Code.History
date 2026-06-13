@@ -44,6 +44,10 @@ page 461 "Inventory Setup"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+                field("Earliest Allowed Val. Date"; Rec."Earliest Allowed Val. Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
                 field("Default Costing Method"; Rec."Default Costing Method")
                 {
                     ApplicationArea = Basic, Suite;
@@ -328,6 +332,15 @@ page 461 "Inventory Setup"
                 RunObject = Page "Inventory Periods";
                 ToolTip = 'Set up periods in combinations with your accounting periods that define when you can post transactions that affect the value of your item inventory. When you close an inventory period, you cannot post any changes to the inventory value, either expected or actual value, before the ending date of the inventory period.';
             }
+            action("Adjust Cost - Item Entries")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Adjust Cost - Item Entries';
+                Ellipsis = true;
+                Image = AdjustEntries;
+                RunObject = Report "Adjust Cost - Item Entries";
+                ToolTip = 'Adjust inventory values in value entries so that you use the correct adjusted cost for updating the general ledger and so that sales and profit statistics are up to date. Run this before setting the Earliest Allowed Valuation Date.';
+            }
             action("Units of Measure")
             {
                 ApplicationArea = Basic, Suite;
@@ -399,6 +412,9 @@ page 461 "Inventory Setup"
                 {
                 }
                 actionref("Inventory Periods_Promoted"; "Inventory Periods")
+                {
+                }
+                actionref("Adjust Cost - Item Entries_Promoted"; "Adjust Cost - Item Entries")
                 {
                 }
                 actionref("Units of Measure_Promoted"; "Units of Measure")

@@ -3486,9 +3486,16 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if SupplyInvtProfile."Planning Flexibility" <> SupplyInvtProfile."Planning Flexibility"::Unlimited then
             exit(false);
 
-        if (TargetDate - SupplyInvtProfile."Due Date") <= DampenersDays then
-            PossibleDate := SupplyInvtProfile."Due Date"
-        else
+        if (TargetDate - SupplyInvtProfile."Due Date") <= DampenersDays then begin
+            if (TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::"Lot-for-Lot") and
+               AllowLotAccumulation(SupplyInvtProfile, TargetDate) and
+               (TargetDate > SupplyInvtProfile."Due Date") and
+               (SupplyInvtProfile."Untracked Quantity" < TempSKU."Safety Stock Quantity")
+            then
+                exit(false)
+            else
+                PossibleDate := SupplyInvtProfile."Due Date";
+        end else
             if not LimitedHorizon or
                (SupplyInvtProfile."Planning Level Code" > 0)
             then
