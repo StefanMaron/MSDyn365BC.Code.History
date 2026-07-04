@@ -2588,6 +2588,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Entry No., %4 = Table Caption]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType EntryMustBeEqualErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 3747601527" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected Quantity must be %1 (= Round(%2 x %3, %4)).]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[ %1 = Expected Quantity, %2 = Quantity Per, %3 = Prod. Order Qty, %4 = Rounding Precision]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType ExpectedQtyRoundingErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2276747048 - NamedType 2967835219" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be editable in %2]]></Val>
@@ -2712,6 +2721,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[ %1 = Expected Value , %2 = Item No.]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType NonInvMaterialCostMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 4270112372" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity per must be %1 (unrounded BOM value), not coarsely rounded to item precision %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Expected Quantity Per, %2 = Item Rounding Precision]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType QtyPerNotRoundedToItemPrecisionErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2276747048 - NamedType 2307996599" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -1463,7 +1463,7 @@ codeunit 5940 ServContractManagement
                         LineInvFrom := InvFrom;
                     CreateServiceLine(
                       ServHeader, CurrServContract."Contract Type",
-                      CurrServContract."Contract No.", InvFrom, InvTo, AppliedEntry, true);
+                      CurrServContract."Contract No.", LineInvFrom, InvTo, AppliedEntry, true);
                 until ServContractLine.Next() = 0;
         end else begin
             CreateHeadingServiceLine(
