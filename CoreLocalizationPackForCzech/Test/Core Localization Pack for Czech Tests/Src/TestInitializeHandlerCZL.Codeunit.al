@@ -43,6 +43,8 @@ codeunit 148104 "Test Initialize Handler CZL"
                 end;
             137161: // SCM Warehouse Orders
                 DisableVATDateUsage();
+            134987: // ERM Financial Reports III
+                CreateVATPeriod();
         end;
 
         if not (CallerCodeunitID in [134008, 134045, 134088, 134992]) then
@@ -112,5 +114,31 @@ codeunit 148104 "Test Initialize Handler CZL"
     local procedure TryUnbindSuppConfVATEntUpdate(): Boolean
     begin
         exit(UnbindSubscription(SuppConfVATEntUpdate));
+    end;
+
+    local procedure CreateVATPeriod()
+    begin
+        InsertVATPeriod(DMY2Date(1, 1, 2025), DMY2Date(31, 12, 2025));
+    end;
+
+    procedure InsertVATPeriod(StartingDate: Date; EndingDate: Date)
+    begin
+        while StartingDate <= EndingDate do begin
+            InsertVATPeriod(StartingDate);
+            StartingDate := CalcDate('<1M>', StartingDate);
+        end;
+    end;
+
+    procedure InsertVATPeriod(StartingDate: Date)
+    var
+        VATPeriodCZL: Record "VAT Period CZL";
+    begin
+        if VATPeriodCZL.Get(StartingDate) then
+            exit;
+
+        VATPeriodCZL.Validate("Starting Date", StartingDate);
+        if (Date2DMY(StartingDate, 1) = 1) and (Date2DMY(StartingDate, 2) = 1) then
+            VATPeriodCZL."New VAT Year" := true;
+        VATPeriodCZL.Insert(true);
     end;
 }
