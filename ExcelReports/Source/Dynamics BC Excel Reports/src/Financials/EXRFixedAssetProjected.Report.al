@@ -1,11 +1,11 @@
 namespace Microsoft.Finance.ExcelReports;
 
-using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.ExcelReports;
 using Microsoft.FixedAssets.Depreciation;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.FixedAssets.Ledger;
 using Microsoft.FixedAssets.Setup;
 using Microsoft.Foundation.Period;
-using Microsoft.FixedAssets.Ledger;
-using Microsoft.ExcelReports;
 
 report 4413 "EXR Fixed Asset Projected"
 {
@@ -336,15 +336,15 @@ report 4413 "EXR Fixed Asset Projected"
                 DaysInPeriod := 0;
             end;
 
-            if ProjectionDate = EndCurrentFiscalYear then begin
-                EntryAmounts[3] := 0;
-                UpdateToNextFiscalYearEndDate(DepreciationBook, EndCurrentFiscalYear);
-            end;
-
             if AssetWasDepreciated then begin
                 AccumulateProjectionEntryAmounts(DepreciationAmount, Custom1Amount, EntryAmounts);
                 if ProjectDisposal then
                     CalculateDisposal.CalcGainLoss(FixedAssetNo, DepreciationBookCode, EntryAmounts);
+            end;
+
+            if ProjectionDate = EndCurrentFiscalYear then begin
+                EntryAmounts[3] := 0;
+                UpdateToNextFiscalYearEndDate(DepreciationBook, EndCurrentFiscalYear);
             end;
 
             InsertProjectedFixedAssetLedgerEntry(ProjectionDate, FixedAssetNo, DepreciationAmount, NumberOfDays, TempFixedAssetLedgerEntry);
