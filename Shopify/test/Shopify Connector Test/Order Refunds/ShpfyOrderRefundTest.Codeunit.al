@@ -355,6 +355,7 @@ codeunit 139611 "Shpfy Order Refund Test"
         OrderRefundsHelper.SetDefaultSeed();
         ReturnId := OrderRefundsHelper.CreateReturn(OrderId);
         OrderRefundsHelper.CreateReturnLine(ReturnId, OrderId, '');
+        OrderRefundsHelper.CreateUnverifiedReturnLine(ReturnId, '');
     end;
 
     local procedure CreateLocation(var Location: Record Location)
