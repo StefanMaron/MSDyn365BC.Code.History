@@ -338,6 +338,33 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Test Shopify - Method UnitTestConfigureShop - NamedType ShopMissingUrlErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Enum 3930955020 - EnumValue 1842188621 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Always Fail]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Enum Shpfy Inventory Retry Scenario - EnumValue AlwaysFail - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 3930955020 - EnumValue 3006466004 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Fail Once Then Succeed]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Enum Shpfy Inventory Retry Scenario - EnumValue FailOnceThenSucceed - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 3930955020 - EnumValue 3878926381 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Success]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Enum Shpfy Inventory Retry Scenario - EnumValue Success - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";EnumExtension 912748123 - EnumValue 922120222 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Add Product]]></Val>
