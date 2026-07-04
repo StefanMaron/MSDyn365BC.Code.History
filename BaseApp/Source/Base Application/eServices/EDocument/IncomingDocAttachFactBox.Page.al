@@ -85,6 +85,7 @@ page 193 "Incoming Doc. Attach. FactBox"
 
                 trigger OnAction(files: List of [FileUpload])
                 begin
+                    Commit();
                     UploadMultipleAttachments(files);
                 end;
             }
