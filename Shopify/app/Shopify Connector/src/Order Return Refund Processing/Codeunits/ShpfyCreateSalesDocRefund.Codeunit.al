@@ -151,6 +151,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
         else
             if RefundHeader."Return Id" > 0 then begin
                 ReturnLine.SetRange("Return Id", RefundHeader."Return Id");
+                ReturnLine.SetRange(Type, ReturnLine.Type::Default);
                 ReturnLine.SetAutoCalcFields("Item No.", "Variant Code", Description);
                 if ReturnLine.FindSet(false) then
                     CreateSalesLinesFromReturnLines(ReturnLine, RefundHeader, SalesHeader, LineNo);

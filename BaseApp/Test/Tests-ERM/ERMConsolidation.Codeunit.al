@@ -762,7 +762,7 @@ codeunit 134092 "ERM Consolidation"
     end;
 
     [Test]
-    [HandlerFunctions('DimensionSelectionMultiplePageHandler')]
+    [HandlerFunctions('DimensionSelectionMultiplePageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure ConsolidationWizardClearsDimensionsOnSecondRun()
     var
