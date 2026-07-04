@@ -21,8 +21,12 @@ page 5740 "Transfer Order"
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Transfer Header";
+#if not CLEAN27
     SourceTableView = sorting("No.")
                       where("Subcontracting Order" = const(false));
+#else
+    SourceTableView = sorting("No.");
+#endif
 
     layout
     {

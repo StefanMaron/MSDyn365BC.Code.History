@@ -745,26 +745,40 @@ page 26 "Vendor Card"
                     Visible = OverReceiptAllowed;
                     ToolTip = 'Specifies the policy that will be used for the vendor if more items than ordered are received.';
                 }
+#if not CLEAN27
                 field(Subcontractor; Rec.Subcontractor)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the vendor is a subcontractor.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Subcontracting Location Code"; Rec."Subcontracting Location Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the location where the subcontracted items are stored for pickup and delivery.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Subcontractor Procurement"; Rec."Subcontractor Procurement")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the subcontractor is managing the product stock on the principal company''s behalf.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
                 field("Linked to Work Center"; Rec."Linked to Work Center")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a work center is related to the vendor.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
             }
         }
         area(factboxes)

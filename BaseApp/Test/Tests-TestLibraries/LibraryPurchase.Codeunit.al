@@ -646,8 +646,10 @@ codeunit 130512 "Library - Purchase"
     procedure CreateSubcontractor(var Vendor: Record Vendor)
     begin
         CreateVendor(Vendor);
+#if not CLEAN27
         Vendor.Validate(Subcontractor, true);
         Vendor.Modify(true);
+#endif
     end;
 
     procedure CreateVendor(var Vendor: Record Vendor): Code[20]

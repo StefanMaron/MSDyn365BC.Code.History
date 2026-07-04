@@ -85,12 +85,14 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TransLine.SetRange("Document No.", TransHeader."No.");
             TransLine.SetRange("Derived From Line No.", 0);
             WipToShip := false;
+#if not CLEAN27
             TransHeader.CalcFields(TransHeader."Subcontracting Order");
             if TransHeader."Subcontracting Order" then begin
                 TransLine.SetFilter("WIP Qty. To Ship", '<>0');
                 WipToShip := not TransLine.IsEmpty();
                 TransLine.SetRange("WIP Qty. To Ship");
             end;
+#endif
             TransLine.SetFilter(Quantity, '<>0');
             TransLine.SetFilter("Qty. to Ship", '<>0');
             HasLinesToShip := not TransLine.IsEmpty();

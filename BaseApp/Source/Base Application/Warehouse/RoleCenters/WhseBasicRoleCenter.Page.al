@@ -46,7 +46,9 @@ using System.Integration.PowerBI;
 using System.Threading;
 using System.Visualization;
 using Microsoft.Foundation.Task;
+#if not CLEAN27
 using Microsoft.Manufacturing.Document;
+#endif
 
 page 9008 "Whse. Basic Role Center"
 {
@@ -150,6 +152,8 @@ page 9008 "Whse. Basic Role Center"
             separator(Action1130001)
             {
             }
+
+#if not CLEAN27
             action("Subcontract. Transfer Shipment")
             {
                 ApplicationArea = Basic, Suite;
@@ -157,7 +161,11 @@ page 9008 "Whse. Basic Role Center"
                 Image = "Report";
                 RunObject = Report "Subcontract. Transfer Shipment";
                 ToolTip = 'Create a subcontracting transfer shipment.';
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
+#endif
         }
         area(embedding)
         {

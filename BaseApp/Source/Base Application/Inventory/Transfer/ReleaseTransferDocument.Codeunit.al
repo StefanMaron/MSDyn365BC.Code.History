@@ -119,9 +119,14 @@ codeunit 5708 "Release Transfer Document"
         if IsHandled then
             exit;
 
-        TransLine.SetLoadFields("Document No.", Quantity, "WIP Quantity", "Item No.", "Variant Code");
+        TransLine.SetLoadFields("Document No.", Quantity,
+#if not CLEAN27
+            "WIP Quantity",
+#endif
+            "Item No.", "Variant Code");
         TransLine.SetRange("Document No.", TransHeader."No.");
         TransLine.SetFilter(Quantity, '<>0');
+#if not CLEAN27
         TransHeader.CalcFields("Subcontracting Order");
         case TransHeader."Subcontracting Order" of
             true:
@@ -132,9 +137,13 @@ codeunit 5708 "Release Transfer Document"
                         Error(NothingToReleaseErr, TransHeader."No.");
                 end;
             false:
+                if TransLine.IsEmpty() then
+                    Error(NothingToReleaseErr, TransHeader."No.");
+        end;
+#else
         if TransLine.IsEmpty() then
             Error(NothingToReleaseErr, TransHeader."No.");
-        end;
+#endif
 
         TransLine.SetFilter("Item No.", '<>%1', '');
         if TransLine.FindSet() then

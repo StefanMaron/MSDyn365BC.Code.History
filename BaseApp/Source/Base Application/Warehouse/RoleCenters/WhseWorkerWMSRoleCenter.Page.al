@@ -27,7 +27,9 @@ using System.Email;
 using System.Threading;
 using System.Visualization;
 using Microsoft.Foundation.Task;
+#if not CLEAN27
 using Microsoft.Manufacturing.Document;
+#endif
 
 page 9009 "Whse. Worker WMS Role Center"
 {
@@ -125,6 +127,7 @@ page 9009 "Whse. Worker WMS Role Center"
             separator(Action1130001)
             {
             }
+#if not CLEAN27
             action("Subcontract. Transfer Shipment")
             {
                 ApplicationArea = Basic, Suite;
@@ -132,7 +135,11 @@ page 9009 "Whse. Worker WMS Role Center"
                 Image = "Report";
                 RunObject = Report "Subcontract. Transfer Shipment";
                 ToolTip = 'Create a subcontracting transfer shipment.';
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                ObsoleteState = Pending;
+                ObsoleteTag = '27.0';
             }
+#endif
         }
         area(embedding)
         {

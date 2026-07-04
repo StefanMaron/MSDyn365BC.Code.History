@@ -1808,14 +1808,31 @@ table 23 Vendor
             Caption = 'Apply Company Payment days';
             InitValue = true;
         }
+#if not CLEANSCHEMA30
         field(12180; "Subcontracting Location Code"; Code[10])
         {
             Caption = 'Subcontracting Location Code';
             TableRelation = Location;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12181; "Subcontractor Procurement"; Boolean)
         {
             Caption = 'Subcontractor Procurement';
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12182; "Linked to Work Center"; Boolean)
         {
@@ -1823,11 +1840,28 @@ table 23 Vendor
             Caption = 'Linked to Work Center';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12183; Subcontractor; Boolean)
         {
             Caption = 'Subcontractor';
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
         field(12184; "First Name"; Text[30])
         {
             Caption = 'First Name';

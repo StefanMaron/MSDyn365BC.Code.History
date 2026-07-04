@@ -8,7 +8,9 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Availability;
+#if not CLEAN27
 using Microsoft.Inventory.Transfer;
+#endif
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 
@@ -716,17 +718,22 @@ page 12153 "Subcontracting Order Subform"
                         ShowProdOrdComponents();
                     end;
                 }
+#if not CLEAN27
                 action("Transfer Order Lines")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Transfer Order Lines';
                     ToolTip = 'View the related transfer order lines.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
 
                     trigger OnAction()
                     begin
                         ShowTransferOrder();
                     end;
                 }
+#endif
             }
         }
     }
@@ -864,7 +871,9 @@ page 12153 "Subcontracting Order Subform"
         end;
     end;
 
+#if not CLEAN27
     [Scope('OnPrem')]
+    [Obsolete('Preparation for replacement by Subcontracting app', '27.0')]
     procedure ShowTransferOrder()
     var
         TransferLine: Record "Transfer Line";
@@ -874,7 +883,7 @@ page 12153 "Subcontracting Order Subform"
         TransferLine.SetRange("Derived From Line No.", 0);
         PAGE.Run(0, TransferLine);
     end;
-
+#endif
     local procedure NoOnAfterValidate()
     begin
         InsertExtendedText(false);

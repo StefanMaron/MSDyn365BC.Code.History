@@ -209,13 +209,31 @@ tableextension 99000801 "Mfg. Capacity Ledger Entry" extends "Capacity Ledger En
         key(Key4; "Work Center No.", "Work Shift Code")
         {
         }
-#if not CLEAN27
+#if not CLEANSCHEMA30
         key(Key12180; "Subcontr. Purch. Order No.", "Subcontr. Purch. Order Line")
         {
+#if not CLEAN27
             SumIndexFields = "WIP Item Qty.";
+#endif
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         key(Key12182; "Item No.", "Order Type", "Order No.", "Posting Date", Subcontracting)
         {
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
 #endif
     }

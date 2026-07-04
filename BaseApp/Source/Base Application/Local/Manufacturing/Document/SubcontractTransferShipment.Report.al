@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN27
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -20,6 +21,9 @@ report 12154 "Subcontract. Transfer Shipment"
     ApplicationArea = Basic, Suite;
     Caption = 'Subcontracting Transfer Shipment';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -439,7 +443,7 @@ report 12154 "Subcontract. Transfer Shipment"
                                     CurrReport.Break();
                             end;
                         }
-
+#if not CLEAN27
                         trigger OnAfterGetRecord()
                         begin
                             if ("Subcontr. Purch. Order No." <> PrevSubcOrd) and ("Subcontr. Purch. Order No." <> '') then begin
@@ -454,7 +458,7 @@ report 12154 "Subcontract. Transfer Shipment"
                             end else
                                 RefProdOrd := '';
                         end;
-
+#endif
                         trigger OnPreDataItem()
                         begin
                             MoreLines := Find('+');
@@ -617,8 +621,10 @@ report 12154 "Subcontract. Transfer Shipment"
         OldDimText: Text[75];
         RefSubcOrd: Text[50];
         RefProdOrd: Text[50];
+#if not CLEAN27
         PrevSubcOrd: Code[20];
         PrevProdOrd: Code[20];
+#endif
         MoreLines: Boolean;
         NoOfCopies: Integer;
         NoOfLoops: Integer;
@@ -663,4 +669,4 @@ report 12154 "Subcontract. Transfer Shipment"
             end;
     end;
 }
-
+#endif

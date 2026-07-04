@@ -793,6 +793,7 @@ table 5740 "Transfer Header"
         {
             Caption = 'Shipping Notes';
         }
+#if not CLEANSCHEMA30
         field(12186; "Subcontracting Order"; Boolean)
         {
             CalcFormula = exist("Transfer Line" where("Document No." = field("No."),
@@ -800,7 +801,16 @@ table 5740 "Transfer Header"
             Caption = 'Subcontracting Order';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
         field(12187; "Return Order"; Boolean)
         {
             Caption = 'Return Order';
@@ -1169,7 +1179,9 @@ table 5740 "Transfer Header"
                    (TransLine2."Quantity (Base)" <> TransLine2."Qty. Shipped (Base)") or
                    (TransLine2."Quantity (Base)" <> TransLine2."Qty. Received (Base)") or
                    (TransLine2."Quantity Shipped" <> TransLine2."Quantity Received") or
+#if not CLEAN27
                    (TransLine2."WIP Quantity" <> TransLine2."WIP Qty. Shipped") or
+#endif
                    (TransLine2."Qty. Shipped (Base)" <> TransLine2."Qty. Received (Base)")
                 then
                     exit(false);

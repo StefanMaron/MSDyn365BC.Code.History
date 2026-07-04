@@ -49,11 +49,16 @@ page 5744 "Posted Transfer Shpt. Subform"
                     ToolTip = 'Specifies the code for the bin that the items are transferred from.';
                     Visible = false;
                 }
+#if not CLEAN27
                 field("WIP Item"; Rec."WIP Item")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies if the item is a work in process (WIP) item.';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#endif
                 field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Location;

@@ -199,24 +199,57 @@ table 5745 "Transfer Shipment Line"
                                             "Item Filter" = field("Item No."),
                                             "Variant Filter" = field("Variant Code"));
         }
+#if not CLEANSCHEMA30
         field(12180; "Subcontr. Purch. Order No."; Code[20])
         {
             Caption = 'Subcontr. Purch. Order No.';
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12181; "Subcontr. Purch. Order Line"; Integer)
         {
             Caption = 'Subcontr. Purch. Order Line';
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12182; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
             TableRelation = "Production Order"."No." where(Status = const(Released));
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12183; "Prod. Order Line No."; Integer)
         {
             Caption = 'Prod. Order Line No.';
             TableRelation = "Prod. Order Line"."Line No." where(Status = const(Released),
                                                                  "Prod. Order No." = field("Prod. Order No."));
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12184; "Prod. Order Comp. Line No."; Integer)
         {
@@ -224,20 +257,52 @@ table 5745 "Transfer Shipment Line"
             TableRelation = "Prod. Order Component"."Line No." where(Status = const(Released),
                                                                       "Prod. Order No." = field("Prod. Order No."),
                                                                       "Prod. Order Line No." = field("Prod. Order Line No."));
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12185; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
             TableRelation = "Routing Header";
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12186; "Routing Reference No."; Integer)
         {
             Caption = 'Routing Reference No.';
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12187; "Work Center No."; Code[20])
         {
             Caption = 'Work Center No.';
             TableRelation = "Work Center";
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12188; "Operation No."; Code[10])
         {
@@ -245,16 +310,34 @@ table 5745 "Transfer Shipment Line"
             TableRelation = "Prod. Order Routing Line"."Operation No." where(Status = const(Released),
                                                                               "Prod. Order No." = field("Prod. Order No."),
                                                                               "Routing No." = field("Routing No."));
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
         field(12189; "WIP Item"; Boolean)
         {
             Caption = 'WIP Item';
+            ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
         }
+#endif
         field(12190; "Return Order"; Boolean)
         {
             Caption = 'Return Order';
             Editable = false;
         }
+
     }
 
     keys

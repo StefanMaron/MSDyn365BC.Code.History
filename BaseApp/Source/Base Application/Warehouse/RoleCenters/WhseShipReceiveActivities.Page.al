@@ -52,6 +52,7 @@ page 9050 "Whse Ship & Receive Activities"
                         RunPageMode = Create;
                         ToolTip = 'Move items from one warehouse location to another.';
                     }
+#if not CLEAN27
                     action("New Subcontr. Transfer Order")
                     {
                         ApplicationArea = Warehouse;
@@ -60,7 +61,11 @@ page 9050 "Whse Ship & Receive Activities"
                         RunPageMode = Create;
                         RunPageView = where("Subcontracting Order" = const(true));
                         ToolTip = 'Create a new subcontracting transfer order.';
+                        ObsoleteReason = 'Preparation for replacement by Subcontracting app';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '27.0';
                     }
+#endif
                 }
             }
             cuegroup("Inbound - Today")
