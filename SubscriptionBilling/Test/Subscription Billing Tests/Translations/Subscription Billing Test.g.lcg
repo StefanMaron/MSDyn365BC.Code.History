@@ -239,6 +239,15 @@
       <Cmt Name="Dev"><![CDATA[%1=Field Caption, %2=Field Caption]D;]A;(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Service Object Test - NamedType NaturalNumberRatioErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 567495954 - NamedType 1481380078" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount was not moved from Deferrals Account to Contract Account]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Vendor Deferrals Test - NamedType AmountNotMovedFromDeferralsAccountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 567495954 - NamedType 3676554599" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Released Contract Deferrals were not reversed properly]]></Val>
