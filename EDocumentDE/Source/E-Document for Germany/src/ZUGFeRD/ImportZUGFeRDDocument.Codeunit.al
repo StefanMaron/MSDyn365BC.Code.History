@@ -231,7 +231,7 @@ codeunit 13919 "Import ZUGFeRD Document"
             RecRef.GetTable(PurchaseLine);
             EDocumentImportHelper.FindGLAccountForLine(EDocument, RecRef);
             PurchaseLine."No." := RecRef.Field(PurchaseLine.FieldNo("No.")).Value;
-            PurchaseLine.Insert(true);
+            PurchaseLine.Insert();
             LineNo += 10000;
         end;
     end;
@@ -325,7 +325,7 @@ codeunit 13919 "Import ZUGFeRD Document"
     begin
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
         PurchaseHeader."No." := CopyStr(GetNodeByPath(TempXMLBuffer, '/' + DocumentElement + '/rsm:ExchangedDocument/ram:ID'), 1, MaxStrLen(PurchaseHeader."No."));
-        PurchaseHeader.Insert(true);
+        PurchaseHeader.Insert();
 
         LastLineNo := GetLastLineNo(PurchaseHeader);
 
@@ -339,8 +339,8 @@ codeunit 13919 "Import ZUGFeRD Document"
 
         // Insert last line
         if PurchaseLine."Document No." <> '' then
-            PurchaseLine.Insert(true);
-        PurchaseHeader.Modify(true);
+            PurchaseLine.Insert();
+        PurchaseHeader.Modify();
 
         CreateAllowanceChargeLines(EDocument, PurchaseHeader, PurchaseLine, TempXMLBuffer, DocumentElement);
     end;
@@ -380,7 +380,7 @@ codeunit 13919 "Import ZUGFeRD Document"
             '/' + DocumentType + '/rsm:SupplyChainTradeTransaction/ram:IncludedSupplyChainTradeLineItem':
                 begin
                     if PurchaseLine."Document No." <> '' then
-                        PurchaseLine.Insert(true);
+                        PurchaseLine.Insert();
 
                     PurchaseLine.Init();
                     PurchaseLine."Document Type" := PurchaseHeader."Document Type";
@@ -476,7 +476,7 @@ codeunit 13919 "Import ZUGFeRD Document"
     begin
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::"Credit Memo";
         PurchaseHeader."No." := CopyStr(GetNodeByPath(TempXMLBuffer, '/' + DocumentElement + '/rsm:ExchangedDocument/ram:ID'), 1, MaxStrLen(PurchaseHeader."No."));
-        PurchaseHeader.Insert(true);
+        PurchaseHeader.Insert();
 
         LastLineNo := GetLastLineNo(PurchaseHeader);
 
@@ -490,8 +490,8 @@ codeunit 13919 "Import ZUGFeRD Document"
 
         // Insert last line
         if PurchaseLine."Document No." <> '' then
-            PurchaseLine.Insert(true);
-        PurchaseHeader.Modify(true);
+            PurchaseLine.Insert();
+        PurchaseHeader.Modify();
 
         CreateAllowanceChargeLines(EDocument, PurchaseHeader, PurchaseLine, TempXMLBuffer, DocumentElement);
     end;
@@ -531,7 +531,7 @@ codeunit 13919 "Import ZUGFeRD Document"
             '/' + DocumentType + '/rsm:SupplyChainTradeTransaction/ram:IncludedSupplyChainTradeLineItem':
                 begin
                     if PurchaseLine."Document No." <> '' then
-                        PurchaseLine.Insert(true);
+                        PurchaseLine.Insert();
 
                     PurchaseLine.Init();
                     PurchaseLine."Document Type" := PurchaseHeader."Document Type";
