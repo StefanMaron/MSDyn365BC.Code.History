@@ -473,6 +473,8 @@ page 7002 "Sales Prices"
         else
             Rec.SetRange("Currency Code");
 
+        OnSetRecFiltersOnBeforeCheckFilters(Rec);
+
         case SalesTypeFilter of
             SalesTypeFilter::Customer:
                 CheckFilters(DATABASE::Customer, SalesCodeFilter);
@@ -698,6 +700,11 @@ page 7002 "Sales Prices"
     /// <param name="IsHandled">Set to true to skip the default filter retrieval logic.</param>
     [IntegrationEvent(true, false)]
     local procedure OnOpenPageOnBeforeGetRecFilters(var SalesPrice: Record "Sales Price"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetRecFiltersOnBeforeCheckFilters(var SalesPrice: Record "Sales Price")
     begin
     end;
 

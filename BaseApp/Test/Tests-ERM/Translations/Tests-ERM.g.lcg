@@ -5027,6 +5027,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - Purchase Line Description; %2 - Random Generated Description]D;]A;(LookupHint=Codeunit ERM Purchase Order - NamedType DescriptionErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1951354433 - NamedType 1185660" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Field Caption; %2=Expected Value; %3=Table Caption.]D;]A;(LookupHint=Codeunit ERM Purchase Order - NamedType DimensionCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1951354433 - NamedType 3365613626" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is disposed.]]></Val>
@@ -5052,15 +5061,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.]D;]A;(LookupHint=Codeunit ERM Purchase Order - NamedType GenProdPostingGroupErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1951354433 - NamedType 1476331925" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be blank in %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Field Caption; %2 Page Caption.]D;]A;(LookupHint=Codeunit ERM Purchase Order - NamedType GlobalDimensionCodeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1951354433 - NamedType 1822650553" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
