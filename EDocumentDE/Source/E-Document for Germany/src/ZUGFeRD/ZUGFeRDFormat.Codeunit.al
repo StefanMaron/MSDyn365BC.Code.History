@@ -4,11 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.Formats;
 
+using Microsoft.Bank.BankAccount;
 using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.IO.Peppol;
 using Microsoft.Foundation.Company;
 using Microsoft.Purchases.Document;
-using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Service.Document;
@@ -25,13 +25,17 @@ codeunit 13920 "ZUGFeRD Format" implements "E-Document"
         EDocPEPPOLBIS30: Codeunit "EDoc PEPPOL BIS 3.0";
         EDocPEPPOLValidationDE: Codeunit "EDoc PEPPOL Validation DE";
         EDocImportZUGFeRD: Codeunit "Import ZUGFeRD Document";
+        EDocumentDEHelper: Codeunit "E-Document DE Helper";
 
     procedure Check(var SourceDocumentHeader: RecordRef; EDocumentService: Record "E-Document Service"; EDocumentProcessingPhase: Enum "E-Document Processing Phase")
+    var
+        CompanyInformation: Record "Company Information";
     begin
         OnBeforeCheck(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
-        CheckCompanyInfoMandatory();
-        CheckBuyerReferenceMandatory(EDocumentService, SourceDocumentHeader);
-        EDocPEPPOLValidationDE.SetBuyerReference(EDocumentService."Buyer Reference");
+        CheckCompanyInfoMandatory(CompanyInformation);
+        CheckBankAccountIBANMandatory(SourceDocumentHeader, CompanyInformation);
+        EDocumentDEHelper.CheckBuyerReferenceMandatory(EDocumentService, SourceDocumentHeader);
+        EDocPEPPOLValidationDE.SetSkipVATRegNoCheck(EDocumentDEHelper.HasRoutingNo(SourceDocumentHeader));
         BindSubscription(EDocPEPPOLValidationDE);
         EDocPEPPOLBIS30.Check(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
         UnbindSubscription(EDocPEPPOLValidationDE);
@@ -141,58 +145,55 @@ codeunit 13920 "ZUGFeRD Format" implements "E-Document"
         FileExtension := PDFFileTypeTok;
     end;
 
-    local procedure CheckCompanyInfoMandatory()
-    var
-        CompanyInformation: Record "Company Information";
+    local procedure CheckCompanyInfoMandatory(var CompanyInformation: Record "Company Information")
     begin
         CompanyInformation.Get();
         CompanyInformation.TestField("E-Mail");
     end;
 
-    local procedure CheckBuyerReferenceMandatory(EDocumentService: Record "E-Document Service"; SourceDocumentHeader: RecordRef)
+    local procedure CheckBankAccountIBANMandatory(SourceDocumentHeader: RecordRef; var CompanyInformation: Record "Company Information")
     var
+        BankAccount: Record "Bank Account";
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        Customer: Record Customer;
-        CustomerNoFieldRef: FieldRef;
-        YourReferenceFieldRef: FieldRef;
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        BankAccountCodeFieldRef: FieldRef;
+        CheckBankAccount: Boolean;
+        BankAccountCode: Code[20];
+        BankAccFieldNo: Integer;
     begin
-        if EDocumentService."Document Format" <> EDocumentService."Document Format"::ZUGFeRD then
-            exit;
-
-        if not EDocumentService."Buyer Reference Mandatory" then
-            exit;
-
-        if not (SourceDocumentHeader.Number in
+        if not (SourceDocumentHeader.Number() in
             [Database::"Sales Header",
-            Database::"Sales Invoice Header",
-            Database::"Sales Cr.Memo Header",
-            Database::"Service Header",
-            Database::"Service Invoice Header",
-            Database::"Service Cr.Memo Header"])
+             Database::"Sales Invoice Header",
+             Database::"Sales Cr.Memo Header",
+             Database::"Service Header",
+             Database::"Service Invoice Header",
+             Database::"Service Cr.Memo Header"])
         then
             exit;
 
-        case EDocumentService."Buyer Reference" of
-            EDocumentService."Buyer Reference"::"Customer Reference":
-                begin
-                    CustomerNoFieldRef := SourceDocumentHeader.Field(SalesInvoiceHeader.FieldNo("Sell-to Customer No."));
-                    Customer.Get(Format(CustomerNoFieldRef.Value));
-                    Customer.TestField("E-Invoice Routing No.");
-                end;
-            EDocumentService."Buyer Reference"::"Your Reference":
-                begin
-                    YourReferenceFieldRef := SourceDocumentHeader.Field(SalesInvoiceHeader.FieldNo("Your Reference"));
-                    YourReferenceFieldRef.TestField();
-                end;
-            else
-                OnBuyerReferenceOnElseCase(SourceDocumentHeader, EDocumentService);
-        end;
+        BankAccFieldNo := SalesInvoiceHeader.FieldNo("Company Bank Account Code");
+        if SourceDocumentHeader.Number() in [Database::"Service Header", Database::"Service Invoice Header", Database::"Service Cr.Memo Header"] then
+            BankAccFieldNo := ServiceInvoiceHeader.FieldNo("Company Bank Account Code");
+
+        BankAccountCodeFieldRef := SourceDocumentHeader.Field(BankAccFieldNo);
+        BankAccountCode := BankAccountCodeFieldRef.Value();
+
+        if BankAccountCode <> '' then
+            CheckBankAccount := BankAccount.Get(BankAccountCode);
+
+        if CheckBankAccount then
+            BankAccount.TestField(IBAN)
+        else
+            CompanyInformation.TestField(IBAN);
     end;
 
+#if not CLEAN29
+    [Obsolete('Buyer Reference enum has been removed. The buyer reference is now resolved from the document and customer fields.', '29.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBuyerReferenceOnElseCase(var SourceDocumentHeader: RecordRef; EDocumentService: Record "E-Document Service")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheck(var SourceDocumentHeader: RecordRef; EDocumentService: Record "E-Document Service"; EDocumentProcessingPhase: Enum Microsoft.eServices.EDocument."E-Document Processing Phase")

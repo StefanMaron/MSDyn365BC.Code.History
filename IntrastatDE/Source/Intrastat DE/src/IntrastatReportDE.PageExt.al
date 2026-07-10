@@ -14,6 +14,12 @@ pageextension 11030 "Intrastat Report DE" extends "Intrastat Report"
             group(ExportParamenters)
             {
                 Caption = 'Export Parameters';
+                field("Submission Channel"; Rec."Submission Channel")
+                {
+                    ApplicationArea = BasicEU;
+                    Caption = 'Submission Channel';
+                    ToolTip = 'Specifies how the Intrastat report is submitted. Choose IDEV to keep the Material No. (Company No.) in the message ID, or eSTATISTIK.CORE to export the clean format that does not use the Material No.';
+                }
                 field("Test Submission"; Rec."Test Submission")
                 {
                     ApplicationArea = BasicEU;

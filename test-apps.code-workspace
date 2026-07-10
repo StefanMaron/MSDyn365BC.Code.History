@@ -1,12 +1,4 @@
 {
-  "settings": {
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "allint.enabled": false,
-    "al.enableCodeActions": false,
-    "al.enableCodeAnalysis": false
-  },
   "folders": [
     {
       "path": "./Application Test Library"
@@ -64,6 +56,9 @@
     },
     {
       "path": "./Manufacturing/Test/Manufacturing Tests"
+    },
+    {
+      "path": "./Subcontracting/Test/Subcontracting-Tests/Tests"
     },
     {
       "path": "./DataSearch/Test/Data Search Tests"
@@ -154,6 +149,9 @@
     },
     {
       "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"
+    },
+    {
+      "path": "./IntrastatDE/Test/Intrastat DE Tests"
     },
     {
       "path": "./FieldServiceIntegration/Test Library/Field Service Integration Test Library"
@@ -371,5 +369,13 @@
     {
       "path": "./RecommendedApps/Test/Recommended Apps Tests"
     }
-  ]
+  ],
+  "settings": {
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false,
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "al.enableCodeActions": false
+  }
 }

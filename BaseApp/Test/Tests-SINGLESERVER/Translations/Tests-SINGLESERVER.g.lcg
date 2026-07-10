@@ -617,6 +617,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Reports III - NamedType DocEntryTableNameLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3144827255 - NamedType 4088277962" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected invoice entry for dimension value %1 in report]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Dimension Value Code]D;]A;(LookupHint=Codeunit ERM Purchase Reports III - NamedType ExpectedInvoiceEntryErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3144827255 - NamedType 1279548425" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 - %2]]></Val>
@@ -660,6 +669,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Reports III - NamedType RowVisibilityErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3144827255 - NamedType 1005650386" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Report should not contain entry for dimension value outside the range filter]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Reports III - NamedType UnexpectedEntryOutsideRangeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3144827255 - NamedType 3596706697" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

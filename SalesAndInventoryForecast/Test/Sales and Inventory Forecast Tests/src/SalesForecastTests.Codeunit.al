@@ -2,6 +2,7 @@ namespace Microsoft.Inventory.InventoryForecast;
 
 using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Setup;
@@ -326,6 +327,73 @@ codeunit 139540 "Sales Forecast Tests"
         // [When] Item sales is being forecasted for the given item
         // [Then] An error is thrown due to timeout
         asserterror MSSalesForecastHandler.CalculateForecast(Item, TimeSeriesManagement);
+    end;
+
+    [Test]
+    procedure TestForecastInputContainsOnlyCurrentItem();
+    var
+        ItemA: Record Item;
+        ItemB: Record Item;
+        TempActualBuffer: Record "Time Series Buffer" temporary;
+    begin
+        // [Scenario] When several items are forecast through one shared Time Series
+        // engine (the Item List / scheduled batch path), the input data prepared for
+        // the ML service must contain only the current item. InitializeTimeseries is
+        // expected to re-initialize the engine on every call; if it does not, the
+        // engine's input buffer keeps accumulating and the payload POSTed to plumber.R
+        // grows with every item processed (the original defect).
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
+
+        // [Given] Two items, each with its own sufficient sales history
+        SalesForecastLib.CreateTestData(ItemA, 10);
+        SalesForecastLib.CreateTestData(ItemB, 10);
+
+        // [Given] The forecast setup with a user-defined API key
+        SalesForecastLib.Setup();
+        MSSalesForecastSetup.GetSingleInstance();
+
+        // [When] The same engine prepares both items in sequence, re-initialized per item
+        PrepareItemOnSharedEngine(ItemA."No.");
+        PrepareItemOnSharedEngine(ItemB."No.");
+        TimeSeriesManagement.GetPreparedData(TempActualBuffer);
+
+        // [Then] The payload is not empty and holds only the current item's rows,
+        // not an accumulation of every previously processed item
+        Assert.RecordIsNotEmpty(TempActualBuffer);
+        TempActualBuffer.SetFilter("Group ID", '<>%1', ItemB."No.");
+        Assert.RecordIsEmpty(TempActualBuffer);
+    end;
+
+    local procedure PrepareItemOnSharedEngine(ItemNo: Code[20]);
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        MSSalesForecastParameter: Record "MS - Sales Forecast Parameter";
+        ForecastStartDate: Date;
+        NumberOfPeriodsWithHistory: Integer;
+    begin
+        // Mirrors the relevant steps of Sales Forecast Handler.PrepareForecast, exercising
+        // the real InitializeTimeseries on a shared engine without performing the live
+        // ML HTTP call. Re-initializing must clear the engine buffer before each item.
+        MSSalesForecastParameter.NewRecord(ItemNo);
+        MSSalesForecastHandler.SetItemLedgerEntryFilters(ItemLedgerEntry, ItemNo);
+        ItemLedgerEntry.SetFilter("Posting Date", '<=%1', WorkDate());
+
+        Assert.IsTrue(
+          MSSalesForecastHandler.InitializeTimeseries(TimeSeriesManagement, MSSalesForecastSetup),
+          'Initializing the Time Series engine should succeed.');
+
+        TimeSeriesManagement.SetMaximumHistoricalPeriods(MSSalesForecastSetup."Historical Periods");
+        Assert.IsTrue(
+          TimeSeriesManagement.HasMinimumHistoricalData(
+            NumberOfPeriodsWithHistory, ItemLedgerEntry, ItemLedgerEntry.FieldNo("Posting Date"),
+            MSSalesForecastSetup."Period Type", WorkDate()),
+          'The item should have the minimum required historical data.');
+
+        ForecastStartDate := CalcDate('<+1D>', WorkDate());
+        TimeSeriesManagement.PrepareData(
+          ItemLedgerEntry, ItemLedgerEntry.FieldNo("Item No."), ItemLedgerEntry.FieldNo("Posting Date"), ItemLedgerEntry.FieldNo(Quantity),
+          MSSalesForecastParameter."Time Series Period Type", ForecastStartDate, NumberOfPeriodsWithHistory);
     end;
 
     [Test]
@@ -803,7 +871,7 @@ codeunit 139540 "Sales Forecast Tests"
         // [Scenario] Notification is shown then disabled
         // [Scenario] Notification is shown
         Initialize();
-        
+
         // [Given]
         // [When] Item list page is opened
         ItemList.OpenView();
@@ -819,7 +887,7 @@ codeunit 139540 "Sales Forecast Tests"
     begin
         // [Scenario] Notification is shown
         Initialize();
-        
+
         // [Given]
         // [When] Item list page is opened
         ItemList.OpenView();
