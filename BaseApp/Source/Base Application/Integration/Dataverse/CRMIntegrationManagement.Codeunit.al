@@ -3917,15 +3917,21 @@ codeunit 5330 "CRM Integration Management"
         Customer: Record Customer;
         TableNo: Integer;
         FieldNo: Integer;
+        CoupledFieldNo: Integer;
         IsHandled: Boolean;
         FieldFilterSearchTok: Label '*%1*', Locked = true;
     begin
         TableNo := RecRef.Number();
 
         IsHandled := false;
-        OnBeforeFindCoupledToCRMField(TableNo, IsHandled);
-        if IsHandled then
-            exit(false);
+        CoupledFieldNo := 0;
+        OnBeforeFindCoupledToCRMField(TableNo, IsHandled, CoupledFieldNo);
+        if IsHandled then begin
+            if CoupledFieldNo = 0 then
+                exit(false);
+            CoupledToCRMFldRef := RecRef.Field(CoupledFieldNo);
+            exit(true);
+        end;
 
         if CachedCoupledToCRMFieldNo.ContainsKey(TableNo) then
             FieldNo := CachedCoupledToCRMFieldNo.Get(TableNo)
@@ -4218,7 +4224,7 @@ codeunit 5330 "CRM Integration Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindCoupledToCRMField(TableNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeFindCoupledToCRMField(TableNo: Integer; var IsHandled: Boolean; var CoupledFieldNo: Integer)
     begin
     end;
 
