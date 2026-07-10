@@ -25,7 +25,6 @@ codeunit 1850 "Sales Forecast Handler"
         SalesForecastSetupTitleTxt: Label 'Set up Sales & Inventory Forecast';
         SalesForecastSetupShortTitleTxt: Label 'Sales & Inventory Forecast';
         SalesForecastSetupDescriptionTxt: Label 'Let Business Central analyze historical data to predict future demand, so you can base procurement decisions on accurate and reliable forecasts, and help your company avoid lost revenue, optimize shipping costs, discover trends, and boost your brand reputation by always delivering on orders. Set it up now.';
-        TimeSeriesInitialized: Boolean;
 
 
     procedure CalculateForecast(var Item: Record Item; TimeSeriesManagement: Codeunit "Time Series Management"): Boolean
@@ -120,8 +119,10 @@ codeunit 1850 "Sales Forecast Handler"
         LimitType: Option;
         Limit: Decimal;
     begin
-        if TimeSeriesInitialized then
-            exit(true);
+        // The "Time Series Management" instance is reused across items in the batch
+        // and scheduled paths. Re-initialize on every call: Initialize resets the
+        // engine's internal input buffer, so each item is forecast on its own data
+        // instead of data accumulated from previously processed items.
 
         // if null, then using standard credentials
         if IsNullGuid(MSSalesForecastSetupRec."API Key ID") then begin
@@ -146,7 +147,6 @@ codeunit 1850 "Sales Forecast Handler"
                 exit(false);
             end;
 
-        TimeSeriesInitialized := true;
         exit(true);
     end;
 
