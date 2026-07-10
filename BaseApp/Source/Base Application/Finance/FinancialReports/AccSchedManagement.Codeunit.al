@@ -2920,7 +2920,13 @@ codeunit 8 AccSchedManagement
             PAGE.Run(PAGE::"Chart of Cost Types", CostType);
         end else begin
             AccScheduleLine.CopyFilter("Business Unit Filter", GLAcc."Business Unit Filter");
-            AccScheduleLine.CopyFilter("G/L Budget Filter", GLAcc."Budget Filter");
+            if TempColumnLayout."Ledger Entry Type" = TempColumnLayout."Ledger Entry Type"::"Budget Entries" then begin
+                if TempColumnLayout."Budget Name" <> '' then
+                    GLAcc.SetRange("Budget Filter", TempColumnLayout."Budget Name")
+                else
+                    AccScheduleLine.CopyFilter("G/L Budget Filter", GLAcc."Budget Filter");
+            end else
+                AccScheduleLine.CopyFilter("G/L Budget Filter", GLAcc."Budget Filter");
             SetGLAccRowFilters(GLAcc, AccScheduleLine);
             SetGLAccColumnFilters(GLAcc, AccScheduleLine, TempColumnLayout);
             AccSchedName.Get(AccScheduleLine."Schedule Name");

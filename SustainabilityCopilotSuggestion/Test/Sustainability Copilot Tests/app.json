@@ -53,12 +53,6 @@
       "publisher": "Microsoft",
       "name": "System Application",
       "version": "$(app_minimumVersion)"
-    },
-    {
-      "id": "3e75ec63-8d7b-4bf8-9c79-9182a7caad84",
-      "name": "Adversarial Simulation Test Library",
-      "publisher": "Microsoft",
-      "version": "$(app_minimumVersion)"
     }
   ],
   "internalsVisibleTo": [],
