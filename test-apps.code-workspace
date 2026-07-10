@@ -1,12 +1,4 @@
 {
-  "settings": {
-    "allint.enabled": false,
-    "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false,
-    "search.exclude": {
-      "**.xlf": true
-    }
-  },
   "folders": [
     {
       "path": "./Application Test Library"
@@ -67,6 +59,9 @@
     },
     {
       "path": "./Manufacturing/Test/Manufacturing Tests"
+    },
+    {
+      "path": "./Subcontracting/Test/Subcontracting-Tests/Tests"
     },
     {
       "path": "./DataSearch/Test/Data Search Tests"
@@ -371,5 +366,13 @@
     {
       "path": "./RecommendedApps/Test/Recommended Apps Tests"
     }
-  ]
+  ],
+  "settings": {
+    "allint.enabled": false,
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "al.enableCodeActions": false,
+    "al.enableCodeAnalysis": false
+  }
 }

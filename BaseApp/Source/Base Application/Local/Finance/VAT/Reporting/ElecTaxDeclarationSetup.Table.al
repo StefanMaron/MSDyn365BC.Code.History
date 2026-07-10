@@ -7,6 +7,8 @@ namespace Microsoft.Finance.VAT.Reporting;
 using Microsoft.Foundation.NoSeries;
 using System.Environment;
 using System.Security.Encryption;
+using System.Telemetry;
+using System.Utilities;
 
 table 11408 "Elec. Tax Declaration Setup"
 {
@@ -139,24 +141,79 @@ table 11408 "Elec. Tax Declaration Setup"
         field(252; "Digipoort Delivery URL"; Text[250])
         {
             Caption = 'Digipoort Delivery URL';
+
+            trigger OnValidate()
+            var
+                AuditLog: Codeunit "Audit Log";
+            begin
+                if "Digipoort Delivery URL" <> xRec."Digipoort Delivery URL" then
+                    Session.LogSecurityAudit(
+                        DigipoortServiceNameTxt, SecurityOperationResult::Success,
+                        StrSubstNo(SecurityAuditDeliveryUrlChangedTxt, GetDigipoortUrlHost(xRec."Digipoort Delivery URL"), GetDigipoortUrlHost("Digipoort Delivery URL")),
+                        AuditCategory::ApplicationManagement);
+                if (xRec."Digipoort Delivery URL" = '') and ("Digipoort Delivery URL" <> '') then
+                    AuditLog.LogAuditMessage(
+                        StrSubstNo(DigipoortConfiguredLbl, UserSecurityId()),
+                        SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                if not IsValidDigipoortHost("Digipoort Delivery URL") then
+                    Error(InvalidDigipoortHostErr, FieldCaption("Digipoort Delivery URL"), DigipoortHostSuffixTok);
+            end;
         }
         field(253; "Digipoort Status URL"; Text[250])
         {
             Caption = 'Digipoort Status URL';
+
+            trigger OnValidate()
+            begin
+                if "Digipoort Status URL" <> xRec."Digipoort Status URL" then
+                    Session.LogSecurityAudit(
+                        DigipoortServiceNameTxt, SecurityOperationResult::Success,
+                        StrSubstNo(SecurityAuditStatusUrlChangedTxt, GetDigipoortUrlHost(xRec."Digipoort Status URL"), GetDigipoortUrlHost("Digipoort Status URL")),
+                        AuditCategory::ApplicationManagement);
+                if not IsValidDigipoortHost("Digipoort Status URL") then
+                    Error(InvalidDigipoortHostErr, FieldCaption("Digipoort Status URL"), DigipoortHostSuffixTok);
+            end;
         }
         field(300; "Use Certificate Setup"; Boolean)
         {
             Caption = 'Use Certificate Setup';
+
+            trigger OnValidate()
+            begin
+                if "Use Certificate Setup" <> xRec."Use Certificate Setup" then
+                    Session.LogSecurityAudit(
+                        DigipoortServiceNameTxt, SecurityOperationResult::Success,
+                        StrSubstNo(SecurityAuditUseCertSetupChangedTxt, xRec."Use Certificate Setup", "Use Certificate Setup"),
+                        AuditCategory::ApplicationManagement);
+            end;
         }
         field(301; "Client Certificate Code"; Code[20])
         {
             TableRelation = "Isolated Certificate";
             Caption = 'Client Certificate Code';
+
+            trigger OnValidate()
+            begin
+                if "Client Certificate Code" <> xRec."Client Certificate Code" then
+                    Session.LogSecurityAudit(
+                        DigipoortServiceNameTxt, SecurityOperationResult::Success,
+                        StrSubstNo(SecurityAuditClientCertChangedTxt, xRec."Client Certificate Code", "Client Certificate Code"),
+                        AuditCategory::UserManagement);
+            end;
         }
         field(302; "Service Certificate Code"; Code[20])
         {
             TableRelation = "Isolated Certificate";
             Caption = 'Service Certificate Code';
+
+            trigger OnValidate()
+            begin
+                if "Service Certificate Code" <> xRec."Service Certificate Code" then
+                    Session.LogSecurityAudit(
+                        DigipoortServiceNameTxt, SecurityOperationResult::Success,
+                        StrSubstNo(SecurityAuditServiceCertChangedTxt, xRec."Service Certificate Code", "Service Certificate Code"),
+                        AuditCategory::UserManagement);
+            end;
         }
         field(350; "Tax Decl. Schema Version"; Text[10])
         {
@@ -198,6 +255,15 @@ table 11408 "Elec. Tax Declaration Setup"
         Text002: Label '%1 is not a valid BECON ID.';
         ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
         Text003: Label 'You cannot change %1 when you have %2 with %3 %4.';
+        DigipoortServiceNameTxt: Label 'Digipoort', Locked = true;
+        SecurityAuditDeliveryUrlChangedTxt: Label 'Digipoort Delivery URL host was changed from %1 to %2.', Locked = true, Comment = '%1 - old host, %2 - new host';
+        SecurityAuditStatusUrlChangedTxt: Label 'Digipoort Status URL host was changed from %1 to %2.', Locked = true, Comment = '%1 - old host, %2 - new host';
+        SecurityAuditUseCertSetupChangedTxt: Label 'Use Certificate Setup was changed from %1 to %2.', Locked = true, Comment = '%1 - old value, %2 - new value';
+        SecurityAuditClientCertChangedTxt: Label 'Digipoort Client Certificate Code was changed from %1 to %2.', Locked = true, Comment = '%1 - old certificate code, %2 - new certificate code';
+        SecurityAuditServiceCertChangedTxt: Label 'Digipoort Service Certificate Code was changed from %1 to %2.', Locked = true, Comment = '%1 - old certificate code, %2 - new certificate code';
+        DigipoortConfiguredLbl: Label 'Digipoort connection has been set up by UserSecurityId %1.', Locked = true;
+        DigipoortHostSuffixTok: Label '.digipoort.logius.nl', Locked = true;
+        InvalidDigipoortHostErr: Label 'The host of %1 must end with %2.', Comment = '%1 - field caption, %2 - required host suffix';
 
     local procedure CheckBECONID(BECONID: Code[6]): Boolean
     var
@@ -232,6 +298,36 @@ table 11408 "Elec. Tax Declaration Setup"
             end;
         TestField("Digipoort Delivery URL");
         TestField("Digipoort Status URL");
+    end;
+
+    internal procedure IsValidDigipoortHost(Url: Text): Boolean
+    var
+        Uri: Codeunit Uri;
+    begin
+        if Url = '' then
+            exit(true);
+        if not Uri.IsValidUri(Url) then
+            exit(false);
+        Uri.Init(Url);
+        if Uri.GetScheme().ToLower() <> 'https' then
+            exit(false);
+        exit(Uri.GetHost().ToLower().EndsWith(DigipoortHostSuffixTok));
+    end;
+
+    internal procedure GetDigipoortHostSuffix(): Text
+    begin
+        exit(DigipoortHostSuffixTok);
+    end;
+
+    internal procedure GetDigipoortUrlHost(Url: Text): Text
+    var
+        Uri: Codeunit Uri;
+    begin
+        if (Url <> '') and Uri.IsValidUri(Url) then begin
+            Uri.Init(Url);
+            exit(Uri.GetHost());
+        end;
+        exit(Url);
     end;
 }
 

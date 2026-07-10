@@ -94,11 +94,9 @@ table 11401 "CBG Statement Line"
                 ValidateApplyRequirements(Rec);
             end;
         }
-        field(12; "Account Type"; Option)
+        field(12; "Account Type"; Enum "CBG Statement Line Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Employee';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account",Employee;
 
             trigger OnValidate()
             begin
@@ -615,9 +613,12 @@ table 11401 "CBG Statement Line"
                     else
                         Validate(Date, CBGStatementLine.Date);
 
-                    if CBGStatement.Currency <> PaymentHistLine."Currency Code" then
-                        Error(Text1000006,
-                          CBGStatement.Currency, PaymentHistLine."Currency Code");
+                    IsHandled := false;
+                    OnValidateIdentificationOnBeforeCheckCurrency(Rec, CBGStatementLine, PaymentHistLine, CBGStatement, IsHandled);
+                    if not IsHandled then
+                        if CBGStatement.Currency <> PaymentHistLine."Currency Code" then
+                            Error(Text1000006,
+                              CBGStatement.Currency, PaymentHistLine."Currency Code");
                     "Amount Settled" := PaymentHistLine.Amount;
                     "Applies-to ID" := "New Applies-to ID"();
                     SetApplyCVLedgerEntries(PaymentHistLine);
@@ -875,6 +876,8 @@ table 11401 "CBG Statement Line"
                         Name := Employee.FullName();
                 end;
         end;
+
+        OnAfterGetAccountName(Rec, Name);
     end;
 
     procedure CreateGenJournalLine(var GenJnlLine: Record "Gen. Journal Line")
@@ -1353,6 +1356,8 @@ table 11401 "CBG Statement Line"
                     PAGE.Run(PAGE::"Bank Account Card", BankAcc);
                 end;
         end;
+
+        OnAfterOpenAccountCard(Rec);
     end;
 
     procedure OpenAccountEntries()
@@ -1506,7 +1511,13 @@ table 11401 "CBG Statement Line"
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GLAccount: Record "G/L Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateVAT(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         "VAT %" := 0;
         "Debit Incl. VAT" := Debit;
         "Debit VAT" := 0;
@@ -1685,7 +1696,13 @@ table 11401 "CBG Statement Line"
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled, DefaultDimSource);
+        if IsHandled then
+            exit;
+
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         GenJournalTemplate.Get("Journal Template Name");
@@ -1931,7 +1948,7 @@ table 11401 "CBG Statement Line"
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
-        DimManagement.AddDimSource(DefaultDimSource, DimManagement.TypeToTableID1(Rec."Account Type"), Rec."Account No.", FieldNo = Rec.FieldNo("Account No."));
+        DimManagement.AddDimSource(DefaultDimSource, DimManagement.TypeToTableID1(Rec."Account Type".AsInteger()), Rec."Account No.", FieldNo = Rec.FieldNo("Account No."));
         DimManagement.AddDimSource(DefaultDimSource, Database::Job, Rec."Job No.", FieldNo = Rec.FieldNo("Job No."));
         DimManagement.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FieldNo = Rec.FieldNo("Salespers./Purch. Code"));
         DimManagement.AddDimSource(DefaultDimSource, Database::Campaign, Rec."Campaign No.", FieldNo = Rec.FieldNo("Campaign No."));
@@ -2025,6 +2042,16 @@ table 11401 "CBG Statement Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateVAT(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateGenJournalLineOnAfterSetDocumentTypeForCorrection(CBGStatementLine: Record "CBG Statement Line"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -2070,6 +2097,11 @@ table 11401 "CBG Statement Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateIdentificationOnBeforeCheckCurrency(var CBGStatementLine: Record "CBG Statement Line"; ParentCBGStatementLine: Record "CBG Statement Line"; PaymentHistLine: Record "Payment History Line"; CBGStatement: Record "CBG Statement"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnLookupAppliesToDocNoOnAfterSetCustAppliesToDocNo(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -2086,6 +2118,16 @@ table 11401 "CBG Statement Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupAppliesToDocAnAfterSetVendorLedgerEntryFilters(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAccountName(CBGStatementLine: Record "CBG Statement Line"; var AccountName: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenAccountCard(CBGStatementLine: Record "CBG Statement Line")
     begin
     end;
 }

@@ -452,11 +452,13 @@ page 11401 "Bank/Giro Journal Subform"
 
     var
         Text1000000: Label 'CBI';
-        CBGStatement: Record "CBG Statement";
         ShortcutDimcode: array[8] of Code[20];
         AccName: Text[100];
         VATStatusEnable: Boolean;
         StatusVATAmountEnable: Boolean;
+
+    protected var
+        CBGStatement: Record "CBG Statement";
 
     [Scope('OnPrem')]
     procedure OpenCard()
@@ -605,10 +607,17 @@ page 11401 "Bank/Giro Journal Subform"
                         end;
                 end;
         end;
+
+        OnAfterSetAccountName(Rec, xRec, AccName);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStartApplieFunction(var CBGStatementLine: Record "CBG Statement Line"; var CBGStatement: Record "CBG Statement"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetAccountName(var CBGStatementLine: Record "CBG Statement Line"; xCBGStatementLine: Record "CBG Statement Line"; var AccName: Text[100])
     begin
     end;
 }

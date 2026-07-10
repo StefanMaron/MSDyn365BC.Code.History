@@ -41,22 +41,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Digipoort - NamedType DigipoortStatusURLSetupErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1784119079 - NamedType 1006622696" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1784119079 - NamedType 62408219" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Invalid URI: The format of the URI could not be determined.]]></Val>
+      <Val><![CDATA[The Digipoort URL host must end with .digipoort.logius.nl.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Digipoort - NamedType InvalidDeliverUriFormatErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1784119079 - NamedType 1874449917" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Invalid URI: The format of the URI could not be determined.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Digipoort - NamedType InvalidGetStatusUriFormatErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Digipoort - NamedType InvalidDigipoortHostErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 757409969 - NamedType 455107495" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
