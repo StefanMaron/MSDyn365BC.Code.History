@@ -657,10 +657,13 @@ table 7321 "Warehouse Shipment Line"
     end;
 
     procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    var
+        SuppressQtyPerUoMTestfield: Boolean;
     begin
-        OnBeforeCalcBaseQty(Rec, Qty, FromFieldName, ToFieldName);
+        OnBeforeCalcBaseQty(Rec, Qty, FromFieldName, ToFieldName, SuppressQtyPerUoMTestfield);
 
-        TestField("Qty. per Unit of Measure");
+        if not SuppressQtyPerUoMTestfield then
+            TestField("Qty. per Unit of Measure");  // For whse. shipment subcontracting WIP item transfer, 'Qty. per Unit of Measure' can be zero.
         exit(UOMMgt.CalcBaseQty(
             "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
@@ -1418,7 +1421,7 @@ table 7321 "Warehouse Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcBaseQty(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Qty: Decimal; FromFieldName: Text; ToFieldName: Text)
+    local procedure OnBeforeCalcBaseQty(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Qty: Decimal; FromFieldName: Text; ToFieldName: Text; var SuppressQtyPerUoMTestfield: Boolean)
     begin
     end;
 

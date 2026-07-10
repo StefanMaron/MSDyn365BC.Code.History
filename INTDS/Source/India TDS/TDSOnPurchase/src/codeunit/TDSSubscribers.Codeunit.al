@@ -4,12 +4,19 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.TDS.TDSOnPurchase;
 
+using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Posting;
+using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.TaxBase;
+using Microsoft.Finance.TaxEngine.TaxTypeHandler;
+using Microsoft.Finance.TaxEngine.UseCaseBuilder;
 using Microsoft.Finance.TDS.TDSBase;
+using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Company;
 using Microsoft.Inventory.Location;
 using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.Vendor;
@@ -241,6 +248,9 @@ codeunit 18716 "TDS Subscribers"
         TDSEntry.Reset();
         TDSEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         TDSEntry.SetRange(Section, GenJournalLine."TDS Section Code");
+        TDSEntry.SetRange("Concessional Code", TDSConcessionalCode."Concessional Code");
+        TDSEntry.SetRange("Concessional Form No.", TDSConcessionalCode."Certificate No.");
+        TDSEntry.SetRange("Posting Date", TDSConcessionalCode."Start Date", TDSConcessionalCode."End Date");
         TDSEntry.CalcSums("TDS Base Amount");
         TotalPostedAmount := TDSEntry."TDS Base Amount";
 
@@ -363,6 +373,9 @@ codeunit 18716 "TDS Subscribers"
         TDSEntry.Reset();
         TDSEntry.SetRange("Vendor No.", PurchaseLine."Pay-to Vendor No.");
         TDSEntry.SetRange(Section, PurchaseLine."TDS Section Code");
+        TDSEntry.SetRange("Concessional Code", TDSConcessionalCode."Concessional Code");
+        TDSEntry.SetRange("Concessional Form No.", TDSConcessionalCode."Certificate No.");
+        TDSEntry.SetRange("Posting Date", TDSConcessionalCode."Start Date", TDSConcessionalCode."End Date");
         TDSEntry.CalcSums("TDS Base Amount");
         TotalPostedAmount := TDSEntry."TDS Base Amount";
 
@@ -521,6 +534,59 @@ codeunit 18716 "TDS Subscribers"
     begin
         if not RecalculateLines then
             CalculateTax.CallTaxEngineOnPurchaseLine(ToPurchLine, ToPurchLine);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", OnBeforeCalcAplication, '', false, false)]
+    local procedure OnBeforeCalcAplication(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var AppliedAmountLCY: Decimal)
+    var
+        Currency: Record "Currency";
+        SourceCodeSetup: Record "Source Code Setup";
+        TaxComponent: Record "Tax Component";
+        TaxRateComputation: Codeunit "Tax Rate Computation";
+    begin
+        SourceCodeSetup.Get();
+
+        if (NewCVLedgEntryBuf."Source Code" <> SourceCodeSetup."TDS Adjustment Journal") and (OldCVLedgEntryBuf."Source Code" <> SourceCodeSetup."TDS Adjustment Journal") then
+            exit;
+
+        if (NewCVLedgEntryBuf."Currency Code" = '') or (OldCVLedgEntryBuf."Currency Code" = '') then
+            exit;
+
+        TaxComponent.SetRange("Tax Type", 'TDS');
+        TaxComponent.FindFirst();
+
+        AppliedAmountLCY := TaxRateComputation.RoundAmount(AppliedAmountLCY, TaxComponent."Rounding Precision", TaxComponent."Direction");
+        Currency.Get(OldCVLedgEntryBuf."Currency Code");
+        OldCVLedgEntryBuf."Remaining Amount" := Round(OldCVLedgEntryBuf."Remaining Amount", Currency."Amount Rounding Precision", Currency.InvoiceRoundingDirection());
+        NewCVLedgEntryBuf."Remaining Amount" := Round(NewCVLedgEntryBuf."Remaining Amount", Currency."Amount Rounding Precision", Currency.InvoiceRoundingDirection());
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Correct Posted Purch. Invoice", 'OnBeforeTestIfInvoiceIsPaid', '', false, false)]
+    local procedure OnBeforeTestTDSPurchaseInvoiceIsPaid(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    var
+        TDSEntry: Record "TDS Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        if IsHandled then
+            exit;
+
+        TDSEntry.SetRange("Document Type", TDSEntry."Document Type"::Invoice);
+        TDSEntry.SetRange("Document No.", PurchInvHeader."No.");
+        TDSEntry.SetRange(Reversed, false);
+        if TDSEntry.IsEmpty() then
+            exit;
+
+        if PurchInvHeader."Vendor Ledger Entry No." = 0 then
+            exit;
+
+        if not VendorLedgerEntry.Get(PurchInvHeader."Vendor Ledger Entry No.") then
+            exit;
+
+        VendorLedgerEntry.CalcFields("Original Amount", "Remaining Amount");
+        if VendorLedgerEntry."Original Amount" <> VendorLedgerEntry."Remaining Amount" then
+            exit;
+
+        IsHandled := true;
     end;
 
     [IntegrationEvent(false, false)]
