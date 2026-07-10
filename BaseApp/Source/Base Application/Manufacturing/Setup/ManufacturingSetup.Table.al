@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -340,6 +340,23 @@ table 99000765 "Manufacturing Setup"
             OptionCaption = 'Expected Quantity,Zero on All Operations,Zero on Last Operation';
             OptionMembers = "Expected Quantity","Zero on All Operations","Zero on Last Operation";
         }
+#if not CLEANSCHEMA32
+        field(5600; "Legacy Subcontracting"; Boolean)
+        {
+            Caption = 'Legacy Subcontracting';
+            ToolTip = 'Specifies whether to use legacy subcontracting functionality. When enabled, the system will create a purchase order for each subcontracted item on a production order. When disabled, the system will create a single purchase order for all subcontracted items on a production order with multiple lines for each subcontracted item.';
+            AllowInCustomizations = Never;
+            Editable = false;
+            ObsoleteReason = 'Legacy Subcontracting will be discontinued, environments should move to the Subcontracting App.';
+#if not CLEAN28
+            ObsoleteState = Pending;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '32.0';
+#endif
+        }
+#endif
     }
 
     keys

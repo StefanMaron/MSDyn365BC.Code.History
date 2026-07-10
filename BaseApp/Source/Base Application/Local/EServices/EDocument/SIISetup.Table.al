@@ -7,6 +7,7 @@ namespace Microsoft.EServices.EDocument;
 using System.Privacy;
 using System.Security.Encryption;
 using System.Telemetry;
+using System.Utilities;
 
 table 10751 "SII Setup"
 {
@@ -51,7 +52,7 @@ table 10751 "SII Setup"
 
             trigger OnValidate()
             begin
-                ValidateEndpointUrl(InvoicesIssuedEndpointUrl);
+                ValidateAndAuditEndpointUrlChange(FieldCaption(InvoicesIssuedEndpointUrl), xRec.InvoicesIssuedEndpointUrl, InvoicesIssuedEndpointUrl);
             end;
         }
         field(6; InvoicesReceivedEndpointUrl; Text[250])
@@ -62,7 +63,7 @@ table 10751 "SII Setup"
 
             trigger OnValidate()
             begin
-                ValidateEndpointUrl(InvoicesReceivedEndpointUrl);
+                ValidateAndAuditEndpointUrlChange(FieldCaption(InvoicesReceivedEndpointUrl), xRec.InvoicesReceivedEndpointUrl, InvoicesReceivedEndpointUrl);
             end;
         }
         field(7; PaymentsIssuedEndpointUrl; Text[250])
@@ -73,7 +74,7 @@ table 10751 "SII Setup"
 
             trigger OnValidate()
             begin
-                ValidateEndpointUrl(PaymentsIssuedEndpointUrl);
+                ValidateAndAuditEndpointUrlChange(FieldCaption(PaymentsIssuedEndpointUrl), xRec.PaymentsIssuedEndpointUrl, PaymentsIssuedEndpointUrl);
             end;
         }
         field(8; PaymentsReceivedEndpointUrl; Text[250])
@@ -84,7 +85,7 @@ table 10751 "SII Setup"
 
             trigger OnValidate()
             begin
-                ValidateEndpointUrl(PaymentsReceivedEndpointUrl);
+                ValidateAndAuditEndpointUrlChange(FieldCaption(PaymentsReceivedEndpointUrl), xRec.PaymentsReceivedEndpointUrl, PaymentsReceivedEndpointUrl);
             end;
         }
 #if not CLEANSCHEMA25
@@ -119,7 +120,7 @@ table 10751 "SII Setup"
 
             trigger OnValidate()
             begin
-                ValidateEndpointUrl(CollectionInCashEndpointUrl);
+                ValidateAndAuditEndpointUrlChange(FieldCaption(CollectionInCashEndpointUrl), xRec.CollectionInCashEndpointUrl, CollectionInCashEndpointUrl);
             end;
         }
         field(20; "Invoice Amount Threshold"; Decimal)
@@ -183,6 +184,11 @@ table 10751 "SII Setup"
 
             trigger OnValidate()
             begin
+                if "Certificate Code" <> xRec."Certificate Code" then
+                    Session.LogSecurityAudit(
+                        SIIFeatureNameTok, SecurityOperationResult::Success,
+                        StrSubstNo(SecurityAuditCertificateCodeChangedTxt, xRec."Certificate Code", "Certificate Code"),
+                        AuditCategory::UserManagement);
                 Validate(Enabled, "Certificate Code" <> '');
             end;
         }
@@ -227,7 +233,9 @@ table 10751 "SII Setup"
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         CannotEnableWithoutCertificateErr: Label 'The setup cannot be enabled without a valid certificate.';
-        InvalidEndpointUrlErr: Label 'The endpoint URL must start with one of the following base URLs: https://www1.agenciatributaria.gob.es, https://www2.agenciatributaria.gob.es, https://prewww1.aeat.es, https://prewww2.aeat.es.';
+        InvalidEndpointUrlErr: Label 'The endpoint URL %1 is not on the allow-list for this feature.', Comment = '%1 = the URL entered by the user';
+        EndpointFieldChangedTxt: Label 'SII endpoint field "%1" was changed.', Locked = true, Comment = '%1 - endpoint field caption';
+        SecurityAuditCertificateCodeChangedTxt: Label 'SII Certificate Code was changed from %1 to %2.', Locked = true, Comment = '%1 - old certificate code, %2 - new certificate code';
         SiiTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd', Locked = true;
         SiiLRTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd', Locked = true;
         SIIFeatureNameTok: Label 'SII', Locked = true;
@@ -253,23 +261,47 @@ table 10751 "SII Setup"
     procedure ValidateEndpointUrl(Url: Text)
     begin
         if not IsAllowedEndpointUrl(Url) then
-            Error(InvalidEndpointUrlErr);
+            Error(InvalidEndpointUrlErr, Url);
     end;
 
     procedure IsAllowedEndpointUrl(Url: Text): Boolean
     var
-        LowerUrl: Text;
+        Uri: Codeunit Uri;
+        Host: Text;
+        AllowedHostSuffixes: List of [Text];
+        Suffix: Text;
     begin
-        LowerUrl := LowerCase(Url);
-        if StrPos(LowerUrl, 'https://www1.agenciatributaria.gob.es/') = 1 then
-            exit(true);
-        if StrPos(LowerUrl, 'https://www2.agenciatributaria.gob.es/') = 1 then
-            exit(true);
-        if StrPos(LowerUrl, 'https://prewww1.aeat.es/') = 1 then
-            exit(true);
-        if StrPos(LowerUrl, 'https://prewww2.aeat.es/') = 1 then
-            exit(true);
+        if not Uri.IsWellFormedUriString(Url, Enum::UriKind::Absolute) then
+            exit(false);
+        Uri.Init(Url);
+        if LowerCase(Uri.GetScheme()) <> 'https' then
+            exit(false);
+
+        Host := LowerCase(Uri.GetHost());
+        AllowedHostSuffixes.Add('agenciatributaria.gob.es');
+        AllowedHostSuffixes.Add('aeat.es');
+        AllowedHostSuffixes.Add('gobiernodecanarias.org');
+        AllowedHostSuffixes.Add('navarra.es');
+        AllowedHostSuffixes.Add('gipuzkoa.eus');
+        AllowedHostSuffixes.Add('bizkaia.eus');
+        AllowedHostSuffixes.Add('araba.eus');
+        foreach Suffix in AllowedHostSuffixes do
+            if (Host = Suffix) or Host.EndsWith('.' + Suffix) then
+                exit(true);
         exit(false);
+    end;
+
+    local procedure ValidateAndAuditEndpointUrlChange(EndpointFieldCaption: Text; OldUrl: Text; NewUrl: Text)
+    begin
+        ValidateEndpointUrl(NewUrl);
+
+        if NewUrl = OldUrl then
+            exit;
+
+        Session.LogSecurityAudit(
+            SIIFeatureNameTok, SecurityOperationResult::Success,
+            StrSubstNo(EndpointFieldChangedTxt, EndpointFieldCaption),
+            AuditCategory::ApplicationManagement);
     end;
 
     [IntegrationEvent(false, false)]

@@ -4415,6 +4415,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Invoice - NamedType NegativeAmountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3007153660 - NamedType 595235933" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Non-Deductible VAT Amount must not be negative on line %1, but was %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Line No., %2 = Non-Deductible VAT Amount]D;]A;(LookupHint=Codeunit ERM Purchase Invoice - NamedType NonDeductibleVATAmountNegativeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3007153660 - NamedType 915582606" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Non-Deductible VAT Base must not be negative on line %1, but was %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Line No., %2 = Non-Deductible VAT Base]D;]A;(LookupHint=Codeunit ERM Purchase Invoice - NamedType NonDeductibleVATBaseNegativeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3007153660 - NamedType 1700252404" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No. of records must be 1.]]></Val>
@@ -4458,6 +4476,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Invoice - NamedType PayToVendorNoShouldBeSameErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3007153660 - NamedType 3908607644" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You have modified the Prices Including VAT field.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Invoice - NamedType PriceIncludingVATChangeMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3007153660 - NamedType 554590824" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

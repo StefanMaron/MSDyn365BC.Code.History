@@ -3016,6 +3016,64 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
+    [HandlerFunctions('AccScheduleOverviewBudgetDrillDownHandler,ChartOfAccountsBudgetFilterPageHandler')]
+    [Scope('OnPrem')]
+    procedure DrillDownBudgetColumnUsesColumnDefinitionBudgetFilter()
+    var
+        ColumnBudgetName: Record "G/L Budget Name";
+        ScheduleBudgetName: Record "G/L Budget Name";
+    begin
+        // [FEATURE][AI test 0.3]
+        // [SCENARIO 640362] "Budget Name" on a Budget Entries Column Definition flows through to the G/L Account drill-down page
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        LibraryERM.CreateGLBudgetName(ColumnBudgetName);
+        LibraryERM.CreateGLBudgetName(ScheduleBudgetName);
+
+        // [GIVEN] A "Budget Entries" Column Definition with "Budget Name" and an Acc. Schedule Line with a different "G/L Budget Filter"
+        // [WHEN] Drilling down on the column value
+        // [THEN] Chart of Accounts (G/L) is filtered by the Column Definition's "Budget Name"
+        DrillDownGLAccountWithBudgetFilter(true, ColumnBudgetName.Name, ScheduleBudgetName.Name, ColumnBudgetName.Name);
+    end;
+
+    [Test]
+    [HandlerFunctions('AccScheduleOverviewBudgetDrillDownHandler,ChartOfAccountsBudgetFilterPageHandler')]
+    [Scope('OnPrem')]
+    procedure DrillDownBudgetColumnFallsBackToScheduleLineBudgetFilter()
+    var
+        ScheduleBudgetName: Record "G/L Budget Name";
+    begin
+        // [FEATURE][AI test 0.3]
+        // [SCENARIO 640362] A Budget Entries Column Definition without "Budget Name" uses the Acc. Schedule Line "G/L Budget Filter" on drill-down
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        LibraryERM.CreateGLBudgetName(ScheduleBudgetName);
+
+        // [GIVEN] A "Budget Entries" Column Definition without "Budget Name" and an Acc. Schedule Line with a "G/L Budget Filter"
+        // [WHEN] Drilling down on the column value
+        // [THEN] Chart of Accounts (G/L) is filtered by the Acc. Schedule Line "G/L Budget Filter"
+        DrillDownGLAccountWithBudgetFilter(true, '', ScheduleBudgetName.Name, ScheduleBudgetName.Name);
+    end;
+
+    [Test]
+    [HandlerFunctions('AccScheduleOverviewBudgetDrillDownHandler,ChartOfAccountsBudgetFilterPageHandler')]
+    [Scope('OnPrem')]
+    procedure DrillDownNonBudgetColumnIgnoresColumnBudgetFilter()
+    var
+        ColumnBudgetName: Record "G/L Budget Name";
+        ScheduleBudgetName: Record "G/L Budget Name";
+    begin
+        // [FEATURE][AI test 0.3]
+        // [SCENARIO 640362] "Budget Name" on a non-budget (Entries) Column Definition is ignored on drill-down, matching the cell calculation
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        LibraryERM.CreateGLBudgetName(ColumnBudgetName);
+        LibraryERM.CreateGLBudgetName(ScheduleBudgetName);
+
+        // [GIVEN] An "Entries" Column Definition that still carries a "Budget Name" and an Acc. Schedule Line with a "G/L Budget Filter"
+        // [WHEN] Drilling down on the column value
+        // [THEN] Chart of Accounts (G/L) is filtered by the Acc. Schedule Line "G/L Budget Filter", not the column's "Budget Name"
+        DrillDownGLAccountWithBudgetFilter(false, ColumnBudgetName.Name, ScheduleBudgetName.Name, ScheduleBudgetName.Name);
+    end;
+
+    [Test]
     [HandlerFunctions('AccScheduleOverviewWithDisabledLinePageHandler')]
     [Scope('OnPrem')]
     procedure AccScheduleOverviewExcludeLinesWithShowNo()
@@ -7214,6 +7272,38 @@ codeunit 134902 "ERM Account Schedule"
         OpenAccScheduleOverviewPageCheckValues(AccScheduleLine."Schedule Name", ColumnLayout."Column Layout Name");
     end;
 
+    local procedure DrillDownGLAccountWithBudgetFilter(IsBudgetEntriesColumn: Boolean; ColumnBudgetName: Code[10]; ScheduleLineBudgetFilter: Code[10]; ExpectedBudgetFilter: Code[10])
+    var
+        GLAccount: Record "G/L Account";
+        ColumnLayout: Record "Column Layout";
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        Initialize();
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // Post an entry so the column has a non-zero value to drill down on
+        CreateAndPostJournal(LibrarySales.CreateCustomerNo(), GLAccount."No.", LibraryRandom.RandDec(100, 2));
+
+        // Column Definition with the requested Ledger Entry Type, optionally carrying a "Budget Name"
+        CreateColumnLayout(ColumnLayout);
+        if IsBudgetEntriesColumn then
+            ColumnLayout.Validate("Ledger Entry Type", ColumnLayout."Ledger Entry Type"::"Budget Entries");
+        if ColumnBudgetName <> '' then
+            ColumnLayout.Validate("Budget Name", ColumnBudgetName);
+        ColumnLayout.Modify(true);
+
+        // Posting-account Acc. Schedule Line optionally carrying a "G/L Budget Filter"
+        CreateAndUpdateAccountSchedule(
+          AccScheduleLine, ColumnLayout."Column Layout Name", GLAccount."No.", AccScheduleLine."Totaling Type"::"Posting Accounts");
+
+        // "G/L Budget Filter" is a FlowFilter, so it is applied at runtime through the overview page
+        // (AccScheduleOverviewBudgetDrillDownHandler); the resulting drill-down filter is verified in ChartOfAccountsBudgetFilterPageHandler.
+        LibraryVariableStorage.Enqueue(ScheduleLineBudgetFilter);
+        LibraryVariableStorage.Enqueue(ExpectedBudgetFilter);
+        OpenAccScheduleOverviewPageCheckValues(AccScheduleLine."Schedule Name", ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure CreateAndPostJournalWithDimension(CustomerNo: Code[20]; GlAccountNo: Code[20]; Amount: Decimal) Dimension1Value: Code[20]
     begin
         Dimension1Value := UpdateGLAccountWithDefaultDimension(GlAccountNo);
@@ -7690,6 +7780,28 @@ codeunit 134902 "ERM Account Schedule"
     begin
         LibraryVariableStorage.Dequeue(CashFlowAccountNo);
         Assert.AreEqual(CashFlowAccountNo, ChartOfAccountsGL.FILTER.GetFilter("No."), 'Filter no. does not match expected no.');
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ChartOfAccountsBudgetFilterPageHandler(var ChartOfAccountsGL: TestPage "Chart of Accounts (G/L)")
+    begin
+        Assert.AreEqual(
+          LibraryVariableStorage.DequeueText(), ChartOfAccountsGL.FILTER.GetFilter("Budget Filter"),
+          'Budget filter on the drill-down page does not match the expected budget name.');
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewBudgetDrillDownHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
+    var
+        GLBudgetFilter: Text;
+    begin
+        GLBudgetFilter := LibraryVariableStorage.DequeueText();
+        if GLBudgetFilter <> '' then
+            AccScheduleOverview."G/LBudgetFilter".SetValue(GLBudgetFilter);
+        AccScheduleOverview.DateFilter.SetValue(WorkDate());
+        AccScheduleOverview.ColumnValues1.DrillDown();
     end;
 
     [ModalPageHandler]

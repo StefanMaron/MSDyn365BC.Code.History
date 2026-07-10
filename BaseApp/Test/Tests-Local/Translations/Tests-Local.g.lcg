@@ -4046,6 +4046,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Documents With EU Service - NamedType XPathSalesExentaTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3584541132 - NamedType 1906643928" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The endpoint URL %1 is not on the allow-list for this feature.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = the URL entered by the user]D;]A;(LookupHint=Codeunit SII Endpoint Url Validation - NamedType InvalidEndpointUrlErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3658423115 - NamedType 3088887303" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The XML document was not generated properly.]]></Val>
