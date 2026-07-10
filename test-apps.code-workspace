@@ -70,6 +70,9 @@
       "path": "./Manufacturing/Test/Manufacturing Tests"
     },
     {
+      "path": "./Subcontracting/Test/Subcontracting-Tests/Tests"
+    },
+    {
       "path": "./EnforcedDigitalVouchersDK/Test/Enforced Digital Vouchers Tests (DK)"
     },
     {
@@ -401,11 +404,11 @@
     }
   ],
   "settings": {
-    "al.enableCodeAnalysis": false,
     "allint.enabled": false,
-    "al.enableCodeActions": false,
+    "al.enableCodeAnalysis": false,
     "search.exclude": {
       "**.xlf": true
-    }
+    },
+    "al.enableCodeActions": false
   }
 }
