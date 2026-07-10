@@ -311,6 +311,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Unrealized VAT Vendor - NamedType CrMemoCorrInvNoQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1267986530 - NamedType 3703207348" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sum of realized VAT amounts must be zero]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Unrealized VAT Vendor - NamedType SumOfRealizedVATAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2608685392 - NamedType 3420941840" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount in the %1 No. %2 is incorrect.]]></Val>

@@ -1332,6 +1332,10 @@ table 115 "Sales Cr.Memo Line"
             SalesInvoiceLine.SetRange("Document No.", SalesCreditMemoHeader."Applies-to Doc. No.");
             SalesInvoiceLine.SetRange(Type, Type);
             SalesInvoiceLine.SetRange("No.", "No.");
+            SalesInvoiceLine.SetFilter(Quantity, '>=%1', Quantity);
+            if SalesInvoiceLine.FindFirst() then
+                exit;
+            SalesInvoiceLine.SetRange(Quantity);
             if SalesInvoiceLine.FindFirst() then;
         end;
     end;
@@ -1492,7 +1496,7 @@ table 115 "Sales Cr.Memo Line"
         ItemTrackingDocMgmt: Codeunit "Item Tracking Doc. Management";
     begin
         ItemTrackingDocMgmt.RetrieveEntriesFromPostedInvoice(TempItemLedEntry, RowID1());
-        if TempItemLedEntry.IsEmpty then
+        if TempItemLedEntry.IsEmpty() then
             exit;
 
         TempItemLedEntry.FindFirst();
