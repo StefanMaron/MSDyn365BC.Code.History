@@ -520,8 +520,11 @@ report 5848 "Cost Shares Breakdown"
     local procedure CalcRemainingQty(FromItemLedgEntry: Record "Item Ledger Entry")
     var
         ItemApplnEntry: Record "Item Application Entry";
+        OldRemainingQty: Decimal;
     begin
+        OldRemainingQty := RemainingQty;
         RemainingQty := FromItemLedgEntry.Quantity;
+        OnCalcRemainingQtyOnAfterSetRemainingQty(FromItemLedgEntry, RemainingQty, OldRemainingQty);
 
         if FromItemLedgEntry.Positive then begin
             if TempCostShareBuffer.Get(FromItemLedgEntry."Entry No.") then
@@ -577,6 +580,7 @@ report 5848 "Cost Shares Breakdown"
         ToEntryNo: Integer;
         CostShare: Decimal;
         AppliedQty: Decimal;
+        IsHandled: Boolean;
     begin
         repeat
             if not TempCostShareBuffer.Get(EntryNo) then begin
@@ -597,10 +601,13 @@ report 5848 "Cost Shares Breakdown"
 
             ToCostShareBuffer := TempCostShareBuffer;
             if (ToCostShareBuffer."Posting Date" <= EndDate) or (EndDate = 0D) then begin
-                if (EndDate = 0D) or (ToItemLedgEntry."Posting Date" <= EndDate) and
-                   (FromCostShareBuffer.Quantity * ItemApplnEntry.Quantity < 0)
-                then
-                    AppliedQty := AppliedQty + ItemApplnEntry.Quantity;
+                IsHandled := false;
+                OnForwardItemLedgEntryCostShareOnBeforeCheckCostShareQtyCondition(FromCostShareBuffer, ItemApplnEntry, AppliedQty, IsHandled);
+                if not IsHandled then
+                    if (EndDate = 0D) or (ToItemLedgEntry."Posting Date" <= EndDate) and
+                       (FromCostShareBuffer.Quantity * ItemApplnEntry.Quantity < 0)
+                    then
+                        AppliedQty := AppliedQty + ItemApplnEntry.Quantity;
 
                 if ToCostShareBuffer.Quantity < 0 then
                     ToCostShareBuffer."New Quantity" := ToCostShareBuffer."New Quantity" - ItemApplnEntry.Quantity;
@@ -687,6 +694,7 @@ report 5848 "Cost Shares Breakdown"
         TempCostShareBuffer."Item Ledger Entry No." := ItemLedgEntry."Entry No.";
         TempCostShareBuffer."Item No." := ItemLedgEntry."Item No.";
         TempCostShareBuffer.Quantity := ItemLedgEntry.Quantity;
+        OnInsertItemLedgEntryCostShareOnAfterSetQuantity(ItemLedgEntry, TempCostShareBuffer);
         TempCostShareBuffer."Entry Type" := ItemLedgEntry."Entry Type";
         TempCostShareBuffer."Location Code" := ItemLedgEntry."Location Code";
         TempCostShareBuffer."Variant Code" := ItemLedgEntry."Variant Code";
@@ -913,6 +921,21 @@ report 5848 "Cost Shares Breakdown"
         EndDate := NewEndDate;
         CostSharePrint := NewPrintCostShare;
         ShowDetails := NewShowDetails;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRemainingQtyOnAfterSetRemainingQty(FromItemLedgerEntry: Record "Item Ledger Entry"; var RemainingQty: Decimal; OldRemainingQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnForwardItemLedgEntryCostShareOnBeforeCheckCostShareQtyCondition(CostShareBuffer: Record "Cost Share Buffer"; ItemApplicationEntry: Record "Item Application Entry"; var AppliedQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemLedgEntryCostShareOnAfterSetQuantity(ItemLedgerEntry: Record "Item Ledger Entry"; var TempCostShareBuffer: Record "Cost Share Buffer" temporary)
+    begin
     end;
 }
 

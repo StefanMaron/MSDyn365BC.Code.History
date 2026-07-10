@@ -1,11 +1,11 @@
 {
   "settings": {
-    "search.exclude": {
-      "**.xlf": true
-    },
+    "al.enableCodeAnalysis": false,
     "al.enableCodeActions": false,
     "allint.enabled": false,
-    "al.enableCodeAnalysis": false
+    "search.exclude": {
+      "**.xlf": true
+    }
   },
   "folders": [
     {
@@ -64,6 +64,9 @@
     },
     {
       "path": "./Manufacturing/Test/Manufacturing Tests"
+    },
+    {
+      "path": "./Subcontracting/Test/Subcontracting-Tests/Tests"
     },
     {
       "path": "./DataSearch/Test/Data Search Tests"
