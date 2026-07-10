@@ -52,6 +52,7 @@ table 99000758 "Machine Center"
         field(5; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
+            ToolTip = 'Specifies an additional name for the machine center.';
         }
         field(6; Address; Text[100])
         {
@@ -524,7 +525,8 @@ table 99000758 "Machine Center"
         }
         field(81; "Overhead Rate"; Decimal)
         {
-            AutoFormatType = 0;
+            AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Overhead Rate';
             ToolTip = 'Specifies the overhead rate of this machine center.';
 
