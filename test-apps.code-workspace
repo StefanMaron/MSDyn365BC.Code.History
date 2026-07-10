@@ -1,4 +1,12 @@
 {
+  "settings": {
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "allint.enabled": false,
+    "al.enableCodeActions": false,
+    "al.enableCodeAnalysis": false
+  },
   "folders": [
     {
       "path": "./Application Test Library"
@@ -64,6 +72,9 @@
       "path": "./Manufacturing/Test/Manufacturing Tests"
     },
     {
+      "path": "./Subcontracting/Test/Subcontracting-Tests/Tests"
+    },
+    {
       "path": "./DataSearch/Test/Data Search Tests"
     },
     {
@@ -77,6 +88,9 @@
     },
     {
       "path": "./ReviewGLEntries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
+    },
+    {
+      "path": "./EDocumentFormats/EDocument_FR/EReportingFR/Test/E-Reporting FR Tests"
     },
     {
       "path": "./PaymentManagementFR/Test/Payment Management FR-Tests"
@@ -390,13 +404,5 @@
     {
       "path": "./RecommendedApps/Test/Recommended Apps Tests"
     }
-  ],
-  "settings": {
-    "al.enableCodeActions": false,
-    "al.enableCodeAnalysis": false,
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "allint.enabled": false
-  }
+  ]
 }

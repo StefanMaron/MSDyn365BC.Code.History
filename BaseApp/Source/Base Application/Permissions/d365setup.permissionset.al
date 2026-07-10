@@ -512,7 +512,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Return Reason" = RIMD,
                   tabledata "Return Receipt Header" = RD,
                   tabledata "Return Receipt Line" = R,
-                  tabledata "Return Shipment Header" = d,
+                  tabledata "Return Shipment Header" = RD,
                   tabledata "Return Shipment Line" = R,
                   tabledata "Rounding Method" = RIMD,
                   tabledata "Sales & Receivables Setup" = RIMD,
