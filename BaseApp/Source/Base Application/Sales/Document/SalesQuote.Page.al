@@ -1860,6 +1860,7 @@ page 41 "Sales Quote"
     begin
         xRec.Init();
         Rec."Responsibility Center" := UserMgt.GetSalesFilter();
+        OnOnNewRecordOnAfterSetResponsibilityCenter(Rec);
         if (not DocNoVisible) and (Rec."No." = '') then
             Rec.SetSellToCustomerFromFilter();
 
@@ -2048,6 +2049,11 @@ page 41 "Sales Quote"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupBillToName(var Customer: Record Customer; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnNewRecordOnAfterSetResponsibilityCenter(var SalesHeader: Record "Sales Header")
     begin
     end;
 

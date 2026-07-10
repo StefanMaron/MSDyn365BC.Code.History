@@ -2789,6 +2789,7 @@ table 39 "Purchase Line"
             var
                 Item: Record Item;
                 WMSManagement: Codeunit "WMS Management";
+                IsHandled: Boolean;
             begin
                 if "Bin Code" <> '' then
                     if not IsInbound() and ("Quantity (Base)" <> 0) then
@@ -2798,6 +2799,11 @@ table 39 "Purchase Line"
 
                 if "Drop Shipment" then
                     ShowBinCodeCannotBeChangedError();
+
+                IsHandled := false;
+                OnValidateBinCodeOnBeforeTestFields(Rec, IsHandled);
+                if IsHandled then
+                    exit;
 
                 TestField(Type, Type::Item);
                 TestField("Location Code");
@@ -5665,6 +5671,7 @@ table 39 "Purchase Line"
                             Amount := 0;
                             "VAT Base Amount" := 0;
                             "Amount Including VAT" := ROUND(CalcLineAmount(), Currency."Amount Rounding Precision");
+                            NonDeductibleVAT.Update(Rec, Currency);
                         end;
                     "VAT Calculation Type"::"Sales Tax":
                         begin
@@ -5713,6 +5720,7 @@ table 39 "Purchase Line"
                             Amount := 0;
                             "VAT Base Amount" := 0;
                             "Amount Including VAT" := CalcLineAmount();
+                            NonDeductibleVAT.Update(Rec, Currency);
                         end;
                     "VAT Calculation Type"::"Sales Tax":
                         begin
@@ -5750,6 +5758,8 @@ table 39 "Purchase Line"
     var
         GenPostingSetup: Record "General Posting Setup";
         GLAcc: Record "G/L Account";
+        VATPostingSetupRetrieved: Boolean;
+        SkipClear: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -5764,11 +5774,18 @@ table 39 "Purchase Line"
             GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
             if GenPostingSetup."Purch. Prepayments Account" <> '' then begin
                 GLAcc.Get(GenPostingSetup."Purch. Prepayments Account");
-                VATPostingSetup.Get("VAT Bus. Posting Group", GLAcc."VAT Prod. Posting Group");
+                VATPostingSetupRetrieved := false;
+                OnUpdatePrepmtSetupFieldsOnBeforeGetVATPostingSetup(Rec, GLAcc, VATPostingSetup, VATPostingSetupRetrieved);
+                if not VATPostingSetupRetrieved then
+                    VATPostingSetup.Get("VAT Bus. Posting Group", GLAcc."VAT Prod. Posting Group");
                 VATPostingSetup.TestField("VAT Calculation Type", "VAT Calculation Type");
                 NonDeductibleVAT.CheckPrepmtVATPostingSetup(VATPostingSetup);
-            end else
-                Clear(VATPostingSetup);
+            end else begin
+                SkipClear := false;
+                OnUpdatePrepmtSetupFieldsOnBeforeClearVATPostingSetup(Rec, VATPostingSetup, SkipClear);
+                if not SkipClear then
+                    Clear(VATPostingSetup);
+            end;
             OnAfterGetPostingSetup(Rec, VATPostingSetup);
             if ("Prepayment VAT %" <> 0) and ("Prepayment VAT %" <> VATPostingSetup."VAT %") and ("Prepmt. Amt. Inv." <> 0) then
                 Error(CannotChangePrepmtAmtDiffVAtPctErr);
@@ -10885,6 +10902,16 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdatePrepmtSetupFieldsOnBeforeGetVATPostingSetup(var PurchaseLine: Record "Purchase Line"; GLAccount: Record "G/L Account"; var VATPostingSetup: Record "VAT Posting Setup"; var VATPostingSetupRetrieved: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePrepmtSetupFieldsOnBeforeClearVATPostingSetup(var PurchaseLine: Record "Purchase Line"; var VATPostingSetup: Record "VAT Posting Setup"; var SkipClear: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAmounts(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -11236,6 +11263,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateJobNoOnBeforeGetJob(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBinCodeOnBeforeTestFields(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
