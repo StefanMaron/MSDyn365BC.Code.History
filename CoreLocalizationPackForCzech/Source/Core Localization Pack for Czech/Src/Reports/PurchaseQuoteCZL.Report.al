@@ -14,6 +14,7 @@ using Microsoft.Foundation.Company;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Shipping;
 using Microsoft.HumanResources.Employee;
+using Microsoft.Inventory.Location;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Setup;
@@ -25,34 +26,54 @@ using System.Utilities;
 
 report 31184 "Purchase Quote CZL"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Src/Reports/PurchaseQuote.rdl';
     Caption = 'Purchase Quote';
     PreviewMode = PrintLayout;
+    DefaultRenderingLayout = "PurchaseQuote.rdl";
+    WordMergeDataItem = "Purchase Header";
 
     dataset
     {
         dataitem("Company Information"; "Company Information")
         {
             DataItemTableView = sorting("Primary Key");
+#if not CLEAN29
             column(CompanyAddr1; CompanyAddr[1])
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by CompanyAddress1 column in Purchase Header dataitem to ensure address translation matches document language.';
+                ObsoleteTag = '29.0';
             }
             column(CompanyAddr2; CompanyAddr[2])
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by CompanyAddress2 column in Purchase Header dataitem to ensure address translation matches document language.';
+                ObsoleteTag = '29.0';
             }
             column(CompanyAddr3; CompanyAddr[3])
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by CompanyAddress3 column in Purchase Header dataitem to ensure address translation matches document language.';
+                ObsoleteTag = '29.0';
             }
             column(CompanyAddr4; CompanyAddr[4])
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by CompanyAddress4 column in Purchase Header dataitem to ensure address translation matches document language.';
+                ObsoleteTag = '29.0';
             }
             column(CompanyAddr5; CompanyAddr[5])
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by CompanyAddress5 column in Purchase Header dataitem to ensure address translation matches document language.';
+                ObsoleteTag = '29.0';
             }
             column(CompanyAddr6; CompanyAddr[6])
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by CompanyAddress6 column in Purchase Header dataitem to ensure address translation matches document language.';
+                ObsoleteTag = '29.0';
             }
+#endif
             column(RegistrationNo_CompanyInformation; "Registration No.")
             {
             }
@@ -88,10 +109,12 @@ report 31184 "Purchase Quote CZL"
                     }
                 }
             }
+#if not CLEAN29
             trigger OnAfterGetRecord()
             begin
                 FormatAddress.Company(CompanyAddr, "Company Information");
             end;
+#endif
         }
         dataitem("Purchase Header"; "Purchase Header")
         {
@@ -142,6 +165,18 @@ report 31184 "Purchase Quote CZL"
             {
             }
             column(VATLbl; VATLbl)
+            {
+            }
+            column(GreetingLbl; GreetingLbl)
+            {
+            }
+            column(BodyLbl; BodyLbl)
+            {
+            }
+            column(ClosingLbl; ClosingLbl)
+            {
+            }
+            column(DocumentNoLbl; DocumentNoLbl)
             {
             }
             column(No_PurchaseHeader; "No.")
@@ -220,6 +255,24 @@ report 31184 "Purchase Quote CZL"
             {
             }
             column(DocFooterText; DocFooterText)
+            {
+            }
+            column(CompanyAddress1; CompanyAddr[1])
+            {
+            }
+            column(CompanyAddress2; CompanyAddr[2])
+            {
+            }
+            column(CompanyAddress3; CompanyAddr[3])
+            {
+            }
+            column(CompanyAddress4; CompanyAddr[4])
+            {
+            }
+            column(CompanyAddress5; CompanyAddr[5])
+            {
+            }
+            column(CompanyAddress6; CompanyAddr[6])
             {
             }
             column(VendAddr1; VendAddr[1])
@@ -386,6 +439,7 @@ report 31184 "Purchase Quote CZL"
             begin
                 CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
+                FormatAddress.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Purchase Header");
                 FormatDocumentFields("Purchase Header");
@@ -470,6 +524,24 @@ report 31184 "Purchase Quote CZL"
             LogInteractionEnable := LogInteraction;
         end;
     }
+    rendering
+    {
+        layout("PurchaseQuote.rdl")
+        {
+            Type = RDLC;
+            LayoutFile = './Src/Reports/PurchaseQuote.rdl';
+            Caption = 'Purchase Quote (RDL)';
+            Summary = 'The Purchase Quote (RDL) provides a detailed layout.';
+        }
+        layout("PurchaseQuoteEmail.docx")
+        {
+            Type = Word;
+            LayoutFile = './Src/Reports/PurchaseQuoteEmail.docx';
+            Caption = 'Purchase Quote Email (Word)';
+            Summary = 'The Purchase Quote Email (Word) provides an email body layout.';
+        }
+    }
+
     trigger OnInitReport()
     begin
         PurchasesPayablesSetup.Get();
@@ -507,6 +579,10 @@ report 31184 "Purchase Quote CZL"
         DiscPercentLbl: Label 'Discount %';
         TotalLbl: Label 'total';
         VATLbl: Label 'VAT';
+        GreetingLbl: Label 'Hello';
+        ClosingLbl: Label 'Sincerely';
+        BodyLbl: Label 'The purchase quote is attached to this message.';
+        DocumentNoLbl: Label 'No.';
 
     protected var
         PaymentMethod: Record "Payment Method";
@@ -542,7 +618,10 @@ report 31184 "Purchase Quote CZL"
     end;
 
     local procedure FormatAddressFields(PurchaseHeader: Record "Purchase Header")
+    var
+        ResponsibilityCenter: Record "Responsibility Center";
     begin
+        FormatAddress.GetCompanyAddr(PurchaseHeader."Responsibility Center", ResponsibilityCenter, "Company Information", CompanyAddr);
         FormatAddress.PurchHeaderBuyFrom(VendAddr, PurchaseHeader);
         FormatAddress.PurchHeaderShipTo(ShipToAddr, PurchaseHeader);
     end;

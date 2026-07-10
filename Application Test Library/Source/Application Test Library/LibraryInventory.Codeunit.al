@@ -1687,6 +1687,9 @@ codeunit 132201 "Library - Inventory"
         InventoryPostingSetup.Validate("Capacity Variance Account", LibraryERM.CreateGLAccountNo());
         OnBeforeModifyInventoryPostingSetup(InventoryPostingSetup);
         InventoryPostingSetup.Modify(true);
+        // NAVCZ
+        UpdateInventoryPostingSetupAccounts(InventoryPostingSetup);
+        // NAVCZ
     end;
 
     procedure UpdateSalesLine(var SalesLine: Record "Sales Line"; FieldNo: Integer; Value: Variant)
@@ -1785,6 +1788,37 @@ codeunit 132201 "Library - Inventory"
         CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, CopyStr(ExtText, 1, MaxStrLen(ExtendedTextLine.Text)));
         ExtendedTextLine.Modify();
+    end;
+
+    local procedure UpdateInventoryPostingSetupAccounts(var InventoryPostingSetup: Record "Inventory Posting Setup")
+    var
+        InventoryPostingSetupRecordRef: RecordRef;
+        ValueModified: Boolean;
+    begin
+        InventoryPostingSetupRecordRef.GetTable(InventoryPostingSetup);
+        ValueModified := false;
+        if SetAccountFieldIfEmpty(InventoryPostingSetupRecordRef, 'Consumption Account CZL') then
+            ValueModified := true;
+        if SetAccountFieldIfEmpty(InventoryPostingSetupRecordRef, 'Change In Inv.Of WIP Acc. CZL') then
+            ValueModified := true;
+        if SetAccountFieldIfEmpty(InventoryPostingSetupRecordRef, 'Change In Inv.OfProd. Acc. CZL') then
+            ValueModified := true;
+        if ValueModified then
+            InventoryPostingSetupRecordRef.Modify();
+    end;
+
+    local procedure SetAccountFieldIfEmpty(var InventoryPostingSetupRecordRef: RecordRef; FieldName: Text): Boolean
+    var
+        DataTypeManagement: Codeunit "Data Type Management";
+        AccountFieldRef: FieldRef;
+        FieldValue: Text;
+    begin
+        DataTypeManagement.FindFieldByName(InventoryPostingSetupRecordRef, AccountFieldRef, FieldName);
+        FieldValue := AccountFieldRef.Value;
+        if FieldValue <> '' then
+            exit(false);
+        AccountFieldRef.Value := LibraryERM.CreateGLAccountNo();
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]
