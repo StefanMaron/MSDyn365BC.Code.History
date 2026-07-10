@@ -185,9 +185,15 @@ report 108 "Customer - Order Detail"
                     {
                     }
                     trigger OnAfterGetRecord()
+                    var
+                        IsHandled: Boolean;
                     begin
                         ReportHasData := true;
                         OrderNoAndDate := StrSubstNo(OrderNoAndDateLbl, "Sales Header"."No.", Format("Sales Header"."Order Date", 0, '<Closing><Day> <Month Text> <Year4>'));
+                        IsHandled := false;
+                        OnSalesLineOnAfterGetRecordOnBeforeNewOrder("Sales Line", IsHandled);
+                        if IsHandled then
+                            CurrReport.Skip();
                         NewOrder := "Document No." <> SalesHeader."No.";
                         if NewOrder then
                             SalesHeader.Get(Enum::"Sales Document Type"::Order, "Document No.");
@@ -253,13 +259,7 @@ report 108 "Customer - Order Detail"
                 trigger OnAfterGetRecord()
                 begin
                     CustomerNoAndName := Customer."No." + ' - ' + Customer.Name;
-                    "Sales Line".Reset();
-                    "Sales Line".SetRange("Document Type", "Sales Line"."Document Type"::Order);
-                    "Sales Line".SetRange("Document No.", "Sales Header"."No.");
-                    "Sales Line".SetFilter("Outstanding Quantity", '<>%1', 0);
-                    if PeriodText <> '' then
-                        "Sales Line".SetFilter("Shipment Date", PeriodText);
-                    if "Sales Line".IsEmpty() then
+                    if not SalesOrderHasMatchingLines("Sales Header"."No.") then
                         CurrReport.Skip();
                 end;
             }
@@ -466,6 +466,7 @@ report 108 "Customer - Order Detail"
         CustFilter := FormatDocument.GetRecordFiltersWithCaptions(Customer);
         SalesLineFilter := "Sales Line".GetFilters();
         PeriodText := "Sales Line".GetFilter("Shipment Date");
+        SalesLineRequestFilter.CopyFilters("Sales Line");
         if PrintAmountsInLCY then
             AllAmtAreInLCY := AllAmtAreInLCYCaptionLbl;
 
@@ -525,6 +526,7 @@ report 108 "Customer - Order Detail"
 
     protected var
         SalesHeader: Record "Sales Header";
+        SalesLineRequestFilter: Record "Sales Line";
 
 #if not CLEAN28
 #pragma warning disable AS0072
@@ -549,6 +551,22 @@ report 108 "Customer - Order Detail"
     procedure InitializeRequest(ShowAmountInLCY: Boolean)
     begin
         PrintAmountsInLCY := ShowAmountInLCY;
+    end;
+
+    local procedure SalesOrderHasMatchingLines(SalesHeaderNo: Code[20]): Boolean
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.CopyFilters(SalesLineRequestFilter);
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesHeaderNo);
+        SalesLine.SetFilter("Outstanding Quantity", '<>%1', 0);
+        exit(not SalesLine.IsEmpty());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesLineOnAfterGetRecordOnBeforeNewOrder(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

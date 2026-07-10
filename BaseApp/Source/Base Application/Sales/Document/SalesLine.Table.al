@@ -5784,6 +5784,8 @@ table 37 "Sales Line"
         GenPostingSetup: Record "General Posting Setup";
         GLAcc: Record "G/L Account";
         IsHandled: Boolean;
+        VATPostingSetupRetrieved: Boolean;
+        SkipClear: Boolean;
     begin
         IsHandled := false;
         OnBeforeUpdatePrepmtSetupFields(Rec, IsHandled, CurrFieldNo);
@@ -5805,10 +5807,17 @@ table 37 "Sales Line"
                 GetGLSetup();
                 if GLSetup.CheckFullGSTonPrepayment("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
                     GLAcc.TestField("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-                VATPostingSetup.Get("VAT Bus. Posting Group", GLAcc."VAT Prod. Posting Group");
+                VATPostingSetupRetrieved := false;
+                OnUpdatePrepmtSetupFieldsOnBeforeGetVATPostingSetup(Rec, GLAcc, VATPostingSetup, VATPostingSetupRetrieved);
+                if not VATPostingSetupRetrieved then
+                    VATPostingSetup.Get("VAT Bus. Posting Group", GLAcc."VAT Prod. Posting Group");
                 VATPostingSetup.TestField("VAT Calculation Type", "VAT Calculation Type");
-            end else
-                Clear(VATPostingSetup);
+            end else begin
+                SkipClear := false;
+                OnUpdatePrepmtSetupFieldsOnBeforeClearVATPostingSetup(Rec, VATPostingSetup, SkipClear);
+                if not SkipClear then
+                    Clear(VATPostingSetup);
+            end;
             if ("Prepayment VAT %" <> 0) and ("Prepayment VAT %" <> VATPostingSetup."VAT %") and ("Prepmt. Amt. Inv." <> 0) then
                 Error(CannotChangePrepmtAmtDiffVAtPctErr);
             CopyPrepaymentFromVATPostingSetup(VATPostingSetup);
@@ -13107,6 +13116,16 @@ table 37 "Sales Line"
     /// <param name="CurrentFieldNo">The current field number.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePrepmtSetupFields(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePrepmtSetupFieldsOnBeforeGetVATPostingSetup(var SalesLine: Record "Sales Line"; GLAccount: Record "G/L Account"; var VATPostingSetup: Record "VAT Posting Setup"; var VATPostingSetupRetrieved: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePrepmtSetupFieldsOnBeforeClearVATPostingSetup(var SalesLine: Record "Sales Line"; var VATPostingSetup: Record "VAT Posting Setup"; var SkipClear: Boolean)
     begin
     end;
 
