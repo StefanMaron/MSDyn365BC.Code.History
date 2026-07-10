@@ -77,6 +77,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Daily Report Tests - NamedType VATEntryAmountCapTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3571979778 - NamedType 2614114596" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Close Income Statement %1 mismatch for source currency %2. Expected %3, actual %4.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption, %2 = Source Currency Code, %3 = Expected Amount, %4 = Actual Amount]D;]A;(LookupHint=Codeunit ERM Financial Reports - NamedType CloseIncomeAmountMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3571979778 - NamedType 3023717817" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The FileName value on the request form should be editable]]></Val>
@@ -246,6 +255,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Financial Reports - NamedType JournalLineCreatedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3571979778 - NamedType 74503226" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No %1 exists for account %2 and source currency %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Table Caption, %2 = G/L Account No., %3 = Source Currency Code]D;]A;(LookupHint=Codeunit ERM Financial Reports - NamedType MissingGLEntryErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3571979778 - NamedType 1628283035" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
