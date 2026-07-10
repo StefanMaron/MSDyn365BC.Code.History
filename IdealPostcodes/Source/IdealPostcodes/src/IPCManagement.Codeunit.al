@@ -17,6 +17,7 @@ codeunit 9400 "IPC Management"
         ApiKeyConfigErr: Label 'API Key is not configured.';
         ResponseDetailsTxt: Label 'Received response %1 %2.', Comment = '%1 - Status code, %2 - Reason phrase.';
         UnsuccessfulAddressSearchTxt: Label 'Unsuccessful address search. Response %1 %2.', Comment = '%1 - Status code, %2 - Reason phrase.', Locked = true;
+        SecurityAuditAuthFailedTxt: Label 'IdealPostcodes API rejected the request with status %1 %2.', Locked = true, Comment = '%1 - Status code, %2 - Reason phrase.';
 
     [NonDebuggable]
     procedure SearchAddress(SearchText: Text; var TempIPCAddressLookup: Record "IPC Address Lookup" temporary; var StatusCode: Integer; var ReasonPhrase: Text): Boolean
@@ -24,6 +25,7 @@ codeunit 9400 "IPC Management"
         Config: Record "IPC Config";
         TypeHelper: Codeunit "Type Helper";
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        AuditLog: Codeunit "Audit Log";
         HttpClient: HttpClient;
         HttpResponse: HttpResponseMessage;
         ResponseText: Text;
@@ -49,6 +51,8 @@ codeunit 9400 "IPC Management"
                 ParseAddressResponse(ResponseText, TempIPCAddressLookup);
                 exit(not TempIPCAddressLookup.IsEmpty());
             end;
+            if StatusCode in [401, 403] then
+                AuditLog.LogAuditMessage(StrSubstNo(SecurityAuditAuthFailedTxt, StatusCode, ReasonPhrase), SecurityOperationResult::Failure, AuditCategory::Authentication, 4, 0);
         end;
         exit(false);
     end;
@@ -59,6 +63,7 @@ codeunit 9400 "IPC Management"
         Config: Record "IPC Config";
         TypeHelper: Codeunit "Type Helper";
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        AuditLog: Codeunit "Audit Log";
         HttpClient: HttpClient;
         HttpResponse: HttpResponseMessage;
         ResponseText: Text;
@@ -80,7 +85,9 @@ codeunit 9400 "IPC Management"
             if HttpResponse.IsSuccessStatusCode then begin
                 HttpResponse.Content.ReadAs(ResponseText);
                 ParseAddressDetail(ResponseText, TempIPCAddressLookup);
-            end;
+            end else
+                if ReasonCode in [401, 403] then
+                    AuditLog.LogAuditMessage(StrSubstNo(SecurityAuditAuthFailedTxt, ReasonCode, ReasonPhrase), SecurityOperationResult::Failure, AuditCategory::Authentication, 4, 0);
         end;
     end;
 
@@ -132,12 +139,15 @@ codeunit 9400 "IPC Management"
 
     local procedure ParseAddressResponse(ResponseText: Text; var TempIPCAddressLookup: Record "IPC Address Lookup" temporary)
     var
+        IPCConfig: Record "IPC Config";
         JsonObject: JsonObject;
         JsonArray: JsonArray;
         JsonToken: JsonToken;
+        RemoveOrganisationName: Boolean;
         i: Integer;
     begin
         TempIPCAddressLookup.DeleteAll();
+        RemoveOrganisationName := GetConfiguration(IPCConfig) and IPCConfig."Remove Organisation Name";
 
         if JsonObject.ReadFrom(ResponseText) then
             if JsonObject.Get('result', JsonToken) then begin
@@ -145,18 +155,34 @@ codeunit 9400 "IPC Management"
 
                 for i := 0 to JsonArray.Count - 1 do begin
                     JsonArray.Get(i, JsonToken);
-                    AddAddressToBuffer(JsonToken.AsObject(), TempIPCAddressLookup, i + 1);
+                    AddAddressToBuffer(JsonToken.AsObject(), TempIPCAddressLookup, i + 1, RemoveOrganisationName);
                 end;
             end;
     end;
 
-    local procedure AddAddressToBuffer(AddressJson: JsonObject; var TempIPCAddressLookup: Record "IPC Address Lookup" temporary; EntryNo: Integer)
+    local procedure AddAddressToBuffer(AddressJson: JsonObject; var TempIPCAddressLookup: Record "IPC Address Lookup" temporary; EntryNo: Integer; RemoveOrganisationName: Boolean)
+    var
+        Line1, Line2, Line3 : Text;
     begin
+        Line1 := GetJsonValue(AddressJson, 'line_1');
+        Line2 := GetJsonValue(AddressJson, 'line_2');
+        Line3 := GetJsonValue(AddressJson, 'line_3');
+
+        if RemoveOrganisationName then
+            if (Line1 <> '') and (Line1 = GetJsonValue(AddressJson, 'organisation_name')) then
+                if Line2 <> '' then begin
+                    Line1 := Line2;
+                    Line2 := Line3;
+                end else begin
+                    Line1 := Line3;
+                    Line2 := '';
+                end;
+
         TempIPCAddressLookup.Init();
         TempIPCAddressLookup."Entry No." := EntryNo;
         TempIPCAddressLookup."Address ID" := CopyStr(GetJsonValue(AddressJson, 'id'), 1, MaxStrLen(TempIPCAddressLookup."Address ID"));
-        TempIPCAddressLookup.Address := CopyStr(GetJsonValue(AddressJson, 'line_1'), 1, MaxStrLen(TempIPCAddressLookup.Address));
-        TempIPCAddressLookup."Address 2" := CopyStr(GetJsonValue(AddressJson, 'line_2'), 1, MaxStrLen(TempIPCAddressLookup."Address 2"));
+        TempIPCAddressLookup.Address := CopyStr(Line1, 1, MaxStrLen(TempIPCAddressLookup.Address));
+        TempIPCAddressLookup."Address 2" := CopyStr(Line2, 1, MaxStrLen(TempIPCAddressLookup."Address 2"));
         TempIPCAddressLookup.City := CopyStr(GetJsonValue(AddressJson, 'post_town'), 1, MaxStrLen(TempIPCAddressLookup.City));
         TempIPCAddressLookup."Post Code" := CopyStr(GetJsonValue(AddressJson, 'postcode'), 1, MaxStrLen(TempIPCAddressLookup."Post Code"));
         TempIPCAddressLookup.County := CopyStr(GetJsonValue(AddressJson, 'county'), 1, MaxStrLen(TempIPCAddressLookup.County));

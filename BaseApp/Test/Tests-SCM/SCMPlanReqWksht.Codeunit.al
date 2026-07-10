@@ -66,6 +66,7 @@
         PostingProductionJournalTxt: Label 'The journal lines were successfully posted';
         ProdOrderComponentCommentErr: Label 'Production Order Component comment should exist';
         ExpectedCommentErr: Label 'Comment should match expected value';
+        PurchaseLineDropShipmentErr: Label 'Purchase Line must be marked as Drop Shipment';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -5380,6 +5381,159 @@
         Assert.IsTrue(true, 'Calculate Plan executed successfully with blank Price Calculation Method');
     end;
 
+    [Test]
+    procedure OrderPlanningCarryOutDropShipmentWithAlternateShipToCode()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        Purchasing: Record Purchasing;
+        RequisitionLine: Record "Requisition Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 635884] Ship-to Code from alternate shipping address is transferred to Requisition Line via Order Planning for drop shipment
+        Initialize();
+
+        // [GIVEN] Item "I" with default vendor "V"
+        LibraryInventory.CreateItem(Item);
+        UpdateItemVendorNo(Item, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Customer "C" with alternate Ship-to Address "SA"
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+
+        // [GIVEN] Sales Order for "C" with Ship-to Code = "SA" and drop shipment purchasing code
+        LibraryPurchase.CreateDropShipmentPurchasingCode(Purchasing);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        UpdateSalesLinePurchasingCode(SalesLine, Purchasing.Code);
+
+        // [WHEN] Calculate Order Plan for Sales Demand
+        CalculateOrderPlan(RequisitionLine, "Demand Order Source Type"::"Sales Demand");
+        FindRequisitionLineForItem(RequisitionLine, Item."No.");
+
+        // [WHEN] Set vendor and carry out action to create Purchase Order
+        SetSupplyFromVendorOnRequisitionLine(RequisitionLine);
+        CarryOutActionPlan(RequisitionLine);
+
+        // [THEN] Purchase Order is created with drop shipment line linked to the Sales Order
+        PurchaseLine.SetRange("Sales Order No.", SalesLine."Document No.");
+        PurchaseLine.SetRange("Sales Order Line No.", SalesLine."Line No.");
+        PurchaseLine.FindFirst();
+        Assert.IsTrue(PurchaseLine."Drop Shipment", PurchaseLineDropShipmentErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,PurchaseOrderPageHandler')]
+    procedure CreatePurchOrderFromSalesOrderDropShipmentWithAlternateShipToCode()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        Purchasing: Record Purchasing;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ShipToAddress: Record "Ship-to Address";
+        SalesOrderPage: TestPage "Sales Order";
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO] Ship-to Code from alternate shipping address is transferred to Purchase Order when using Create Purchase Order action from Sales Order for drop shipment
+        Initialize();
+
+        // [GIVEN] Item "I" with default vendor "V"
+        LibraryInventory.CreateItem(Item);
+        UpdateItemVendorNo(Item, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Customer "C" with alternate Ship-to Address "SA"
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+
+        // [GIVEN] Sales Order for "C" with Ship-to Code = "SA" and drop shipment purchasing code
+        LibraryPurchase.CreateDropShipmentPurchasingCode(Purchasing);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        UpdateSalesLinePurchasingCode(SalesLine, Purchasing.Code);
+
+        // [WHEN] Create Purchase Order from Sales Order page action
+        LibraryVariableStorage.Enqueue(Item."Vendor No.");
+        SalesOrderPage.OpenEdit();
+        SalesOrderPage.GotoRecord(SalesHeader);
+        SalesOrderPage.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Purchase Order is created with drop shipment line linked to the Sales Order
+        PurchaseLine.SetRange("Sales Order No.", SalesLine."Document No.");
+        PurchaseLine.SetRange("Sales Order Line No.", SalesLine."Line No.");
+        PurchaseLine.FindFirst();
+        Assert.IsTrue(PurchaseLine."Drop Shipment", PurchaseLineDropShipmentErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure CalcRegenPlanWithAssemblyBOMFractionalQtyAndQtyRoundingPrecision()
+    var
+        AssemblyItem: Record Item;
+        ComponentItem: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        BOMComponent: Record "BOM Component";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PlanningComponent: Record "Planning Component";
+        PlanningFilterItem: Record Item;
+        QtyPer: Decimal;
+        SalesQty: Decimal;
+        ExpectedQty: Decimal;
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 636316] Calc. Regen. Plan succeeds for assembly item "A" with fractional component "C" having Qty. Rounding Precision = 1
+
+        Initialize();
+
+        // [GIVEN] Random fractional Quantity per and Sales Quantity
+        QtyPer := LibraryRandom.RandDecInRange(1, 9, 0) / 10;
+        SalesQty := LibraryRandom.RandIntInRange(2, 20);
+        ExpectedQty := Round(QtyPer * SalesQty, 1);
+
+        // [GIVEN] Component item "C" with Rounding Precision = 1 and Qty. Rounding Precision = 1 on base UOM
+        LibraryInventory.CreateItem(ComponentItem);
+        ComponentItem.Validate("Replenishment System", ComponentItem."Replenishment System"::Purchase);
+        ComponentItem.Validate("Reordering Policy", ComponentItem."Reordering Policy"::"Lot-for-Lot");
+        ComponentItem.Validate("Rounding Precision", 1);
+        ComponentItem.Modify(true);
+        ItemUnitOfMeasure.Get(ComponentItem."No.", ComponentItem."Base Unit of Measure");
+        ItemUnitOfMeasure."Qty. Rounding Precision" := 1;
+        ItemUnitOfMeasure.Modify();
+
+        // [GIVEN] Assembly item "A" with Reordering Policy = Lot-for-Lot and BOM component "C" with fractional Quantity per
+        LibraryInventory.CreateItem(AssemblyItem);
+        AssemblyItem.Validate("Replenishment System", AssemblyItem."Replenishment System"::Assembly);
+        AssemblyItem.Validate("Reordering Policy", AssemblyItem."Reordering Policy"::"Lot-for-Lot");
+        AssemblyItem.Modify(true);
+        LibraryInventory.CreateBOMComponent(
+            BOMComponent, AssemblyItem."No.", BOMComponent.Type::Item,
+            ComponentItem."No.", QtyPer, ComponentItem."Base Unit of Measure");
+
+        // [GIVEN] Sales Order for random qty of assembly item "A"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AssemblyItem."No.", SalesQty);
+
+        // [WHEN] Calculate Regenerative Plan for both items
+        PlanningFilterItem.SetFilter("No.", '%1|%2', AssemblyItem."No.", ComponentItem."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(PlanningFilterItem, WorkDate(), CalcDate('<+30D>', WorkDate()));
+
+        // [THEN] Planning Component for "C" exists with Expected Quantity rounded up by Qty. Rounding Precision
+        PlanningComponent.SetRange("Item No.", ComponentItem."No.");
+        PlanningComponent.FindFirst();
+        Assert.AreEqual(ExpectedQty, PlanningComponent."Expected Quantity", 'Expected Quantity should be rounded up by Qty. Rounding Precision');
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -7437,5 +7591,18 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryReportDataset.RunReportAndLoad(Report::"Standard Purchase - Order", PurchaseHeader, '');
+    end;
+
+    [ModalPageHandler]
+    procedure PurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
+        PurchOrderFromSalesOrder.OK().Invoke();
+    end;
+
+    [PageHandler]
+    procedure PurchaseOrderPageHandler(var PurchaseOrder: TestPage "Purchase Order")
+    begin
+        PurchaseOrder.Close();
     end;
 }
