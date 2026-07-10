@@ -179,7 +179,7 @@ page 8903 "Manufacturing Manager RC"
                         RunObject = page "Recurring Capacity Journal";
                     }
                 }
-#if not CLEAN27
+#if not CLEAN28
                 group("Group6")
                 {
                     Caption = 'Reports';
@@ -259,10 +259,10 @@ page 8903 "Manufacturing Manager RC"
                         Caption = 'Assembly Orders';
                         RunObject = page "Assembly Orders";
                     }
-#if not CLEAN27
+#if not CLEAN28
                     action("Subcontracting Orders")
                     {
-                        ApplicationArea = Manufacturing;
+                        ApplicationArea = LegacySubcontracting;
                         Caption = 'Subcontracting Orders';
                         RunObject = page "Subcontracting Order List";
                         ObsoleteReason = 'Preparation for replacement by Subcontracting app';
@@ -271,7 +271,7 @@ page 8903 "Manufacturing Manager RC"
                     }
                     action("Subcontracting Transfer Orders")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = LegacySubcontracting;
                         Caption = 'Subcontracting Transfer Orders';
                         RunObject = page "Subcontracting Transfer List";
                         ObsoleteReason = 'Preparation for replacement by Subcontracting app';
@@ -301,12 +301,19 @@ page 8903 "Manufacturing Manager RC"
                         Caption = 'Requisition Worksheets';
                         RunObject = page "Req. Worksheet";
                     }
+#if not CLEAN28
                     action("Subcontracting Worksheet")
                     {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Subcontracting Worksheets';
+                        ApplicationArea = LegacySubcontracting;
+                        Caption = 'Subcontracting Worksheets (Obsolete)';
+#pragma warning disable AL0432
                         RunObject = page "Subcontracting Worksheet";
+#pragma warning restore AL0432
+                        ObsoleteReason = 'Will be replaced by the Subcontracting App.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '28.0';
                     }
+#endif
                     action("Recurring Req. Worksheet")
                     {
                         ApplicationArea = Planning;
@@ -492,10 +499,10 @@ page 8903 "Manufacturing Manager RC"
                         Caption = 'Work/Machine Center Load';
                         RunObject = Report "Work/Machine Center Load";
                     }
-#if not CLEAN27
+#if not CLEAN28
                     action("Subcontractor Dispatch List")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = LegacySubcontracting;
                         Caption = 'Subcontractor - Dispatch List IT';
                         RunObject = report "Subcontr. Dispatching List";
                         ObsoleteReason = 'Preparation for replacement by Subcontracting app';
@@ -504,7 +511,7 @@ page 8903 "Manufacturing Manager RC"
                     }
                     action("Subcontracting Transfer Shipme")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = LegacySubcontracting;
                         Caption = 'Subcontracting Transfer Shipment';
                         RunObject = report "Subcontract. Transfer Shipment";
                         ObsoleteReason = 'Preparation for replacement by Subcontracting app';

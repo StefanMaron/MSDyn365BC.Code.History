@@ -41,6 +41,11 @@ page 99000755 "Work Center List"
                 {
                     ApplicationArea = Manufacturing;
                 }
+                field("Name 2"; Rec."Name 2")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
                 field("Alternate Work Center"; Rec."Alternate Work Center")
                 {
                     ApplicationArea = Manufacturing;
@@ -278,11 +283,11 @@ page 99000755 "Work Center List"
 #if not CLEAN27
             action("Subcontr. &Prices")
             {
-                ApplicationArea = Manufacturing;
+                ApplicationArea = LegacySubcontracting;
                 Caption = 'Subcontr. &Prices';
                 Image = Price;
                 ToolTip = 'View the subcontracting prices.';
-                ObsoleteReason = 'Preparation for replacement by Suncontracting app ';
+                ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                 ObsoleteState = Pending;
                 ObsoleteTag = '27.0';
 

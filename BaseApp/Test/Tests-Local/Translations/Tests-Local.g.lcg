@@ -5,6 +5,33 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 4025009802 - Method 169919563 - NamedType 4241940164" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The app "IT Subcontracting Migration" must be installed before you can disable Legacy Subcontracting. Please install the app first and then use the dedicated action "Disable Legacy Subcontracting" to disable Legacy Subcontracting and migrate to the new subcontracting app.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Legacy Subcontracting - Method CheckCanDisableRaisesErrorWhenAppNotInstalled - NamedType ITMigrationAppNotInstalledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4025009802 - Method 4030059819 - NamedType 3508163944" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are still open transfer orders with WIP Items. All subcontracting transfer orders must be completed before disabling Legacy Subcontracting.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Legacy Subcontracting - Method PreCheckDisableRaisesErrorWhenOpenTransfersExist - NamedType OpenSubcontractingTransfersExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4025009802 - Method 1173676173 - NamedType 2391950814" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are still open subcontracting purchase orders. All subcontracting purchase orders must be completed before disabling Legacy Subcontracting.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Legacy Subcontracting - Method PreCheckDisableRaisesErrorWhenOpenWIPPOsExist - NamedType OpenWIPPurchaseOrdersExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1627676660 - NamedType 2016499238" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong Bank Account.]]></Val>
@@ -4647,6 +4674,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Posting Routine - NamedType CorrectionAmountTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 663076692 - NamedType 286220044" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected at least one Correction of Remaining Amount DLE]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Posting Routine - NamedType CorrectionDLEExpectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 663076692 - NamedType 3779703860" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Each Correction of Remaining Amount entry must be printed exactly once]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Posting Routine - NamedType CorrectionEntryPrintedOnceErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 663076692 - NamedType 713087631" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

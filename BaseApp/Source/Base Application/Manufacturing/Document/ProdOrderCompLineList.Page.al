@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -118,11 +118,6 @@ page 5407 "Prod. Order Comp. Line List"
                                                                   Blocked = const(false));
                     Visible = false;
                 }
-                field("Routing Link Code"; Rec."Routing Link Code")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the routing link.';
-                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
@@ -143,10 +138,10 @@ page 5407 "Prod. Order Comp. Line List"
                     AutoFormatType = 0;
                     ApplicationArea = Manufacturing;
                 }
-#if not CLEAN27
+#if not CLEAN28
                 field("Qty. on Transfer Order (Base)"; Rec."Qty. on Transfer Order (Base)")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = LegacySubcontracting;
                     ToolTip = 'Specifies the item amount that is on the transfer order.';
                     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                     ObsoleteState = Pending;
@@ -154,7 +149,7 @@ page 5407 "Prod. Order Comp. Line List"
                 }
                 field("Qty. in Transit (Base)"; Rec."Qty. in Transit (Base)")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = LegacySubcontracting;
                     ToolTip = 'Specifies the items that are in transit.';
                     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                     ObsoleteState = Pending;
@@ -162,7 +157,7 @@ page 5407 "Prod. Order Comp. Line List"
                 }
                 field("Qty. transf. to Subcontractor"; Rec."Qty. transf. to Subcontractor")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = LegacySubcontracting;
                     ToolTip = 'Specifies the item amount that will be transferred to the subcontractor.';
                     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                     ObsoleteState = Pending;
@@ -206,6 +201,11 @@ page 5407 "Prod. Order Comp. Line List"
                 {
                     ApplicationArea = Manufacturing;
                     Visible = false;
+                }
+                field("Routing Link Code"; Rec."Routing Link Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the routing link code when you calculate the production order.';
                 }
             }
         }

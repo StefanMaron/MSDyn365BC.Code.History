@@ -10,7 +10,7 @@ using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.NoSeries;
-#if not CLEAN27
+#if not CLEAN28
 using Microsoft.Foundation.UOM;
 #endif
 using Microsoft.Inventory.Analysis;
@@ -23,7 +23,8 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-#if not CLEAN27
+#if not CLEAN28
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Purchases.Document;
 #endif
 using Microsoft.Utilities;
@@ -85,12 +86,16 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TransLine.SetRange("Document No.", TransHeader."No.");
             TransLine.SetRange("Derived From Line No.", 0);
             WipToShip := false;
-            TransHeader.CalcFields(TransHeader."Subcontracting Order");
-            if TransHeader."Subcontracting Order" then begin
-                TransLine.SetFilter("WIP Qty. To Ship", '<>0');
-                WipToShip := not TransLine.IsEmpty();
-                TransLine.SetRange("WIP Qty. To Ship");
+#if not CLEAN28
+            if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then begin
+                TransHeader.CalcFields(TransHeader."Subcontracting Order");
+                if TransHeader."Subcontracting Order" then begin
+                    TransLine.SetFilter("WIP Qty. To Ship", '<>0');
+                    WipToShip := not TransLine.IsEmpty();
+                    TransLine.SetRange("WIP Qty. To Ship");
+                end;
             end;
+#endif
             TransLine.SetFilter(Quantity, '<>0');
             TransLine.SetFilter("Qty. to Ship", '<>0');
             HasLinesToShip := not TransLine.IsEmpty();
@@ -169,7 +174,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                         end;
                     end;
 
-#if not CLEAN27
+#if not CLEAN28
                     GetLocation(TransLine."Transfer-from Code");
                     WhsePosting :=
                         Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) and
@@ -192,15 +197,17 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
             OnBeforeCopyTransLines(TransHeader);
 
-#if not CLEAN27
-            TransLine.SetRange("Qty. to Ship");
-            TransLine.SetFilter("WIP Qty. To Ship", '<>0');
-            if TransLine.FindSet(true) then
-                repeat
-                    TransLine.Validate("WIP Qty. Shipped", TransLine."WIP Qty. Shipped" + TransLine."WIP Qty. To Ship");
-                    TransLine.Modify();
-                until TransLine.Next() = 0;
-            TransLine.SetRange("WIP Qty. To Ship");
+#if not CLEAN28
+            if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then begin
+                TransLine.SetRange("Qty. to Ship");
+                TransLine.SetFilter("WIP Qty. To Ship", '<>0');
+                if TransLine.FindSet(true) then
+                    repeat
+                        TransLine.Validate("WIP Qty. Shipped", TransLine."WIP Qty. Shipped" + TransLine."WIP Qty. To Ship");
+                        TransLine.Modify();
+                    until TransLine.Next() = 0;
+                TransLine.SetRange("WIP Qty. To Ship");
+            end;
 #endif
             TransLine.SetFilter(Quantity, '<>0');
             TransLine.SetFilter("Qty. to Ship", '<>0');
@@ -282,13 +289,16 @@ codeunit 5704 "TransferOrder-Post Shipment"
         TempWhseSplitSpecification: Record "Tracking Specification" temporary;
         TempHandlingSpecification: Record "Tracking Specification" temporary;
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+#if not CLEAN28
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
+#endif
         DimMgt: Codeunit DimensionManagement;
         WhseTransferRelease: Codeunit "Whse.-Transfer Release";
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         WhsePostShpt: Codeunit "Whse.-Post Shipment";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
-#if not CLEAN27
+#if not CLEAN28
         UOMMgt: Codeunit "Unit of Measure Management";
 #endif
         PostponedValueEntries: List of [Integer];
@@ -326,6 +336,10 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     local procedure CreateItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; TransShptHeader2: Record "Transfer Shipment Header"; TransShptLine2: Record "Transfer Shipment Line")
+#if not CLEAN28
+        var
+            LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
+#endif
     begin
         ItemJnlLine.Init();
         ItemJnlLine.CopyDocumentFields(
@@ -336,9 +350,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
         ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Transfer;
         ItemJnlLine."Order No." := TransShptHeader2."Transfer Order No.";
         ItemJnlLine."Order Line No." := TransferLine."Line No.";
-#if not CLEAN27
-        ItemJnlLine."Prod. Order No." := TransShptLine2."Prod. Order No.";
-        ItemJnlLine."Prod. Order Line No." := TransShptLine2."Prod. Order Line No.";
+#if not CLEAN28
+        if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then begin
+            ItemJnlLine."Prod. Order No." := TransShptLine2."Prod. Order No.";
+            ItemJnlLine."Prod. Order Line No." := TransShptLine2."Prod. Order Line No.";
+        end;
 #endif
         ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Transfer;
         ItemJnlLine."Item No." := TransShptLine2."Item No.";
@@ -374,10 +390,12 @@ codeunit 5704 "TransferOrder-Post Shipment"
         ItemJnlLine."Reason Code" := TransShptHeader2."Reason Code";
         ItemJnlLine."Source No." := TransShptHeader2."Source No.";
         ItemJnlLine."Source Type" := TransShptHeader2."Source Type";
-#if not CLEAN27
+#if not CLEAN28
         ItemJnlLine."Prod. Order Comp. Line No." := TransShptLine2."Prod. Order Comp. Line No.";
-        ItemJnlLine."Subcontr. Purch. Order No." := TransShptLine2."Subcontr. Purch. Order No.";
-        ItemJnlLine."Subcontr. Purch. Order Line" := TransShptLine2."Subcontr. Purch. Order Line";
+        if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then begin
+            ItemJnlLine."Subcontr. Purch. Order No." := TransShptLine2."Subcontr. Purch. Order No.";
+            ItemJnlLine."Subcontr. Purch. Order Line" := TransShptLine2."Subcontr. Purch. Order Line";
+        end;
 #endif
 
         OnAfterCreateItemJnlLine(ItemJnlLine, TransferLine, TransShptHeader2, TransShptLine2);
@@ -596,7 +614,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     local procedure InsertTransShptLine(TransShptHeader: Record "Transfer Shipment Header")
     var
         TransShptLine: Record "Transfer Shipment Line";
-#if not CLEAN27
+#if not CLEAN28
         PurchOrderLine: Record "Purchase Line";
 #endif
         IsHandled: Boolean;
@@ -607,38 +625,40 @@ codeunit 5704 "TransferOrder-Post Shipment"
         TransShptLine.Init();
         TransShptLine."Document No." := TransShptHeader."No.";
         TransShptLine.CopyFromTransferLine(TransLine);
-#if not CLEAN27
-        TransShptLine."Subcontr. Purch. Order No." := TransLine."Subcontr. Purch. Order No.";
-        TransShptLine."Subcontr. Purch. Order Line" := TransLine."Subcontr. Purch. Order Line";
-        TransShptLine."Prod. Order No." := TransLine."Prod. Order No.";
-        TransShptLine."Prod. Order Line No." := TransLine."Prod. Order Line No.";
-        TransShptLine."Prod. Order Comp. Line No." := TransLine."Prod. Order Comp. Line No.";
-        if TransLine."WIP Item" then begin
-            TransShptLine.Quantity := TransLine."WIP Qty. To Ship";
-            TransShptLine."Quantity (Base)" :=
-              Round(TransShptLine.Quantity * TransLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-            if TransShptLine.Quantity > 0 then
-                if PurchOrderLine.Get(PurchOrderLine."Document Type"::Order,
-                     TransShptLine."Subcontr. Purch. Order No.",
-                     TransShptLine."Subcontr. Purch. Order Line")
-                then begin
-                    PurchOrderLine."Not Proc. WIP Qty to Receive" := TransShptLine.Quantity;
-                    PurchOrderLine.Modify();
-                end;
+#if not CLEAN28
+        if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then begin
+            TransShptLine."Subcontr. Purch. Order No." := TransLine."Subcontr. Purch. Order No.";
+            TransShptLine."Subcontr. Purch. Order Line" := TransLine."Subcontr. Purch. Order Line";
+            TransShptLine."Prod. Order No." := TransLine."Prod. Order No.";
+            TransShptLine."Prod. Order Line No." := TransLine."Prod. Order Line No.";
+            TransShptLine."Prod. Order Comp. Line No." := TransLine."Prod. Order Comp. Line No.";
+            if TransLine."WIP Item" then begin
+                TransShptLine.Quantity := TransLine."WIP Qty. To Ship";
+                TransShptLine."Quantity (Base)" :=
+                  Round(TransShptLine.Quantity * TransLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+                if TransShptLine.Quantity > 0 then
+                    if PurchOrderLine.Get(PurchOrderLine."Document Type"::Order,
+                         TransShptLine."Subcontr. Purch. Order No.",
+                         TransShptLine."Subcontr. Purch. Order Line")
+                    then begin
+                        PurchOrderLine."Not Proc. WIP Qty to Receive" := TransShptLine.Quantity;
+                        PurchOrderLine.Modify();
+                    end;
+            end;
+            TransShptLine."WIP Item" := TransLine."WIP Item";
+            TransShptLine."Routing No." := TransLine."Routing No.";
+            TransShptLine."Routing Reference No." := TransLine."Routing Reference No.";
+            TransShptLine."Work Center No." := TransLine."Work Center No.";
+            TransShptLine."Operation No." := TransLine."Operation No.";
+            TransShptLine."Return Order" := TransLine."Return Order";
         end;
-        TransShptLine."WIP Item" := TransLine."WIP Item";
-        TransShptLine."Routing No." := TransLine."Routing No.";
-        TransShptLine."Routing Reference No." := TransLine."Routing Reference No.";
-        TransShptLine."Work Center No." := TransLine."Work Center No.";
-        TransShptLine."Operation No." := TransLine."Operation No.";
-        TransShptLine."Return Order" := TransLine."Return Order";
         if TransShptLine.Quantity > 0 then begin
             OriginalQuantity := TransLine."Qty. to Ship";
             OriginalQuantityBase := TransLine."Qty. to Ship (Base)";
-            if not TransLine."WIP Item" then
-                PostItem(TransLine, TransShptHeader, TransShptLine, WhseShip, WhseShptHeader)
+            if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() and TransLine."WIP Item" then
+                PostWIPItemJnlLine(TransLine, TransShptHeader, TransShptLine)
             else
-                PostWIPItemJnlLine(TransLine, TransShptHeader, TransShptLine);
+                PostItem(TransLine, TransShptHeader, TransShptLine, WhseShip, WhseShptHeader);
 #else
         if TransLine."Qty. to Ship" > 0 then begin
             OriginalQuantity := TransLine."Qty. to Ship";
@@ -934,10 +954,14 @@ codeunit 5704 "TransferOrder-Post Shipment"
         end;
     end;
 
-#if not CLEAN27
+#if not CLEAN28
+    [Obsolete('Preparation for replacement by Subcontracting app', '28.0')]
     [Scope('OnPrem')]
     procedure PostWIPItemJnlLine(var TransLine3: Record "Transfer Line"; TransShptHeader2: Record "Transfer Shipment Header"; TransShptLine2: Record "Transfer Shipment Line")
     begin
+        if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+            exit;
+
         ItemJnlLine.Init();
         ItemJnlLine."Posting Date" := TransShptHeader2."Posting Date";
         ItemJnlLine."Document Date" := TransShptHeader2."Posting Date";
@@ -1199,7 +1223,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     begin
     end;
 
-#if not CLEAN27
+#if not CLEAN28
     [Obsolete('Preparation for replacement by Subcontracting app', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostWIPItemJnlLineOnBeforeRunWithCheck(var ItemJnlLine: Record "Item Journal Line"; var TransShptHeader: Record "Transfer Shipment Header"; var TransShptLine: Record "Transfer Shipment Line")

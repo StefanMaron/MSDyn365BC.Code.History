@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -177,10 +177,10 @@ page 99000818 "Prod. Order Components"
                 {
                     ApplicationArea = Manufacturing;
                 }
-#if not CLEAN27
+#if not CLEAN28
                 field("Qty. on Transfer Order (Base)"; Rec."Qty. on Transfer Order (Base)")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = LegacySubcontracting;
                     ToolTip = 'Specifies the item amount that is on the transfer order.';
                     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                     ObsoleteState = Pending;
@@ -188,7 +188,7 @@ page 99000818 "Prod. Order Components"
                 }
                 field("Qty. in Transit (Base)"; Rec."Qty. in Transit (Base)")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = LegacySubcontracting;
                     ToolTip = 'Specifies the items that are in transit.';
                     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                     ObsoleteState = Pending;
@@ -196,7 +196,7 @@ page 99000818 "Prod. Order Components"
                 }
                 field("Qty. transf. to Subcontractor"; Rec."Qty. transf. to Subcontractor")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = LegacySubcontracting;
                     ToolTip = 'Specifies the item amount that will be transferred to the subcontractor.';
                     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                     ObsoleteState = Pending;

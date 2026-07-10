@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,7 +8,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-#if not CLEAN27
+#if not CLEAN28
 using Microsoft.Inventory.Transfer;
 #endif
 using Microsoft.Manufacturing.Capacity;
@@ -18,7 +18,7 @@ using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Warehouse.Request;
-#if not CLEAN27
+#if not CLEAN28
 using System.Security.AccessControl;
 #endif
 using System.Utilities;
@@ -115,23 +115,25 @@ table 5409 "Prod. Order Routing Line"
             if (Type = const("Machine Center")) "Machine Center";
 
             trigger OnValidate()
-#if not CLEAN27
+#if not CLEAN28
             var
                 PurchLine: Record "Purchase Line";
                 PurchHeader: Record "Purchase Header";
                 SubcontractingManagement: Codeunit SubcontractingManagement;
+                LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
                 LicensePermission: Record "License Permission";
 #endif
             begin
-#if not CLEAN27
-                if LicensePermission.Get(LicensePermission."Object Type"::Codeunit, CODEUNIT::SubcontractingManagement) then
-                    if LicensePermission."Execute Permission" <> LicensePermission."Execute Permission"::" " then begin
-                        if Status = Status::Released then
-                            if SubcontractingManagement.FindSubcOrder(Rec, PurchLine, PurchHeader) then
-                                Error(Text1130001, Status, TableCaption(), "Operation No.", PurchLine."Document No.");
-                        if (xRec."No." <> "No.") and ("Routing Link Code" <> '') then
-                            SubcontractingManagement.UpdLinkedComponents(Rec, not HideValidationDialog);
-                    end;
+#if not CLEAN28
+                if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+                    if LicensePermission.Get(LicensePermission."Object Type"::Codeunit, CODEUNIT::SubcontractingManagement) then
+                        if LicensePermission."Execute Permission" <> LicensePermission."Execute Permission"::" " then begin
+                            if Status = Status::Released then
+                                if SubcontractingManagement.FindSubcOrder(Rec, PurchLine, PurchHeader) then
+                                    Error(Text1130001, Status, TableCaption(), "Operation No.", PurchLine."Document No.");
+                            if (xRec."No." <> "No.") and ("Routing Link Code" <> '') then
+                                SubcontractingManagement.UpdLinkedComponents(Rec, not HideValidationDialog);
+                        end;
 #else
                 if ("No." <> xRec."No.") and (xRec."No." <> '') then
                     if SubcontractingPurchOrderExist() then
@@ -378,8 +380,9 @@ table 5409 "Prod. Order Routing Line"
             trigger OnValidate()
             var
                 ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode: Record "Prod. Order Routing Line";
-#if not CLEAN27
+#if not CLEAN28
                 SubcontractingManagement: Codeunit SubcontractingManagement;
+                LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
 #endif
             begin
                 ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode := Rec;
@@ -390,18 +393,20 @@ table 5409 "Prod. Order Routing Line"
                     if not Confirm(DuplicateRoutingLinkCodeLbl, false, FieldCaption("Routing Link Code"), "Routing Link Code") then
                         Error(CancelledUpdateLbl);
 
-#if not CLEAN27
-                if "Routing Link Code" <> xRec."Routing Link Code" then
-                    if xRec."Routing Link Code" <> '' then begin
-                        SubcontractingManagement.DelLocationLinkedComponents(xRec, true);
-                        if "Routing Link Code" <> '' then
-                            SubcontractingManagement.UpdLinkedComponents(Rec, false);
-                    end else
-                        if "Routing Link Code" <> '' then
-                            SubcontractingManagement.UpdLinkedComponents(Rec, not HideValidationDialog);
+#if not CLEAN28
+                if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then begin
+                    if "Routing Link Code" <> xRec."Routing Link Code" then
+                        if xRec."Routing Link Code" <> '' then begin
+                            SubcontractingManagement.DelLocationLinkedComponents(xRec, true);
+                            if "Routing Link Code" <> '' then
+                                SubcontractingManagement.UpdLinkedComponents(Rec, false);
+                        end else
+                            if "Routing Link Code" <> '' then
+                                SubcontractingManagement.UpdLinkedComponents(Rec, not HideValidationDialog);
 
-                if "Routing Link Code" <> '' then
-                    TestField("WIP Item", false);
+                    if "Routing Link Code" <> '' then
+                        TestField("WIP Item", false);
+                end;
 #endif
 
                 AdjustProdOrderComponentForRoutingLinkCode(Rec, xRec);
@@ -424,9 +429,12 @@ table 5409 "Prod. Order Routing Line"
                 ProdOrderRoutingPersonnel: Record "Prod. Order Routing Personnel";
                 ProdOrderRtngQltyMeas: Record "Prod. Order Rtng Qlty Meas.";
                 ProdOrderRtngCommentLine: Record "Prod. Order Rtng Comment Line";
+#if not CLEAN28
+                LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
+#endif
             begin
-#if not CLEAN27
-                if (Type = Type::"Work Center") then begin
+#if not CLEAN28
+                if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() and (Type = Type::"Work Center") then begin
                     WorkCenter.Get("No.");
                     GetSubcPricelist();
                 end;
@@ -785,21 +793,26 @@ table 5409 "Prod. Order Routing Line"
             ToolTip = 'Specifies the corresponding bin at the machine or work center if the location code matches the setup of that machine or work center.';
             Editable = false;
         }
-#if not CLEANSCHEMA30
+#if not CLEANSCHEMA31
         field(12180; "WIP Item"; Boolean)
         {
             Caption = 'WIP Item';
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
-#if not CLEAN27
+#if not CLEAN28
             trigger OnValidate()
+            var
+                LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
             begin
+                if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+                    exit;
+
                 if "WIP Item" then begin
                     TestField(Type, Type::"Work Center");
                     WorkCenter.Get("No.");
@@ -812,7 +825,7 @@ table 5409 "Prod. Order Routing Line"
             end;
 #endif
         }
-#if not CLEAN27
+#if not CLEAN28
         field(12181; "Qty. WIP on Subcontractors"; Decimal)
         {
             AutoFormatType = 0;
@@ -855,12 +868,12 @@ table 5409 "Prod. Order Routing Line"
             TableRelation = "Purchase Header"."No." where("Document Type" = const(Order),
                                                            "Subcontracting Order" = const(true));
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
         }
 #endif
@@ -973,10 +986,11 @@ table 5409 "Prod. Order Routing Line"
     trigger OnDelete()
     var
         CapLedgEntry: Record "Capacity Ledger Entry";
-#if not CLEAN27
+#if not CLEAN28
         PurchLine: Record "Purchase Line";
         PurchHeader: Record "Purchase Header";
         SubcontractingManagement: Codeunit SubcontractingManagement;
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
         SubcontractorPrices: Record "Subcontractor Prices";
 #endif
     begin
@@ -993,17 +1007,18 @@ table 5409 "Prod. Order Routing Line"
                 Error(
                   Text000,
                   Status, TableCaption(), "Operation No.", CapLedgEntry.TableCaption());
-#if not CLEAN27
-            if SubcontractorPrices.ReadPermission then begin
-                if SubcontractingManagement.FindSubcOrder(Rec, PurchLine, PurchHeader) then
-                    Error(Text1130002, Status, TableCaption(), "Operation No.", PurchLine."Document No.");
-                if ("Routing Link Code" <> '') and (WorkCenter."Subcontractor No." <> '') then
-                    SubcontractingManagement.DelLocationLinkedComponents(Rec, false);
-            end;
+#if not CLEAN28
+            if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+                if SubcontractorPrices.ReadPermission then begin
+                    if SubcontractingManagement.FindSubcOrder(Rec, PurchLine, PurchHeader) then
+                        Error(Text1130002, Status, TableCaption(), "Operation No.", PurchLine."Document No.");
+                    if ("Routing Link Code" <> '') and (WorkCenter."Subcontractor No." <> '') then
+                        SubcontractingManagement.DelLocationLinkedComponents(Rec, false);
+                end;
 #endif
         end;
 
-#if CLEAN27
+#if CLEAN28
         CheckIfSubcontractingPurchOrderExist();
 #endif
         DeleteRelations();
@@ -1060,12 +1075,12 @@ table 5409 "Prod. Order Routing Line"
         Text004: Label 'Some routing lines are referring to the operation just deleted. The references are\in the fields %1 and %2.\\This may have to be corrected as a routing line referring to a non-existent\operation will lead to serious errors in capacity planning.\\Do you want to see a list of the lines in question?\(Access the columns Next Operation No. and Previous Operation No.)';
         Text005: Label 'Routing Lines referring to deleted Operation No. %1';
         Text006: Label 'A %1 %2 can not be inserted, modified, or deleted.';
-#if CLEAN27
+#if CLEAN28
         Text007: Label 'You cannot change %1, because there is at least one %2 associated with %3 %4 %5.';
 #endif
         Text008: Label 'You cannot change the %1 from %2 to %3.';
         Text009: Label 'If you change the %1 to %2, then all related allocated capacity will be deleted, and you will not be able to change the %1 of the operation again.\\Are you sure that you want to continue?';
-#if not CLEAN27
+#if not CLEAN28
         Text1130001: Label 'You can not modify %1 %2 %3 because exists Sucontractor Purchase Order %4 associated with it.';
         Text1130002: Label 'You can not delete %1 %2 %3 because exists Sucontractor Purchase Order %4 associated with it.';
 #endif
@@ -1111,6 +1126,10 @@ table 5409 "Prod. Order Routing Line"
     end;
 
     procedure CopyFromPlanningRoutingLine(PlanningRoutingLine: Record "Planning Routing Line")
+#if not CLEAN28
+    var
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
+#endif
     begin
         "Operation No." := PlanningRoutingLine."Operation No.";
         "Next Operation No." := PlanningRoutingLine."Next Operation No.";
@@ -1158,8 +1177,9 @@ table 5409 "Prod. Order Routing Line"
         "Expected Operation Cost Amt." := PlanningRoutingLine."Expected Operation Cost Amt.";
         "Expected Capacity Ovhd. Cost" := PlanningRoutingLine."Expected Capacity Ovhd. Cost";
         "Expected Capacity Need" := PlanningRoutingLine."Expected Capacity Need";
-#if not CLEAN27
-        "WIP Item" := PlanningRoutingLine."WIP Item";
+#if not CLEAN28
+        if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+            "WIP Item" := PlanningRoutingLine."WIP Item";
 #endif
 
         OnAfterCopyFromPlanningRoutingLine(Rec, PlanningRoutingLine);
@@ -1254,6 +1274,9 @@ table 5409 "Prod. Order Routing Line"
 
     local procedure WorkCenterTransferFields()
     var
+#if not CLEAN28
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
+#endif
         IsHandled, SkipUpdateDescription : Boolean;
     begin
         IsHandled := false;
@@ -1276,8 +1299,9 @@ table 5409 "Prod. Order Routing Line"
             "Overhead Rate" := WorkCenter."Overhead Rate";
             "Unit Cost Calculation" := WorkCenter."Unit Cost Calculation";
             FillDefaultLocationAndBins();
-#if not CLEAN27
-            GetSubcPricelist();
+#if not CLEAN28
+            if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+                GetSubcPricelist();
 #endif
         end;
         OnAfterWorkCenterTransferFields(Rec, WorkCenter);
@@ -1715,13 +1739,17 @@ table 5409 "Prod. Order Routing Line"
         end;
     end;
 
-#if not CLEAN27
+#if not CLEAN28
     [Scope('OnPrem')]
     procedure GetSubcPricelist()
     var
         SubcontractorPrices: Record "Subcontractor Prices";
         SubcontractingPriceMgt: Codeunit SubcontractingPricesMgt;
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
     begin
+        if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+            exit;
+
         if (Type = Type::"Work Center") and (WorkCenter."Subcontractor No." <> '') then begin
             GetProdOrderLine();
             SubcontractorPrices."Vendor No." := WorkCenter."Subcontractor No.";
@@ -1773,7 +1801,7 @@ table 5409 "Prod. Order Routing Line"
         exit(false);
     end;
 
-#if CLEAN27
+#if CLEAN28
     local procedure CheckIfSubcontractingPurchOrderExist()
     var
         IsHandled: Boolean;
@@ -2102,7 +2130,7 @@ table 5409 "Prod. Order Routing Line"
     begin
     end;
 
-#if CLEAN27
+#if CLEAN28
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIfSubcontractingPurchOrderExist(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; xProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
     begin

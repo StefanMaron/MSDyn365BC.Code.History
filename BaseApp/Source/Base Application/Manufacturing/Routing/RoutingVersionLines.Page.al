@@ -45,12 +45,12 @@ page 99000767 "Routing Version Lines"
                 {
                     ApplicationArea = Manufacturing;
                 }
-#if not CLEAN27
+#if not CLEAN28
                 field("WIP Item"; Rec."WIP Item")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = LegacySubcontracting;
                     ToolTip = 'Specifies if the item is a work in process (WIP) item.';
-                    ObsoleteReason = 'Preparation for replacement by Suncontracting app ';
+                    ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                     ObsoleteState = Pending;
                     ObsoleteTag = '27.0';
                 }

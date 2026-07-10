@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -24,7 +24,6 @@ page 5742 "Transfer Orders"
     AboutTitle = 'About Transfer Orders';
     AboutText = 'Manage and track the movement of inventory items between locations by creating, posting, and monitoring transfer orders, including handling shipment, receipt, and serial or lot number assignments.';
     SourceTable = "Transfer Header";
-    SourceTableView = where("Subcontracting Order" = const(false));
     UsageCategory = Lists;
 
     layout
@@ -542,6 +541,21 @@ page 5742 "Transfer Orders"
     begin
         IsFoundationEnabled := ApplicationAreaMgmtFacade.IsFoundationEnabled();
     end;
+
+#if not CLEAN28
+    trigger OnOpenPage()
+    var
+        LegacySubcFeatureHandler: Codeunit Microsoft.Manufacturing.Setup."Legacy Subc. Feature Handler";
+        BackedupFiltergroup: Integer;
+    begin
+        if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then begin
+            BackedUpFilterGroup := Rec.FilterGroup();
+            Rec.FilterGroup(2); // Set table view
+            Rec.SetRange("Subcontracting Order", false);
+            Rec.FilterGroup(BackedupFiltergroup);
+        end;
+    end;
+#endif
 
     var
         IsFoundationEnabled: Boolean;

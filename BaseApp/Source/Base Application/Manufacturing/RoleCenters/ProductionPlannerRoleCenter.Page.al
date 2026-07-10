@@ -19,7 +19,6 @@ using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Family;
 using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.Journal;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Reports;
@@ -253,10 +252,10 @@ page 9010 "Production Planner Role Center"
                 RunObject = Page "Transfer Orders";
                 ToolTip = 'Move inventory items between company locations. With transfer orders, you ship the outbound transfer from one location and receive the inbound transfer at the other location. This allows you to manage the involved warehouse activities and provides more certainty that inventory quantities are updated correctly.';
             }
-#if not CLEAN27
+#if not CLEAN28
             action("Subcontracting Orders")
             {
-                ApplicationArea = Manufacturing;
+                ApplicationArea = LegacySubcontracting;
                 Caption = 'Subcontracting Orders';
                 RunObject = Page "Subcontracting Order List";
                 ToolTip = 'View the list of subcontracting orders.';
@@ -266,7 +265,7 @@ page 9010 "Production Planner Role Center"
             }
             action("Subcontracting Transfers")
             {
-                ApplicationArea = Manufacturing;
+                ApplicationArea = LegacySubcontracting;
                 Caption = 'Subcontracting Transfers';
                 RunObject = Page "Subcontracting Transfer List";
                 ToolTip = 'View the list of subcontracting transfers.';
@@ -460,15 +459,22 @@ page 9010 "Production Planner Role Center"
                                         Recurring = const(false));
                     ToolTip = 'Calculate a supply plan to fulfill item demand with purchases or transfers.';
                 }
+#if not CLEAN28
                 action(SubcontractingWorksheets)
                 {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Subcontracting Worksheets';
+                    ApplicationArea = LegacySubcontracting;
+                    Caption = 'Subcontracting Worksheets (Obsolete)';
                     RunObject = Page "Req. Wksh. Names";
+#pragma warning disable AL0432
                     RunPageView = where("Template Type" = const("For. Labor"),
                                         Recurring = const(false));
+#pragma warning restore AL0432
                     ToolTip = 'Calculate the needed production supply, find the production orders that have material ready to send to a subcontractor, and automatically create purchase orders for subcontracted operations from production order routings.';
+                    ObsoleteReason = 'Will be replaced by the Subcontracting App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '28.0';
                 }
+#endif
                 action("Standard Cost Worksheet")
                 {
                     ApplicationArea = Manufacturing;
@@ -754,14 +760,21 @@ page 9010 "Production Planner Role Center"
                     RunObject = Page "Planning Worksheet";
                     ToolTip = 'Plan supply orders automatically to fulfill new demand.';
                 }
+#if not CLEAN28
                 action("Subcontracting &Worksheet")
                 {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Subcontracting &Worksheet';
+                    ApplicationArea = LegacySubcontracting;
+                    Caption = 'Subcontracting &Worksheet (Obsolete)';
                     Image = SubcontractingWorksheet;
-                    RunObject = Page "Subcontracting Worksheet";
+#pragma warning disable AL0432
+                    RunObject = Page Microsoft.Manufacturing.Journal."Subcontracting Worksheet";
+#pragma warning restore AL0432
+                    ObsoleteReason = 'Will be replaced by the Subcontracting App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '28.0';
                     ToolTip = 'Calculate the needed production supply, find the production orders that have material ready to send to a subcontractor, and automatically create purchase orders for subcontracted operations from production order routings.';
                 }
+#endif
                 action("Change Pro&duction Order Status")
                 {
                     ApplicationArea = Manufacturing;

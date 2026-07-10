@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -1794,18 +1794,18 @@ table 83 "Item Journal Line"
             OptionCaption = ' ,Item,SKU';
             OptionMembers = " ",Item,SKU;
         }
-#if not CLEANSCHEMA30
+#if not CLEANSCHEMA31
         field(12181; "Subcontr. Purch. Order No."; Code[20])
         {
             Caption = 'Subcontr. Purch. Order No.';
             TableRelation = "Purchase Header"."No." where("Document Type" = const(Order));
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
         }
         field(12182; "Subcontr. Purch. Order Line"; Integer)
@@ -1814,12 +1814,12 @@ table 83 "Item Journal Line"
             TableRelation = "Purchase Line"."Line No." where("Document Type" = const(Order),
                                                               "Document No." = field("Subcontr. Purch. Order No."));
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
         }
         field(12183; "WIP Item"; Boolean)
@@ -1827,12 +1827,12 @@ table 83 "Item Journal Line"
             Caption = 'WIP Item';
             Editable = false;
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
         }
         field(12184; "WIP Quantity"; Decimal)
@@ -1841,36 +1841,36 @@ table 83 "Item Journal Line"
             Caption = 'WIP Quantity';
             DecimalPlaces = 0 : 5;
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
         }
         field(12185; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
         }
         field(12186; "Prod. Order Line No."; Integer)
         {
             Caption = 'Prod. Order Line No.';
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
         }
 #endif

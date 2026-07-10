@@ -48,8 +48,7 @@ page 50 "Purchase Order"
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Purchase Header";
-    SourceTableView = where("Document Type" = filter(Order),
-                            "Subcontracting Order" = const(false));
+    SourceTableView = where("Document Type" = filter(Order));
     AdditionalSearchTerms = 'Procurement, Buy Order, Vendor Order, Order Purchase, Acquisition, Supplier Order, Buy List, Purchase, Supply Order, Goods Order';
 
     layout
@@ -2442,7 +2441,19 @@ page 50 "Purchase Order"
         PurchaseHeader: Record "Purchase Header";
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
+#if not CLEAN28
+        LegacySubcFeatureHandler: Codeunit Microsoft.Manufacturing.Setup."Legacy Subc. Feature Handler";
+        BackedupFiltergroup: Integer;
+#endif
     begin
+#if not CLEAN28
+        if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then begin
+            BackedupFiltergroup := Rec.FilterGroup;
+            Rec.FilterGroup(2); // Set table view
+            Rec.SetRange("Subcontracting Order", false);
+            Rec.FilterGroup(BackedupFiltergroup);
+        end;
+#endif
         SetOpenPage();
 
         ActivateFields();

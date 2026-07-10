@@ -120,7 +120,7 @@ page 9012 "Shop Supervisor Role Center"
                 ApplicationArea = Manufacturing;
                 Caption = 'Subcontractor - Dis&patch List';
                 Image = "Report";
-#if not CLEAN27
+#if not CLEAN28
                 RunObject = Report "Subcontr. Dispatching List";
 #else
                 RunObject = Report "Subcontractor - Dispatch List";
@@ -268,10 +268,10 @@ page 9012 "Shop Supervisor Role Center"
                 RunObject = Page "Transfer Orders";
                 ToolTip = 'Move inventory items between company locations. With transfer orders, you ship the outbound transfer from one location and receive the inbound transfer at the other location. This allows you to manage the involved warehouse activities and provides more certainty that inventory quantities are updated correctly.';
             }
-#if not CLEAN27
+#if not CLEAN28
             action("Subcontracting Orders")
             {
-                ApplicationArea = Basic, Suite;
+                ApplicationArea = LegacySubcontracting;
                 Caption = 'Subcontracting Orders';
                 RunObject = Page "Subcontracting Order List";
                 ToolTip = 'View the list of subcontracting orders.';
@@ -281,7 +281,7 @@ page 9012 "Shop Supervisor Role Center"
             }
             action("Subcontracting Transfers")
             {
-                ApplicationArea = Basic, Suite;
+                ApplicationArea = LegacySubcontracting;
                 Caption = 'Subcontracting Transfers';
                 RunObject = Page "Subcontracting Transfer List";
                 ToolTip = 'View the list of subcontracting transfers.';
@@ -327,15 +327,22 @@ page 9012 "Shop Supervisor Role Center"
                                     Recurring = const(false));
                 ToolTip = 'Calculate a supply plan to fulfill item demand with purchases or transfers.';
             }
+#if not CLEAN28
             action(SubcontractingWorksheets)
             {
-                ApplicationArea = Manufacturing;
-                Caption = 'Subcontracting Worksheets';
+                ApplicationArea = LegacySubcontracting;
+                Caption = 'Subcontracting Worksheets (Obsolete)';
                 RunObject = Page "Req. Wksh. Names";
+#pragma warning disable AL0432
                 RunPageView = where("Template Type" = const("For. Labor"),
                                     Recurring = const(false));
+#pragma warning restore AL0432
+                ObsoleteReason = 'Will be replaced by the Subcontracting App.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '28.0';
                 ToolTip = 'Calculate the needed production supply, find the production orders that have material ready to send to a subcontractor, and automatically create purchase orders for subcontracted operations from production order routings.';
             }
+#endif
         }
         area(sections)
         {

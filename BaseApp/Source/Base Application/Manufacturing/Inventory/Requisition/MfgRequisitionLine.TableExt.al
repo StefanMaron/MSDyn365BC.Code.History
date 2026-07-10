@@ -32,23 +32,28 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
                 Validate("Unit of Measure Code");
             end;
         }
-#if not CLEANSCHEMA30
+#if not CLEANSCHEMA31
         field(12180; "Standard Task Code"; Code[10])
         {
             Caption = 'Standard Task Code';
             DataClassification = CustomerContent;
             TableRelation = "Standard Task";
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
-#if not CLEAN27
+#if not CLEAN28
             trigger OnValidate()
+            var
+                LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
             begin
+                if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+                    exit;
+
                 if (Type = Type::Item) and
                    ("No." <> '') and
                    ("Prod. Order No." <> '') and
@@ -67,12 +72,12 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
             Editable = false;
             InitValue = 1;
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
         }
         field(12182; "Pricelist UM Qty/Base UM Qty"; Decimal)
@@ -82,16 +87,21 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
             DataClassification = CustomerContent;
             DecimalPlaces = 0 : 5;
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
-#if not CLEAN27
+#if not CLEAN28
             trigger OnValidate()
+            var
+                LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
             begin
+                if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+                    exit;
+
                 if (CurrFieldNo = FieldNo("Pricelist UM Qty/Base UM Qty")) and
                    ("Prod. Order No." <> '') and
                    (Type = Type::Item) and
@@ -108,12 +118,12 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
             Caption = 'WIP Item';
             DataClassification = CustomerContent;
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
         }
         field(12184; "UoM for Pricelist"; Code[10])
@@ -122,17 +132,21 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
             DataClassification = CustomerContent;
             TableRelation = Microsoft.Foundation.UOM."Unit of Measure";
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
-#if not CLEAN27
+#if not CLEAN28
             trigger OnValidate()
             var
+                LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
             begin
+                if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+                    exit;
+
                 if (CurrFieldNo = FieldNo("UoM for Pricelist")) and
                    ("Prod. Order No." <> '') and
                    (Type = Type::Item)
@@ -148,19 +162,23 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
             Caption = 'Pricelist Cost';
             DataClassification = CustomerContent;
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
-#if not CLEAN27
+#if not CLEAN28
             trigger OnValidate()
             var
                 GLSetup: Record Microsoft.Finance.GeneralLedger.Setup."General Ledger Setup";
                 Currency: Record Microsoft.Finance.Currency.Currency;
+                LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
             begin
+                if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+                    exit;
+
                 if ("Prod. Order No." <> '') and
                    (Type = Type::Item)
                 then begin
@@ -258,13 +276,13 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
             TableRelation = "Work Center";
 
             trigger OnValidate()
-#if not CLEAN27
+#if not CLEAN28
             var
                 ProdOrderRoutingLine: Record "Prod. Order Routing Line";
 #endif
             begin
                 GetWorkCenter();
-#if not CLEAN27
+#if not CLEAN28
                 if ProdOrderRoutingLine.Get(ProdOrderRoutingLine.Status::Released, "Prod. Order No.",
                                             "Routing Reference No.", "Routing No.", "Operation No.") then begin
                     ProdOrderRoutingLine.Validate("No.", "Work Center No.");
@@ -633,13 +651,17 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
         exit(true);
     end;
 
-#if not CLEAN27
+#if not CLEAN28
     [Scope('OnPrem')]
     [Obsolete('Replaced by Subcontracting app', '27.0')]
     procedure GetSubcontractorPrice()
     var
         SubcontractingPriceMgt: Codeunit SubcontractingPricesMgt;
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
     begin
+        if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+            exit;
+
         if (Type = Type::Item) and ("No." <> '') and ("Prod. Order No." <> '') then
             SubcontractingPriceMgt.GetSubcPriceForReqLine(Rec, '');
     end;
@@ -649,7 +671,11 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
     procedure GetSubcontractorPriceUOM()
     var
         SubcontractingPriceMgt: Codeunit SubcontractingPricesMgt;
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
     begin
+        if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+            exit;
+
         if (Type = Type::Item) and ("No." <> '') and ("Prod. Order No." <> '') then
             SubcontractingPriceMgt.GetSubcPriceForReqLine(Rec, "UoM for Pricelist");
     end;
@@ -659,7 +685,11 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
     procedure GetQtyForUOM(): Decimal
     var
         ItemUOM: Record "Item Unit of Measure";
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
     begin
+        if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+            exit;
+
         ItemUOM.Get("No.", "Unit of Measure Code");
         exit(ItemUOM."Qty. per Unit of Measure");
     end;
@@ -669,7 +699,11 @@ tableextension 99000860 "Mfg. Requisition Line" extends "Requisition Line"
     procedure GetQtyBase(): Decimal
     var
         ItemUOM: Record "Item Unit of Measure";
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
     begin
+        if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+            exit;
+
         ItemUOM.Get("No.", "Unit of Measure Code");
         exit(Round(Quantity * ItemUOM."Qty. per Unit of Measure", 0.00001));
     end;

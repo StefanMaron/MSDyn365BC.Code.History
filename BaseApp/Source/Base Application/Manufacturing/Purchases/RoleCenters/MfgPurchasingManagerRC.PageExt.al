@@ -5,7 +5,6 @@
 namespace Microsoft.Purchases.RoleCenters;
 
 using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Journal;
 using Microsoft.Manufacturing.Reports;
 
 pageextension 99000761 "Mfg. Purchasing Manager RC" extends "Purchasing Manager Role Center"
@@ -14,12 +13,19 @@ pageextension 99000761 "Mfg. Purchasing Manager RC" extends "Purchasing Manager 
     {
         addafter("Certificates of Supply")
         {
+#if not CLEAN28
             action("Subcontracting Worksheet")
             {
-                ApplicationArea = Manufacturing;
-                Caption = 'Subcontracting Worksheets';
-                RunObject = page "Subcontracting Worksheet";
+                ApplicationArea = LegacySubcontracting;
+                Caption = 'Subcontracting Worksheets (Obsolete)';
+#pragma warning disable AL0432
+                RunObject = page Microsoft.Manufacturing.Journal."Subcontracting Worksheet";
+#pragma warning restore AL0432
+                ObsoleteReason = 'Will be replaced by the Subcontracting App.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '28.0';
             }
+#endif
         }
         addafter("Jobs")
         {
@@ -51,13 +57,13 @@ pageextension 99000761 "Mfg. Purchasing Manager RC" extends "Purchasing Manager 
                 RunObject = report "Prod. Order - Mat. Requisition";
             }
         }
-#if not CLEAN27
+#if not CLEAN28
         // IT Subcontracting
         addafter("Return Orders")
         {
             action("Subcontracting Orders")
             {
-                ApplicationArea = Manufacturing;
+                ApplicationArea = LegacySubcontracting;
                 Caption = 'Subcontracting Orders';
                 RunObject = page "Subcontracting Order List";
                 ObsoleteReason = 'Preparation for replacement by Subcontracting app';
@@ -69,7 +75,7 @@ pageextension 99000761 "Mfg. Purchasing Manager RC" extends "Purchasing Manager 
         {
             action("Subcontracting Transfer Orders")
             {
-                ApplicationArea = Basic, Suite;
+                ApplicationArea = LegacySubcontracting;
                 Caption = 'Subcontracting Transfer Orders';
                 RunObject = page "Subcontracting Transfer List";
                 ObsoleteReason = 'Preparation for replacement by Subcontracting app';
@@ -81,7 +87,7 @@ pageextension 99000761 "Mfg. Purchasing Manager RC" extends "Purchasing Manager 
         {
             action("Subcontracting Orders1")
             {
-                ApplicationArea = Manufacturing;
+                ApplicationArea = LegacySubcontracting;
                 Caption = 'Subcontracting Orders';
                 RunObject = page "Subcontracting Order List";
                 ObsoleteReason = 'Preparation for replacement by Subcontracting app';
@@ -93,7 +99,7 @@ pageextension 99000761 "Mfg. Purchasing Manager RC" extends "Purchasing Manager 
         {
             action("Subcontracting Transfer Orders1")
             {
-                ApplicationArea = Basic, Suite;
+                ApplicationArea = LegacySubcontracting;
                 Caption = 'Subcontracting Transfer Orders';
                 RunObject = page "Subcontracting Transfer List";
                 ObsoleteReason = 'Preparation for replacement by Subcontracting app';

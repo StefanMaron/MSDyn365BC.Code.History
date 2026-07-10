@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ page 99000863 "Planning Routing"
                     ApplicationArea = Manufacturing;
                     Visible = false;
                 }
-#if not CLEAN27
+#if not CLEAN28
                 field("Expected Operation Cost Amt."; Rec."Expected Operation Cost Amt.")
                 {
                     ApplicationArea = Manufacturing;
@@ -139,6 +139,12 @@ page 99000863 "Planning Routing"
                     ObsoleteTag = '27.0';
                 }
 #endif
+                field("Routing Link Code"; Rec."Routing Link Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the routing link code.';
+                    Visible = false;
+                }
             }
         }
         area(factboxes)

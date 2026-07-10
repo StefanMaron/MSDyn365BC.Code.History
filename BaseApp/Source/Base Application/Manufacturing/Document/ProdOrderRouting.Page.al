@@ -55,10 +55,10 @@ page 99000817 "Prod. Order Routing"
                 {
                     ApplicationArea = Manufacturing;
                 }
-#if not CLEAN27
+#if not CLEAN28
                 field("WIP Item"; Rec."WIP Item")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = LegacySubcontracting;
                     ToolTip = 'Specifies if the item is a work in process (WIP) item.';
                     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                     ObsoleteState = Pending;
@@ -298,10 +298,10 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     Visible = false;
                 }
-#if not CLEAN27
+#if not CLEAN28
                 field("Qty. WIP on Transfer Order"; Rec."Qty. WIP on Transfer Order")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = LegacySubcontracting;
                     ToolTip = 'Specifies the number of work in process (WIP) items on a subcontractor transfer order.';
                     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                     ObsoleteState = Pending;
@@ -309,7 +309,7 @@ page 99000817 "Prod. Order Routing"
                 }
                 field("Qty. WIP on Subcontractors"; Rec."Qty. WIP on Subcontractors")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = LegacySubcontracting;
                     ToolTip = 'Specifies the number of work in process (WIP) items on a subcontractor order.';
                     ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                     ObsoleteState = Pending;

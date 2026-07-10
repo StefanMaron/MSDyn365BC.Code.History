@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -12,6 +12,9 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
+#if not CLEAN28
+using Microsoft.Manufacturing.Setup;
+#endif
 using Microsoft.Manufacturing.WorkCenter;
 
 table 99000830 "Planning Routing Line"
@@ -549,17 +552,17 @@ table 99000830 "Planning Routing Line"
                 Validate("Ending Time");
             end;
         }
-#if not CLEANSCHEMA30
+#if not CLEANSCHEMA31
         field(12180; "WIP Item"; Boolean)
         {
             Caption = 'WIP Item';
             ObsoleteReason = 'Preparation for replacement by Subcontracting app';
-#if not CLEAN27
+#if not CLEAN28
             ObsoleteState = Pending;
             ObsoleteTag = '27.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '30.0';
+            ObsoleteTag = '31.0';
 #endif
         }
 #endif
@@ -980,6 +983,10 @@ table 99000830 "Planning Routing Line"
 
     [Scope('OnPrem')]
     procedure TransferFromRoutingLine(RoutingLine: Record "Routing Line")
+#if not CLEAN28
+    var
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
+#endif
     begin
         "Operation No." := RoutingLine."Operation No.";
         "Next Operation No." := RoutingLine."Next Operation No.";
@@ -1014,8 +1021,9 @@ table 99000830 "Planning Routing Line"
         "Sequence No.(Backward)" := RoutingLine."Sequence No. (Backward)";
         "Fixed Scrap Qty. (Accum.)" := RoutingLine."Fixed Scrap Qty. (Accum.)";
         "Scrap Factor % (Accumulated)" := RoutingLine."Scrap Factor % (Accumulated)";
-#if not CLEAN27
-        "WIP Item" := RoutingLine."WIP Item";
+#if not CLEAN28
+        if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+            "WIP Item" := RoutingLine."WIP Item";
 #endif
 
         OnAfterTransferFromRoutingLine(Rec, RoutingLine);

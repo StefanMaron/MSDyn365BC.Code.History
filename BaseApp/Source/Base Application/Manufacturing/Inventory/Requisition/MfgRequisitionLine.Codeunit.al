@@ -8,11 +8,10 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Journal;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Purchases.Document;
-#if not CLEAN27
+#if not CLEAN28
 using Microsoft.Purchases.Vendor;
 #endif
 
@@ -274,12 +273,15 @@ codeunit 99000866 "Mfg. Requisition Line"
         end;
     end;
 
-#if not CLEAN27
+#if not CLEAN28
     [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnValidateVendorNoOnBeforeLookupVendor', '', true, false)]
     local procedure OnValidateVendorNoOnBeforeLookupVendor(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     var
         SubcontrPrices: Record "Subcontractor Prices";
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
     begin
+        if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+            exit;
         if (RequisitionLine.Type = RequisitionLine.Type::Item) and (RequisitionLine."Prod. Order No." <> '') then begin
             RequisitionLine.TestField("Work Center No.");
             RequisitionLine.TestField("No.");
@@ -297,7 +299,10 @@ codeunit 99000866 "Mfg. Requisition Line"
     local procedure OnValidateVendorNoOnAfterCheckVendor(var RequisitionLine: Record "Requisition Line"; Vend: Record Vendor; CurrentFieldNo: Integer)
     var
         SubcontractingManagement: Codeunit SubcontractingManagement;
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
     begin
+        if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+            exit;
         if (RequisitionLine."Planning Line Origin" = RequisitionLine."Planning Line Origin"::" ") and
             (RequisitionLine."Prod. Order No." <> '')
         then begin
@@ -309,21 +314,29 @@ codeunit 99000866 "Mfg. Requisition Line"
 
     [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnValidateVendorNoOnAfterSetSupplyFrom', '', true, false)]
     local procedure OnValidateVendorNoOnAfterSetSupplyFrom(var RequisitionLine: Record "Requisition Line")
+    var
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
     begin
+        if not LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then
+            exit;
         if (RequisitionLine.Type = RequisitionLine.Type::Item) and (RequisitionLine."No." <> '') and RequisitionLine.IsProdOrder() then
             RequisitionLine.GetSubcontractorPrice();
     end;
 #endif
 
+#if not CLEAN28
     [EventSubscriber(ObjectType::Table, Database::"Req. Wksh. Template", 'OnAfterValidateEvent', 'Recurring', true, false)]
     local procedure ReqWkshTemplateOnAfterValidateRecurring(var Rec: Record "Req. Wksh. Template")
     begin
         if not Rec.Recurring then
             case Rec.Type of
+#pragma warning disable AL0432
                 Rec.Type::"For. Labor":
-                    Rec."Page ID" := Page::"Subcontracting Worksheet";
+                    Rec."Page ID" := Page::Microsoft.Manufacturing.Journal."Subcontracting Worksheet";
+#pragma warning restore AL0432
             end;
     end;
+#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::PlanningWkshManagement, 'OnGetRoutingDescription', '', true, false)]
     local procedure OnGetRoutingDescription(var ReqLine: Record "Requisition Line"; var RoutingDescription: Text[100])

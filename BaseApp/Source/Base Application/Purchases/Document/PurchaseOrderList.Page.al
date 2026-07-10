@@ -39,8 +39,7 @@ page 9307 "Purchase Order List"
     QueryCategory = 'Purchase Order List';
     RefreshOnActivate = true;
     SourceTable = "Purchase Header";
-    SourceTableView = where("Document Type" = const(Order),
-                            "Subcontracting Order" = const(false));
+    SourceTableView = where("Document Type" = const(Order));
     UsageCategory = Lists;
     AdditionalSearchTerms = 'Procurement List, Buy Order Overview, Vendor Orders, Order Purchase Log, Acquisition List, Supplier Orders, Buy List, Purchase Log, Supply Order List, Goods Order Overview';
 
@@ -975,7 +974,19 @@ page 9307 "Purchase Order List"
     trigger OnOpenPage()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+#if not CLEAN28
+        LegacySubcFeatureHandler: Codeunit Microsoft.Manufacturing.Setup."Legacy Subc. Feature Handler";
+        BackedupFiltergroup: Integer;
+#endif
     begin
+#if not CLEAN28
+        if LegacySubcFeatureHandler.IsLegacySubcontractingEnabled() then begin
+            BackedupFiltergroup := Rec.FilterGroup;
+            Rec.FilterGroup(2); // Set table view
+            Rec.SetRange("Subcontracting Order", false);
+            Rec.FilterGroup(BackedupFiltergroup);
+        end;
+#endif
         if Rec.GetFilter(Receive) <> '' then
             Rec.FilterPartialReceived();
         if Rec.GetFilter(Invoice) <> '' then
