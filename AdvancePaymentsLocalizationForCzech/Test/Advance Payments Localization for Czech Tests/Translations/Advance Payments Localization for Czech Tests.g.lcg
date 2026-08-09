@@ -104,6 +104,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purchase Advance Payments CZZ - NamedType ApplyAdvanceLetterQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2432363005 - NamedType 4000139483" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot %1 this type of document when Vendor %2 is blocked with type %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = create/post, %2 = vendor no., %3 = blocked type]D;]A;(LookupHint=Codeunit Purchase Advance Payments CZZ - NamedType BlockedVendorErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2432363005 - NamedType 1441659828" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The linked advance letter %1 is paid after %2. If you continue, the advance letter won't be deducted.\\Do you want to continue?]]></Val>
@@ -138,6 +147,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Cash Document No.]D;]A;(LookupHint=Codeunit Purchase Advance Payments CZZ - NamedType PostCashDocumentQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2432363005 - NamedType 3562887753" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot %1 this type of document when Vendor %2 is blocked for privacy.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = create/post, %2 = vendor no.]D;]A;(LookupHint=Codeunit Purchase Advance Payments CZZ - NamedType PrivacyBlockedVendorErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2432363005 - NamedType 190211984" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -212,6 +230,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Advance Payments CZZ - NamedType ApplyAdvanceLetterQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2519415708 - NamedType 3749345971" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot %1 this type of document when Customer %2 is blocked with type %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = create/post, %2 = customer no., %3 = blocked type]D;]A;(LookupHint=Codeunit Sales Advance Payments CZZ - NamedType BlockedCustomerErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2519415708 - NamedType 1441659828" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The linked advance letter %1 is paid after %2. If you continue, the advance letter won't be deducted.\\Do you want to continue?]]></Val>
@@ -246,6 +273,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Cash Document No.]D;]A;(LookupHint=Codeunit Sales Advance Payments CZZ - NamedType PostCashDocumentQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2519415708 - NamedType 2455300097" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot %1 this type of document when Customer %2 is blocked for privacy.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = create/post, %2 = customer no.]D;]A;(LookupHint=Codeunit Sales Advance Payments CZZ - NamedType PrivacyBlockedCustomerErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2519415708 - NamedType 190211984" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
