@@ -617,14 +617,15 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 if PickItem.Get(JobPlanningLine."No.") then
                     if PickItem.IsInventoriableType() and CanPickJobPlanningLine(JobPlanningLine) then
                         if not
-                           NewWarehouseActivityLine.ActivityExists(Database::Job, 0, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.", 0)
+                           NewWarehouseActivityLine.ActivityExists(Database::"Job Planning Line", "Job Planning Line Status"::Order.AsInteger(), JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.", 0)
                         then begin
                             NewWarehouseActivityLine.Init();
                             NewWarehouseActivityLine."Activity Type" := CurrWarehouseActivityHeader.Type;
                             NewWarehouseActivityLine."No." := CurrWarehouseActivityHeader."No.";
                             if CurrLocation."Bin Mandatory" then
                                 NewWarehouseActivityLine."Action Type" := NewWarehouseActivityLine."Action Type"::Take;
-                            NewWarehouseActivityLine.SetSource(Database::Job, 0, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.");
+                            NewWarehouseActivityLine.SetSource(Database::"Job Planning Line", "Job Planning Line Status"::Order.AsInteger(), JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No."
+);
                             NewWarehouseActivityLine."Location Code" := JobPlanningLine."Location Code";
                             NewWarehouseActivityLine."Bin Code" := JobPlanningLine."Bin Code";
                             NewWarehouseActivityLine."Item No." := JobPlanningLine."No.";
@@ -656,6 +657,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
             "Job Contract Entry No.",
             "Line No.",
             "Document No.",
+            Status,
             "Location Code",
             "Bin Code",
             "No.",
@@ -665,6 +667,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
             "Qty. Rounding Precision",
             "Qty. Rounding Precision (Base)",
             Description,
+            "Description 2",
             "Planning Due Date",
             "Job Task No.",
             "Reserved Quantity",
@@ -931,6 +934,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     local procedure CalcRemQtyToPickOrMoveBase(NewWarehouseActivityLine: Record "Warehouse Activity Line"; OutstandingQtyBase: Decimal; var RemQtyToPickBase: Decimal)
     var
         ATOSalesLine: Record "Sales Line";
+        ATOJobPlanningLine: Record "Job Planning Line";
         MaxQtyToPickBase: Decimal;
     begin
         MaxQtyToPickBase :=
@@ -941,6 +945,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
         if WMSManagement.GetATOSalesLine(NewWarehouseActivityLine."Source Type", NewWarehouseActivityLine."Source Subtype", NewWarehouseActivityLine."Source No.", NewWarehouseActivityLine."Source Line No.", ATOSalesLine) then
             MaxQtyToPickBase += ATOSalesLine.QtyAsmRemainingBaseOnATO();
+
+        if WMSManagement.GetATOJobPlanningLine(NewWarehouseActivityLine."Source Type", NewWarehouseActivityLine."Source No.", NewWarehouseActivityLine."Source Line No.", NewWarehouseActivityLine."Source Subline No.", ATOJobPlanningLine) then
+            MaxQtyToPickBase += ATOJobPlanningLine.QtyToAsmBaseOnATO();
 
         if RemQtyToPickBase > MaxQtyToPickBase then begin
             RemQtyToPickBase := MaxQtyToPickBase;
@@ -1075,7 +1082,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         IsHandled: Boolean;
     begin
         CreateATOPickLine(NewWarehouseActivityLine, '', RemQtyToPickBase);
-        if RemQtyToPickBase = 0 then
+        if RemQtyToPickBase <= 0 then
             exit;
 
         MakeWarehouseActivityHeader();
@@ -1329,9 +1336,12 @@ codeunit 7322 "Create Inventory Pick/Movement"
         else
             ReservationEntry.SetRange("Source Ref. No.", WarehouseActivityLine."Source Line No.");
 
-        if WarehouseActivityLine."Source Type" = Database::Job then begin
+        if WarehouseActivityLine."Source Type" in [Database::Job, Database::"Job Planning Line"] then begin
+            // Both old (Database::Job) and new (Database::"Job Planning Line") warehouse activity lines 
+            // should match reservation entries with Source Type = Database::"Job Planning Line"
+            // Reservation entries always have Source Subtype = Order (2), regardless of legacy activity line's Source Subtype (0)
             ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
-            ReservationEntry.SetRange("Source Subtype", 2);
+            ReservationEntry.SetRange("Source Subtype", "Job Planning Line Status"::Order.AsInteger());
         end else begin
             ReservationEntry.SetRange("Source Type", WarehouseActivityLine."Source Type");
             ReservationEntry.SetRange("Source Subtype", WarehouseActivityLine."Source Subtype");
@@ -2282,10 +2292,10 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     local procedure GetSourceLineNo(WarehouseActivityLine: Record "Warehouse Activity Line"): Integer
     begin
-        if WarehouseActivityLine."Source Type" <> Database::Job then
-            exit(WarehouseActivityLine."Source Line No.");
+        if WarehouseActivityLine."Source Type" in [Database::Job, Database::"Job Planning Line"] then
+            exit(-1);
 
-        exit(-1);
+        exit(WarehouseActivityLine."Source Line No.");
     end;
 
     procedure SetHideDialogForTracking(NewHideDialogForTracking: Boolean)
