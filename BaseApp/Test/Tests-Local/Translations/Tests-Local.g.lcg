@@ -1418,6 +1418,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purch. Prepmt. Include Tax - NamedType IncorrectInvRoundingErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4292252925 - NamedType 3587555" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Posted prepayment amount on the Sales Prepayments Account must include tax.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Prepmt. Include Tax - NamedType PrepmtAmountMustIncludeTaxErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1176904067 - NamedType 3205411696" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount must be equal.]]></Val>
