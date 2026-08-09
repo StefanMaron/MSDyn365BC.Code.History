@@ -8,6 +8,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.VAT.Reporting;
 using System.Environment;
+using System.Utilities;
 
 tableextension 4701 "VAT Report Setup Extension" extends "VAT Report Setup"
 {
@@ -202,12 +203,23 @@ tableextension 4701 "VAT Report Setup Extension" extends "VAT Report Setup"
 
     internal procedure ValidateGroupRepresentativeAPIURL(): Boolean
     begin
-        if Rec."Group Representative API URL" <> '' then
-            if not Lowercase(Rec."Group Representative API URL").StartsWith('https://api.businesscentral.dynamics.com') then
-                if not Lowercase(Rec."Group Representative API URL").StartsWith('https://api.businesscentral.dynamics-tie.com') then
-                    exit(false);
+        if Rec."Group Representative API URL" = '' then
+            exit(true);
 
-        exit(true);
+        exit(IsAllowedGroupRepresentativeAPIURL(Rec."Group Representative API URL"));
+    end;
+
+    internal procedure IsAllowedGroupRepresentativeAPIURL(ApiUrl: Text): Boolean
+    var
+        Uri: Codeunit Uri;
+        Host: Text;
+    begin
+        Uri.Init(ApiUrl);
+        if LowerCase(Uri.GetScheme()) <> 'https' then
+            exit(false);
+
+        Host := LowerCase(Uri.GetHost());
+        exit((Host = 'api.businesscentral.dynamics.com') or (Host = 'api.businesscentral.dynamics-tie.com'));
     end;
 
     var
