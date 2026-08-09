@@ -525,6 +525,8 @@ codeunit 333 "Req. Wksh.-Make Order"
           TempFailedReqLine,
           TempDocumentEntry);
         ReqWkshMakeOrders.SetSuppressCommit(SuppressCommit);
+
+        OnTryCarryOutReqLineActionOnBeforeRun(ReqLine);
         if ReqWkshMakeOrders.Run(ReqLine) then begin
             ReqWkshMakeOrders.GetTryParam(
               PurchOrderHeader,
@@ -535,6 +537,7 @@ codeunit 333 "Req. Wksh.-Make Order"
               PrevLocationCode,
               OrderCounter,
               OrderLineCounter);
+            OnTryCarryOutReqLineActionOnAfterGetTryParam(ReqLine, PurchOrderHeader, LineCount, NextLineNo, PrevPurchCode, PrevShipToCode, PrevLocationCode, OrderCounter, OrderLineCounter);
 
             if PrintPurchOrders and PlanningResiliency then
                 if PurchOrderHeader."No." <> '' then
@@ -1408,7 +1411,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         exit(true);
     end;
 
-    local procedure GetTransferHeader(var TransferHeader: Record "Transfer Header"; RequisitionLine: Record "Requisition Line")
+    procedure GetTransferHeader(var TransferHeader: Record "Transfer Header"; RequisitionLine: Record "Requisition Line")
     begin
         TempTransHeader.SetRange("Transfer-from Code", RequisitionLine."Transfer-from Code");
         TempTransHeader.SetRange("Transfer-to Code", RequisitionLine."Location Code");
@@ -1416,7 +1419,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             TransferHeader.Get(TempTransHeader."No.");
     end;
 
-    local procedure SetTransferHeader(TransferHeader: Record "Transfer Header")
+    procedure SetTransferHeader(TransferHeader: Record "Transfer Header")
     begin
         TempTransHeader := TransferHeader;
         if TempTransHeader.Insert() then;
@@ -1831,6 +1834,16 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTryCarryOutReqLineAction(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTryCarryOutReqLineActionOnBeforeRun(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTryCarryOutReqLineActionOnAfterGetTryParam(var RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var LineCount: Integer; var NextLineNo: Integer; var PrevPurchCode: Code[10]; var PrevShipToCode: Code[10]; var PrevLocationCode: Code[10]; var OrderCounter: Integer; var OrderLineCounter: Integer)
     begin
     end;
 
