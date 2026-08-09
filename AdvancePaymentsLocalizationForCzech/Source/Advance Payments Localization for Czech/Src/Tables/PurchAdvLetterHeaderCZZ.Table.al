@@ -97,6 +97,7 @@ table 31008 "Purch. Adv. Letter Header CZZ"
 
                 GetVendor("Pay-to Vendor No.");
                 Vendor.TestField("Vendor Posting Group");
+                Vendor.CheckBlockedVendOnAdvanceLettersCZZ(false);
                 "Pay-to Name" := Vendor.Name;
                 "Pay-to Name 2" := Vendor."Name 2";
                 CopyPayToVendorAddressFieldsFromVendor(Vendor, false);
@@ -1537,6 +1538,8 @@ table 31008 "Purch. Adv. Letter Header CZZ"
 
     procedure CheckPurchaseAdvanceLetterPostRestrictions()
     begin
+        Vendor.Get("Pay-to Vendor No.");
+        Vendor.CheckBlockedVendOnAdvanceLettersCZZ(true);
         OnCheckPurchaseAdvanceLetterPostRestrictions();
     end;
 
