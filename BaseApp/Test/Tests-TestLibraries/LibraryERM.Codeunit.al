@@ -1421,8 +1421,6 @@
     end;
 
     procedure CreateVATBusinessPostingGroup(var VATBusinessPostingGroup: Record "VAT Business Posting Group")
-    var
-        NoSeries: Record "No. Series";
     begin
         VATBusinessPostingGroup.Init();
         VATBusinessPostingGroup.Validate(
@@ -1434,13 +1432,8 @@
         VATBusinessPostingGroup.Validate(Description, VATBusinessPostingGroup.Code);
 
         // Set "Default Sales/Purchase operation"s - select first appropriate from "No. Series"
-        NoSeries.SetRange("No. Series Type", NoSeries."No. Series Type"::Sales);
-        NoSeries.FindFirst();
-        VATBusinessPostingGroup."Default Sales Operation Type" := NoSeries.Code;
-
-        NoSeries.SetRange("No. Series Type", NoSeries."No. Series Type"::Purchase);
-        NoSeries.FindFirst();
-        VATBusinessPostingGroup."Default Purch. Operation Type" := NoSeries.Code;
+        VATBusinessPostingGroup."Default Sales Operation Type" := CreateNoSeriesSalesCode();
+        VATBusinessPostingGroup."Default Purch. Operation Type" := CreateNoSeriesPurchaseCode();
 
         VATBusinessPostingGroup.Insert(true);
     end;
