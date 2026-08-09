@@ -1,7 +1,7 @@
 {
     "variables": {
-        "app_currentVersion": "27.9.0.0",
-        "app_minimumVersion": "27.9.0.0",
+        "app_currentVersion": "27.10.0.0",
+        "app_minimumVersion": "27.10.0.0",
         "app_platformVersion": "27.0.0.0"
     },
     "properties": {
