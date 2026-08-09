@@ -1324,6 +1324,9 @@ page 95 "Sales Quote Subform"
     /// <param name="Unconditionally">Whether to insert text without conditions.</param>
     procedure InsertExtendedText(Unconditionally: Boolean)
     begin
+        if not Unconditionally and (Rec."No." = xRec."No.") then
+            exit;
+
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.SalesCheckIfAnyExtText(Rec, Unconditionally) then begin
             CurrPage.SaveRecord();

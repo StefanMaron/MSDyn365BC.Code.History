@@ -2384,6 +2384,71 @@ codeunit 137140 "SCM Inventory Documents"
         Assert.AreEqual(Round(Qty * UnitAmount), InvtDocumentLine.Amount, AmountShouldEqualQtyTimesUnitAmountErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemReceiptWithSerialSpecificTrackingAndAlternateUOM()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        InvtReceiptHeader: Record "Invt. Receipt Header";
+        ReservationEntry: Record "Reservation Entry";
+        SerialNo: Code[50];
+        i: Integer;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Item Receipt] [Item Tracking] [Serial Specific Tracking] [Alternate UOM]
+        // [SCENARIO 637511] Item Receipt with serial-specific tracking and alternate UOM (BOX=3) should post successfully
+        // when quantity is 1 BOX with 3 serial numbers each assigned base qty 1
+        Initialize();
+
+        // [GIVEN] Location with Inventory Posting Setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Serial no.-tracked item with serial specific tracking enabled
+        CreateSerialSpecificTrackedItem(Item);
+
+        // [GIVEN] Alternate UOM where BOX = 3 pieces
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, 3);  // 1 BOX = 3 PCS
+
+        // [GIVEN] Create item receipt with 1 BOX
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        DocumentNo := InvtDocumentHeader."No.";
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, 1);  // 1 BOX
+        InvtDocumentLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        InvtDocumentLine.Modify(true);
+
+        // [GIVEN] Assign 3 serial numbers with base quantity 1 each (total 3 pieces = 1 BOX)
+        for i := 1 to 3 do begin
+            SerialNo := LibraryUtility.GenerateGUID();
+            LibraryItemTracking.CreateItemReceiptItemTracking(ReservationEntry, InvtDocumentLine, SerialNo, '', '', 1);
+        end;
+
+        // [WHEN] Post the item receipt
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [THEN] Inventory Receipt Header should be created successfully - verifying post was successful
+        InvtReceiptHeader.SetRange("Receipt No.", DocumentNo);
+        Assert.IsTrue(InvtReceiptHeader.FindFirst(), 'Inventory Receipt should exist after posting');
+    end;
+
+    local procedure CreateSerialSpecificTrackedItem(var Item: Record Item)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        ItemTrackingCode.Validate("SN Specific Tracking", true);
+        ItemTrackingCode.Modify();
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+    end;
+
     local procedure PostWhseShipmentFromTO(DocumentNo: Code[20])
     var
         WhseShipmentLine: Record "Warehouse Shipment Line";

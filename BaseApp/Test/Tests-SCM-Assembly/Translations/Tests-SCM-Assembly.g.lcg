@@ -626,6 +626,24 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Assembly Whse. Handling - Method AssemblyConsumpAsNoWhseHandling_ThrowsNothingToCreateMsg - NamedType NothingToHandleErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1640954912 - NamedType 2805531367" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Running Calc. Assembly Std. Cost distorted the assembly output Cost Amount (Actual); a spurious Manufacturing Overhead variance was posted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Calculate Assembly Cost - NamedType AssemblyOutputCostDistortedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1640954912 - NamedType 2732855831" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Running Calc. Assembly Std. Cost distorted the assembly output indirect (Manufacturing Overhead) cost; the Cost Amount (Actual) no longer matches the rolled standard overhead.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Calculate Assembly Cost - NamedType AssemblyOutputIndirectCostErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1640954912 - NamedType 2786924276" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Child]]></Val>
