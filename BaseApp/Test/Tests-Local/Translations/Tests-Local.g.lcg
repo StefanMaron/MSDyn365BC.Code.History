@@ -662,6 +662,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Payment Journal - NamedType WrongNumberOfLinesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1387366403 - NamedType 575706990" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong %1 on the payment journal line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption]D;]A;(LookupHint=Codeunit ERM Payment Journal - NamedType WrongPmtDiscErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1387366403 - NamedType 3701290545" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong status of Payment Journal Batch.]]></Val>

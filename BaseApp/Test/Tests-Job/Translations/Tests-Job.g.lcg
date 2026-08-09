@@ -2138,6 +2138,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT C Copy Job - NamedType UnitPriceMustMatchErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3438364934 - NamedType 740609401" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 should include entries with Reverse = TRUE and Reversed = FALSE.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field caption, e.g. Applied Costs G/L Amount]D;]A;(LookupHint=Codeunit UT T Job - NamedType AppliedGLAmountReverseErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3438364934 - NamedType 2734239790" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be equal to %2 in Project table.]]></Val>
