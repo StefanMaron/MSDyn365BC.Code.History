@@ -1301,6 +1301,9 @@ page 98 "Purch. Cr. Memo Subform"
     var
         IsHandled: Boolean;
     begin
+        if not Unconditionally and (Rec."No." = xRec."No.") then
+            exit;
+
         IsHandled := false;
         OnBeforeInsertExtendedText(Rec, IsHandled);
         if IsHandled then

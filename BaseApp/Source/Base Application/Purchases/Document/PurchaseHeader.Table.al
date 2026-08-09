@@ -312,8 +312,12 @@ table 38 "Purchase Header"
 
                 if (xRec."Buy-from Vendor No." = "Buy-from Vendor No.") and
                    (xRec."Pay-to Vendor No." <> "Pay-to Vendor No.")
-                then
-                    RecreatePurchLines(PayToVendorTxt);
+                then begin
+                    IsHandled := false;
+                    OnValidatePayToVendorNoOnBeforeRecreatePurchLines(Rec, xRec, IsHandled);
+                    if not IsHandled then
+                        RecreatePurchLines(PayToVendorTxt);
+                end;
 
                 if not SkipPayToContact then
                     UpdatePayToCont("Pay-to Vendor No.");
@@ -1265,6 +1269,8 @@ table 38 "Purchase Header"
                         ShowExternalDocAlreadyExistNotification(VendorLedgerEntry)
                     else
                         RecallExternalDocAlreadyExistsNotification();
+
+                NotifyIfSIIDuplicateExternalDocNo(Rec, Rec."Vendor Invoice No.");
             end;
         }
         field(69; "Vendor Cr. Memo No."; Code[35])
@@ -1287,6 +1293,8 @@ table 38 "Purchase Header"
                         ShowExternalDocAlreadyExistNotification(VendorLedgerEntry)
                     else
                         RecallExternalDocAlreadyExistsNotification();
+
+                NotifyIfSIIDuplicateExternalDocNo(Rec, Rec."Vendor Cr. Memo No.");
             end;
         }
         field(70; "VAT Registration No."; Text[20])
@@ -3300,6 +3308,8 @@ table 38 "Purchase Header"
         WarnDocAmountVatTxt: Label '%1 must not be more than %2.', comment = '%1 - Doc. Amount VAT; %2 - DocAmountVAT';
         CreateVendorQst: Label 'You cannot Release Quote or Make Order unless you specify a vendor on the quote.\\Do you want to create vendor(s) now?';
         SelectVendorTemplateQst: Label 'Do you want to select the vendor template?';
+        SIIDuplicateExtDocNoTxt: Label 'A posted %1 with external document number %2 already exists for vendor %3. Because SII is enabled, the Spanish Tax Authority may reject this document as a duplicate (Factura Duplicada).', Comment = '%1 = Vendor Ledger Entry Document Type; %2 = External Document No.; %3 = Vendor No.';
+        ShowSIIDuplicateVendLedgEntryTxt: Label 'Show the posted document';
         CalledFromWhseDoc: Boolean;
 #if not CLEAN26
         SkipStatsPrep: Boolean;
@@ -8290,6 +8300,88 @@ table 38 "Purchase Header"
             "Due Date Modified" := false;
     end;
 
+    procedure GetContactDetails(var BuyFromContact: Record Contact; var PayToContact: Record Contact)
+    begin
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
+    end;
+
+    local procedure NotifyIfSIIDuplicateExternalDocNo(PurchaseHeader: Record "Purchase Header"; ExternalDocNo: Code[35])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIManagement: Codeunit "SII Management";
+    begin
+        // Only relevant when SII is active. The per-user notification toggle is evaluated (and
+        // seeded when missing) inside SendSIIDuplicateExtDocNoNotification, mirroring the standard flow.
+        if ExternalDocNo = '' then
+            exit;
+        if PurchaseHeader."Pay-to Vendor No." = '' then
+            exit;
+        if not SIIManagement.IsSIISetupEnabled() then
+            exit;
+
+        // The standard OnValidate already warns for the SAME document type.
+        // SII adds the cross-type case (Invoice vs. Credit Memo), which shares the same IDFactura for AEAT.
+        if FindPostedDocWithSameExtDocNoDifferentType(PurchaseHeader, ExternalDocNo, VendorLedgerEntry) then
+            SendSIIDuplicateExtDocNoNotification(PurchaseHeader, VendorLedgerEntry);
+    end;
+
+    local procedure FindPostedDocWithSameExtDocNoDifferentType(PurchaseHeader: Record "Purchase Header"; ExternalDocNo: Code[35]; var VendorLedgerEntry: Record "Vendor Ledger Entry"): Boolean
+    var
+        VendorMgt: Codeunit "Vendor Mgt.";
+    begin
+        VendorLedgerEntry.Reset();
+        VendorLedgerEntry.SetCurrentKey("External Document No.");
+        // Reuse the standard filter so 'Same Ext. Doc. No. in Diff. FY' (ES) is honored via OnAfterSetFilterForExternalDocNo.
+        VendorMgt.SetFilterForExternalDocNo(
+            VendorLedgerEntry, GetOppositeGenJnlDocType(PurchaseHeader), ExternalDocNo,
+            PurchaseHeader."Pay-to Vendor No.", PurchaseHeader."Document Date");
+        VendorLedgerEntry.SetRange("Do Not Send To SII", false);
+        exit(VendorLedgerEntry.FindFirst());
+    end;
+
+    local procedure GetOppositeGenJnlDocType(PurchaseHeader: Record "Purchase Header"): Enum "Gen. Journal Document Type"
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Invoice/Order -> look for posted Credit Memos; Credit Memo/Return Order -> look for posted Invoices.
+        case PurchaseHeader."Document Type" of
+            PurchaseHeader."Document Type"::"Credit Memo",
+            PurchaseHeader."Document Type"::"Return Order":
+                exit(GenJournalLine."Document Type"::Invoice);
+            else
+                exit(GenJournalLine."Document Type"::"Credit Memo");
+        end;
+    end;
+
+    local procedure SendSIIDuplicateExtDocNoNotification(PurchaseHeader: Record "Purchase Header"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    var
+        MyNotifications: Record "My Notifications";
+        InstructionMgt: Codeunit "Instruction Mgt.";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        SIIDuplicateNotification: Notification;
+    begin
+        // Mirror the standard "already exists" notification guard: default-on when not yet seeded,
+        // then create the missing My Notifications record before the final enable check.
+        if not MyNotifications.IsEnabled(PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId()) then
+            exit;
+        InstructionMgt.CreateMissingMyNotificationsWithDefaultState(PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId());
+        if not PurchaseHeader.IsDocAlreadyExistNotificationEnabled() then
+            exit;
+
+        // Reuse the standard notification id + action so it shares one slot and respects the same user toggle.
+        SIIDuplicateNotification.Id := PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId();
+        SIIDuplicateNotification.Message :=
+            StrSubstNo(SIIDuplicateExtDocNoTxt, VendorLedgerEntry."Document Type", VendorLedgerEntry."External Document No.", PurchaseHeader."Pay-to Vendor No.");
+        SIIDuplicateNotification.Scope := NotificationScope::LocalScope;
+        SIIDuplicateNotification.AddAction(ShowSIIDuplicateVendLedgEntryTxt, Codeunit::"Document Notifications", 'ShowVendorLedgerEntry');
+        SIIDuplicateNotification.SetData(PurchaseHeader.FieldName("Document Type"), Format(PurchaseHeader."Document Type"));
+        SIIDuplicateNotification.SetData(PurchaseHeader.FieldName("No."), PurchaseHeader."No.");
+        SIIDuplicateNotification.SetData(VendorLedgerEntry.FieldName("Entry No."), Format(VendorLedgerEntry."Entry No."));
+        NotificationLifecycleMgt.SendNotificationWithAdditionalContext(
+            SIIDuplicateNotification, PurchaseHeader.RecordId(), PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId());
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var PurchaseHeader: Record "Purchase Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
@@ -9236,6 +9328,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePaytoVendorNoBeforeRecreateLines(var PurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePayToVendorNoOnBeforeRecreatePurchLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
