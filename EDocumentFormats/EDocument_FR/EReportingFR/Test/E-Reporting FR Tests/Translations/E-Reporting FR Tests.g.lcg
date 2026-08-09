@@ -5,4 +5,13 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 512395393 - NamedType 1821619439" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Electronic Address must be specified for Customer %1 for French e-invoicing.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Customer No.]D;]A;(Namespace=Microsoft.eServices.EDocument.Formats.Test)(LookupHint=Codeunit PEPPOL BIS 3.0 XML Tests - NamedType CustomerElectronicAddressErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

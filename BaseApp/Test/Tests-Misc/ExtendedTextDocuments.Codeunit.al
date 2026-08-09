@@ -36,6 +36,16 @@ codeunit 137410 "Extended Text Documents"
         ExtTextDeletedOnSalesOrderErr: Label 'Extended text lines were deleted after editing description on the sales order line.';
         ExtTextDeletedOnSalesInvoiceErr: Label 'Extended text lines were deleted after editing description on the sales invoice line.';
         ExtTextDeletedOnSalesCreditMemoErr: Label 'Extended text lines were deleted after editing description on the sales credit memo line.';
+        ExtTextUpdatedOnSalesQuoteErr: Label 'Extended text lines were updated after editing description on the sales quote line.';
+        ExtTextUpdatedOnPurchaseQuoteErr: Label 'Extended text lines were updated after editing description on the purchase quote line.';
+        ExtTextUpdatedOnSalesReturnOrderErr: Label 'Extended text lines were updated after editing description on the sales return order line.';
+        ExtTextUpdatedOnPurchaseOrderErr: Label 'Extended text lines were updated after editing description on the purchase order line.';
+        ExtTextUpdatedOnPurchaseInvoiceErr: Label 'Extended text lines were updated after editing description on the purchase invoice line.';
+        ExtTextUpdatedOnPurchaseCreditMemoErr: Label 'Extended text lines were updated after editing description on the purchase credit memo line.';
+        ExtTextUpdatedOnSalesOrderErr: Label 'Extended text lines were updated after editing description on the sales order line.';
+        ExtTextUpdatedOnSalesInvoiceErr: Label 'Extended text lines were updated after editing description on the sales invoice line.';
+        ExtTextUpdatedOnSalesCreditMemoErr: Label 'Extended text lines were updated after editing description on the sales credit memo line.';
+        ExtTextNotLoadedOnSalesQuoteErr: Label 'Extended text lines were not loaded when setting an item on the sales quote line.';
         IsInitialzied: Boolean;
 
     local procedure Initialize()
@@ -1015,6 +1025,706 @@ codeunit 137410 "Extended Text Documents"
         Assert.AreEqual(AttachedCountBefore, AttachedCountAfter, ExtTextDeletedOnSalesReturnOrderErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure EditingDescriptionOnSalesQuoteLineDoesNotModifyInsertedExtText()
+    var
+        Customer: Record Customer;
+        ExtendedTextLine: Record "Extended Text Line";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLineDescription: Record "Sales Line";
+        SalesQuote: TestPage "Sales Quote";
+        NewDescription: Text[100];
+        NewExtTextDescription: Text[100];
+    begin
+        // [FEATURE] [Sales] [Sales Quote] [AI test]
+        // [SCENARIO 636676] Extended Text is reloaded when line description is updated on Sales Quote, 
+        // which causes user modifications on the extended text line to be lost. Description on the extended text line 
+        // must not be overwritten when user modifies description on the parent sales line.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] Create Item with Extended Text.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+        CreateExtendedTextForItem(Item, ExtendedTextLine);
+
+        // [GIVEN] Create Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Open New Sales quote page and set Sell-to Customer No.
+        SalesQuote.OpenNew();
+        SalesQuote."Sell-to Customer No.".SetValue(Customer."No.");
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
+        SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesHeader.FindFirst();
+
+        // [WHEN] Insert Sales Line with the Item created above.
+        SalesQuote.SalesLines.New();
+        SalesQuote.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesQuote.SalesLines.Description.SetValue(Item.Description);
+
+        // [WHEN] Modify Extended Texts on the Sales Line.
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Description, ExtendedTextLine.Text);
+        SalesLine.FindFirst();
+        NewExtTextDescription := CopyStr(SalesLine.Description + 'X', 1, MaxStrLen(SalesLine.Description));
+        SalesLine.Validate(Description, NewExtTextDescription);
+        SalesLine.Modify(true);
+
+        // [WHEN] Modify Item Description Texts on the Sales Line.
+        SalesLineDescription.Reset();
+        SalesLineDescription.SetRange("Document No.", SalesHeader."No.");
+        SalesLineDescription.SetRange(Type, SalesLineDescription.Type::Item);
+        SalesLineDescription.FindFirst();
+        NewDescription := CopyStr(SalesLineDescription.Description + '2', 1, MaxStrLen(SalesLineDescription.Description));
+        SalesQuote.Close();
+        SalesQuote.OpenEdit();
+        SalesQuote.GotoRecord(SalesHeader);
+        SalesQuote.SalesLines.GotoRecord(SalesLineDescription);
+        SalesQuote.SalesLines.Description.SetValue(NewDescription);
+
+        // [THEN] Description on the extended text line must not be overwritten.
+        SalesLine.Reset();
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Description, NewExtTextDescription);
+        SalesLine.FindFirst();
+        Assert.AreEqual(1, SalesLine.Count(), ExtTextUpdatedOnSalesQuoteErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EditingDescriptionOnPurchaseQuoteLineDoesNotModifyInsertedExtText()
+    var
+        Vendor: Record Vendor;
+        ExtendedTextLine: Record "Extended Text Line";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineDescription: Record "Purchase Line";
+        PurchaseQuote: TestPage "Purchase Quote";
+        NewDescription: Text[100];
+        NewExtTextDescription: Text[100];
+    begin
+        // [FEATURE] [Purchase] [Purchase Quote] [AI test]
+        // [SCENARIO 636676] Extended Text is reloaded when line description is updated on Purchase Quote, 
+        // which causes user modifications on the extended text line to be lost. Description on the extended text line 
+        // must not be overwritten when user modifies description on the parent purchase line.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] An item with a (manual, true automatic) Extended Text valid for Purchase Quote.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+        CreateExtendedTextForItem(Item, ExtendedTextLine);
+
+        // [GIVEN] A Purchase Quote with one item line and Insert Ext. Texts run on it.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Open New Purchase quote page and set Buy-from Vendor No.
+        PurchaseQuote.OpenNew();
+        PurchaseQuote."Buy-from Vendor No.".SetValue(Vendor."No.");
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Quote);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+
+        // [WHEN] Insert Purchase Line with the Item created above.
+        PurchaseQuote.PurchLines.New();
+        PurchaseQuote.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseQuote.PurchLines.Description.SetValue(Item.Description);
+
+        // [WHEN] Modify Extended Texts on the Purchase Line.
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Description, ExtendedTextLine.Text);
+        PurchaseLine.FindFirst();
+        NewExtTextDescription := CopyStr(PurchaseLine.Description + 'X', 1, MaxStrLen(PurchaseLine.Description));
+        PurchaseLine.Validate(Description, NewExtTextDescription);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Modify Item Description Texts on the Purchase Line.
+        PurchaseLineDescription.Reset();
+        PurchaseLineDescription.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLineDescription.SetRange(Type, PurchaseLineDescription.Type::Item);
+        PurchaseLineDescription.FindFirst();
+        NewDescription := CopyStr(PurchaseLineDescription.Description + '2', 1, MaxStrLen(PurchaseLineDescription.Description));
+        PurchaseQuote.Close();
+        PurchaseQuote.OpenEdit();
+        PurchaseQuote.GotoRecord(PurchaseHeader);
+        PurchaseQuote.PurchLines.GotoRecord(PurchaseLineDescription);
+        PurchaseQuote.PurchLines.Description.SetValue(NewDescription);
+
+        // [THEN] Description on the extended text line must not be overwritten.
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Description, NewExtTextDescription);
+        PurchaseLine.FindFirst();
+        Assert.AreEqual(1, PurchaseLine.Count(), ExtTextUpdatedOnPurchaseQuoteErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EditingDescriptionOnPurchaseOrderLineDoesNotModifyInsertedExtText()
+    var
+        Vendor: Record Vendor;
+        ExtendedTextLine: Record "Extended Text Line";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineDescription: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        NewDescription: Text[100];
+        NewExtTextDescription: Text[100];
+    begin
+        // [FEATURE] [Purchase] [Purchase Order] [AI test]
+        // [SCENARIO 636676] Extended Text is reloaded when line description is updated on Purchase Order, 
+        // which causes user modifications on the extended text line to be lost. Description on the extended text line 
+        // must not be overwritten when user modifies description on the parent purchase line.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] An item with a (manual, true automatic) Extended Text valid for Purchase Order.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+        CreateExtendedTextForItem(Item, ExtendedTextLine);
+
+        // [GIVEN] A Purchase Order with one item line and Insert Ext. Texts run on it.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Open New Purchase Order page and set Buy-from Vendor No.
+        PurchaseOrder.OpenNew();
+        PurchaseOrder."Buy-from Vendor No.".SetValue(Vendor."No.");
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+
+        // [WHEN] Insert Purchase Line with the Item created above.
+        PurchaseOrder.PurchLines.New();
+        PurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseOrder.PurchLines.Description.SetValue(Item.Description);
+
+        // [WHEN] Modify Extended Texts on the Purchase Line.
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Description, ExtendedTextLine.Text);
+        PurchaseLine.FindFirst();
+        NewExtTextDescription := CopyStr(PurchaseLine.Description + 'X', 1, MaxStrLen(PurchaseLine.Description));
+        PurchaseLine.Validate(Description, NewExtTextDescription);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Modify Item Description Texts on the Purchase Line.
+        PurchaseLineDescription.Reset();
+        PurchaseLineDescription.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLineDescription.SetRange(Type, PurchaseLineDescription.Type::Item);
+        PurchaseLineDescription.FindFirst();
+        NewDescription := CopyStr(PurchaseLineDescription.Description + '2', 1, MaxStrLen(PurchaseLineDescription.Description));
+        PurchaseOrder.Close();
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        PurchaseOrder.PurchLines.GotoRecord(PurchaseLineDescription);
+        PurchaseOrder.PurchLines.Description.SetValue(NewDescription);
+
+        // [THEN] Description on the extended text line must not be overwritten.
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Description, NewExtTextDescription);
+        PurchaseLine.FindFirst();
+        Assert.AreEqual(1, PurchaseLine.Count(), ExtTextUpdatedOnPurchaseOrderErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EditingDescriptionOnPurchaseInvoiceLineDoesNotModifyInsertedExtText()
+    var
+        Vendor: Record Vendor;
+        ExtendedTextLine: Record "Extended Text Line";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineDescription: Record "Purchase Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        NewDescription: Text[100];
+        NewExtTextDescription: Text[100];
+    begin
+        // [FEATURE] [Purchase] [Purchase Invoice] [AI test]
+        // [SCENARIO 636676] Extended Text is reloaded when line description is updated on Purchase Invoice, 
+        // which causes user modifications on the extended text line to be lost. Description on the extended text line 
+        // must not be overwritten when user modifies description on the parent purchase line.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] An item with a (manual, true automatic) Extended Text valid for Purchase Invoice.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+        CreateExtendedTextForItem(Item, ExtendedTextLine);
+
+        // [GIVEN] A Purchase Invoice with one item line and Insert Ext. Texts run on it.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Open New Purchase Invoice page and set Buy-from Vendor No.
+        PurchaseInvoice.OpenNew();
+        PurchaseInvoice."Buy-from Vendor No.".SetValue(Vendor."No.");
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+
+        // [WHEN] Insert Purchase Line with the Item created above.
+        PurchaseInvoice.PurchLines.New();
+        PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseInvoice.PurchLines.Description.SetValue(Item.Description);
+
+        // [WHEN] Modify Extended Texts on the Purchase Line.
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Description, ExtendedTextLine.Text);
+        PurchaseLine.FindFirst();
+        NewExtTextDescription := CopyStr(PurchaseLine.Description + 'X', 1, MaxStrLen(PurchaseLine.Description));
+        PurchaseLine.Validate(Description, NewExtTextDescription);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Modify Item Description Texts on the Purchase Line.
+        PurchaseLineDescription.Reset();
+        PurchaseLineDescription.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLineDescription.SetRange("Document Type", PurchaseLineDescription."Document Type"::Invoice);
+        PurchaseLineDescription.SetRange(Type, PurchaseLineDescription.Type::Item);
+        PurchaseLineDescription.FindFirst();
+        NewDescription := CopyStr(PurchaseLineDescription.Description + '2', 1, MaxStrLen(PurchaseLineDescription.Description));
+        PurchaseInvoice.Close();
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.GotoRecord(PurchaseHeader);
+        PurchaseInvoice.PurchLines.GotoRecord(PurchaseLineDescription);
+        PurchaseInvoice.PurchLines.Description.SetValue(NewDescription);
+
+        // [THEN] Description on the extended text line must not be overwritten.
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
+        PurchaseLine.SetRange(Description, NewExtTextDescription);
+        PurchaseLine.FindFirst();
+        Assert.AreEqual(1, PurchaseLine.Count(), ExtTextUpdatedOnPurchaseInvoiceErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EditingDescriptionOnPurchaseCrMemoLineDoesNotModifyInsertedExtText()
+    var
+        Vendor: Record Vendor;
+        ExtendedTextLine: Record "Extended Text Line";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineDescription: Record "Purchase Line";
+        PurchaseCrMemo: TestPage "Purchase Credit Memo";
+        NewDescription: Text[100];
+        NewExtTextDescription: Text[100];
+    begin
+        // [FEATURE] [Purchase] [Purchase Cr. Memo] [AI test]
+        // [SCENARIO 636676] Extended Text is reloaded when line description is updated on Purchase Cr. Memo, 
+        // which causes user modifications on the extended text line to be lost. Description on the extended text line 
+        // must not be overwritten when user modifies description on the parent purchase line.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] An item with a (manual, true automatic) Extended Text valid for Purchase Credit Memo.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+        CreateExtendedTextForItem(Item, ExtendedTextLine);
+
+        // [GIVEN] A Purchase Credit Memo with one item line and Insert Ext. Texts run on it.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Open New Purchase Credit Memo page and set Buy-from Vendor No.
+        PurchaseCrMemo.OpenNew();
+        PurchaseCrMemo."Buy-from Vendor No.".SetValue(Vendor."No.");
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+
+        // [WHEN] Insert Purchase Line with the Item created above.
+        PurchaseCrMemo.PurchLines.New();
+        PurchaseCrMemo.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseCrMemo.PurchLines.Description.SetValue(Item.Description);
+
+        // [WHEN] Modify Extended Texts on the Purchase Line.
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Description, ExtendedTextLine.Text);
+        PurchaseLine.FindFirst();
+        NewExtTextDescription := CopyStr(PurchaseLine.Description + 'X', 1, MaxStrLen(PurchaseLine.Description));
+        PurchaseLine.Validate(Description, NewExtTextDescription);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Modify Item Description Texts on the Purchase Line.
+        PurchaseLineDescription.Reset();
+        PurchaseLineDescription.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLineDescription.SetRange(Type, PurchaseLineDescription.Type::Item);
+        PurchaseLineDescription.SetRange("Document Type", PurchaseLineDescription."Document Type"::"Credit Memo");
+        PurchaseLineDescription.FindFirst();
+        NewDescription := CopyStr(PurchaseLineDescription.Description + '2', 1, MaxStrLen(PurchaseLineDescription.Description));
+        PurchaseCrMemo.Close();
+        PurchaseCrMemo.OpenEdit();
+        PurchaseCrMemo.GotoRecord(PurchaseHeader);
+        PurchaseCrMemo.PurchLines.GotoRecord(PurchaseLineDescription);
+        PurchaseCrMemo.PurchLines.Description.SetValue(NewDescription);
+
+        // [THEN] Description on the extended text line must not be overwritten.
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
+        PurchaseLine.SetRange(Description, NewExtTextDescription);
+        PurchaseLine.FindFirst();
+        Assert.AreEqual(1, PurchaseLine.Count(), ExtTextUpdatedOnPurchaseCreditMemoErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EditingDescriptionOnSalesOrderLineDoesNotModifyInsertedExtText()
+    var
+        Customer: Record Customer;
+        ExtendedTextLine: Record "Extended Text Line";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLineDescription: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        NewDescription: Text[100];
+        NewExtTextDescription: Text[100];
+    begin
+        // [FEATURE] [Sales] [Sales Order] [AI test]
+        // [SCENARIO 636676] Extended Text is reloaded when line description is updated on Sales Order, 
+        // which causes user modifications on the extended text line to be lost. Description on the extended text line 
+        // must not be overwritten when user modifies description on the parent sales line.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] An item with a (manual, true automatic) Extended Text valid for Sales Order.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+        CreateExtendedTextForItem(Item, ExtendedTextLine);
+
+        // [WHEN] Create Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Open New Sales order page and set Sell-to Customer No.
+        SalesOrder.OpenNew();
+        SalesOrder."Sell-to Customer No.".SetValue(Customer."No.");
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesHeader.FindFirst();
+
+        // [WHEN] Insert Sales Line with the Item created above.
+        SalesOrder.SalesLines.New();
+        SalesOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesOrder.SalesLines.Description.SetValue(Item.Description);
+
+        // [WHEN] Modify Extended Texts on the Sales Line.
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Description, ExtendedTextLine.Text);
+        SalesLine.FindFirst();
+        NewExtTextDescription := CopyStr(SalesLine.Description + 'X', 1, MaxStrLen(SalesLine.Description));
+        SalesLine.Validate(Description, NewExtTextDescription);
+        SalesLine.Modify(true);
+
+        // [WHEN] Modify Item Description Texts on the Sales Line.
+        SalesLineDescription.Reset();
+        SalesLineDescription.SetRange("Document No.", SalesHeader."No.");
+        SalesLineDescription.SetRange(Type, SalesLineDescription.Type::Item);
+        SalesLineDescription.FindFirst();
+        NewDescription := CopyStr(SalesLineDescription.Description + '2', 1, MaxStrLen(SalesLineDescription.Description));
+        SalesOrder.Close();
+        SalesOrder.OpenEdit();
+        SalesOrder.GotoRecord(SalesHeader);
+        SalesOrder.SalesLines.GotoRecord(SalesLineDescription);
+        SalesOrder.SalesLines.Description.SetValue(NewDescription);
+
+        // [THEN] Description on the extended text line must not be overwritten.
+        SalesLine.Reset();
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Description, NewExtTextDescription);
+        SalesLine.FindFirst();
+        Assert.AreEqual(1, SalesLine.Count(), ExtTextUpdatedOnSalesOrderErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EditingDescriptionOnSalesInvoiceLineDoesNotModifyInsertedExtText()
+    var
+        Customer: Record Customer;
+        ExtendedTextLine: Record "Extended Text Line";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLineDescription: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+        NewDescription: Text[100];
+        NewExtTextDescription: Text[100];
+    begin
+        // [FEATURE] [Sales] [Sales Invoice] [AI test]
+        // [SCENARIO 636676] Extended Text is reloaded when line description is updated on Sales Invoice, 
+        // which causes user modifications on the extended text line to be lost. Description on the extended text line 
+        // must not be overwritten when user modifies description on the parent sales line.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+        // [GIVEN] An item with a (manual, true automatic) Extended Text valid for Sales Invoice.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+        CreateExtendedTextForItem(Item, ExtendedTextLine);
+
+        // [WHEN] Create Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Open New Sales invoice page and set Sell-to Customer No.
+        SalesInvoice.OpenNew();
+        SalesInvoice."Sell-to Customer No.".SetValue(Customer."No.");
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesHeader.FindFirst();
+
+        // [WHEN] Insert Sales Line with the Item created above.
+        SalesInvoice.SalesLines.New();
+        SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesInvoice.SalesLines.Description.SetValue(Item.Description);
+
+        // [WHEN] Modify Extended Texts on the Sales Line.
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Description, ExtendedTextLine.Text);
+        SalesLine.FindFirst();
+        NewExtTextDescription := CopyStr(SalesLine.Description + 'X', 1, MaxStrLen(SalesLine.Description));
+        SalesLine.Validate(Description, NewExtTextDescription);
+        SalesLine.Modify(true);
+
+        // [WHEN] Modify Item Description Texts on the Sales Line.
+        SalesLineDescription.Reset();
+        SalesLineDescription.SetRange("Document No.", SalesHeader."No.");
+        SalesLineDescription.SetRange(Type, SalesLineDescription.Type::Item);
+        SalesLineDescription.SetRange("Document Type", SalesLineDescription."Document Type"::Invoice);
+        SalesLineDescription.FindFirst();
+        NewDescription := CopyStr(SalesLineDescription.Description + '2', 1, MaxStrLen(SalesLineDescription.Description));
+        SalesInvoice.Close();
+        SalesInvoice.OpenEdit();
+        SalesInvoice.GotoRecord(SalesHeader);
+        SalesInvoice.SalesLines.GotoRecord(SalesLineDescription);
+        SalesInvoice.SalesLines.Description.SetValue(NewDescription);
+
+        // [THEN] Description on the extended text line must not be overwritten.
+        SalesLine.Reset();
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetRange(Description, NewExtTextDescription);
+        SalesLine.FindFirst();
+        Assert.AreEqual(1, SalesLine.Count(), ExtTextUpdatedOnSalesInvoiceErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EditingDescriptionOnSalesCrMemoLineDoesNotModifyInsertedExtText()
+    var
+        Customer: Record Customer;
+        ExtendedTextLine: Record "Extended Text Line";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLineDescription: Record "Sales Line";
+        SalesCrMemo: TestPage "Sales Credit Memo";
+        NewDescription: Text[100];
+        NewExtTextDescription: Text[100];
+    begin
+        // [FEATURE] [Sales] [Sales Credit Memo] [AI test]
+        // [SCENARIO 636676] Extended Text is reloaded when line description is updated on Sales Credit Memo, 
+        // which causes user modifications on the extended text line to be lost. Description on the extended text line 
+        // must not be overwritten when user modifies description on the parent sales line.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] An item with a (manual, true automatic) Extended Text valid for Sales Credit Memo.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+        CreateExtendedTextForItem(Item, ExtendedTextLine);
+
+        // [WHEN] Create Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Open New Sales Credit Memo page and set Sell-to Customer No.
+        SalesCrMemo.OpenNew();
+        SalesCrMemo."Sell-to Customer No.".SetValue(Customer."No.");
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesHeader.FindFirst();
+
+        // [WHEN] Insert Sales Line with the Item created above.
+        SalesCrMemo.SalesLines.New();
+        SalesCrMemo.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesCrMemo.SalesLines.Description.SetValue(Item.Description);
+
+        // [WHEN] Modify Extended Texts on the Sales Line.
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Description, ExtendedTextLine.Text);
+        SalesLine.FindFirst();
+        NewExtTextDescription := CopyStr(SalesLine.Description + 'X', 1, MaxStrLen(SalesLine.Description));
+        SalesLine.Validate(Description, NewExtTextDescription);
+        SalesLine.Modify(true);
+
+        // [WHEN] Modify Item Description Texts on the Sales Line.
+        SalesLineDescription.Reset();
+        SalesLineDescription.SetRange("Document No.", SalesHeader."No.");
+        SalesLineDescription.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        SalesLineDescription.SetRange(Type, SalesLineDescription.Type::Item);
+        SalesLineDescription.FindFirst();
+        NewDescription := CopyStr(SalesLineDescription.Description + '2', 1, MaxStrLen(SalesLineDescription.Description));
+        SalesCrMemo.Close();
+        SalesCrMemo.OpenEdit();
+        SalesCrMemo.GotoRecord(SalesHeader);
+        SalesCrMemo.SalesLines.GotoRecord(SalesLineDescription);
+        SalesCrMemo.SalesLines.Description.SetValue(NewDescription);
+
+        // [THEN] Description on the extended text line must not be overwritten.
+        SalesLine.Reset();
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
+        SalesLine.SetRange(Description, NewExtTextDescription);
+        SalesLine.FindFirst();
+        Assert.AreEqual(1, SalesLine.Count(), ExtTextUpdatedOnSalesCreditMemoErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EditingDescriptionOnSalesReturnOrderLineDoesNotModifyInsertedExtText()
+    var
+        Customer: Record Customer;
+        ExtendedTextLine: Record "Extended Text Line";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLineDescription: Record "Sales Line";
+        SalesReturnOrder: TestPage "Sales Return Order";
+        NewDescription: Text[100];
+        NewExtTextDescription: Text[100];
+    begin
+        // [FEATURE] [Sales] [Sales Return Order] [AI test]
+        // [SCENARIO 636676] Extended Text is reloaded when line description is updated on Sales Return Order, 
+        // which causes user modifications on the extended text line to be lost. Description on the extended text line 
+        // must not be overwritten when user modifies description on the parent sales line.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] An item with a (manual, true automatic) Extended Text valid for Sales Return Order.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+        CreateExtendedTextForItem(Item, ExtendedTextLine);
+
+        // [WHEN] Create Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Open New Sales Return Order page and set Sell-to Customer No.
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer No.".SetValue(Customer."No.");
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Return Order");
+        SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesHeader.FindFirst();
+
+        // [WHEN] Insert Sales Line with the Item created above.
+        SalesReturnOrder.SalesLines.New();
+        SalesReturnOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesReturnOrder.SalesLines.Description.SetValue(Item.Description);
+
+        // [WHEN] Modify Extended Texts on the Sales Line.
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Description, ExtendedTextLine.Text);
+        SalesLine.FindFirst();
+        NewExtTextDescription := CopyStr(SalesLine.Description + 'X', 1, MaxStrLen(SalesLine.Description));
+        SalesLine.Validate(Description, NewExtTextDescription);
+        SalesLine.Modify(true);
+
+        // [WHEN] Modify Item Description Texts on the Sales Line.
+        SalesLineDescription.Reset();
+        SalesLineDescription.SetRange("Document No.", SalesHeader."No.");
+        SalesLineDescription.SetRange("Document Type", SalesHeader."Document Type"::"Return Order");
+        SalesLineDescription.SetRange(Type, SalesLineDescription.Type::Item);
+        SalesLineDescription.FindFirst();
+        NewDescription := CopyStr(SalesLineDescription.Description + '2', 1, MaxStrLen(SalesLineDescription.Description));
+        SalesReturnOrder.Close();
+        SalesReturnOrder.OpenEdit();
+        SalesReturnOrder.GotoRecord(SalesHeader);
+        SalesReturnOrder.SalesLines.GotoRecord(SalesLineDescription);
+        SalesReturnOrder.SalesLines.Description.SetValue(NewDescription);
+
+        // [THEN] Description on the extended text line must not be overwritten.
+        SalesLine.Reset();
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Description, NewExtTextDescription);
+        SalesLine.FindFirst();
+        Assert.AreEqual(1, SalesLine.Count(), ExtTextUpdatedOnSalesReturnOrderErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SettingItemOnSalesQuoteLineLoadsInsertedExtText()
+    var
+        Customer: Record Customer;
+        ExtendedTextLine: Record "Extended Text Line";
+        ExtendedTextLine2: Record "Extended Text Line";
+        Item: Record Item;
+        Item2: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [FEATURE] [Sales] [Sales Quote] [AI test]
+        // [SCENARIO 636676] When an Item with Automatic Extended Text is set on a Sales Quote line,
+        // the Extended Text lines must be inserted onto the document. This is the positive
+        // counterpart of the description-edit guard tests and protects against a future change
+        // to that guard quietly suppressing the legitimate first-time load of the extended text.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] An item with Automatic Extended Text enabled.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+        CreateExtendedTextForItem(Item, ExtendedTextLine);
+        LibraryInventory.CreateItem(Item2);
+        Item2.Validate("Automatic Ext. Texts", true);
+        Item2.Modify(true);
+        CreateExtendedTextForItem(Item2, ExtendedTextLine2);
+
+        // [GIVEN] A Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] A new Sales Quote for the Customer.
+        SalesQuote.OpenNew();
+        SalesQuote."Sell-to Customer No.".SetValue(Customer."No.");
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
+        SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesHeader.FindFirst();
+
+        // [WHEN] The Item is set on a new Sales Quote line.
+        SalesQuote.SalesLines.New();
+        SalesQuote.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesQuote.SalesLines.Description.SetValue(Item.Description);
+
+        // [THEN] An Extended Text line with the configured text exists on the Sales Quote.
+        SalesLine.Reset();
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Description, ExtendedTextLine.Text);
+        Assert.AreEqual(1, SalesLine.Count(), ExtTextNotLoadedOnSalesQuoteErr);
+
+        // [WHEN] The Item is changed to a different Item with Automatic Extended Text enabled.
+        SalesQuote.SalesLines."No.".SetValue(Item2."No.");
+
+        // [THEN] An Extended Text line with the configured text exists on the Sales Quote.
+        SalesLine.Reset();
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Description, ExtendedTextLine2.Text);
+        Assert.AreEqual(1, SalesLine.Count(), ExtTextNotLoadedOnSalesQuoteErr);
+    end;
+
     local procedure CreateJobPlanningLine(LineType: Enum "Job Planning Line Line Type"; Type: Enum "Job Planning Line Type"; No: Code[20]; JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line")
     begin
         JobPlanningLine.Init();
@@ -1173,6 +1883,16 @@ codeunit 137410 "Extended Text Documents"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Attached to Line No.", ParentLineNo);
         exit(PurchaseLine.Count());
+    end;
+
+    local procedure CreateExtendedTextForItem(Item: Record Item; var ExtendedTextLine: Record "Extended Text Line")
+    var
+        ExtendedTextHeader: Record "Extended Text Header";
+    begin
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryUtility.FillFieldMaxText(ExtendedTextLine, ExtendedTextLine.FieldNo(Text));
+        ExtendedTextLine.Find();
     end;
 }
 

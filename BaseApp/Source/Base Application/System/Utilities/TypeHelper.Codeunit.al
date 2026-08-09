@@ -371,7 +371,7 @@ codeunit 10 "Type Helper"
             exit(false);
 
         TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById(TimeZone);
-        Duration := TimeZoneInfo.BaseUtcOffset;
+        Duration := TimeZoneInfo.GetUtcOffset(GetCurrUTCDateTime());
         exit(true);
     end;
 
