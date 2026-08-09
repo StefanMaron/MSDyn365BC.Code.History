@@ -236,6 +236,8 @@ page 5406 "Prod. Order Line List"
                                 PAGE.Run(PAGE::"Firm Planned Prod. Order", ProdOrder);
                             Rec.Status::Released:
                                 PAGE.Run(PAGE::"Released Production Order", ProdOrder);
+                            Rec.Status::Finished:
+                                PAGE.Run(PAGE::"Finished Production Order", ProdOrder);
                         end;
 
                         OnAfterShowDocument(Rec, ProdOrder);
