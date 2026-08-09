@@ -8310,6 +8310,44 @@ codeunit 137079 "SCM Production Order III"
         CapacityLedgerEntries.Reverse.Invoke();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,FinishedProdOrderPageHandler')]
+    procedure VerifyShowDocumentOpensFinishedProductionOrderFromProdOrderLineList()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLineList: TestPage "Prod. Order Line List";
+    begin
+        // [FEATURE] [AI test]
+        // [SCENARIO 639865] "Show Document" action on "Prod. Order Line List" must open "Finished Production Order" page for Finished status.
+        Initialize();
+
+        // [GIVEN] Create a simple manufacturing item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Refresh a Released Production Order.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(5));
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Change status from Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [GIVEN] Open the "Prod. Order Line List" page filtered to the Finished Production Order.
+        ProdOrderLineList.OpenView();
+        ProdOrderLineList.Filter.SetFilter(Status, Format(ProductionOrder.Status::Finished));
+        ProdOrderLineList.Filter.SetFilter("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLineList.First();
+
+        // [WHEN] Invoke "Show Document" action.
+        LibraryVariableStorage.Enqueue(ProductionOrder."No.");
+        ProdOrderLineList.ShowDocument.Invoke();
+
+        // [THEN] "Finished Production Order" page opens (handler verifies the correct order).
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -11484,6 +11522,15 @@ codeunit 137079 "SCM Production Order III"
     [PageHandler]
     procedure ReleasedProdOrderPageHandler(var ReleasedProductionOrder: TestPage "Released Production Order")
     begin
+    end;
+
+    [PageHandler]
+    procedure FinishedProdOrderPageHandler(var FinishedProductionOrder: TestPage "Finished Production Order")
+    var
+        ExpectedProdOrderNo: Code[20];
+    begin
+        ExpectedProdOrderNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(ExpectedProdOrderNo));
+        FinishedProductionOrder."No.".AssertEquals(ExpectedProdOrderNo);
     end;
 
     [StrMenuHandler]

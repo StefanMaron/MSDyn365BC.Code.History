@@ -109,6 +109,7 @@ codeunit 10145 "E-Invoice Mgt."
         NullParameterErr: Label 'The %1 cannot be empty', Locked = true;
         ProcessResponseErr: Label 'Cannot process response for document %1. %2', Locked = true;
         ResetCancellationRequestErr: Label 'Reset cancellation request for document %1.', Locked = true;
+        StampAttemptsTelemetryMsg: Label 'Stamp request completed. Attempts: %1, RoundingModel: %2, Succeeded: %3, ErrorCode: %4, DocumentType: %5', Locked = true;
         SendDocMsg: Label 'Sending document: %1', Locked = true;
         SendDocSuccessMsg: Label 'Document %1 successfully sent', Locked = true;
         SendEmailErr: Label 'Cannot send email. %1', Locked = true;
@@ -154,10 +155,7 @@ codeunit 10145 "E-Invoice Mgt."
             1:// Request Stamp
                 begin
                     EDocActionValidation(EDocAction::"Request Stamp", ElectronicDocumentStatus);
-                    RequestStamp(RecRef, Prepayment, false);
-                    RequestStampOnRoundingError(RecRef, Prepayment, false, RoundingModel::"Model2-Recalc-NoDiscountRounding");
-                    RequestStampOnRoundingError(RecRef, Prepayment, false, RoundingModel::"Model3-NoRecalculation");
-                    RequestStampOnRoundingError(RecRef, Prepayment, false, RoundingModel::"Model4-DecimalBased");
+                    RequestStampWithRoundingFallback(RecRef, Prepayment, false);
                 end;
             2:// Send
                 begin
@@ -167,10 +165,7 @@ codeunit 10145 "E-Invoice Mgt."
             3:// Request Stamp and Send
                 begin
                     EDocActionValidation(EDocAction::"Request Stamp", ElectronicDocumentStatus);
-                    RequestStamp(RecRef, Prepayment, false);
-                    RequestStampOnRoundingError(RecRef, Prepayment, false, RoundingModel::"Model2-Recalc-NoDiscountRounding");
-                    RequestStampOnRoundingError(RecRef, Prepayment, false, RoundingModel::"Model3-NoRecalculation");
-                    RequestStampOnRoundingError(RecRef, Prepayment, false, RoundingModel::"Model4-DecimalBased");
+                    RequestStampWithRoundingFallback(RecRef, Prepayment, false);
                     Commit();
                     ElectronicDocumentStatus := RecRef.Field(10030).Value();
                     EDocActionValidation(EDocAction::Send, ElectronicDocumentStatus);
@@ -470,7 +465,8 @@ codeunit 10145 "E-Invoice Mgt."
                         if GetUUIDFromOriginalPrepayment(SalesInvoiceHeader, SalesInvoiceNumber) = '' then
                             Error(UnableToStampAppliedErr, SalesInvoiceNumber);
                     CreateTempDocument(
-                      SalesInvoiceHeader, TempDocumentHeader, TempDocumentLine, TempDocumentLineRetention, TempVATAmountLine,
+                      SalesInvoiceHeader, TempDocumentHeader, TempDocumentLine, TempDocumentLineRetention,
+                      TempVATAmountLine,
                       SubTotal, TotalTax, TotalRetention, TotalDiscount, AdvanceSettle);
                     if not Reverse and not AdvanceSettle then
                         GetRelationDocumentsInvoice(TempCFDIRelationDocument, TempDocumentHeader, DATABASE::"Sales Invoice Header");
@@ -544,6 +540,29 @@ codeunit 10145 "E-Invoice Mgt."
         Session.LogMessage(
             '0000C72', StrSubstNo(StampReqMsg, GetDocTypeTextFromDatabaseId(DocumentHeaderRecordRef.Number)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
         CurrencyDecimalPlaces := GetCurrencyDecimalPlaces(TempDocumentHeader."Currency Code");
+
+        // Recalculate SubTotal to match Σ(Importe) as written in XML (CFDI40108 compliance)
+        // Each line's Importe is rounded to 6 decimals; SubTotal must equal their sum.
+        // NOTE: Exclude AdvanceSettle because the advance-settle XML/original-string paths currently derive Total using
+        // a different TotalRetention sign convention.
+        if (not IsTransfer) and (not AdvanceSettle) then begin
+            SubTotal := 0;
+            TotalDiscount := 0;
+            TempDocumentLine.Reset();
+            if TempDocumentLine.FindSet() then
+                repeat
+                    if TempDocumentLine."Retention Attached to Line No." = 0 then begin
+                        SubTotal += Round(GetReportedLineAmount(TempDocumentLine), 0.000001);
+                        TotalDiscount += Round(TempDocumentLine."Line Discount Amount", 0.000001);
+                    end;
+                until TempDocumentLine.Next() = 0;
+            // Keep header amounts consistent for downstream consumers (e.g., ComercioExterior uses TempDocumentHeader.Amount).
+            TempDocumentHeader.Amount := RoundCurrencyDecimal(SubTotal - TotalDiscount);
+            // Recalculate Total for CFDI40119 consistency: Total = SubTotal - Descuento + Trasladados - |Retenidos|
+            // TotalRetention is stored as negative (from CalcDocumentTotalAmounts), so we ADD it to effectively subtract.
+            TempDocumentHeader."Amount Including VAT" := RoundCurrencyDecimal(SubTotal - TotalDiscount + TotalTax + TotalRetention);
+            TempDocumentHeader.Modify();
+        end;
 
         // Create Digital Stamp
         if IsTransfer then
@@ -4028,6 +4047,11 @@ codeunit 10145 "E-Invoice Mgt."
           Format(Abs(InAmount), 0, '<Precision,' + Format(DecimalPlacesFrom) + ':' + Format(DecimalPlacesTo) + '><Standard Format,1>'));
     end;
 
+    local procedure RoundCurrencyDecimal(InAmount: Decimal): Decimal
+    begin
+        exit(Round(InAmount, Power(10, -CurrencyDecimalPlaces)));
+    end;
+
     local procedure FormatPeriod(Period: Option "Diario","Semanal","Quincenal","Mensual"): Text
     begin
         case Period of
@@ -4283,6 +4307,8 @@ codeunit 10145 "E-Invoice Mgt."
             exit;
         if not IsPACEnvironmentEnabled() then
             Error(Text014);
+
+        Clear(EInvoiceCommunication);
 
         if MXElectronicInvoicingSetup.Get() then
             if MXElectronicInvoicingSetup."Download XML with Requests" then begin
@@ -7738,21 +7764,161 @@ codeunit 10145 "E-Invoice Mgt."
         exit(NumeroPedimento);
     end;
 
-    local procedure RequestStampOnRoundingError(var DocumentHeaderRecordRef: RecordRef; Prepayment: Boolean; Reverse: Boolean; NewRoundingModel: Option)
+    local procedure FindValidRoundingModel(DocumentHeaderVariant: Variant; AdvanceSettle: Boolean): Integer
     var
-        ErrorCode: Code[10];
+        TempDocumentHeader: Record "Document Header" temporary;
+        TempDocumentLine: Record "Document Line" temporary;
+        TempDocumentLineRetention: Record "Document Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        SavedRoundingModel: Integer;
+        SavedCurrencyDecimalPlaces: Integer;
+        ModelIndex: Integer;
+        SubTotal: Decimal;
+        TotalTax: Decimal;
+        TotalRetention: Decimal;
+        TotalDiscount: Decimal;
+        LocalValidationPassed: Boolean;
     begin
-        ErrorCode := DocumentHeaderRecordRef.Field(10035).Value();
-        // CFDI40108 – El TipoDeComprobante es I,E o N, el importe registrado en el campo no es igual a la suma de los importes de los conceptos registrados.
-        // CFDI40110 – El valor registrado en el campo Descuento no es menor o igual que el campo Subtotal.
-        // CFDI40111 – El TipoDeComprobante NO es I,E o N, y un concepto incluye el campo descuento.
-        // CFDI40119 – El campo Total no corresponde con la suma del subtotal, menos los descuentos aplicables, más las contribuciones recibidas 
-        // (impuestos trasladados – federales o locales, derechos, productos, aprovechamientos, aportaciones de seguridad social, contribuciones de mejoras) menos los impuestos retenidos.
-        if not (ErrorCode in ['CFDI40108', 'CFDI40110', 'CFDI40111', 'CFDI40119', 'CFDI40167']) then
-            exit;
+        SavedRoundingModel := RoundingModel;
+        SavedCurrencyDecimalPlaces := CurrencyDecimalPlaces;
+        for ModelIndex := 0 to 3 do begin
+            RoundingModel := ModelIndex;
+            TempDocumentHeader.DeleteAll();
+            TempDocumentLine.DeleteAll();
+            TempDocumentLineRetention.DeleteAll();
+            TempVATAmountLine.DeleteAll();
+            SubTotal := 0;
+            TotalTax := 0;
+            TotalRetention := 0;
+            TotalDiscount := 0;
 
-        RoundingModel := NewRoundingModel;
+            CreateTempDocument(
+                DocumentHeaderVariant, TempDocumentHeader, TempDocumentLine,
+                TempDocumentLineRetention, TempVATAmountLine,
+                SubTotal, TotalTax, TotalRetention, TotalDiscount, AdvanceSettle);
+
+            CurrencyDecimalPlaces := GetCurrencyDecimalPlaces(TempDocumentHeader."Currency Code");
+
+            LocalValidationPassed := ValidateDocumentAmountsLocal(TempDocumentLine);
+
+            if LocalValidationPassed then begin
+                RoundingModel := SavedRoundingModel;
+                CurrencyDecimalPlaces := SavedCurrencyDecimalPlaces;
+                exit(ModelIndex);
+            end;
+        end;
+
+        RoundingModel := SavedRoundingModel;
+        CurrencyDecimalPlaces := SavedCurrencyDecimalPlaces;
+        exit(0);
+    end;
+
+    local procedure ValidateDocumentAmountsLocal(var TempDocumentLine: Record "Document Line" temporary): Boolean
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        LineBase: Decimal;
+        LineTaxImporte: Decimal;
+        ExpectedTaxImporte: Decimal;
+    begin
+        // CFDI40108 (SubTotal = Σ Importe) is now guaranteed by RequestStamp recalculation.
+        // Focus on CFDI40167: per-line tax Importe must equal Round(Base * TasaOCuota, 6).
+        // Validate only lines where a 'Traslado' with TipoFactor='Tasa' is actually emitted to the XML.
+        TempDocumentLine.Reset();
+        if TempDocumentLine.FindSet() then
+            repeat
+                if TempDocumentLine."Retention Attached to Line No." = 0 then
+                    if VATPostingSetup.Get(TempDocumentLine."VAT Bus. Posting Group", TempDocumentLine."VAT Prod. Posting Group") then
+                        if not VATPostingSetup."CFDI Non-Taxable" then
+                            if not VATPostingSetup."CFDI VAT Exemption" then
+                                if VATPostingSetup."CFDI Subject to Tax" in ['', '02'] then begin
+                                    LineBase := TempDocumentLine.Amount;
+                                    LineTaxImporte := Round(TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount, 0.000001);
+                                    ExpectedTaxImporte := Round(LineBase * TempDocumentLine."VAT %" / 100, 0.000001);
+                                    if LineTaxImporte <> ExpectedTaxImporte then
+                                        exit(false);
+                                end;
+            until TempDocumentLine.Next() = 0;
+
+        exit(true);
+    end;
+
+    local procedure RequestStampWithRoundingFallback(var DocumentHeaderRecordRef: RecordRef; Prepayment: Boolean; Reverse: Boolean)
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ErrorCode: Code[10];
+        InitialModel: Integer;
+        ModelIndex: Integer;
+        AdvanceAmount: Decimal;
+        AdvanceSettle: Boolean;
+        AttemptCount: Integer;
+        Succeeded: Boolean;
+    begin
+        AdvanceSettle := false;
+        if (DocumentHeaderRecordRef.Number = DATABASE::"Sales Invoice Header") and (not Reverse) then begin
+            DocumentHeaderRecordRef.SetTable(SalesInvoiceHeader);
+            AdvanceSettle := IsInvoicePrepaymentSettle(SalesInvoiceHeader."No.", AdvanceAmount);
+        end;
+
+        // Try default model first (avoids extra CreateTempDocument when model 0 works)
+        AttemptCount := 0;
+        RoundingModel := 0;
+        AttemptCount += 1;
         RequestStamp(DocumentHeaderRecordRef, Prepayment, Reverse);
+
+        ErrorCode := DocumentHeaderRecordRef.Field(10035).Value();
+        // Rounding-related CFDI errors:
+        // CFDI40108 - SubTotal <> sum of line Importes
+        // CFDI40110 - Descuento > SubTotal
+        // CFDI40111 - Descuento on non-I/E/N voucher type
+        // CFDI40119 - Total <> SubTotal - Descuento + Traslados - Retenciones
+        // CFDI40167 - Per-line tax Importe <> Round(Base * Rate, 6)
+        if not (ErrorCode in ['CFDI40108', 'CFDI40110', 'CFDI40111', 'CFDI40119', 'CFDI40167']) then begin
+            Succeeded := ErrorCode = '';
+            LogStampAttemptsTelemetry(DocumentHeaderRecordRef, AttemptCount, RoundingModel, Succeeded, ErrorCode);
+            exit;
+        end;
+
+        // Pre-validate locally to find the best rounding model only after default model failed
+        InitialModel := FindValidRoundingModel(DocumentHeaderRecordRef, AdvanceSettle);
+        if InitialModel > 0 then begin
+            RoundingModel := InitialModel;
+            AttemptCount += 1;
+            RequestStamp(DocumentHeaderRecordRef, Prepayment, Reverse);
+            ErrorCode := DocumentHeaderRecordRef.Field(10035).Value();
+            if not (ErrorCode in ['CFDI40108', 'CFDI40110', 'CFDI40111', 'CFDI40119', 'CFDI40167']) then begin
+                Succeeded := ErrorCode = '';
+                LogStampAttemptsTelemetry(DocumentHeaderRecordRef, AttemptCount, RoundingModel, Succeeded, ErrorCode);
+                exit;
+            end;
+        end;
+
+        // If still failing, try remaining models
+        for ModelIndex := 1 to 3 do
+            if ModelIndex <> InitialModel then begin
+                RoundingModel := ModelIndex;
+                AttemptCount += 1;
+                RequestStamp(DocumentHeaderRecordRef, Prepayment, Reverse);
+                ErrorCode := DocumentHeaderRecordRef.Field(10035).Value();
+                if not (ErrorCode in ['CFDI40108', 'CFDI40110', 'CFDI40111', 'CFDI40119', 'CFDI40167']) then begin
+                    Succeeded := ErrorCode = '';
+                    LogStampAttemptsTelemetry(DocumentHeaderRecordRef, AttemptCount, RoundingModel, Succeeded, ErrorCode);
+                    exit;
+                end;
+            end;
+
+        // All attempts exhausted
+        LogStampAttemptsTelemetry(DocumentHeaderRecordRef, AttemptCount, RoundingModel, false, ErrorCode);
+    end;
+
+    local procedure LogStampAttemptsTelemetry(var DocumentHeaderRecordRef: RecordRef; AttemptCount: Integer; UsedRoundingModel: Integer; Succeeded: Boolean; ErrorCode: Code[10])
+    begin
+        Session.LogMessage(
+            '0000NQ1',
+            StrSubstNo(StampAttemptsTelemetryMsg, AttemptCount, UsedRoundingModel, Succeeded, ErrorCode, GetDocTypeTextFromDatabaseId(DocumentHeaderRecordRef.Number)),
+            Verbosity::Normal,
+            DataClassification::SystemMetadata,
+            TelemetryScope::ExtensionPublisher,
+            'Category', MXElectronicInvoicingTok);
     end;
 
     local procedure UpdatePartialPaymentAmounts(var TempDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry" temporary; var CustLedgerEntry: Record "Cust. Ledger Entry"; var TempVATAmountLine: Record "VAT Amount Line" temporary)

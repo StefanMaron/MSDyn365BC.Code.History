@@ -2651,10 +2651,10 @@ codeunit 136108 "Service Posting - Invoice"
         // [WHEN] Service invoice is being posted
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
-        // [THEN] Created customer ledger entry has External Document No. = ServiceHeader."No."
+        // [THEN] Created customer ledger entry has External Document No. = ''
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.FindFirst();
-        CustLedgerEntry.TestField("External Document No.", ServiceHeader."No.");
+        CustLedgerEntry.TestField("External Document No.", '');
     end;
 
     [Test]
@@ -3141,6 +3141,51 @@ codeunit 136108 "Service Posting - Invoice"
 
         // [THEN] "Amount Including VAT" is recalculated (should not remain equal to Quantity * Unit Price)
         Assert.AreNotEqual(Quantity * UnitPrice, ServiceLine."Amount Including VAT", AmountInclVATNotRecalculatedErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostServiceOrderWithoutExternalDocNoLeavesGLEntriesBlank()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+        ServiceItem: Record "Service Item";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        GLEntry: Record "G/L Entry";
+        Customer: Record Customer;
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 638182] GL entries have blank External Document No. when service order is posted without External Document No.
+        Initialize();
+
+        // [GIVEN] Service Mgt. Setup with "Ext. Doc. No. Mandatory" disabled
+        ServiceMgtSetup.Get();
+        ServiceMgtSetup.Validate("Ext. Doc. No. Mandatory", false);
+        ServiceMgtSetup.Modify(true);
+
+        // [GIVEN] Service Order "SO" for Customer "C" with blank External Document No.
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
+        ServiceHeader.Validate("External Document No.", '');
+        ServiceHeader.Modify(true);
+
+        // [WHEN] Post service order with Ship and Invoice
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] GL entries for posted service invoice have blank External Document No.
+        ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
+        ServiceInvoiceHeader.FindFirst();
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
+        GLEntry.FindSet();
+        repeat
+            Assert.AreEqual('', GLEntry."External Document No.", 'External Document No. should be blank on G/L Entry when not specified on Service Order');
+        until GLEntry.Next() = 0;
     end;
 
     local procedure Initialize()
