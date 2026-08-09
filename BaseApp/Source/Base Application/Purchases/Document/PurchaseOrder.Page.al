@@ -1,7 +1,8 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Purchases.Document;
 
 using Microsoft.CRM.Contact;
@@ -2312,6 +2313,7 @@ page 50 "Purchase Order"
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(Rec.RecordId());
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(Rec.RecordId());
         StatusStyleTxt := Rec.GetStatusStyleText();
+        Rec.GetContactDetails(BuyFromContact, PayToContact);
     end;
 
     trigger OnAfterGetRecord()
@@ -2321,8 +2323,7 @@ page 50 "Purchase Order"
         RejectICPurchaseOrderEnabled := ICInboxOutboxMgt.IsPurchaseHeaderFromIncomingIC(Rec);
         CalculateCurrentShippingAndPayToOption();
         ShowOverReceiptNotification();
-        BuyFromContact.GetOrClear(Rec."Buy-from Contact No.");
-        PayToContact.GetOrClear(Rec."Pay-to Contact No.");
+        Rec.GetContactDetails(BuyFromContact, PayToContact);
         CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
         IsVendorInvoiceEditable := not Rec."Self-Billing Invoice";
 

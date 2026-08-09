@@ -250,9 +250,11 @@ page 46 "Sales Order Subform"
                         Rec.RestoreLookupSelection();
                         if Rec."No." <> xRec."No." then
                             NoOnAfterValidate();
-                        ResetxRecAmountValues();
-                        CalculateTotals();
-                        DeltaUpdateTotals();
+                        if Rec."No." <> xRec."No." then begin
+                            ResetxRecAmountValues();
+                            CalculateTotals();
+                            DeltaUpdateTotals();
+                        end;
                         if Rec."No." = xRec."No." then
                             exit;
 
@@ -1962,6 +1964,9 @@ page 46 "Sales Order Subform"
     /// <param name="Unconditionally">Whether to insert text without conditions.</param>
     procedure InsertExtendedText(Unconditionally: Boolean)
     begin
+        if not Unconditionally and (Rec."No." = xRec."No.") then
+            exit;
+
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.SalesCheckIfAnyExtText(Rec, Unconditionally) then begin
             CurrPage.SaveRecord();
