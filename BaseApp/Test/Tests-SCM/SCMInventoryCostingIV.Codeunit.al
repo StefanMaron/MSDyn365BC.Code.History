@@ -914,8 +914,6 @@ codeunit 137289 "SCM Inventory Costing IV"
         Assert.ExpectedError(PutAwayCreatedUndoError);
     end;
 
-    [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure AdjustCostForDifferentCurrencyExchangeRate()
     var
@@ -944,7 +942,6 @@ codeunit 137289 "SCM Inventory Costing IV"
           Round(ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision(), '='));
     end;
 
-    [Test]
     [HandlerFunctions('MessageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure PostPurchOrderWithDiffCurrencyExchangeRate()

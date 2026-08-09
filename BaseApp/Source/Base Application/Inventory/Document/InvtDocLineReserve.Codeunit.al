@@ -257,6 +257,7 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
     procedure TransferInvtDocToItemJnlLine(var InvtDocumentLine: Record "Invt. Document Line"; var ItemJournalLine: Record "Item Journal Line"; ReceiptQty: Decimal)
     var
         OldReservationEntry: Record "Reservation Entry";
+        RemainingReceiptQtyBase: Decimal;
     begin
         if not FindReservEntry(InvtDocumentLine, OldReservationEntry) then
             exit;
@@ -271,24 +272,26 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
         if ReceiptQty = 0 then
             exit;
 
-        if ItemJournalLine."Red Storno" then
+       if ItemJournalLine."Red Storno" then
             if not (ItemJournalLine."Document Type" in [ItemJournalLine."Document Type"::"Inventory Receipt", ItemJournalLine."Document Type"::"Inventory Shipment"]) then
                 ReceiptQty := -ReceiptQty;
 
-        if ReservationEngineMgt.InitRecordSet(OldReservationEntry) then
+       RemainingReceiptQtyBase := ReceiptQty * ItemJournalLine."Qty. per Unit of Measure";
+       
+       if ReservationEngineMgt.InitRecordSet(OldReservationEntry) then
             repeat
                 OldReservationEntry.TestField("Item No.", InvtDocumentLine."Item No.");
                 OldReservationEntry.TestField("Variant Code", InvtDocumentLine."Variant Code");
                 OldReservationEntry.TestField("Location Code", InvtDocumentLine."Location Code");
-                ReceiptQty :=
+                RemainingReceiptQtyBase :=
                   CreateReservEntry.TransferReservEntry(
                     Database::"Item Journal Line",
                     ItemJournalLine."Entry Type".AsInteger(), ItemJournalLine."Journal Template Name",
                     ItemJournalLine."Journal Batch Name", 0, ItemJournalLine."Line No.",
                     ItemJournalLine."Qty. per Unit of Measure", OldReservationEntry,
-                    ReceiptQty); // qty base
+                    RemainingReceiptQtyBase); // qty base
 
-            until (ReservationEngineMgt.NEXTRecord(OldReservationEntry) = 0) or (ReceiptQty = 0);
+            until (ReservationEngineMgt.NEXTRecord(OldReservationEntry) = 0) or (RemainingReceiptQtyBase = 0);
     end;
 
     procedure RenameLine(var NewInvtDocumentLine: Record "Invt. Document Line"; var OldInvtDocumentLine: Record "Invt. Document Line")
