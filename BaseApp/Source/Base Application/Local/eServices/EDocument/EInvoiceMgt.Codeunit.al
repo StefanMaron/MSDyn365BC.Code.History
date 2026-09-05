@@ -739,13 +739,13 @@ codeunit 10145 "E-Invoice Mgt."
         case DocumentHeaderRecordRef.Number of
             DATABASE::"Sales Invoice Header":
                 begin
-                    ProcessResponseESalesInvoice(SalesInvoiceHeader, EDocAction::"Request Stamp", Reverse);
+                    ProcessResponseESalesInvoice(SalesInvoiceHeader, EDocAction::"Request Stamp", Reverse, TempDocumentHeader."Amount Including VAT");
                     SalesInvoiceHeader.Modify();
                     DocumentHeaderRecordRef.GetTable(SalesInvoiceHeader);
                 end;
             DATABASE::"Sales Cr.Memo Header":
                 begin
-                    ProcessResponseESalesCrMemo(SalesCrMemoHeader, EDocAction::"Request Stamp");
+                    ProcessResponseESalesCrMemo(SalesCrMemoHeader, EDocAction::"Request Stamp", TempDocumentHeader."Amount Including VAT");
                     SalesCrMemoHeader.Modify();
                     DocumentHeaderRecordRef.GetTable(SalesCrMemoHeader);
                 end;
@@ -1111,9 +1111,9 @@ codeunit 10145 "E-Invoice Mgt."
             SalesInvHeader.Modify();
             case MethodType of
                 MethodTypeRef::Cancel:
-                    ProcessResponseESalesInvoice(SalesInvHeader, EDocAction::Cancel, false);
+                    ProcessResponseESalesInvoice(SalesInvHeader, EDocAction::Cancel, false, 0);
                 MethodTypeRef::CancelRequest:
-                    ProcessResponseESalesInvoice(SalesInvHeader, EDocAction::CancelRequest, false);
+                    ProcessResponseESalesInvoice(SalesInvHeader, EDocAction::CancelRequest, false, 0);
             end;
             SalesInvHeader.Modify();
         end;
@@ -1168,9 +1168,9 @@ codeunit 10145 "E-Invoice Mgt."
             SalesCrMemoHeader.Modify();
             case MethodType of
                 MethodTypeRef::Cancel:
-                    ProcessResponseESalesCrMemo(SalesCrMemoHeader, EDocAction::Cancel);
+                    ProcessResponseESalesCrMemo(SalesCrMemoHeader, EDocAction::Cancel, 0);
                 MethodTypeRef::CancelRequest:
-                    ProcessResponseESalesCrMemo(SalesCrMemoHeader, EDocAction::CancelRequest);
+                    ProcessResponseESalesCrMemo(SalesCrMemoHeader, EDocAction::CancelRequest, 0);
             end;
             SalesCrMemoHeader.Modify();
         end;
@@ -1521,7 +1521,7 @@ codeunit 10145 "E-Invoice Mgt."
         XMLDoc.Save(OutStr);
     end;
 
-    local procedure ProcessResponseESalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; "Action": Option; Reverse: Boolean)
+    local procedure ProcessResponseESalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; "Action": Option; Reverse: Boolean; AmountInclVAT: Decimal)
     var
         Customer: Record Customer;
         CFDIDocuments: Record "CFDI Documents";
@@ -1710,16 +1710,15 @@ codeunit 10145 "E-Invoice Mgt."
         end;
 
         // Create QRCode
-        SalesInvoiceHeader.CalcFields("Amount Including VAT");
         if not Reverse then begin
-            QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC Number", Customer."RFC No.", SalesInvoiceHeader."Amount Including VAT",
+            QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC Number", Customer."RFC No.", AmountInclVAT,
                 Format(SalesInvoiceHeader."Fiscal Invoice Number PAC"));
             CreateQRCode(QRCodeInput, TempBlob);
             RecordRef.GetTable(SalesInvoiceHeader);
             TempBlob.ToRecordRef(RecordRef, SalesInvoiceHeader.FieldNo("QR Code"));
             RecordRef.SetTable(SalesInvoiceHeader);
         end else begin
-            QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC Number", Customer."RFC No.", SalesInvoiceHeader."Amount Including VAT",
+            QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC Number", Customer."RFC No.", AmountInclVAT,
                 Format(CFDIDocuments."Fiscal Invoice Number PAC"));
             CreateQRCode(QRCodeInput, TempBlob);
             RecordRef.GetTable(CFDIDocuments);
@@ -1728,7 +1727,7 @@ codeunit 10145 "E-Invoice Mgt."
         end;
     end;
 
-    local procedure ProcessResponseESalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; "Action": Option)
+    local procedure ProcessResponseESalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; "Action": Option; AmountInclVAT: Decimal)
     var
         Customer: Record Customer;
         PACWebService: Record "PAC Web Service";
@@ -1855,8 +1854,7 @@ codeunit 10145 "E-Invoice Mgt."
         SalesCrMemoHeader."Electronic Document Status" := SalesCrMemoHeader."Electronic Document Status"::"Stamp Received";
 
         // Create QRCode
-        SalesCrMemoHeader.CalcFields("Amount Including VAT");
-        QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC Number", Customer."RFC No.", SalesCrMemoHeader."Amount Including VAT",
+        QRCodeInput := CreateQRCodeInput(CompanyInfo."RFC Number", Customer."RFC No.", AmountInclVAT,
             Format(SalesCrMemoHeader."Fiscal Invoice Number PAC"));
         CreateQRCode(QRCodeInput, TempBlob);
         RecordRef.GetTable(SalesCrMemoHeader);
