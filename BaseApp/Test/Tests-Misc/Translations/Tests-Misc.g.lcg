@@ -6622,7 +6622,7 @@
   </Item>
   <Item ItemId=";EnumExtension 4000267206 - EnumValue 1634683813 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test_Custom1]]></Val>
+      <Val><![CDATA[Test Caption Longer Than 20]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
