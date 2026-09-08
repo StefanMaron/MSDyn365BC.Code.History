@@ -167,6 +167,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Create Item API Test - NamedType UnexpectedAPICallsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1620054495 - Method 2112563513 - NamedType 562056659" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[More than expected API calls to Shopify detected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Create Product Test - Method ProductExportChildItemVariantHttpHandler - NamedType UnexpectedAPICallsErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 81801014 - NamedType 661492798" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[dummy@customer.com]]></Val>
