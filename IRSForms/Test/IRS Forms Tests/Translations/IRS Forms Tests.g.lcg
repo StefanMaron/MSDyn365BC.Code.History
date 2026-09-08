@@ -77,6 +77,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Document Tests - NamedType PeriodNoNotVisibleErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3301994773 - NamedType 1840779131" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Vendor %1 is not set up for IRS 1099 reporting in the reporting period %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Vendor No., %2 = Period No.]D;]A;(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Document Tests - NamedType VendorNotSetupForIRS1099Err)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2447379500 - NamedType 410573950" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must set up email in Business Central before you can send 1099 forms.]]></Val>
@@ -183,6 +192,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS 1099 Vendor Tests - NamedType IRSReportingAmountPositiveErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2972639346 - NamedType 1932706366" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount should be reset to 0]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Reporting)(LookupHint=Codeunit IRS Reporting Period Tests - NamedType AmountShouldBeResetErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2972639346 - NamedType 3343964103" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
