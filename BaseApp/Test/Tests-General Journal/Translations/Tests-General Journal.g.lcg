@@ -329,6 +329,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType GenJournalBatchFromGenJournalLineErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1464927296 - NamedType 186625359" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The general journal line was not found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType GenJournalLineNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1464927296 - NamedType 944813435" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The recurring frequency %1 is not a valid date formula.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = the entered recurring frequency value]D;]A;(LookupHint=Codeunit ERM General Journal UT - NamedType InvalidRecurringFrequencyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1464927296 - NamedType 3984601750" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must select an email body or attachment in report selection]]></Val>
@@ -354,6 +372,51 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType RecordDoesNotMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1464927296 - NamedType 472378615" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The recurring frequency should be cleared.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType RecurringFrequencyNotClearedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1464927296 - NamedType 1529378306" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Recurring Frequency should be displayed as the formatted date formula.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType RecurringFrequencyNotDisplayedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1464927296 - NamedType 864118574" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The recurring frequency should be displayed using the localized date formula tokens.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType RecurringFrequencyNotLocalizedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1464927296 - NamedType 1340906234" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The entered recurring frequency was not persisted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType RecurringFrequencyNotPersistedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1464927296 - NamedType 3415285189" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The test recurring frequency must be a valid date formula.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType RecurringFrequencyNotValidErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1464927296 - NamedType 4080669696" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

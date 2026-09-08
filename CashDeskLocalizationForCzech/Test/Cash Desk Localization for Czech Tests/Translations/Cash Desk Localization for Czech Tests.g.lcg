@@ -32,6 +32,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cash Desk Documents CZP - NamedType CashDocStatusErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1982159495 - NamedType 4233892727" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are no Cash Document Lines to release.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cash Desk Documents CZP - NamedType LinesNotExistsErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1982159495 - NamedType 2144072829" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Number of entries must be equal.]]></Val>
