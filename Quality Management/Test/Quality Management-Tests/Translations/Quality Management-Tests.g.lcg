@@ -419,6 +419,15 @@
       <Cmt Name="Dev"><![CDATA[%1=quality inspection, %2=result, %3=entry type being blocked, %4=item, %5=Lot No., %6=Serial No., %7=Package No.]D;]A;(Namespace=Microsoft.Test.QualityManagement)(LookupHint=Codeunit Qlty. Tests - Misc. - NamedType WarehouseEntryTypeBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2107338336 - NamedType 3210519699" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You have altered inspection %1, would you like to assign it to yourself?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=the inspection number]D;]A;(Namespace=Microsoft.Test.QualityManagement)(LookupHint=Codeunit Qlty. Tests - Misc. - NamedType YouHaveAlteredDoYouWantToAutoAssignQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2929021570 - NamedType 284683385" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There is another template '%1' that reverses the from table and to table. You cannot have this combination to prevent recursive logic. Please change either this source configuration, or please change '%1']]></Val>
