@@ -554,6 +554,15 @@
       <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM Purch Full Prepmt Rounding - NamedType CannotBeMoreThanMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2904175643 - NamedType 2720075656" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Prepmt Amt to Deduct must stay aligned with the posted prepayment after toggling Qty. to Invoice.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purch Full Prepmt Rounding - NamedType PrepmtAmtToDeductMisalignedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 732718473 - NamedType 1056632425" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No amount found to be posted.]]></Val>
@@ -561,6 +570,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Prepayments - NamedType NoAmtFoundToBePostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 732718473 - NamedType 2533486147" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 was not transferred to the %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 Field Caption,%2 Table Caption]D;]A;(LookupHint=Codeunit ERM Purchase Prepayments - NamedType PaymentReferenceNotTransferredErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3246940295 - NamedType 158892399" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -579,6 +597,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM Sales Full Prepmt Rounding - NamedType CannotBeMoreThanMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3246940295 - NamedType 2720075656" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Prepmt Amt to Deduct must stay aligned with the posted prepayment after toggling Qty. to Invoice.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Full Prepmt Rounding - NamedType PrepmtAmtToDeductMisalignedErr)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>
