@@ -833,6 +833,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule - NamedType PeriodTextCaptionLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2859947066 - NamedType 975875718" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Recalculate must retain the entered %1 filter.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = filter name]D;]A;(LookupHint=Codeunit ERM Account Schedule - NamedType RecalcFilterRetainErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2859947066 - NamedType 2448474427" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Row description %1 with property Show = No is visible in Account Schedule Overview.]]></Val>
@@ -4908,6 +4917,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Payment Tolerance Vendor - NamedType PaymentToleranceError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1195839935 - NamedType 280437640" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Payment discount tolerance was not posted - the discount scenario was not exercised.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Payment Tolerance Vendor - NamedType PmtDiscToleranceNotPostedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1195839935 - NamedType 508277499" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -9914,6 +9932,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-O365 Shipping Agent - NamedType ModifiedShippingSvcCodeMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3835063973 - NamedType 3765794466" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[must not be greater than %1 because a corrective credit memo can only reverse the original posted invoice, not add quantity.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - the quantity copied from the posted purchase invoice]D;]A;(LookupHint=Codeunit O365 Correct Purchase Invoice - NamedType CorrectiveCreditMemoQtyIncreaseErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3835063973 - NamedType 2976868375" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The invoice was posted from an order. The order has been deleted, and the invoice will be cancelled. You can create a new invoice or order by using the Copy Document action.\ \Do you want to continue?]]></Val>
@@ -11363,6 +11390,15 @@
       <Cmt Name="Dev"><![CDATA[%1= Customer Discount Group Code.]D;]A;(LookupHint=Codeunit Price Lists UI - NamedType CustDiscountGroupDeleteErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1304875132 - NamedType 2704794727" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Price List Lines - Customer %1 %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Customer No., %2 = Customer Name]D;]A;(LookupHint=Codeunit Price Lists UI - NamedType CustomerPriceListCaptionTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1304875132 - NamedType 1483249232" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This page is used by a feature that is not enabled.]]></Val>
@@ -11379,6 +11415,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption]D;]A;(LookupHint=Codeunit Price Lists UI - NamedType TestFieldErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1304875132 - NamedType 2262765479" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected page caption]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price Lists UI - NamedType UnexpectedPageCaptionErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1304875132 - NamedType 3426605183" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Price List Lines - Vendor %1 %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Vendor No., %2 = Vendor Name]D;]A;(LookupHint=Codeunit Price Lists UI - NamedType VendorPriceListCaptionTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1304875132 - NamedType 4096681042" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -11966,6 +12020,15 @@
       <Cmt Name="Dev"><![CDATA[%1=The item number of the sales transaction line, %2=The Deferral Template Code]D;]A;(LookupHint=Codeunit RED Test Unit for Sales Doc - NamedType ZeroDeferralAmtErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3930067287 - NamedType 2001093832" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount (LCY) should be filled before posting.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RED Test Unit for SalesPurDoc2 - NamedType AmountLCYNotFilledErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3930067287 - NamedType 1981197056" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The deferral schedule falls outside the accounting periods that have been set up for the company.]]></Val>
@@ -12200,6 +12263,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Tests - NamedType FiltersAreNotSavedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2624800184 - NamedType 1762875068" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Interaction Description must not reference the original unissued reminder number.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Tests - NamedType InteractionDescriptionMustNotReferenceOriginalNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2624800184 - NamedType 3310288979" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Interaction Description must reference the issued reminder number.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Tests - NamedType InteractionDescriptionMustReferenceIssuedNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2624800184 - NamedType 399941414" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The issued reminder number must differ from the pre-assigned (original) reminder number.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Tests - NamedType IssuedReminderNoMustDifferErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2624800184 - NamedType 2855966592" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Attachment language does not match global language]]></Val>
@@ -12218,6 +12308,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Tests - NamedType NoAttachmentsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2624800184 - NamedType 2515209674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No interaction log entry was created for the issued reminder.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Tests - NamedType NoInteractionLogEntryCreatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2624800184 - NamedType 1236078497" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No issued reminder was created for the customer.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Tests - NamedType NoIssuedReminderCreatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2624800184 - NamedType 3550125399" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The number of attachments must be the same.]]></Val>
@@ -12234,6 +12342,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Tests - NamedType ReminderLevelNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2624800184 - NamedType 643391846" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reminder %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Reminder No.]D;]A;(LookupHint=Codeunit Reminder Automation Tests - NamedType ReminderPostingDescriptionLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1475444133 - NamedType 1063273132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
