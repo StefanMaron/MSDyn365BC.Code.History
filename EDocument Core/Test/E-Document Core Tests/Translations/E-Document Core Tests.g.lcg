@@ -149,6 +149,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - Last error message, %2 - expected message]D;]A;(Namespace=Microsoft.eServices.EDocument.Test)(LookupHint=Codeunit E-Doc. Format Tests - NamedType UnexpectedMessageErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 109809018 - NamedType 1251710708" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Multiple vendors match the registration number on the electronic document.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.eServices.EDocument.Test)(LookupHint=Codeunit E-Doc. Helper Test - NamedType MultipleVendorsWithRegistrationNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 846489240 - NamedType 1206600019" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect direct mapping was applied to field]]></Val>

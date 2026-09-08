@@ -4216,7 +4216,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('SetLotItemWithQtyToHandleTrackingPageHandler,ConfirmHandlerTrue')]
+    [HandlerFunctions('SetLotItemWithQtyToHandleTrackingPageHandler,ConfirmHandlerTrue,SimpleMessageHandler')]
     procedure CreateMovementFromMovementWorksheetWithExpirationDateOfFEFOItem()
     var
         Bin: array[5] of Record Bin;
