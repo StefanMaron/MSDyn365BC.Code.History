@@ -86,6 +86,24 @@
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption, %2 = Source Currency Code, %3 = Expected Amount, %4 = Actual Amount]D;]A;(LookupHint=Codeunit ERM Financial Reports - NamedType CloseIncomeAmountMismatchErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3571979778 - NamedType 3983438814" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The consolidated Close Income Statement line amount must equal the negated sum of the posted G/L entry amounts.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Financial Reports - NamedType CloseIncomeLineAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3571979778 - NamedType 2974969559" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Close Income Statement must create one consolidated line for account %1 when no dimensions are selected. Expected %2, actual %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = G/L Account No., %2 = Expected line count, %3 = Actual line count]D;]A;(LookupHint=Codeunit ERM Financial Reports - NamedType CloseIncomeLineCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3571979778 - NamedType 3023717817" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The FileName value on the request form should be editable]]></Val>
