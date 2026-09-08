@@ -554,4 +554,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Prepayments - NamedType NoAmtFoundToBePostedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 732718473 - NamedType 2533486147" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 was not transferred to the %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 Field Caption,%2 Table Caption]D;]A;(LookupHint=Codeunit ERM Purchase Prepayments - NamedType PaymentReferenceNotTransferredErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>
