@@ -5,13 +5,13 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
-  <Item ItemId=";Codeunit 3467874167 - NamedType 1508186647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3467874167 - NamedType 3702181580" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must enter a value for all Option-type attributes before closing this page.]]></Val>
+      <Val><![CDATA[You must enter a value for the Option attribute %1. Blank values are not allowed for Option-type attributes.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cust/Vend/Item/Empl Templates - NamedType ClosingPageErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - attribute name]D;]A;(LookupHint=Codeunit Cust/Vend/Item/Empl Templates - NamedType BlankOptionAttributeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3467874167 - NamedType 25028948" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

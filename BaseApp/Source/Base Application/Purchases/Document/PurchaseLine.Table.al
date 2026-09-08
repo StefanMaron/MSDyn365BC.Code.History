@@ -598,6 +598,8 @@ table 39 "Purchase Line"
                     end;
                 end;
 
+                CheckCorrectiveCreditMemoQtyIncrease(xRec);
+
                 if (Type = Type::"Charge (Item)") and (CurrFieldNo <> 0) then begin
                     if (Quantity = 0) and ("Qty. to Assign" <> 0) then
                         FieldError("Qty. to Assign", StrSubstNo(Text011, FieldCaption(Quantity), Quantity));
@@ -4260,8 +4262,7 @@ table 39 "Purchase Line"
     trigger OnInsert()
     begin
         TestStatusOpen();
-        if not HasPurchHeader then
-            Error(CannotInsertPurchLineWithoutHeaderErr);
+        VerifyPurchaseHeaderExists();
 
         if Quantity <> 0 then begin
             OnBeforeVerifyReservedQty(Rec, xRec, 0);
@@ -4352,7 +4353,7 @@ table 39 "Purchase Line"
         HasBeenShown: Boolean;
         PrePaymentLineAmountEntered: Boolean;
         PurchSetupRead: Boolean;
-        HasPurchHeader: Boolean;
+        SuppressPurchaseHeaderExistsVerification: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
@@ -4376,6 +4377,7 @@ table 39 "Purchase Line"
 #pragma warning restore AA0470
         Text029: Label 'must be positive.';
         Text030: Label 'must be negative.';
+        CorrectiveCreditMemoQtyIncreaseErr: Label 'must not be greater than %1 because a corrective credit memo can only reverse the original posted invoice, not add quantity.', Comment = '%1 - the quantity copied from the posted purchase invoice';
 #pragma warning disable AA0470
         Text032: Label '%1 must not be greater than the sum of %2 and %3.';
 #pragma warning restore AA0470
@@ -5108,11 +5110,15 @@ table 39 "Purchase Line"
     /// <summary>
     /// Assigns given purchase header to the global variable and initializes the currency variable.
     /// </summary>
+    /// <remarks>
+    /// The global PurchHeader is used whenever data from the purchase header is used in other procedures on the object.
+    /// SuppressPurchaseHeaderExistsVerification is implicitly set to true; call SetSuppressPurchaseHeaderExistsVerification afterwards to override this behavior.
+    /// </remarks>
     /// <param name="NewPurchHeader">Purchase header to be set.</param>
     procedure SetPurchHeader(NewPurchHeader: Record "Purchase Header")
     begin
         PurchHeader := NewPurchHeader;
-        HasPurchHeader := true;
+        SetSuppressPurchaseHeaderExistsVerification(true);
 
         if PurchHeader."Currency Code" = '' then
             Currency.InitRoundingPrecision()
@@ -5121,6 +5127,15 @@ table 39 "Purchase Line"
             Currency.Get(PurchHeader."Currency Code");
             Currency.TestField("Amount Rounding Precision");
         end;
+    end;
+
+    /// <summary>
+    /// Sets the value of the SuppressPurchaseHeaderExistsVerification variable.
+    /// </summary>
+    /// <param name="NewSuppressPurchaseHeaderExistsVerification">Set to true to suppress the purchase header existence verification on insert.</param>
+    procedure SetSuppressPurchaseHeaderExistsVerification(NewSuppressPurchaseHeaderExistsVerification: Boolean)
+    begin
+        SuppressPurchaseHeaderExistsVerification := NewSuppressPurchaseHeaderExistsVerification;
     end;
 
     /// <summary>
@@ -5143,14 +5158,13 @@ table 39 "Purchase Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetPurchHeader(Rec, PurchHeader, IsHandled, Currency, HasPurchHeader);
+        OnBeforeGetPurchHeader(Rec, PurchHeader, IsHandled, Currency, SuppressPurchaseHeaderExistsVerification);
         if IsHandled then
             exit;
 
         TestField("Document No.");
         if ("Document Type" <> PurchHeader."Document Type") or ("Document No." <> PurchHeader."No.") then
             if PurchHeader.Get(Rec."Document Type", Rec."Document No.") then begin
-                HasPurchHeader := true;
                 if PurchHeader."Currency Code" = '' then
                     Currency.InitRoundingPrecision()
                 else begin
@@ -5158,10 +5172,8 @@ table 39 "Purchase Line"
                     Currency.Get(PurchHeader."Currency Code");
                     Currency.TestField("Amount Rounding Precision");
                 end
-            end else begin
+            end else
                 Clear(PurchHeader);
-                HasPurchHeader := false;
-            end;
 
         OnAfterGetPurchHeader(Rec, PurchHeader, Currency);
         OutPurchHeader := PurchHeader;
@@ -7024,6 +7036,22 @@ table 39 "Purchase Line"
         TestField(Quantity);
     end;
 
+    local procedure VerifyPurchaseHeaderExists()
+    var
+        PurchaseHeaderToVerify: Record "Purchase Header";
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        if SuppressPurchaseHeaderExistsVerification then
+            exit;
+
+        PurchaseHeaderToVerify.SetRange("Document Type", "Document Type");
+        PurchaseHeaderToVerify.SetRange("No.", "Document No.");
+        if PurchaseHeaderToVerify.IsEmpty() then
+            Error(CannotInsertPurchLineWithoutHeaderErr);
+    end;
+
     /// <summary>
     /// Returns the value of global SkipTaxCalculation flag.
     /// </summary>
@@ -8119,9 +8147,11 @@ table 39 "Purchase Line"
 
         if ("Qty. to Invoice" <> 0) and ("Prepmt. Amt. Inv." <> 0) then begin
             GetPurchHeader();
-            if ("Prepayment %" = 100) and not IsFinalInvoice() then
+            if ("Prepayment %" = 100) and not IsFinalInvoice() then begin
+                // Reset to non-zero so GetLineAmountToHandle uses the proration branch, matching the already-posted amount
+                "Prepmt Amt to Deduct" := "Prepmt. Amt. Inv.";
                 "Prepmt Amt to Deduct" := GetLineAmountToHandle("Qty. to Invoice") - "Inv. Disc. Amount to Invoice"
-            else
+            end else
                 "Prepmt Amt to Deduct" :=
                   Round(
                     ("Prepmt. Amt. Inv." - "Prepmt Amt Deducted") *
@@ -9477,6 +9507,7 @@ table 39 "Purchase Line"
     procedure ClearPurchaseHeader()
     begin
         Clear(PurchHeader);
+        SetSuppressPurchaseHeaderExistsVerification(false);
     end;
 
     local procedure GetBlockedItemNotificationID(): Guid
@@ -9618,7 +9649,9 @@ table 39 "Purchase Line"
     var
         OutstandingAmountExclTax: Decimal;
     begin
-        if (Rec.Quantity <> 0) and (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Rcd. Not Invoiced" = 0) then
+          if (Rec.Quantity <> 0) and (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Rcd. Not Invoiced" = 0) and
+              (Rec.Quantity = xRec.Quantity)
+          then
             if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then
                 exit;
 
@@ -10415,6 +10448,18 @@ table 39 "Purchase Line"
     begin
         CalcFields("Matched Inv./Cr. Memo Lines");
         exit("Matched Inv./Cr. Memo Lines" > 0);
+    end;
+
+    local procedure CheckCorrectiveCreditMemoQtyIncrease(xPurchaseLine: Record "Purchase Line")
+    begin
+        if not ("Copied From Posted Doc." and IsCreditDocType()) then
+            exit;
+
+        if not IsNonInventoriableItem() then
+            exit;
+
+        if Abs("Quantity (Base)") > Abs(xPurchaseLine."Quantity (Base)") then
+            FieldError(Quantity, StrSubstNo(CorrectiveCreditMemoQtyIncreaseErr, xPurchaseLine.Quantity));
     end;
 
     [IntegrationEvent(false, false)]
@@ -11750,6 +11795,14 @@ table 39 "Purchase Line"
     begin
     end;
 
+    /// <summary>
+    /// Raised before getting the purchase header for the purchase line.
+    /// </summary>
+    /// <param name="PurchaseLine">The purchase line being processed.</param>
+    /// <param name="PurchaseHeader">The purchase header to get.</param>
+    /// <param name="IsHandled">Set to true to skip the default processing.</param>
+    /// <param name="Currency">The currency record.</param>
+    /// <param name="HasPurchHeader">Set to true to indicate whether the purchase header has been retrieved, which sets global variable SuppressPurchaseHeaderExistsVerification to skip the verification.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetPurchHeader(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var Currency: Record Currency; var HasPurchHeader: Boolean)
     begin

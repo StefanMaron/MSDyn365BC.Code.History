@@ -82,10 +82,22 @@ page 283 "Recurring General Journal"
                         IsDimensionBalanceLine();
                     end;
                 }
-                field("Recurring Frequency"; Rec."Recurring Frequency")
+                field("Recurring Frequency"; RecurringFrequency)
                 {
                     ApplicationArea = Suite;
+                    Caption = 'Recurring Frequency';
                     ToolTip = 'Specifies a recurring frequency if the Recurring field of the General Journal Template table indicates the journal is recurring.';
+
+                    trigger OnValidate()
+                    var
+                        RecurringFrequencyDateFormula: DateFormula;
+                    begin
+                        if RecurringFrequency <> '' then
+                            if not Evaluate(RecurringFrequencyDateFormula, RecurringFrequency) then
+                                Error(InvalidRecurringFrequencyErr, RecurringFrequency);
+                        Rec.Validate("Recurring Frequency", RecurringFrequencyDateFormula);
+                        SetRecurringFrequency();
+                    end;
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {
@@ -989,6 +1001,7 @@ page 283 "Recurring General Journal"
     begin
         Rec.ShowShortcutDimCode(ShortcutDimCode);
         GetAccSchedInfo();
+        SetRecurringFrequency();
     end;
 
     trigger OnInit()
@@ -1005,6 +1018,7 @@ page 283 "Recurring General Journal"
         UpdateBalance();
         Rec.SetUpNewLine(xRec, Balance, BelowxRec);
         Clear(ShortcutDimCode);
+        SetRecurringFrequency();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1052,6 +1066,8 @@ page 283 "Recurring General Journal"
         ChangeExchangeRate: Page "Change Exchange Rate";
         AccSchedLineDesc: Text[250];
         ColumnLayoutHeader: Text[50];
+        RecurringFrequency: Text;
+        InvalidRecurringFrequencyErr: Label 'The recurring frequency %1 is not a valid date formula.', Comment = '%1 = the entered recurring frequency value';
         Balance: Decimal;
         TotalBalance: Decimal;
         NumberOfRecords: Integer;
@@ -1097,6 +1113,11 @@ page 283 "Recurring General Journal"
         TotalBalanceVisible := ShowTotalBalance;
         if ShowTotalBalance then
             NumberOfRecords := Rec.Count();
+    end;
+
+    local procedure SetRecurringFrequency()
+    begin
+        RecurringFrequency := Format(Rec."Recurring Frequency");
     end;
 
     local procedure SelectJournalWithError()
