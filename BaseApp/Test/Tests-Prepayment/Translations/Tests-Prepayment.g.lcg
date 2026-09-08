@@ -176,6 +176,15 @@
       <Cmt Name="Dev"><![CDATA[starts with a field name; %1 - numeric value]D;]A;(LookupHint=Codeunit ERM Purch Full Prepmt Rounding - NamedType DirectCostModifyMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2904175643 - NamedType 2720075656" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Prepmt Amt to Deduct must stay aligned with the posted prepayment after toggling Qty. to Invoice.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purch Full Prepmt Rounding - NamedType PrepmtAmtToDeductMisalignedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3246940295 - NamedType 158892399" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[cannot be less than %1]]></Val>
@@ -192,6 +201,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM Sales Full Prepmt Rounding - NamedType CannotBeMoreThanMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3246940295 - NamedType 2720075656" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Prepmt Amt to Deduct must stay aligned with the posted prepayment after toggling Qty. to Invoice.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Full Prepmt Rounding - NamedType PrepmtAmtToDeductMisalignedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3246940295 - NamedType 3400877782" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
