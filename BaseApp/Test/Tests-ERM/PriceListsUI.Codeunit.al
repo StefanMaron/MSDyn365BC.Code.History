@@ -33,6 +33,9 @@
         CodeErr: Label '%1 must be %2 in %3.', Comment = '%1 = Code, %2 = Next No. from No. Series, %3 = Sales/Purchase Price List';
         CustDiscountGroupDeleteErr: Label 'You cannot delete the Customer Discount Group %1 because it is used in Customer.', Comment = '%1= Customer Discount Group Code.';
         CustDiscountGroupCodeDeleteErr: Label 'The field Customer Disc. Group of table Sales Line contains a value (%1) that cannot be found in the related table (Customer Discount Group).', Comment = '%1= Customer Discount Group Code.';
+        CustomerPriceListCaptionTxt: Label 'Price List Lines - Customer %1 %2', Comment = '%1 = Customer No., %2 = Customer Name';
+        VendorPriceListCaptionTxt: Label 'Price List Lines - Vendor %1 %2', Comment = '%1 = Vendor No., %2 = Vendor Name';
+        UnexpectedPageCaptionErr: Label 'Unexpected page caption';
 
     [Test]
     procedure T000_SalesPriceListsPageIsNotEditable()
@@ -4840,6 +4843,78 @@
         Assert.IsTrue(PriceListLineReview.Next(), 'not found second');
         PriceListLineReview."Price List Code".AssertEquals(PriceListHeader[2].Code);
         Assert.IsFalse(PriceListLineReview.Next(), 'found 3rd');
+    end;
+
+    [Test]
+    procedure T217_SalesPriceLinesFromCustomerCardShowCustomerInCaption()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        CustomerCard: TestPage "Customer Card";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 647261] Sales Price lines opened from a Customer Card identify the customer in the page caption.
+        Initialize(true);
+
+        // [GIVEN] Customer "C" with a sales price for Item "I".
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, Customer."No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+
+        // [GIVEN] Open Customer Card for Customer "C".
+        CustomerCard.OpenEdit();
+        CustomerCard.Filter.SetFilter("No.", Customer."No.");
+
+        // [WHEN] Run action "Sales Prices".
+        PriceListLineReview.Trap();
+        CustomerCard.PriceLines.Invoke();
+
+        // [THEN] The page caption identifies Customer "C".
+        Assert.AreEqual(
+            StrSubstNo(CustomerPriceListCaptionTxt, Customer."No.", Customer.Name),
+            PriceListLineReview.Caption, UnexpectedPageCaptionErr);
+    end;
+
+    [Test]
+    procedure T218_PurchPriceLinesFromVendorCardShowVendorInCaption()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        VendorCard: TestPage "Vendor Card";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 647261] Purchase Price lines opened from a Vendor Card identify the vendor in the page caption.
+        Initialize(true);
+
+        // [GIVEN] Vendor "V" with a purchase price for Item "I".
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item);
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Purchase, "Price Source Type"::Vendor, Vendor."No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+
+        // [GIVEN] Open Vendor Card for Vendor "V".
+        VendorCard.OpenEdit();
+        VendorCard.Filter.SetFilter("No.", Vendor."No.");
+
+        // [WHEN] Run action "Purchase Prices".
+        PriceListLineReview.Trap();
+        VendorCard.PriceLines.Invoke();
+
+        // [THEN] The page caption identifies Vendor "V".
+        Assert.AreEqual(
+            StrSubstNo(VendorPriceListCaptionTxt, Vendor."No.", Vendor.Name),
+            PriceListLineReview.Caption, UnexpectedPageCaptionErr);
     end;
 
     local procedure Initialize(Enable: Boolean)

@@ -5,6 +5,24 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 3176373230 - Method 1141885954 - NamedType 78441884" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Renewal Term should retain the entered value on the first line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Contract Renewal Test - Method RenewalTermEnteredValueIsRetainedOnPage - NamedType RenewalTermNotRetainedFirstLineErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3176373230 - Method 1141885954 - NamedType 991007631" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Renewal Term should retain the entered value on the next line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Contract Renewal Test - Method RenewalTermEnteredValueIsRetainedOnPage - NamedType RenewalTermNotRetainedNextLineErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2533921705 - NamedType 1217246588" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Ship-to Code should be the same as Sell-to Customer]]></Val>
