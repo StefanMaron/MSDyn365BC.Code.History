@@ -587,14 +587,17 @@ codeunit 6500 "Item Tracking Management"
         CopyItemTracking(FromRowID, ToRowID, SwapSign, false);
     end;
 
+#if not CLEAN29
+    [Obsolete('Removed and will be deleted in future release.', '29.0')]
     procedure CopyItemTracking(FromRowID: Text[250]; ToRowID: Text[250]; SwapSign: Boolean; SkipReservation: Boolean; NewReservationStatus: Enum "Reservation Status")
     var
         ReservEntry: Record "Reservation Entry";
     begin
         ReservEntry.SetPointer(FromRowID);
         ReservEntry.SetPointerFilter();
-        CopyItemTracking3(ReservEntry, ToRowID, SwapSign, SkipReservation, NewReservationStatus);
+        CopyItemTracking3(ReservEntry, ToRowID, SwapSign, SkipReservation);
     end;
+#endif
 
     procedure CopyItemTracking(FromRowID: Text[250]; ToRowID: Text[250]; SwapSign: Boolean; SkipReservation: Boolean)
     var
@@ -602,10 +605,10 @@ codeunit 6500 "Item Tracking Management"
     begin
         ReservEntry.SetPointer(FromRowID);
         ReservEntry.SetPointerFilter();
-        CopyItemTracking3(ReservEntry, ToRowID, SwapSign, SkipReservation, ReservEntry."Reservation Status"::Prospect);
+        CopyItemTracking3(ReservEntry, ToRowID, SwapSign, SkipReservation);
     end;
 
-    local procedure CopyItemTracking3(var ReservEntry: Record "Reservation Entry"; ToRowID: Text[250]; SwapSign: Boolean; SkipReservation: Boolean; NewReservationStatus: Enum "Reservation Status")
+    local procedure CopyItemTracking3(var ReservEntry: Record "Reservation Entry"; ToRowID: Text[250]; SwapSign: Boolean; SkipReservation: Boolean)
     var
         ReservEntry1: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
@@ -623,7 +626,7 @@ codeunit 6500 "Item Tracking Management"
             repeat
                 if ReservEntry.TrackingExists() then begin
                     TempReservEntry := ReservEntry;
-                    TempReservEntry."Reservation Status" := NewReservationStatus;
+                    TempReservEntry."Reservation Status" := TempReservEntry."Reservation Status"::Prospect;
                     TempReservEntry.SetPointer(ToRowID);
                     if SwapSign then begin
                         TempReservEntry."Quantity (Base)" := -TempReservEntry."Quantity (Base)";
@@ -1103,8 +1106,12 @@ codeunit 6500 "Item Tracking Management"
                 TempPostedWhseRcptLine.Modify();
             until WhseItemEntryRelation.Next() = 0
         else begin
-            TempPostedWhseRcptLine := PostedWhseRcptLine;
-            TempPostedWhseRcptLine.Insert();
+            IsHandled := false;
+            OnSplitPostedWhseReceiptLineOnNotFindWhseItemEntryRelation(PostedWhseRcptLine, TempPostedWhseRcptLine, IsHandled);
+            if not IsHandled then begin
+                TempPostedWhseRcptLine := PostedWhseRcptLine;
+                TempPostedWhseRcptLine.Insert();
+            end;
         end;
 
         OnAfterSplitPostedWhseReceiptLine(PostedWhseRcptLine, TempPostedWhseRcptLine);
@@ -1814,7 +1821,7 @@ codeunit 6500 "Item Tracking Management"
                     Message(Text006);
                     exit;
                 end;
-            CopyItemTracking3(FromReservEntry, ToRowID, SignFactor1 <> SignFactor2, false, FromReservEntry."Reservation Status"::Prospect);
+            CopyItemTracking3(FromReservEntry, ToRowID, SignFactor1 <> SignFactor2, false);
 
             // Copy to inbound part of transfer.
             if IsReservedFromTransferShipment(FromReservEntry) then begin
@@ -3670,6 +3677,11 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSplitPostedWhseReceiptLine(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempPostedWhseRcptLine: Record "Posted Whse. Receipt Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitPostedWhseReceiptLineOnNotFindWhseItemEntryRelation(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var TempPostedWhseReceiptLine: Record "Posted Whse. Receipt Line" temporary; var IsHandled: Boolean)
     begin
     end;
 

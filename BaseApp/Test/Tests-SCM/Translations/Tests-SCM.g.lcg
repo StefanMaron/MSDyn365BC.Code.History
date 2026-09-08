@@ -437,6 +437,15 @@
       <Cmt Name="Dev"><![CDATA[%1: Changed field name]D;]A;(LookupHint=Codeunit SCM - Warehouse UT - NamedType WhseEntriesExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 235490379 - NamedType 4016797544" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cost Amount (Expected) is %1, expected %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Actual Amount, %2 = Expected Amount]D;]A;(LookupHint=Codeunit SCM Adjmt. of Expected Cost - NamedType ExpectedCostMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 235490379 - NamedType 2244840592" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[GL Entry total for account %1 is %2, expected %3.]]></Val>
@@ -5765,13 +5774,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Budget - NamedType PostingDescription)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2735608874 - NamedType 3702181580" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must enter a value for the Option attribute %1. Blank values are not allowed for Option-type attributes.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - attribute name]D;]A;(LookupHint=Codeunit SCM Item Categories - NamedType BlankOptionAttributeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2735608874 - NamedType 378217055" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Item Category '%1' should have been deleted.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Categories - NamedType CategoryNotDeletedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - item category code]D;]A;(LookupHint=Codeunit SCM Item Categories - NamedType CategoryNotDeletedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2735608874 - NamedType 1295890757" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5789,7 +5807,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Categories - NamedType CategoryWithChildrenDeleteErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - item category code]D;]A;(LookupHint=Codeunit SCM Item Categories - NamedType CategoryWithChildrenDeleteErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2735608874 - NamedType 2524101590" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5798,7 +5816,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Categories - NamedType ChangingDefaultValueMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - item category code]D;]A;(LookupHint=Codeunit SCM Item Categories - NamedType ChangingDefaultValueMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2735608874 - NamedType 1670298906" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5825,7 +5843,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - item category code]D;]A;(LookupHint=Codeunit SCM Item Categories - NamedType DeleteItemInheritedParentCategoryAttributesQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - child item category code, %2 - parent item category code]D;]A;(LookupHint=Codeunit SCM Item Categories - NamedType DeleteItemInheritedParentCategoryAttributesQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2735608874 - NamedType 2367821945" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5843,7 +5861,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Categories - NamedType IncorrectParentErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - category code, %2 - current parent code, %3 - expected parent code]D;]A;(LookupHint=Codeunit SCM Item Categories - NamedType IncorrectParentErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2735608874 - NamedType 557845548" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5852,7 +5870,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Categories - NamedType RenamingErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - original item category code, %2 - expected renamed code]D;]A;(LookupHint=Codeunit SCM Item Categories - NamedType RenamingErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 167793459 - NamedType 1434876051" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5952,6 +5970,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Journal - NamedType RoundingTo0Err)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 167793459 - NamedType 2407838812" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test error to trigger rollback after Commit() call.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Journal - NamedType TestRollbackAfterCommitErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 167793459 - NamedType 1753540882" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -6647,6 +6674,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - I - NamedType FinishOrderMessage)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1023565518 - NamedType 280682152" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[All items are available and no planning lines are created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - I - NamedType ItemNotAvailableErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1023565518 - NamedType 830554127" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There should be ' %1 ' line(s) in the planning worksheet for item. ]]></Val>
@@ -6879,24 +6915,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - III - NamedType RequisitionLinesShouldBeEmptyErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2531980374 - NamedType 230553302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Expected reservation entries with serial tracking on purchase line are %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - III - NamedType ReservationEntryCountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2531980374 - NamedType 1520387808" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Serial No. %1 must exist in reservation entries]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - III - NamedType SerialNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2531980374 - NamedType 1951422520" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -9554,6 +9572,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation - NamedType CancelReservationTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 270750239 - NamedType 1437894046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The saved lookup selection must be cleared even when the post-validation flow errors, so it cannot leak into a later validation.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation - NamedType LookupSelectionNotClearedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 270750239 - NamedType 3741159329" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The lookup selection should be saved before the Description is validated.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation - NamedType LookupSelectionNotSavedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 270750239 - NamedType 1164066600" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[\\  * Some output is still missing.\  * Some consumption is still missing.\\ Do you still want to finish the order?]]></Val>
@@ -9570,6 +9606,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation - NamedType NotTrueDemandErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 270750239 - NamedType 2526556648" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The sales line should have an outstanding quantity to reserve.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation - NamedType OutstandingQuantityErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 270750239 - NamedType 3059432978" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -10929,6 +10974,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Shipping Agent Service Code]D;]A;(LookupHint=Codeunit SCM Sales Order Management - NamedType AgentServiceCodeValidationErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1136628140 - NamedType 2624834257" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Forced error to simulate a validation failure during test.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Sales Order Management - NamedType ForcedValidationErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1136628140 - NamedType 1822650553" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
