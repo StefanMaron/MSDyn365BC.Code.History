@@ -68,6 +68,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType UserIsNotValidWinAccountTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2330760323 - NamedType 3136132029" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Records with new username should exist in %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = table name]D;]A;(LookupHint=Codeunit Test User Tasks - NamedType RecordsWithNewUsernameErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1482848178 - NamedType 1639088740" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[User001]]></Val>
