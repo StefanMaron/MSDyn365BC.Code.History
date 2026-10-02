@@ -221,9 +221,6 @@ report 5911 "Service - Invoice"
                     column(ServiceInvoiceHeaderPostingDateCaption; ServiceInvoiceHeaderPostingDateCaptionLbl)
                     {
                     }
-                    column(EnterpriseRegister; CompanyInfo.GetEnterpriseClassification())
-                    {
-                    }
                     column(CompanyBankBranchNo; CompanyBankAccount."Bank Branch No.")
                     {
                     }

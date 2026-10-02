@@ -448,18 +448,34 @@ table 313 "Inventory Setup"
             Caption = 'Copy Comments to Invt. Doc.';
             ToolTip = 'Specifies that you want to copy the comments entered on the inventory document to the posted document.';
         }
+#if not CLEANSCHEMA31
         field(5855; "Direct Transfer Posting"; Option)
         {
             Caption = 'Direct Transfer Posting';
             ToolTip = 'Specifies if Direct Transfer will be posted as Shipment and Receipt or as single Direct Transfer document. There are different restrictions associated with different modes, for example Directed Transfer document does not support partial posting.';
             OptionCaption = 'Receipt and Shipment,Direct Transfer';
             OptionMembers = "Receipt and Shipment","Direct Transfer";
+            ObsoleteReason = 'Replaced by field 5857 "Direct Transfer Posting Type" of type Enum "Direct Transfer Posting Type".';
+#if CLEAN29
+            ObsoleteState = Removed;
+            ObsoleteTag = '31.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '29.0';
+#endif
         }
+#endif
         field(5856; "Posted Direct Trans. Nos."; Code[20])
         {
             Caption = 'Posted Direct Trans. Nos.';
             ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
             TableRelation = "No. Series";
+        }
+        field(5857; "Direct Transfer Posting Type"; Enum "Direct Transfer Posting Type")
+        {
+            Caption = 'Default Direct Transfer Posting';
+            InitValue = "Shipment and Receipt";
+            ToolTip = 'Specifies if Direct Transfer will be posted as Shipment and Receipt or as single Direct Transfer document. There are different restrictions associated with different modes, for example Directed Transfer document does not support partial posting.';
         }
         field(5860; "Package Nos."; Code[20])
         {
@@ -697,6 +713,30 @@ table 313 "Inventory Setup"
     begin
         OnGetComponentsAtLocation(LocationCode);
     end;
+
+#if not CLEAN29
+    internal procedure SyncDirectTransferPostingOptionToEnum(DirectTransferPostingOption: Option)
+    begin
+        case DirectTransferPostingOption of
+            Rec."Direct Transfer Posting"::"Receipt and Shipment":
+                Rec."Direct Transfer Posting Type" := Rec."Direct Transfer Posting Type"::"Shipment and Receipt";
+            Rec."Direct Transfer Posting"::"Direct Transfer":
+                Rec."Direct Transfer Posting Type" := Rec."Direct Transfer Posting Type"::"Direct Transfer";
+        end;
+        Rec.Modify();
+    end;
+
+    internal procedure SyncDirectTransferPostingEnumToOption(DirectTransferPostingEnum: Enum "Direct Transfer Posting Type")
+    begin
+        case DirectTransferPostingEnum of
+            Rec."Direct Transfer Posting Type"::"Shipment and Receipt":
+                Rec."Direct Transfer Posting" := Rec."Direct Transfer Posting"::"Receipt and Shipment";
+            Rec."Direct Transfer Posting Type"::"Direct Transfer":
+                Rec."Direct Transfer Posting" := Rec."Direct Transfer Posting"::"Direct Transfer";
+        end;
+        Rec.Modify();
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnGetComponentsAtLocation(var LocationCode: Code[10])

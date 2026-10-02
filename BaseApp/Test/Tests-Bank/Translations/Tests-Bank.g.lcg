@@ -347,6 +347,42 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Bank Account Tables - NamedType NotExpectedBankActNoErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 3226142052" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document No. %1 already exists as an unposted journal line in %2/%3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 document no., %2 journal template, %3 journal batch]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType DocNoExistsAsJnlLineErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 587557748" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document No. %1 already exists in G/L entries. Use a unique document number.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 document no.]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType DocNoExistsInGLErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 2060124260" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document No. %1 already exists in vendor ledger entries. Use a unique document number.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 document no.]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType DocNoExistsInVendLedgErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 3189575184" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document No. must not be blank.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Bank Payment Application - NamedType DocumentNoMustNotBeBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 456907316 - NamedType 1493460312" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must apply the excessive amount of %1 %2 manually.]]></Val>
@@ -354,6 +390,96 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 a decimal number, %2 currency code]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType ExcessiveAmtErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 1141658464" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Exchange rate adjustment failed for document %1: %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 document no., %2 error text]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType ExchRateAdjmtFailedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 2254394301" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Invoice amount must be greater than zero.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Bank Payment Application - NamedType InvoiceAmountMustBePositiveErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 3583361943" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected invoice %1 to post to primary payables account %2, but no amount was found on that account.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 document no., %2 account no.]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType InvoiceNotOnPrimaryAccountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 1186137293" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected a non-zero pre-payment exchange adjustment on primary payables account %1 for document %2, but amount is %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 account no., %2 document no., %3 amount]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType MissingPrepaymentAdjustmentErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 242868828" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Posted vendor ledger entry for document %1 was not found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 document no.]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType PostedVendLedgEntryNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 961132396" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Invoice posting group payables account %1 must net to zero after full application for vendor %2, but net amount was %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 account no., %2 vendor no., %3 amount]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType PrimaryPayablesNotNetZeroErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 2691915410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Payment posting group payables account %1 must net to zero after full application for vendor %2, but net amount was %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 account no., %2 vendor no., %3 amount]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType SecondaryPayablesNotNetZeroErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 2805236329" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unknown error while running exchange rate adjustment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Bank Payment Application - NamedType UnknownExchRateAdjmtErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 3032830934" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Vendor %1 does not exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 vendor no.]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType VendorDoesNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 3030223199" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected vendor %1 to have no open ledger entries after payment application, but open entries were found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 vendor no.]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType VendorHasOpenEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 456907316 - NamedType 4033331863" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

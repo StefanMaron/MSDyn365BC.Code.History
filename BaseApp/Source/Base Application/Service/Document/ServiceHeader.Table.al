@@ -5468,7 +5468,7 @@ table 5900 "Service Header"
                 OutstandingQtyBase := RemQtyBaseInvtItemServiceLine.Outstanding_Qty___Base_;
         RemQtyBaseInvtItemServiceLine.Close();
     end;
-    
+
     local procedure PrepareDeleteServiceInvoice()
     var
         ServiceContractHeader: Record "Service Contract Header";
@@ -6033,9 +6033,19 @@ table 5900 "Service Header"
     begin
     end;
 
+    internal procedure RunOnValidatePaymentTermsCodeOnBeforeValidateDueDate(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+        OnValidatePaymentTermsCodeOnBeforeValidateDueDate(ServiceHeader, IsHandled);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeValidateDueDate(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
+    end;
+
+    internal procedure RunOnValidatePaymentTermsCodeOnBeforeCalcPmtDiscDate(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+        OnValidatePaymentTermsCodeOnBeforeCalcPmtDiscDate(ServiceHeader, IsHandled)
     end;
 
     [IntegrationEvent(false, false)]

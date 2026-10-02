@@ -16,11 +16,10 @@ using System.Utilities;
 /// </summary>
 report 19 "VAT- VIES Declaration Tax Auth"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Finance/VAT/Reporting/VATVIESDeclarationTaxAuth.rdlc';
     ApplicationArea = VAT;
     Caption = 'VAT- VIES Declaration Tax Auth';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -95,6 +94,21 @@ report 19 "VAT- VIES Declaration Tax Auth"
             column(HeaderText; HeaderText)
             {
             }
+            column(CompanyInfoBusinessIdentityCode; BusinessIdentityCodeTxt)
+            {
+            }
+            column(CompanyInfoRegisteredHomeCity; RegisteredHomeCityTxt)
+            {
+            }
+            column(BusinessIdentityCodeCaption; BusinessIdentityCodeLbl)
+            {
+            }
+            column(RegHomeCityCaption; RegisteredHomeCityLbl)
+            {
+            }
+            column(ServiceSuppliesCode4Caption; ServiceSuppliesCode4CaptionTxt)
+            {
+            }
 
             trigger OnAfterGetRecord()
             begin
@@ -142,7 +156,6 @@ report 19 "VAT- VIES Declaration Tax Auth"
             begin
                 if (StartDate = 0D) or (EndDate = 0D) then
                     Error(Text002);
-                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
                 CompanyInfo.TestField("VAT Registration No.");
 
@@ -197,6 +210,16 @@ report 19 "VAT- VIES Declaration Tax Auth"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Finance/VAT/Reporting/VATVIESDeclarationTaxAuth.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 
@@ -278,8 +301,14 @@ report 19 "VAT- VIES Declaration Tax Auth"
     }
 
     trigger OnInitReport()
+    var
+        IsHandled: Boolean;
     begin
         GLSetup.Get();
+        CompanyInfo.Get();
+
+        IsHandled := false;
+        OnAfterInitReportForGlobalVariable(IsHandled, BusinessIdentityCodeTxt, BusinessIdentityCodeLbl, RegisteredHomeCityTxt, RegisteredHomeCityLbl, ServiceSuppliesCode4CaptionTxt);
     end;
 
     trigger OnPreReport()
@@ -317,6 +346,11 @@ report 19 "VAT- VIES Declaration Tax Auth"
         Text002: Label 'Start and end date must be filled in.';
 #pragma warning restore AA0074
         VATRegistrationNoFilter: Text[250];
+        BusinessIdentityCodeTxt: Text;
+        BusinessIdentityCodeLbl: Text;
+        RegisteredHomeCityTxt: Text;
+        RegisteredHomeCityLbl: Text;
+        ServiceSuppliesCode4CaptionTxt: Text;
 
     /// <summary>
     /// Initializes VIES declaration tax authority report with currency and period parameters.
@@ -334,5 +368,9 @@ report 19 "VAT- VIES Declaration Tax Auth"
         VATRegistrationNoFilter := SetVATRegistrationNoFilter;
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitReportForGlobalVariable(var IsHandled: Boolean; var BusinessIdentityCodeTxt: Text; var BusinessIdentityCodeLbl: Text; var RegisteredHomeCityTxt: Text; var RegisteredHomeCityLbl: Text; var ServiceSuppliesCode4CaptionTxt: Text)
+    begin
+    end;
 }
 

@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN29
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,6 +18,9 @@ xmlport 10601 "EHF Reminder 3.0"
     Direction = Export;
     Encoding = UTF8;
     Namespaces = "" = 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2', cac = 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2', cbc = 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2', ccts = 'urn:un:unece:uncefact:documentation:2', qdt = 'urn:oasis:names:specification:ubl:schema:xsd:QualifiedDatatypes-2', udt = 'urn:un:unece:uncefact:data:specification:UnqualifiedDataTypesSchemaModule:2';
+    ObsoleteReason = 'This xmlport is deprecated and will be removed in a future release.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '29.0';
 
     schema
     {
@@ -1693,7 +1697,7 @@ xmlport 10601 "EHF Reminder 3.0"
         DummyVar: Text;
         UnSupportedTableTypeErr: Label 'The %1 table is not supported.', Comment = '%1 is the table.';
         DefaultUnitCostListID: Text;
-        CustomizationIDTxt: Label 'urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0#conformant#urn:fdc:anskaffelser.no:2019:ehf:reminder:3.0', Comment = 'Locked';
+        CustomizationIDTxt: Label 'urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0#conformant#urn:fdc:anskaffelser.no:2019:ehf:reminder:3.0', Locked = true;
         ProfileIDTxt: Label 'urn:fdc:anskaffelser.no:2019:ehf:postaward:g3:06:1.0', Locked = true;
 
     local procedure GetTotals()
@@ -1735,4 +1739,4 @@ xmlport 10601 "EHF Reminder 3.0"
         end;
     end;
 }
-
+#endif

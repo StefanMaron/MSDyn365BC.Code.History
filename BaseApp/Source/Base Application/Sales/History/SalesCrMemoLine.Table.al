@@ -916,10 +916,20 @@ table 115 "Sales Cr.Memo Line"
             ObsoleteTag = '26.0';
         }
 #endif
+#if not CLEANSCHEMA32
         field(10605; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
+            ObsoleteReason = 'This field is obsolete and should not be used.';
+#if CLEAN29
+            ObsoleteState = Removed;
+            ObsoleteTag = '32.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '29.0';
+#endif
         }
+#endif
         field(10610; "VAT Number"; Code[20])
         {
             TableRelation = "VAT Reporting Code".Code;
@@ -1380,7 +1390,7 @@ table 115 "Sales Cr.Memo Line"
         SalesLine: Record "Sales Line";
     begin
         if Type = Type::" " then
-            exit(SalesLine.FormatType());
+            exit(SalesLine.FormatTypeAsText());
 
         exit(Format(Type));
     end;
@@ -1418,7 +1428,7 @@ table 115 "Sales Cr.Memo Line"
         TempItemLedEntry.FindFirst();
         if ItemApplicationEntry.AppliedFromEntryExists(TempItemLedEntry."Entry No.") then
             ItemLedgerEntry.Get(ItemApplicationEntry."Outbound Item Entry No.");
-    end; 
+    end;
 
     internal procedure GetVATPct() VATPct: Decimal
     begin

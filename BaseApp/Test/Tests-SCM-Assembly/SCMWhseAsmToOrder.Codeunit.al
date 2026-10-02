@@ -2234,7 +2234,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         NormalItemLotNo: Code[20];
         OutputLotNo: Code[20];
     begin
-        // [FEATURE] [SCM] [Assembly] [Assembly Order]
+        // [FEATURE] [AI test 0.4]
         // [SCENARIO 640983] Posting an Inventory Pick for a Sales Order that mixes a normal lot-tracked item and an Assemble-to-Order item succeeds on a brand-new location where the assembly output bin has no existing Bin Content.
         Initialize();
 

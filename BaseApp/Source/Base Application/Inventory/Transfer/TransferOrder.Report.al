@@ -11,10 +11,10 @@ using System.Utilities;
 
 report 5703 "Transfer Order"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Transfer/TransferOrder.rdlc';
     Caption = 'Transfer Order';
+    ToolTip = 'Prepare to transfer items to another location.';
     WordMergeDataItem = "Transfer Header";
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -297,6 +297,16 @@ report 5703 "Transfer Order"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Inventory/Transfer/TransferOrder.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

@@ -8255,8 +8255,7 @@ Cstr(Fields!CompanyInfoGiroNoCaption.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoVATRegistrationNoCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoFaxNoCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoPhoneNoCaption.Value) + Chr(177) + 
-Cstr(Fields!PageCaption.Value) + Chr(177) +
-Cstr(Fields!EnterpriseRegister.Value)
+Cstr(Fields!PageCaption.Value)
 , 1)</Hidden>
                                             </Visibility>
                                             <Style />
@@ -9027,7 +9026,6 @@ Cstr(Fields!EnterpriseRegister.Value)
             <PageBreak>
               <BreakLocation>End</BreakLocation>
             </PageBreak>
-            <Left>0.05176cm</Left>
             <Height>21.81735cm</Height>
             <Width>19cm</Width>
             <Style />
@@ -9039,7 +9037,7 @@ Cstr(Fields!EnterpriseRegister.Value)
       <Width>19cm</Width>
       <Page>
         <PageHeader>
-          <Height>11.08365cm</Height>
+          <Height>9.81365cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -9075,7 +9073,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>9.77694cm</Top>
+              <Top>9.35361cm</Top>
               <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9117,7 +9115,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.93094cm</Top>
+              <Top>8.50761cm</Top>
               <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9158,7 +9156,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.08495cm</Top>
+              <Top>7.66162cm</Top>
               <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9182,7 +9180,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>9.35395cm</Top>
+              <Top>8.93062cm</Top>
               <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9206,7 +9204,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>7.23894cm</Top>
+              <Top>6.81561cm</Top>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
               <ZIndex>7</ZIndex>
@@ -9229,8 +9227,8 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>6.36649cm</Top>
-              <Left>11.5748cm</Left>
+              <Top>5.96961cm</Top>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>2.1cm</Width>
               <ZIndex>8</ZIndex>
@@ -9253,8 +9251,8 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>5.94349cm</Top>
-              <Left>11.5748cm</Left>
+              <Top>5.54662cm</Top>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>2.1cm</Width>
               <ZIndex>9</ZIndex>
@@ -9277,8 +9275,8 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>5.5205cm</Top>
-              <Left>11.5748cm</Left>
+              <Top>5.12362cm</Top>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>2.1cm</Width>
               <ZIndex>10</ZIndex>
@@ -9302,7 +9300,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>4.70061cm</Top>
-              <Left>11.63351cm</Left>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>2.1cm</Width>
               <ZIndex>11</ZIndex>
@@ -9326,7 +9324,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>4.27762cm</Top>
-              <Left>11.63351cm</Left>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>2.1cm</Width>
               <ZIndex>12</ZIndex>
@@ -9350,7 +9348,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.85462cm</Top>
-              <Left>11.63351cm</Left>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>2.1cm</Width>
               <ZIndex>13</ZIndex>
@@ -9375,7 +9373,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>9.77694cm</Top>
+              <Top>9.35361cm</Top>
               <Left>14.7195cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9400,7 +9398,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.43161cm</Top>
-              <Left>11.63351cm</Left>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
               <ZIndex>15</ZIndex>
@@ -9424,7 +9422,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.00861cm</Top>
-              <Left>11.63351cm</Left>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
               <ZIndex>16</ZIndex>
@@ -9448,7 +9446,6 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>4.27762cm</Top>
-              <Left>0.05176cm</Left>
               <Height>0.423cm</Height>
               <Width>11.47592cm</Width>
               <ZIndex>17</ZIndex>
@@ -9472,7 +9469,6 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.85462cm</Top>
-              <Left>0.05176cm</Left>
               <Height>0.423cm</Height>
               <Width>11.51119cm</Width>
               <ZIndex>18</ZIndex>
@@ -9497,7 +9493,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>8.50794cm</Top>
+              <Top>8.08461cm</Top>
               <Left>14.7195cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9521,7 +9517,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.50794cm</Top>
+              <Top>8.08461cm</Top>
               <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9545,7 +9541,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.93094cm</Top>
+              <Top>8.50761cm</Top>
               <Left>3.32825cm</Left>
               <Height>0.423cm</Height>
               <Width>8.11239cm</Width>
@@ -9569,7 +9565,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.93094cm</Top>
+              <Top>8.50761cm</Top>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
               <ZIndex>22</ZIndex>
@@ -9594,7 +9590,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>8.08495cm</Top>
+              <Top>7.66162cm</Top>
               <Left>14.7195cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9618,7 +9614,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.50794cm</Top>
+              <Top>8.08461cm</Top>
               <Left>3.32825cm</Left>
               <Height>0.423cm</Height>
               <Width>8.14767cm</Width>
@@ -9642,7 +9638,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.50794cm</Top>
+              <Top>8.08461cm</Top>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
               <ZIndex>25</ZIndex>
@@ -9668,7 +9664,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>9.35395cm</Top>
+              <Top>8.93062cm</Top>
               <Left>14.7195cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9692,7 +9688,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.08495cm</Top>
+              <Top>7.66162cm</Top>
               <Left>3.32825cm</Left>
               <Height>0.423cm</Height>
               <Width>8.14767cm</Width>
@@ -9716,7 +9712,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.08495cm</Top>
+              <Top>7.66162cm</Top>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
               <ZIndex>28</ZIndex>
@@ -9742,7 +9738,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>8.93094cm</Top>
+              <Top>8.50761cm</Top>
               <Left>14.7195cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9768,8 +9764,8 @@ Cstr(Fields!EnterpriseRegister.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.23894cm</Top>
-              <Left>3.25176cm</Left>
+              <Top>6.81561cm</Top>
+              <Left>3.32825cm</Left>
               <Height>0.423cm</Height>
               <Width>8.18294cm</Width>
               <ZIndex>30</ZIndex>
@@ -9792,8 +9788,8 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>6.36649cm</Top>
-              <Left>13.6943cm</Left>
+              <Top>5.96961cm</Top>
+              <Left>13.70125cm</Left>
               <Height>0.423cm</Height>
               <Width>4.2cm</Width>
               <ZIndex>31</ZIndex>
@@ -9816,8 +9812,8 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>5.94349cm</Top>
-              <Left>13.6943cm</Left>
+              <Top>5.54662cm</Top>
+              <Left>13.70125cm</Left>
               <Height>0.423cm</Height>
               <Width>4.2cm</Width>
               <ZIndex>32</ZIndex>
@@ -9840,8 +9836,8 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>5.5205cm</Top>
-              <Left>13.6943cm</Left>
+              <Top>5.12362cm</Top>
+              <Left>13.70125cm</Left>
               <Height>0.423cm</Height>
               <Width>4.2cm</Width>
               <ZIndex>33</ZIndex>
@@ -9865,7 +9861,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>4.70061cm</Top>
-              <Left>13.75301cm</Left>
+              <Left>13.70125cm</Left>
               <Height>0.423cm</Height>
               <Width>4.2cm</Width>
               <ZIndex>34</ZIndex>
@@ -9889,7 +9885,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>4.27762cm</Top>
-              <Left>13.75301cm</Left>
+              <Left>13.70125cm</Left>
               <Height>0.423cm</Height>
               <Width>4.2cm</Width>
               <ZIndex>35</ZIndex>
@@ -9913,7 +9909,6 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.43161cm</Top>
-              <Left>0.05176cm</Left>
               <Height>0.423cm</Height>
               <Width>11.47592cm</Width>
               <ZIndex>36</ZIndex>
@@ -9937,7 +9932,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.85462cm</Top>
-              <Left>13.75301cm</Left>
+              <Left>13.70125cm</Left>
               <Height>0.423cm</Height>
               <Width>4.2cm</Width>
               <ZIndex>37</ZIndex>
@@ -9961,7 +9956,6 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.97333cm</Top>
-              <Left>0.05176cm</Left>
               <Height>0.423cm</Height>
               <Width>11.47592cm</Width>
               <ZIndex>38</ZIndex>
@@ -9985,7 +9979,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.58562cm</Top>
-              <Left>11.63351cm</Left>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
               <ZIndex>39</ZIndex>
@@ -10009,7 +10003,6 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.58562cm</Top>
-              <Left>0.05176cm</Left>
               <Height>0.423cm</Height>
               <Width>11.54647cm</Width>
               <ZIndex>40</ZIndex>
@@ -10033,7 +10026,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.16262cm</Top>
-              <Left>11.63351cm</Left>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
               <ZIndex>41</ZIndex>
@@ -10057,7 +10050,6 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.16262cm</Top>
-              <Left>0.05176cm</Left>
               <Height>0.423cm</Height>
               <Width>11.58175cm</Width>
               <ZIndex>42</ZIndex>
@@ -10081,7 +10073,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>1.73961cm</Top>
-              <Left>11.63351cm</Left>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
               <ZIndex>43</ZIndex>
@@ -10105,7 +10097,6 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>1.73961cm</Top>
-              <Left>0.05176cm</Left>
               <Height>0.423cm</Height>
               <Width>11.51119cm</Width>
               <ZIndex>44</ZIndex>
@@ -10130,7 +10121,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>1.31662cm</Top>
-              <Left>11.63351cm</Left>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
               <ZIndex>45</ZIndex>
@@ -10154,7 +10145,6 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>1.31662cm</Top>
-              <Left>0.05176cm</Left>
               <Height>0.423cm</Height>
               <Width>11.54647cm</Width>
               <ZIndex>46</ZIndex>
@@ -10177,7 +10167,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Left>11.63351cm</Left>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
               <ZIndex>47</ZIndex>
@@ -10203,8 +10193,8 @@ Cstr(Fields!EnterpriseRegister.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.23894cm</Top>
-              <Left>11.50526cm</Left>
+              <Top>6.81561cm</Top>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
               <ZIndex>48</ZIndex>
@@ -10230,34 +10220,10 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>0.43887cm</Top>
-              <Left>11.63351cm</Left>
+              <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>4.66979cm</Width>
               <ZIndex>49</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoVATRegistrationNo2">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(48,1)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>5.12361cm</Top>
-              <Left>11.63351cm</Left>
-              <Height>0.423cm</Height>
-              <Width>6.37056cm</Width>
-              <ZIndex>51</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -10522,9 +10488,6 @@ End Function</Code>
         </Field>
         <Field Name="ServiceInvoiceHeaderPostingDateCaption">
           <DataField>ServiceInvoiceHeaderPostingDateCaption</DataField>
-        </Field>
-        <Field Name="EnterpriseRegister">
-          <DataField>EnterpriseRegister</DataField>
         </Field>
         <Field Name="CompanyBankBranchNo">
           <DataField>CompanyBankBranchNo</DataField>

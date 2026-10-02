@@ -342,12 +342,14 @@ report 1701 "Deferral Summary - Sales"
             Caption = 'Deferral Summary Sales Excel';
             Type = Excel;
             LayoutFile = './Finance/Deferral/DeferralSummarySales.xlsx';
+            Summary = 'Report layout primarily made for data analysis. Use an Excel editor to modify the layout.';
         }
         layout(Word)
         {
             Caption = 'Deferral Summary Sales Word';
             Type = Word;
             LayoutFile = './Finance/Deferral/DeferralSummarySales.docx';
+            Summary = 'Report layout made for print. Use a Word editor to modify the layout.';
         }
 #if not CLEAN27
         layout(RDLC)
@@ -358,6 +360,7 @@ report 1701 "Deferral Summary - Sales"
             ObsoleteState = Pending;
             ObsoleteReason = 'The RDLC layout has been replaced by the Excel and Word layouts and will be removed in a future release.';
             ObsoleteTag = '27.0';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
 #endif
     }
@@ -478,11 +481,11 @@ report 1701 "Deferral Summary - Sales"
         DocumentFilter := NewDocumentNoFilter;
     end;
 
-    local procedure ReturnSalesDocTypeString(SalesDocType: Integer) Result: Text
+    local procedure ReturnSalesDocTypeString(SalesDocType: Integer): Text
     var
+        Result: Text;
         IsHandled: Boolean;
     begin
-        IsHandled := false;
         OnBeforeReturnSalesDocTypeString(SalesDocType, Result, IsHandled);
         if IsHandled then
             exit(Result);

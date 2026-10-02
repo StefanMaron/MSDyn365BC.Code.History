@@ -6,7 +6,9 @@ namespace Microsoft.Sales.Reminder;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Contact;
+#if not CLEAN29
 using Microsoft.EServices.EDocument;
+#endif
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -110,9 +112,11 @@ table 295 "Reminder Header"
                 "Tax Liable" := Cust."Tax Liable";
                 "Reminder Terms Code" := Cust."Reminder Terms Code";
                 "Fin. Charge Terms Code" := Cust."Fin. Charge Terms Code";
+#if not CLEAN29
                 "Account Code" := Cust."Account Code";
                 GLN := Cust.GLN;
                 "E-Invoice" := Cust."E-Invoice";
+#endif
                 OnValidateCustomerNoOnAfterAssignCustomerValues(Rec, Cust);
                 Validate("Reminder Terms Code");
 
@@ -713,30 +717,60 @@ table 295 "Reminder Header"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
+#if not CLEANSCHEMA32
         field(10605; GLN; Code[13])
         {
             Caption = 'GLN';
+            ObsoleteReason = 'This field is obsolete and should not be used.';
+#if CLEAN29
+            ObsoleteState = Removed;
+            ObsoleteTag = '32.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '29.0';
+#endif
 
+#if not CLEAN29
             trigger OnValidate()
             begin
                 if not EInvoiceDocumentEncode.IsValidEANNo(GLN, true) then
                     FieldError(GLN, InvalidGLNNumberErr);
             end;
+#endif
         }
         field(10606; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
+            ObsoleteReason = 'This field is obsolete and should not be used.';
+#if CLEAN29
+            ObsoleteState = Removed;
+            ObsoleteTag = '32.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '29.0';
+#endif
 
+#if not CLEAN29
             trigger OnValidate()
             begin
                 if "Account Code" <> xRec."Account Code" then
                     UpdateReminderLines(FieldCaption("Account Code"));
             end;
+#endif
         }
         field(10613; "E-Invoice"; Boolean)
         {
             Caption = 'E-Invoice';
+            ObsoleteReason = 'This field is obsolete and should not be used.';
+#if CLEAN29
+            ObsoleteState = Removed;
+            ObsoleteTag = '32.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '29.0';
+#endif
         }
+#endif
     }
 
     keys
@@ -807,7 +841,6 @@ table 295 "Reminder Header"
         CustPostingGr: Record "Customer Posting Group";
         ReminderTerms: Record "Reminder Terms";
         ReminderLevel: Record "Reminder Level";
-        ReminderText: Record "Reminder Text";
         FinChrgTerms: Record "Finance Charge Terms";
         ReminderHeader: Record "Reminder Header";
         ReminderLine: Record "Reminder Line";
@@ -817,7 +850,9 @@ table 295 "Reminder Header"
         IssuedReminderHeader: Record "Issued Reminder Header";
         GenBusPostingGrp: Record "Gen. Business Posting Group";
         GLSetup: Record "General Ledger Setup";
+#if not CLEAN29
         EInvoiceDocumentEncode: Codeunit "E-Invoice Document Encode";
+#endif
         AutoFormat: Codeunit "Auto Format";
         NoSeries: Codeunit "No. Series";
         TransferExtendedText: Codeunit "Transfer Extended Text";
@@ -827,12 +862,13 @@ table 295 "Reminder Header"
         LineSpacing: Integer;
         ReminderTotal: Decimal;
         SelectNoSeriesAllowed: Boolean;
+#if not CLEAN29
         InvalidGLNNumberErr: Label 'The GLN No. field does not contain a valid, 13-digit GLN  number';
+#endif
         ReminderNoLbl: Label 'Reminder %1', Comment = '%1 = Reminder No.';
         PrintReminderQst: Label 'Do you want to print reminder %1?', Comment = '%1 = Reminder No.';
         DeleteExistingLinesTxt: Label 'This change will cause the existing lines to be deleted for this reminder.\\';
         ContinueTxt: Label 'Do you want to continue?';
-        NotEnoughSpaceForTextErr: Label 'There is not enough space to insert the text.';
         GapInNumberSeriesIfDeleteTxt: Label 'Deleting this document will cause a gap in the number series for reminders. ';
         CreateEmptyReminderTxt: Label 'An empty reminder %1 will be created to fill this gap in the number series.\\', Comment = '%1 = Reminder No.';
         UnexpectedLineTypeErr: Label 'Unexpected line type %1 in reminder %2', Comment = '%1 = Line Type, %2 = Reminder No.';
@@ -1005,7 +1041,9 @@ table 295 "Reminder Header"
 
                     NextLineNo := NextLineNo + LineSpacing;
                     ReminderLine.Init();
+#if not CLEAN29
                     ReminderLine."Account Code" := "Account Code";
+#endif
                     ReminderLine."Line No." := NextLineNo;
                     ReminderLine.Type := ReminderLine.Type::"G/L Account";
                     TestField("Customer Posting Group");
@@ -1085,33 +1123,12 @@ table 295 "Reminder Header"
         ReminderLevel.SetRange("No.", 1, ReminderHeader."Reminder Level");
         OnInsertBeginTextsOnAfterReminderLevelSetFilters(ReminderLevel, ReminderHeader);
         if ReminderLevel.FindLast() then
-            if ReminderCommunication.NewReminderCommunicationEnabled() then
-                ReminderCommunication.InsertBeginningText(ReminderHeader, ReminderLevel, ReminderLine)
-            else begin
-                ReminderText.Reset();
-                ReminderText.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
-                ReminderText.SetRange("Reminder Level", ReminderLevel."No.");
-                ReminderText.SetRange(Position, ReminderText.Position::Beginning);
-                OnInsertBeginTextsOnAfterReminderTextSetFilters(ReminderText, ReminderHeader);
-
-                ReminderLine.Reset();
-                ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
-                ReminderLine."Reminder No." := ReminderHeader."No.";
-                if ReminderLine.Find('-') then begin
-                    LineSpacing := ReminderLine."Line No." div (ReminderText.Count + 2);
-                    if LineSpacing = 0 then
-                        Error(NotEnoughSpaceForTextErr);
-                end else
-                    LineSpacing := 10000;
-                NextLineNo := 0;
-                InsertTextLines(ReminderHeader);
-            end;
+            ReminderCommunication.InsertBeginningText(ReminderHeader, ReminderLevel, ReminderLine);
     end;
 
     local procedure InsertEndTexts(var ReminderHeader: Record "Reminder Header")
     var
         ReminderCommunication: Codeunit "Reminder Communication";
-        ReminderLine2: Record "Reminder Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1123,46 +1140,7 @@ table 295 "Reminder Header"
         ReminderLevel.SetRange("No.", 1, ReminderHeader."Reminder Level");
         OnInsertEndTextsOnAfterReminderLevelSetFilters(ReminderLevel, ReminderHeader);
         if ReminderLevel.FindLast() then
-            if ReminderCommunication.NewReminderCommunicationEnabled() then
-                ReminderCommunication.InsertEndingText(ReminderHeader, ReminderLevel, ReminderLine)
-            else begin
-                ReminderText.SetRange(
-                  "Reminder Terms Code", ReminderHeader."Reminder Terms Code");
-                ReminderText.SetRange("Reminder Level", ReminderLevel."No.");
-                ReminderText.SetRange(Position, ReminderText.Position::Ending);
-                OnInsertEndTextsOnAfterReminderTextSetFilters(ReminderText, ReminderHeader);
-
-                ReminderLine.Reset();
-                ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
-                ReminderLine.SetFilter(
-                  "Line Type", '%1|%2|%3',
-                  ReminderLine."Line Type"::"Reminder Line",
-                  ReminderLine."Line Type"::"Additional Fee",
-                  ReminderLine."Line Type"::Rounding);
-                OnInsertEndTextsOnAfterReminderLineSetFilters(ReminderLine, ReminderHeader);
-                if ReminderLine.FindLast() then
-                    NextLineNo := ReminderLine."Line No."
-                else
-                    NextLineNo := 0;
-                ReminderLine.SetRange("Line Type");
-                ReminderLine2 := ReminderLine;
-                ReminderLine2.CopyFilters(ReminderLine);
-                ReminderLine2.SetFilter("Line Type", '<>%1', ReminderLine2."Line Type"::"Line Fee");
-                if ReminderLine2.Next() <> 0 then begin
-                    LineSpacing :=
-                      (ReminderLine2."Line No." - ReminderLine."Line No.") div
-                      (ReminderText.Count + 2);
-                    if LineSpacing = 0 then
-                        Error(NotEnoughSpaceForTextErr);
-                end else
-                    LineSpacing := 10000;
-                InsertTextLines(ReminderHeader);
-            end;
-    end;
-
-    local procedure InsertTextLines(var ReminderHeader: Record "Reminder Header")
-    begin
-        InsertTextLines(ReminderHeader, ReminderText, NextLineNo, LineSpacing);
+            ReminderCommunication.InsertEndingText(ReminderHeader, ReminderLevel, ReminderLine);
     end;
 
     /// <summary>
@@ -1196,6 +1174,7 @@ table 295 "Reminder Header"
             repeat
                 NextLineNo := NextLineNo + LineSpacing;
                 ReminderLine.Init();
+                ReminderLine."Reminder No." := "No.";
                 ReminderLine."Line No." := NextLineNo;
                 ReminderLine.Type := ReminderLine.Type::" ";
                 ReminderLine.Description :=
@@ -1552,6 +1531,7 @@ table 295 "Reminder Header"
             ReminderLine.LockTable();
             Modify();
 
+#if not CLEAN29
             if ChangedFieldName = FieldCaption("Account Code") then begin
                 ReminderLine.Reset();
                 ReminderLine.SetRange("Reminder No.", "No.");
@@ -1562,6 +1542,7 @@ table 295 "Reminder Header"
                         ReminderLine.Modify(true);
                     until ReminderLine.Next() = 0;
             end;
+#endif
         end;
     end;
 
@@ -1838,10 +1819,13 @@ table 295 "Reminder Header"
     /// </summary>
     /// <param name="ReminderLine">The reminder line record with filters.</param>
     /// <param name="ReminderHeader">The reminder header record.</param>
+#if not CLEAN29
+    [Obsolete('The legacy Reminder Text flow is no longer used. Use OnBeforeInsertEndTexts instead.', '29.0')]
     [IntegrationEvent(false, false)]
     internal procedure OnInsertEndTextsOnAfterReminderLineSetFilters(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header")
     begin
     end;
+#endif
 
     /// <summary>
     /// Raised after setting filters on reminder level during InsertEndTexts processing.
@@ -1986,20 +1970,26 @@ table 295 "Reminder Header"
     /// </summary>
     /// <param name="ReminderText">The reminder text record with filters.</param>
     /// <param name="ReminderHeader">The reminder header record.</param>
+#if not CLEAN29
+    [Obsolete('The legacy Reminder Text flow is no longer used. Use OnBeforeInsertBeginTexts instead.', '29.0')]
     [IntegrationEvent(false, false)]
     internal procedure OnInsertBeginTextsOnAfterReminderTextSetFilters(var ReminderText: Record "Reminder Text"; ReminderHeader: Record "Reminder Header")
     begin
     end;
+#endif
 
     /// <summary>
     /// Raised after setting filters on reminder text during InsertEndTexts processing.
     /// </summary>
     /// <param name="ReminderText">The reminder text record with filters.</param>
     /// <param name="ReminderHeader">The reminder header record.</param>
+#if not CLEAN29
+    [Obsolete('The legacy Reminder Text flow is no longer used. Use OnBeforeInsertEndTexts instead.', '29.0')]
     [IntegrationEvent(false, false)]
     internal procedure OnInsertEndTextsOnAfterReminderTextSetFilters(var ReminderText: Record "Reminder Text"; ReminderHeader: Record "Reminder Header")
     begin
     end;
+#endif
 
     /// <summary>
     /// Raised after calculating the additional fee during InsertLines processing.

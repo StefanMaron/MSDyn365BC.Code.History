@@ -4,7 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.FinanceCharge;
 
+#if not CLEAN29
 using Microsoft.EServices.EDocument;
+#endif
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Reports;
 
@@ -145,8 +147,12 @@ page 452 "Issued Fin. Charge Memo List"
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
+#if not CLEAN29
                 separator(Action1080000)
                 {
+                    ObsoleteReason = 'This separator will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '29.0';
                 }
                 action("Create Electronic Finance Charge Memo")
                 {
@@ -154,6 +160,9 @@ page 452 "Issued Fin. Charge Memo List"
                     Caption = 'Create Electronic Finance Charge Memo';
                     Image = CreateDocument;
                     ToolTip = 'Create one or more XML documents that you can send to the customer. You can run the batch job for multiple finance charge memos or you can run it for an individual finance charge memos. The document number is used as the file name. The files are stored at the location that has been specified in the Sales & Receivables Setup window.';
+                    ObsoleteReason = 'This action is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '29.0';
 
                     trigger OnAction()
                     var
@@ -165,6 +174,7 @@ page 452 "Issued Fin. Charge Memo List"
                         ExportEHFReminder.ExportEFHReminder30(IssuedFinChargeMemoHeader, IssuedFinChargeMemoHeader.GetView());
                     end;
                 }
+#endif
             }
         }
         area(processing)
@@ -239,7 +249,6 @@ page 452 "Issued Fin. Charge Memo List"
                 Caption = 'Customer - Balance to Date';
                 Image = "Report";
                 RunObject = Report "Customer - Balance to Date";
-                ToolTip = 'View a list with customers'' payment history up until a certain date. You can use the report to extract your total sales income at the close of an accounting period or fiscal year.';
             }
             action("Customer - Detail Trial Bal.")
             {
@@ -249,7 +258,6 @@ page 452 "Issued Fin. Charge Memo List"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Customer - Detail Trial Bal.";
-                ToolTip = 'View the balance for customers with balances on a specified date. The report can be used at the close of an accounting period, for example, or for an audit.';
             }
         }
         area(Promoted)

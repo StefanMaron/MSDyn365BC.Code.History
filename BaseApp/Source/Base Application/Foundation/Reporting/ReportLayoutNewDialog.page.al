@@ -5,6 +5,7 @@
 
 namespace Microsoft.Shared.Report;
 
+using Microsoft.Foundation.Reporting;
 using System.Environment.Configuration;
 using System.Reflection;
 
@@ -78,6 +79,36 @@ page 9662 "Report Layout New Dialog"
                 Caption = 'Format Options';
                 ToolTip = 'Specifies the format of the layout.';
                 OptionCaption = 'RDLC,Word,Excel,External';
+
+                trigger OnValidate()
+                begin
+                    UpdateSubtypeVisibility();
+                    CurrPage.Update(false);
+                end;
+            }
+            field(LayoutSubtype; LayoutSubtype)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Subtype';
+                Visible = PartSubtypeVisible;
+                Editable = false;
+                ToolTip = 'Specifies the role of this layout in the Composite Layout Merge. It is fixed because the layout is being created as a theme or a header/footer.';
+            }
+            field(BodySubtype; BodySubtype)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Subtype';
+                Visible = BodySubtypeVisible;
+                OptionCaption = 'Default,Body';
+                ToolTip = 'Specifies the role of the layout in the Composite Layout Merge: Default for a stand-alone layout that renders on its own, or Body for a body layout that a theme and header/footer are merged into. It applies to Word layouts only.';
+
+                trigger OnValidate()
+                begin
+                    if (BodySubtype = BodySubtype::Body) and (FormatOptions <> FormatOptions::Word) then
+                        Error(BodyNeedsWordErr);
+
+                    LayoutSubtype := SelectedBodySubtype();
+                end;
             }
             field(AvailableInAllCompanies; AvailableInAllCompanies)
             {
@@ -91,22 +122,42 @@ page 9662 "Report Layout New Dialog"
                 Caption = 'Create a Blank Layout from the report object';
                 ToolTip = 'Specifies whether the layout should be created from the report design or from an existing layout on disk.';
             }
-            field(ExcelMultipleDataSheets; ExcelMultipleDataSheets)
+            group(ExcelOptions)
             {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Create Multiple Data Sheets';
-                ToolTip = 'Specifies whether the Excel layout should contain multiple data sheets.';
+                Caption = 'Excel Options';
+                ShowCaption = true;
+                Visible = FormatOptions = FormatOptions::Excel;
+
+                field(ExcelMultipleDataSheets; ExcelMultipleDataSheets)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Create Multiple Data Sheets';
+                    ToolTip = 'Specifies whether the Excel layout should contain multiple data sheets.';
+                }
             }
         }
     }
 
     trigger OnOpenPage()
+    var
+        FeatureKeyManagement: Codeunit "Feature Key Management";
     begin
-        FormatOptions := FormatOptions::Excel;
         CreateEmptyLayout := false;
         ExcelMultipleDataSheets := "Excel Sheet Configuration"::Default;
         LayoutName := '';
         AvailableInAllCompanies := true;
+        DocumentReportExperienceEnabled := FeatureKeyManagement.IsDocumentReportExperienceEnabled();
+        if ImpliedSubtypeSet then
+            FormatOptions := FormatOptions::Word
+        else begin
+            FormatOptions := FormatOptions::Excel;
+            LayoutSubtype := Enum::"Report Layout Subtype"::Default;
+        end;
+        // Default header/footer and theme parts to the Tenant Report Defaults report when no specific report was
+        // set. Resolved here (not in a setter) so it is order-independent of SetReportID/SetImpliedSubtype.
+        if (ReportID = 0) and (LayoutSubtype in [Enum::"Report Layout Subtype"::HeaderFooter, Enum::"Report Layout Subtype"::Theme]) then
+            ReportID := LookupHelper.GetTenantReportDefaultsReportID();
+        UpdateSubtypeVisibility();
         if ReportID <> 0 then
             if ReportMetadata.Get(ReportID) then;
     end;
@@ -114,21 +165,35 @@ page 9662 "Report Layout New Dialog"
     var
         ReportMetadata: Record "Report Metadata";
         TenantReportLayout: Record "Tenant Report Layout";
+        LookupHelper: Codeunit "Composite Layout Lookup Helper";
         ReportID: Integer;
         LayoutName: Text[250];
         Description: Text[250];
         LayoutAlreadyExistsErr: Label 'A layout named "%1" already exists.', Comment = '%1 = LayoutName';
         LayoutNameEmptyErr: Label 'The layout name cannot be an empty value.';
         ReportNotFoundErr: Label 'A report with ID "%1" does not exist.', Comment = '%1 = ReportID';
+        BodyNeedsWordErr: Label 'Only a Word layout can be a body layout. A theme and header/footer are merged onto it when the report renders, which applies to Word documents only.';
         FormatOptions: Option "RDLC","Word","Excel","Custom"; // For Custom type, 'External' will be shown in UI
+        LayoutSubtype: Enum "Report Layout Subtype";
+        BodySubtype: Option "Default","Body";
         AvailableInAllCompanies: Boolean;
         CreateEmptyLayout: Boolean;
+        PartSubtypeVisible: Boolean;
+        BodySubtypeVisible: Boolean;
+        ImpliedSubtypeSet: Boolean;
+        DocumentReportExperienceEnabled: Boolean;
         ExcelMultipleDataSheets: enum "Excel Sheet Configuration";
         emptyGuid: Guid;
 
     internal procedure SetReportID(NewReportID: Integer)
     begin
         ReportID := NewReportID;
+    end;
+
+    internal procedure SetImpliedSubtype(NewSubtype: Enum "Report Layout Subtype")
+    begin
+        LayoutSubtype := NewSubtype;
+        ImpliedSubtypeSet := true;
     end;
 
     internal procedure SelectedReportID(): Integer
@@ -179,6 +244,33 @@ page 9662 "Report Layout New Dialog"
     internal procedure SelectedExcelMultipleDataSheets(): enum "Excel Sheet Configuration"
     begin
         exit(ExcelMultipleDataSheets);
+    end;
+
+    internal procedure SelectedLayoutSubtype(): Enum "Report Layout Subtype"
+    begin
+        exit(LayoutSubtype);
+    end;
+
+    local procedure SelectedBodySubtype(): Enum "Report Layout Subtype"
+    begin
+        if BodySubtype = BodySubtype::Body then
+            exit(Enum::"Report Layout Subtype"::Body);
+        exit(Enum::"Report Layout Subtype"::Default);
+    end;
+
+    local procedure UpdateSubtypeVisibility()
+    begin
+        PartSubtypeVisible := DocumentReportExperienceEnabled and ImpliedSubtypeSet;
+        BodySubtypeVisible := DocumentReportExperienceEnabled and (not ImpliedSubtypeSet);
+
+        if ImpliedSubtypeSet then
+            exit;
+
+        if FormatOptions = FormatOptions::Word then
+            BodySubtype := BodySubtype::Body
+        else
+            BodySubtype := BodySubtype::Default;
+        LayoutSubtype := SelectedBodySubtype();
     end;
 
 }

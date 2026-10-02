@@ -1634,6 +1634,50 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     end;
 
     [Test]
+    procedure SvcLvlCodeIsSepaForEuroPayment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        TempBlob: Codeunit "Temp Blob";
+        BlobOutStream: OutStream;
+    begin
+        // [SCENARIO 641065] The service level code "PmtTpInf/SvcLvl/Cd" is "SEPA" when a Euro payment is exported.
+        Init();
+
+        // [GIVEN] "SEPA Non-Euro Export" is disabled and a Euro payment exists.
+        LibraryERM.SetAllowNonEuroExport(false);
+        CreateGenJnlLine(GenJournalLine);
+
+        // [WHEN] Export the payment using the SEPA CT xmlport.
+        TempBlob.CreateOutStream(BlobOutStream);
+        Xmlport.Export(BankAccount.GetPaymentExportXMLPortID(), BlobOutStream, GenJournalLine);
+
+        // [THEN] When the "SvcLvl/Cd" node is present, its value is "SEPA".
+        VerifySvcLvlCodeIfPresent(TempBlob, 'SEPA');
+    end;
+
+    [Test]
+    procedure SvcLvlCodeIsNurgForNonEuroPayment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        TempBlob: Codeunit "Temp Blob";
+        BlobOutStream: OutStream;
+    begin
+        // [SCENARIO 641065] The service level code "PmtTpInf/SvcLvl/Cd" is "NURG" when a non-Euro payment is exported.
+        Init();
+
+        // [GIVEN] "SEPA Non-Euro Export" is enabled and a payment exists.
+        LibraryERM.SetAllowNonEuroExport(true);
+        CreateGenJnlLine(GenJournalLine);
+
+        // [WHEN] Export the payment using the SEPA CT xmlport.
+        TempBlob.CreateOutStream(BlobOutStream);
+        Xmlport.Export(BankAccount.GetPaymentExportXMLPortID(), BlobOutStream, GenJournalLine);
+
+        // [THEN] When the "SvcLvl/Cd" node is present, its value is "NURG".
+        VerifySvcLvlCodeIfPresent(TempBlob, 'NURG');
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure ValidatePaymentJnlExportErrorTextHasNoErrorEntriesWhenJournalLineDeleted()
     var
@@ -1800,50 +1844,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Assert.AreEqual(3, GenJnlLineRestrCheckCount, 'Record restrictions check should be done 3 times for journal lines');
         Assert.AreEqual(3, GenJnlBatchRestrCheckCount, 'Record restrictions check should be done 3 times for journal batch');
         UnbindSubscription(ERMTestSEPACreditTransfers);
-    end;
-
-    [Test]
-    procedure SvcLvlCodeIsSepaForEuroPayment()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        TempBlob: Codeunit "Temp Blob";
-        BlobOutStream: OutStream;
-    begin
-        // [SCENARIO 641065] The service level code "PmtTpInf/SvcLvl/Cd" is "SEPA" when a Euro payment is exported.
-        Init();
-
-        // [GIVEN] "SEPA Non-Euro Export" is disabled and a Euro payment exists.
-        LibraryERM.SetAllowNonEuroExport(false);
-        CreateGenJnlLine(GenJournalLine);
-
-        // [WHEN] Export the payment using the SEPA CT xmlport.
-        TempBlob.CreateOutStream(BlobOutStream);
-        Xmlport.Export(BankAccount.GetPaymentExportXMLPortID(), BlobOutStream, GenJournalLine);
-
-        // [THEN] When the "SvcLvl/Cd" node is present, its value is "SEPA".
-        VerifySvcLvlCodeIfPresent(TempBlob, 'SEPA');
-    end;
-
-    [Test]
-    procedure SvcLvlCodeIsNurgForNonEuroPayment()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        TempBlob: Codeunit "Temp Blob";
-        BlobOutStream: OutStream;
-    begin
-        // [SCENARIO 641065] The service level code "PmtTpInf/SvcLvl/Cd" is "NURG" when a non-Euro payment is exported.
-        Init();
-
-        // [GIVEN] "SEPA Non-Euro Export" is enabled and a payment exists.
-        LibraryERM.SetAllowNonEuroExport(true);
-        CreateGenJnlLine(GenJournalLine);
-
-        // [WHEN] Export the payment using the SEPA CT xmlport.
-        TempBlob.CreateOutStream(BlobOutStream);
-        Xmlport.Export(BankAccount.GetPaymentExportXMLPortID(), BlobOutStream, GenJournalLine);
-
-        // [THEN] When the "SvcLvl/Cd" node is present, its value is "NURG".
-        VerifySvcLvlCodeIfPresent(TempBlob, 'NURG');
     end;
 
     local procedure Init()

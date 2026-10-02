@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -285,6 +285,7 @@ table 18 Customer
         field(14; "Our Account No."; Text[20])
         {
             Caption = 'Our Account No.';
+            MaskType = Concealed;
             OptimizeForTextSearch = true;
         }
         /// <summary>
@@ -728,7 +729,8 @@ table 18 Customer
             CalcFormula = sum("Detailed Cust. Ledg. Entry".Amount where("Customer No." = field("No."),
                                                                          "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                          "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
-                                                                         "Currency Code" = field("Currency Filter")));
+                                                                         "Currency Code" = field("Currency Filter"),
+                                                                         "Excluded from calculation" = const(false)));
             Caption = 'Balance';
             Editable = false;
             FieldClass = FlowField;
@@ -743,7 +745,8 @@ table 18 Customer
             CalcFormula = sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" where("Customer No." = field("No."),
                                                                                  "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
-                                                                                 "Currency Code" = field("Currency Filter")));
+                                                                                 "Currency Code" = field("Currency Filter"),
+                                                                                 "Excluded from calculation" = const(false)));
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -760,7 +763,8 @@ table 18 Customer
                                                                          "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                          "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
                                                                          "Posting Date" = field("Date Filter"),
-                                                                         "Currency Code" = field("Currency Filter")));
+                                                                         "Currency Code" = field("Currency Filter"),
+                                                                         "Excluded from calculation" = const(false)));
             Caption = 'Net Change';
             Editable = false;
             FieldClass = FlowField;
@@ -776,7 +780,8 @@ table 18 Customer
                                                                                  "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
                                                                                  "Posting Date" = field("Date Filter"),
-                                                                                 "Currency Code" = field("Currency Filter")));
+                                                                                 "Currency Code" = field("Currency Filter"),
+                                                                                 "Excluded from calculation" = const(false)));
             Caption = 'Net Change (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -858,7 +863,8 @@ table 18 Customer
                                                                          "Initial Entry Due Date" = field(upperlimit("Date Filter")),
                                                                          "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                          "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
-                                                                         "Currency Code" = field("Currency Filter")));
+                                                                         "Currency Code" = field("Currency Filter"),
+                                                                         "Excluded from calculation" = const(false)));
             Caption = 'Balance Due';
             Editable = false;
             FieldClass = FlowField;
@@ -874,7 +880,8 @@ table 18 Customer
                                                                                  "Initial Entry Due Date" = field(upperlimit("Date Filter")),
                                                                                  "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
-                                                                                 "Currency Code" = field("Currency Filter")));
+                                                                                 "Currency Code" = field("Currency Filter"),
+                                                                                 "Excluded from calculation" = const(false)));
             Caption = 'Overdue Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -2317,15 +2324,33 @@ table 18 Customer
             Caption = 'Contact Graph Id';
             OptimizeForTextSearch = true;
         }
+#if not CLEANSCHEMA32
         field(10601; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
             OptimizeForTextSearch = true;
+            ObsoleteReason = 'This field is obsolete and should not be used.';
+#if CLEAN29
+            ObsoleteState = Removed;
+            ObsoleteTag = '32.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '29.0';
+#endif
         }
         field(10602; "E-Invoice"; Boolean)
         {
             Caption = 'E-Invoice';
+            ObsoleteReason = 'This field is obsolete and should not be used.';
+#if CLEAN29
+            ObsoleteState = Removed;
+            ObsoleteTag = '32.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '29.0';
+#endif
         }
+#endif
     }
 
     keys

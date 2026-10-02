@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -1080,7 +1080,8 @@ table 37 "Sales Line"
 
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
-                    "VAT Calculation Type"::"Reverse Charge VAT":
+                    "VAT Calculation Type"::"Reverse Charge VAT",
+                    "VAT Calculation Type"::"No Taxable VAT":
                         begin
                             "VAT Base Amount" :=
                               Round(Amount * (1 - GetVatBaseDiscountPct(SalesHeader) / 100), Currency."Amount Rounding Precision");
@@ -1127,7 +1128,8 @@ table 37 "Sales Line"
                 "Amount Including VAT" := Round("Amount Including VAT", Currency."Amount Rounding Precision");
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
-                    "VAT Calculation Type"::"Reverse Charge VAT":
+                    "VAT Calculation Type"::"Reverse Charge VAT",
+                    "VAT Calculation Type"::"No Taxable VAT":
                         begin
                             Amount :=
                               Round(
@@ -4131,16 +4133,28 @@ table 37 "Sales Line"
             ObsoleteTag = '26.0';
         }
 #endif
+#if not CLEANSCHEMA32
         field(10605; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
+            ObsoleteReason = 'This field is obsolete and should not be used.';
+#if CLEAN29
+            ObsoleteState = Removed;
+            ObsoleteTag = '32.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '29.0';
+#endif
 
+#if not CLEAN29
             trigger OnValidate()
             begin
                 if (Type = Type::" ") and ("Account Code" <> '') then
                     Error(Text10600, FieldCaption("Account Code"), FieldCaption(Type), Type);
             end;
+#endif
         }
+#endif
         field(10610; "VAT Number"; Code[20])
         {
             TableRelation = "VAT Reporting Code".Code;
@@ -4475,7 +4489,9 @@ table 37 "Sales Line"
         CanNotAddItemPickExistErr: Label 'You cannot add an item line because an open inventory pick exists for the Sales Header and because Shipping Advice is %1.\\You must first post or delete the inventory pick or change Shipping Advice to Partial.', Comment = '%1- Shipping Advice';
         ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
         SalesLineCompletelyShippedErr: Label 'You cannot change the purchasing code for a sales line that has been completely shipped.';
+#if not CLEAN29
         Text10600: Label 'You cannot enter %1 if %2 is "%3".';
+#endif
         SalesSetupRead: Boolean;
         LookupRequested: Boolean;
         FreightLineDescriptionTxt: Label 'Freight Amount';
@@ -4483,7 +4499,7 @@ table 37 "Sales Line"
         PriceDescriptionTxt: Label 'x%1 (%2%3/%4)', Locked = true;
         PriceDescriptionWithLineDiscountTxt: Label 'x%1 (%2%3/%4) - %5%', Locked = true;
         SelectNonstockItemErr: Label 'You can only select a catalog item for an empty line.';
-        CommentLbl: Label 'Comment';
+        CommentLbl: Label 'Comment', MaxLength = 30;
         LineDiscountPctErr: Label 'The value in the Line Discount % field must be between 0 and 100.';
         SalesBlockedErr: Label 'You cannot sell %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption';
         CannotChangePrepaidServiceChargeErr: Label 'You cannot change the line because it will affect service charges that are already invoiced as part of a prepayment.';
@@ -5735,9 +5751,9 @@ table 37 "Sales Line"
         if IsHandled then
             exit;
 
-          if (Rec.Quantity <> 0) and (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Shipped Not Invoiced" = 0) and
-              (Rec.Quantity = xRec.Quantity)
-          then
+        if (Rec.Quantity <> 0) and (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Shipped Not Invoiced" = 0) and
+           (Rec.Quantity = xRec.Quantity)
+        then
             if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then
                 exit;
 
@@ -6006,7 +6022,10 @@ table 37 "Sales Line"
             TotalVATBaseAmount := 0;
             if ("VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax") or
                (("VAT Calculation Type" in
-                 ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"]) and ("VAT %" <> 0))
+                 ["VAT Calculation Type"::"Normal VAT",
+                  "VAT Calculation Type"::"No Taxable VAT",
+                  "VAT Calculation Type"::"Reverse Charge VAT"]) and
+                ("VAT %" <> 0))
             then begin
                 SalesLine2.SetFilter("VAT %", '<>0');
                 if not SalesLine2.IsEmpty() then begin
@@ -6030,7 +6049,8 @@ table 37 "Sales Line"
             if SalesHeader."Prices Including VAT" then
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
-                    "VAT Calculation Type"::"Reverse Charge VAT":
+                    "VAT Calculation Type"::"Reverse Charge VAT",
+                    "VAT Calculation Type"::"No Taxable VAT":
                         begin
                             Amount :=
                               Round(
@@ -6073,7 +6093,8 @@ table 37 "Sales Line"
             else
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
-                    "VAT Calculation Type"::"Reverse Charge VAT":
+                    "VAT Calculation Type"::"Reverse Charge VAT",
+                    "VAT Calculation Type"::"No Taxable VAT":
                         begin
                             Amount := Round(CalcLineAmount(), Currency."Amount Rounding Precision");
                             "VAT Base Amount" :=
@@ -9839,7 +9860,9 @@ table 37 "Sales Line"
         "Prepayment Tax Liable" := SalesHeader."Tax Liable";
         "Responsibility Center" := SalesHeader."Responsibility Center";
 
+#if not CLEAN29
         "Account Code" := SalesHeader."Account Code";
+#endif
         "Shipping Agent Code" := SalesHeader."Shipping Agent Code";
         "Shipping Agent Service Code" := SalesHeader."Shipping Agent Service Code";
         "Outbound Whse. Handling Time" := SalesHeader."Outbound Whse. Handling Time";
@@ -10201,12 +10224,36 @@ table 37 "Sales Line"
     /// Blank line type is represented by the comment label.
     /// </remarks>
     /// <returns>The text representation of the line type.</returns>
-    procedure FormatType() FormattedType: Text[20]
+#if not CLEAN29
+    [Obsolete('Use FormatTypeAsText() instead.', '29.0')]
+    procedure FormatType(): Text[20]
+    begin
+        exit(CopyStr(FormatTypeAsText(), 1, 20));
+    end;
+#endif
+
+    /// <summary>
+    /// Gets the text representation of the line type for the sales line.
+    /// </summary>
+    /// <remarks>
+    /// Blank line type is represented by the comment label.
+    /// </remarks>
+    /// <returns>The text representation of the line type.</returns>
+    procedure FormatTypeAsText() FormattedType: Text[30]
     var
+#if not CLEAN29
+        LegacyFormattedType: Text[20];
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFormatType(Rec, FormattedType, IsHandled);
+#if not CLEAN29
+        OnBeforeFormatType(Rec, LegacyFormattedType, IsHandled);
+        FormattedType := LegacyFormattedType;
+        if IsHandled then
+            exit(FormattedType);
+#endif
+        OnBeforeFormatTypeAsText(Rec, FormattedType, IsHandled);
         if IsHandled then
             exit(FormattedType);
 
@@ -11980,8 +12027,22 @@ table 37 "Sales Line"
     /// <param name="SalesLine">The sales line being processed.</param>
     /// <param name="FormattedType">The formatted type text.</param>
     /// <param name="IsHandled">Set to true to skip the default processing.</param>
+#if not CLEAN29
+    [Obsolete('Use OnBeforeFormatTypeAsText instead.', '29.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatType(SalesLine: Record "Sales Line"; var FormattedType: Text[20]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    /// <summary>
+    /// Raised before the sales line type is formatted as text.
+    /// </summary>
+    /// <param name="SalesLine">The sales line for which the type is being formatted.</param>
+    /// <param name="FormattedType">The formatted line type.</param>
+    /// <param name="IsHandled">Set to true to skip the default processing.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatTypeAsText(SalesLine: Record "Sales Line"; var FormattedType: Text[30]; var IsHandled: Boolean)
     begin
     end;
 

@@ -39,7 +39,7 @@ codeunit 4307 "Agent Message"
     var
         AgentMessageImpl: Codeunit "Agent Message Impl.";
     begin
-        FeatureAccessManagement.AgentTaskManagementPreviewEnabled(true);
+        FeatureAccessManagement.AgentManagementAllowed(true);
         exit(AgentMessageImpl.GetText(AgentTaskMessage));
     end;
 
@@ -57,22 +57,21 @@ codeunit 4307 "Agent Message"
         AgentMessageImpl.UpdateText(TaskID, MessageID, NewMessageText);
     end;
 
+#if not CLEAN29
     /// <summary>
     /// Updates the message text.
     /// </summary>
-    /// <remarks>
-    /// This method will be marked as obsolete soon:
-    /// [Obsolete('Use the overload that takes TaskID and MessageID instead.', '29.0')]
-    /// </remarks>
     /// <param name="AgentTaskMessage">The message record to update.</param>
     /// <param name="NewMessageText">New message text to set.</param>
+    [Obsolete('Use the overload that takes TaskID and MessageID instead.', '29.0')]
     procedure UpdateText(var AgentTaskMessage: Record "Agent Task Message"; NewMessageText: Text)
     var
         AgentMessageImpl: Codeunit "Agent Message Impl.";
     begin
-        FeatureAccessManagement.AgentTaskManagementPreviewEnabled(true);
+        FeatureAccessManagement.AgentManagementAllowed(true);
         AgentMessageImpl.UpdateText(AgentTaskMessage, NewMessageText);
     end;
+#endif
 
     /// <summary>
     /// Check if it is possible to edit the message.
@@ -98,7 +97,7 @@ codeunit 4307 "Agent Message"
     var
         AgentMessageImpl: Codeunit "Agent Message Impl.";
     begin
-        FeatureAccessManagement.AgentTaskManagementPreviewEnabled(true);
+        FeatureAccessManagement.AgentManagementAllowed(true);
         exit(AgentMessageImpl.IsEditable(AgentTaskMessage));
     end;
 
@@ -115,20 +114,48 @@ codeunit 4307 "Agent Message"
         AgentMessageImpl.SetStatusToSent(TaskID, MessageID);
     end;
 
+#if not CLEAN29
     /// <summary>
     /// Sets the message status to sent.
     /// </summary>
-    /// <remarks>
-    /// This method will be marked as obsolete soon:
-    /// [Obsolete('Use the overload that takes TaskID and MessageID instead.', '29.0')]
-    /// </remarks>
     /// <param name="AgentTaskMessage">Agent task message to update status.</param>
+    [Obsolete('Use the overload that takes TaskID and MessageID instead.', '29.0')]
     procedure SetStatusToSent(var AgentTaskMessage: Record "Agent Task Message")
     var
         AgentMessageImpl: Codeunit "Agent Message Impl.";
     begin
-        FeatureAccessManagement.AgentTaskManagementPreviewEnabled(true);
+        FeatureAccessManagement.AgentManagementAllowed(true);
         AgentMessageImpl.SetStatusToSent(AgentTaskMessage);
+    end;
+#endif
+
+    /// <summary>
+    /// Sets the message status to failed, to indicate that delivery of the output message failed terminally.
+    /// Only a reviewed output message, or one that already failed, can be set to failed.
+    /// </summary>
+    /// <param name="TaskID">The task ID of the message.</param>
+    /// <param name="MessageID">The unique identifier of the message.</param>
+    /// <param name="StatusReason">The reason the message could not be delivered. It is shown to the user and recorded on the agent task log entry.</param>
+    procedure SetStatusToFailed(TaskID: BigInteger; MessageID: Guid; StatusReason: Text[250])
+    var
+        AgentMessageImpl: Codeunit "Agent Message Impl.";
+    begin
+        FeatureAccessManagement.AgentManagementAllowed(true);
+        AgentMessageImpl.SetStatusToFailed(TaskID, MessageID, StatusReason);
+    end;
+
+    /// <summary>
+    /// Sets the message status back to reviewed, so that delivery of a failed output message can be attempted again.
+    /// The status reason of the previous failure is cleared.
+    /// </summary>
+    /// <param name="TaskID">The task ID of the message.</param>
+    /// <param name="MessageID">The unique identifier of the message.</param>
+    procedure SetStatusToReviewed(TaskID: BigInteger; MessageID: Guid)
+    var
+        AgentMessageImpl: Codeunit "Agent Message Impl.";
+    begin
+        FeatureAccessManagement.AgentManagementAllowed(true);
+        AgentMessageImpl.SetStatusToReviewed(TaskID, MessageID);
     end;
 
     /// <summary>
@@ -155,7 +182,7 @@ codeunit 4307 "Agent Message"
     var
         AgentMessageImpl: Codeunit "Agent Message Impl.";
     begin
-        FeatureAccessManagement.AgentTaskManagementPreviewEnabled(true);
+        FeatureAccessManagement.AgentManagementAllowed(true);
         AgentMessageImpl.SetIgnoreAttachment(IgnoreAttachment);
     end;
 
@@ -167,7 +194,7 @@ codeunit 4307 "Agent Message"
     var
         AgentMessageImpl: Codeunit "Agent Message Impl.";
     begin
-        FeatureAccessManagement.AgentTaskManagementPreviewEnabled(true);
+        FeatureAccessManagement.AgentManagementAllowed(true);
         AgentMessageImpl.DownloadAttachments(AgentTaskMessage);
     end;
 
@@ -180,7 +207,7 @@ codeunit 4307 "Agent Message"
     var
         AgentMessageImpl: Codeunit "Agent Message Impl.";
     begin
-        FeatureAccessManagement.AgentTaskManagementPreviewEnabled(true);
+        FeatureAccessManagement.AgentManagementAllowed(true);
         AgentMessageImpl.ShowOrDownloadAttachment(TaskId, FileID, false);
     end;
 
@@ -192,7 +219,7 @@ codeunit 4307 "Agent Message"
     var
         AgentMessageImpl: Codeunit "Agent Message Impl.";
     begin
-        FeatureAccessManagement.AgentTaskManagementPreviewEnabled(true);
+        FeatureAccessManagement.AgentManagementAllowed(true);
         AgentMessageImpl.ShowOrDownloadAttachment(AgentTaskFile, false);
     end;
 
@@ -206,7 +233,7 @@ codeunit 4307 "Agent Message"
     var
         AgentMessageImpl: Codeunit "Agent Message Impl.";
     begin
-        FeatureAccessManagement.AgentTaskManagementPreviewEnabled(true);
+        FeatureAccessManagement.AgentManagementAllowed(true);
         AgentMessageImpl.GetAttachments(TaskID, MessageID, TempAgentTaskFile);
     end;
 
@@ -219,7 +246,7 @@ codeunit 4307 "Agent Message"
     var
         AgentMessageImpl: Codeunit "Agent Message Impl.";
     begin
-        FeatureAccessManagement.AgentTaskManagementPreviewEnabled(true);
+        FeatureAccessManagement.AgentManagementAllowed(true);
         exit(AgentMessageImpl.GetFileSizeDisplayText(SizeInBytes));
     end;
 }

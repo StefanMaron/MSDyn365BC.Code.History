@@ -209,6 +209,11 @@ codeunit 6195 "E-Doc. AI Tool Processor"
             FeatureTelemetry.LogError('0000PUH', AISystem.GetFeatureName(), 'AI Processing Failed', 'Processing failed', '', TelemetryDimensions);
     end;
 
+    local procedure LogError(EventName: Text; ErrorMessage: Text)
+    begin
+        FeatureTelemetry.LogError('0000PUI', AISystem.GetFeatureName(), EventName, ErrorMessage, '', TelemetryDimensions);
+    end;
+
     local procedure RegisterCapabilityIfNeeded()
     var
         CopilotCapability: Codeunit "Copilot Capability";
@@ -219,11 +224,6 @@ codeunit 6195 "E-Doc. AI Tool Processor"
             exit;
         if not CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"E-Document Matching Assistance") then
             CopilotCapability.RegisterCapability(Enum::"Copilot Capability"::"E-Document Matching Assistance", LearnMoreUrlTxt);
-    end;
-
-    local procedure LogError(EventName: Text; ErrorMessage: Text)
-    begin
-        FeatureTelemetry.LogError('0000PUI', AISystem.GetFeatureName(), EventName, ErrorMessage, '', TelemetryDimensions);
     end;
 
     local procedure GetDefaultMaxInputTokens(): Integer

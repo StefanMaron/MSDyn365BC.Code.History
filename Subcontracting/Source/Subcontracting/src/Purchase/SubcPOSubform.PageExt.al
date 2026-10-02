@@ -68,6 +68,7 @@ pageextension 20524 "Subc. PO Subform" extends "Purchase Order Subform"
                     ApplicationArea = Subcontracting;
                     Visible = HasSubcontractingContext;
                     Caption = 'Subcontracting Transfer Order';
+                    Enabled = CurrentLineIsSubcontractingLine;
                     Image = TransferOrder;
                     ToolTip = 'View the related transfer order.';
                     trigger OnAction()
@@ -80,6 +81,7 @@ pageextension 20524 "Subc. PO Subform" extends "Purchase Order Subform"
                     ApplicationArea = Subcontracting;
                     Visible = HasSubcontractingContext;
                     Caption = 'Subcontracting Return Transfer Order';
+                    Enabled = CurrentLineIsSubcontractingLine;
                     Image = ReturnRelated;
                     ToolTip = 'View the related return transfer order.';
                     trigger OnAction()
@@ -97,9 +99,11 @@ pageextension 20524 "Subc. PO Subform" extends "Purchase Order Subform"
         SubcProdOrderFactboxMgmt: Codeunit "Subc. ProdO. Factbox Mgmt.";
         SubcPurchFactboxMgmt: Codeunit "Subc. Purch. Factbox Mgmt.";
         HasSubcontractingContext: Boolean;
+        CurrentLineIsSubcontractingLine: Boolean;
 
     trigger OnAfterGetCurrRecord()
     begin
+        CurrentLineIsSubcontractingLine := SubcontractingManagement.IsSubcontractingPurchaseLine(Rec);
         SetSubcontractingVisibility();
     end;
 

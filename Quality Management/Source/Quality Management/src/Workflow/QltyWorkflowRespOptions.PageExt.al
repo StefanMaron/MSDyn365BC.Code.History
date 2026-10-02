@@ -429,10 +429,8 @@ pageextension 20403 "Qlty. Workflow Resp. Options" extends "Workflow Response Op
                             Bin: Record Bin;
                             QltyWorkflowResponse: Codeunit "Qlty. Workflow Response";
                         begin
-                            // After the table relation is removed to change from a drop-down to an assist-edit
-                            // to allow the bins to be filtered by the location code, there needs to be an ability
-                            // to validate the bin is still valid.  We do this by fetching the record and 
-                            // letting it fail if it doesn't exist.
+                            // There is no table relation on this field because the bins need to be filtered by the selected location code via the OnAssistEdit trigger. 
+                            // Bin is validated by fetching the record and letting it fail if it doesn't exist.
                             Bin.Get(QltyLocationCode, QltyBinCode);
                             QltyWorkflowResponse.SetStepConfigurationValue(Rec, QltyWorkflowResponse.GetWellKnownKeyBin(), QltyBinCode);
                         end;
@@ -845,6 +843,9 @@ pageextension 20403 "Qlty. Workflow Resp. Options" extends "Workflow Response Op
         Qlty_SetFields();
     end;
 
+    /// <summary>
+    /// Stores the database table, filter, field, and value expression configuration.
+    /// </summary>
     local procedure Qlty_SetCommonDatabaseVariables()
     var
         QltyWorkflowResponse: Codeunit "Qlty. Workflow Response";
@@ -857,6 +858,9 @@ pageextension 20403 "Qlty. Workflow Resp. Options" extends "Workflow Response Op
         QltyWorkflowResponse.SetStepConfigurationValue(Rec, QltyWorkflowResponse.GetWellKnownKeyValueExpression(), TestValueExpressionToSet);
     end;
 
+    /// <summary>
+    /// Sets the quantity behavior Boolean fields from the selected quantity behavior.
+    /// </summary>
     local procedure Qlty_SetMoveBehaviorBools()
     begin
         QltyMoveSpecific := false;
@@ -879,6 +883,9 @@ pageextension 20403 "Qlty. Workflow Resp. Options" extends "Workflow Response Op
         end;
     end;
 
+    /// <summary>
+    /// Sets response option group visibility for the current workflow response function.
+    /// </summary>
     local procedure Qlty_SetGroupVisibility()
     var
         QltyWorkflowSetup: Codeunit "Qlty. Workflow Setup";
@@ -953,6 +960,9 @@ pageextension 20403 "Qlty. Workflow Resp. Options" extends "Workflow Response Op
         end;
     end;
 
+    /// <summary>
+    /// Loads visible response option fields from workflow step configuration.
+    /// </summary>
     local procedure Qlty_SetFields()
     var
         QltyWorkflowResponse: Codeunit "Qlty. Workflow Response";
@@ -1034,6 +1044,9 @@ pageextension 20403 "Qlty. Workflow Resp. Options" extends "Workflow Response Op
         end;
     end;
 
+    /// <summary>
+    /// Loads the destination location and bin and sets bin visibility from the location setup.
+    /// </summary>
     local procedure SetLocationAndBinCode()
     var
         Location: Record Location;

@@ -429,7 +429,6 @@ page 9018 "Administrator Role Center"
                 Caption = 'Relocate &Attachments';
                 Image = ChangeTo;
                 RunObject = Report "Relocate Attachments";
-                ToolTip = 'Specify where to store attachments.';
             }
             action("Create Warehouse &Location")
             {
@@ -437,7 +436,6 @@ page 9018 "Administrator Role Center"
                 Caption = 'Create Warehouse &Location';
                 Image = NewWarehouse;
                 RunObject = Report "Create Warehouse Location";
-                ToolTip = 'Enable an existing inventory location to use zones and bins to operate as a warehouse location. The batch job creates initial warehouse entries for the warehouse adjustment bin for all items that have inventory in the location. It is necessary to perform a physical inventory after this batch job is finished so that these initial entries can be balanced by posting warehouse physical inventory entries.';
             }
             action("C&hange Log Setup")
             {
@@ -702,7 +700,6 @@ page 9018 "Administrator Role Center"
                     Caption = 'Date Compress &Customer Ledger Entries';
                     Image = Customer;
                     RunObject = Report "Date Compress Customer Ledger";
-                    ToolTip = 'Save database space by combining related entries in one new entry. You can compress entries from closed fiscal years only.';
                 }
                 action("Date Compress V&endor Ledger Entries")
                 {
@@ -710,7 +707,6 @@ page 9018 "Administrator Role Center"
                     Caption = 'Date Compress V&endor Ledger Entries';
                     Image = Vendor;
                     RunObject = Report "Date Compress Vendor Ledger";
-                    ToolTip = 'Save database space by combining related entries in one new entry. You can compress entries from closed fiscal years only.';
                 }
                 action("Date Compress &Resource Ledger Entries")
                 {
@@ -718,7 +714,6 @@ page 9018 "Administrator Role Center"
                     Caption = 'Date Compress &Resource Ledger Entries';
                     Image = Resource;
                     RunObject = Report "Date Compress Resource Ledger";
-                    ToolTip = 'Save database space by combining related entries in one new entry. You can compress entries from closed fiscal years only.';
                 }
                 action("Date Compress &FA Ledger Entries")
                 {
@@ -750,7 +745,6 @@ page 9018 "Administrator Role Center"
                     Caption = 'Date Compress &Warehouse Entries';
                     Image = Bin;
                     RunObject = Report "Date Compress Whse. Entries";
-                    ToolTip = 'Save database space by combining related entries in one new entry. You can compress entries from closed fiscal years only.';
                 }
             }
             separator(Action264)
@@ -766,7 +760,6 @@ page 9018 "Administrator Role Center"
                     Caption = 'Create Contacts from &Customer';
                     Image = CustomerContact;
                     RunObject = Report "Create Conts. from Customers";
-                    ToolTip = 'Create a contact card from information about the customer''s contact person.';
                 }
                 action("Create Contacts from &Vendor")
                 {
@@ -774,7 +767,6 @@ page 9018 "Administrator Role Center"
                     Caption = 'Create Contacts from &Vendor';
                     Image = VendorContact;
                     RunObject = Report "Create Conts. from Vendors";
-                    ToolTip = 'Create a contact card from information about the vendor''s contact person.';
                 }
                 action("Create Contacts from &Bank Account")
                 {
@@ -782,7 +774,6 @@ page 9018 "Administrator Role Center"
                     Caption = 'Create Contacts from &Bank Account';
                     Image = BankContact;
                     RunObject = Report "Create Conts. from Bank Accs.";
-                    ToolTip = 'Create a contact card from information about the bank account''s contact person.';
                 }
                 action("Task &Activities")
                 {

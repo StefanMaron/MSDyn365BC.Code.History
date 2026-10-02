@@ -69,12 +69,16 @@ table 303 "Finance Charge Memo Line"
                     FinChrgMemoLine := Rec;
                     Init();
                     Type := FinChrgMemoLine.Type;
+#if not CLEAN29
                     "Account Code" := FinChrgMemoLine."Account Code";
+#endif
                     GetFinChrgMemoHeader();
+#if not CLEAN29
                     if (Type <> Type::" ") and ("Account Code" = '') then
                         "Account Code" := FinChrgMemoHeader."Account Code"
                     else
                         "Account Code" := '';
+#endif
                 end;
             end;
         }
@@ -301,8 +305,8 @@ table 303 "Finance Charge Memo Line"
                 Amount := Round(Amount, Currency."Amount Rounding Precision");
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
-                  "VAT Calculation Type"::"Reverse Charge VAT",
-                  "VAT Calculation Type"::"Full VAT":
+                    "VAT Calculation Type"::"Reverse Charge VAT",
+                    "VAT Calculation Type"::"Full VAT":
                         "VAT Amount" :=
                           Round(Amount * "VAT %" / 100, Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                     "VAT Calculation Type"::"Sales Tax":
@@ -316,6 +320,11 @@ table 303 "Finance Charge Memo Line"
                             else
                                 "VAT %" := 0;
                             "VAT Amount" := Round("VAT Amount", Currency."Amount Rounding Precision");
+                        end;
+                    "VAT Calculation Type"::"No Taxable VAT":
+                        begin
+                            "VAT Amount" := 0;
+                            "VAT %" := 0;
                         end;
                 end;
             end;
@@ -482,16 +491,28 @@ table 303 "Finance Charge Memo Line"
             Caption = 'System-Created Entry';
             Editable = false;
         }
+#if not CLEANSCHEMA32
         field(10601; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
+            ObsoleteReason = 'This field is obsolete and should not be used.';
+#if CLEAN29
+            ObsoleteState = Removed;
+            ObsoleteTag = '32.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '29.0';
+#endif
 
+#if not CLEAN29
             trigger OnValidate()
             begin
                 if (Type = Type::" ") and ("Account Code" <> '') then
                     Error(Text10600, FieldCaption("Account Code"), FieldCaption(Type), Type);
             end;
+#endif
         }
+#endif
     }
 
     keys
@@ -562,7 +583,9 @@ table 303 "Finance Charge Memo Line"
         NrOfDays: Integer;
         NrOfLinesToInsert: Integer;
         NrOfLines: Integer;
+#if not CLEAN29
         Text10600: Label 'You cannot enter %1 if %2 is "%3".';
+#endif
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
@@ -835,11 +858,11 @@ table 303 "Finance Charge Memo Line"
         Checking := DoChecking;
     end;
 
-    local procedure BuildDescription(var Descr: Text; InterestRate: Decimal; DueDate: Date; NrOfDays: Integer; BaseAmount: Decimal)
+    local procedure BuildDescription(var Descr: Text[100]; InterestRate: Decimal; DueDate: Date; NrOfDays: Integer; BaseAmount: Decimal)
     var
         AutoFormatType: Enum "Auto Format";
     begin
-        DocTypeText := DelChr(Format("Document Type"), '<');
+        DocTypeText := CopyStr(DelChr(Format("Document Type"), '<'), 1, 30);
         if DocTypeText = '' then
             DocTypeText := Text002;
         if FinChrgTerms."Line Description" = '' then
@@ -862,11 +885,11 @@ table 303 "Finance Charge Memo Line"
                 MaxStrLen(Description));
     end;
 
-    local procedure BuildMultiDescription(var Descr: Text; DueDate: Date; NrOfDays: Integer)
+    local procedure BuildMultiDescription(var Descr: Text[100]; DueDate: Date; NrOfDays: Integer)
     var
         AutoFormatType: Enum "Auto Format";
     begin
-        DocTypeText := DelChr(Format("Document Type"), '<');
+        DocTypeText := CopyStr(DelChr(Format("Document Type"), '<'), 1, 30);
         if DocTypeText = '' then
             DocTypeText := Text002;
         if FinChrgTerms.Description = '' then

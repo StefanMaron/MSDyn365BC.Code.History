@@ -28,12 +28,12 @@ using System.Utilities;
 /// </summary>
 report 118 "Finance Charge Memo"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Sales/FinanceCharge/FinanceChargeMemo.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Finance Charge Memo';
+    ToolTip = 'Create a new finance charge memo.';
     UsageCategory = ReportsAndAnalysis;
     WordMergeDataItem = "Issued Fin. Charge Memo Header";
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -231,9 +231,11 @@ report 118 "Finance Charge Memo"
                 column(CompanyVATRegistrationNoCaption; CompanyInfo.GetVATRegistrationNumberLbl())
                 {
                 }
+#if not CLEAN29
                 column(EnterpriseClassification; CompanyInfo.GetEnterpriseClassification())
                 {
                 }
+#endif
                 column(KundeIDCaption; KundeTxt)
                 {
                 }
@@ -677,6 +679,16 @@ report 118 "Finance Charge Memo"
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Sales/FinanceCharge/FinanceChargeMemo.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
     }
 
     labels

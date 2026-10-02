@@ -237,9 +237,6 @@ report 5912 "Service - Credit Memo"
                     column(PricesInclVAT_ServiceCrMemoHeaderCaption; "Service Cr.Memo Header".FieldCaption("Prices Including VAT"))
                     {
                     }
-                    column(EnterpriseRegister; CompanyInfo.GetEnterpriseClassification())
-                    {
-                    }
                     dataitem(DimensionLoop1; "Integer")
                     {
                         DataItemLinkReference = "Service Cr.Memo Header";
@@ -767,7 +764,6 @@ report 5912 "Service - Credit Memo"
         TotalLineAmount: Decimal;
         DimTxtArrLength: Integer;
         DimTxtArr: array[500] of Text[50];
-        SubtotalCaptionLbl: Label 'Subtotal';
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
@@ -808,6 +804,7 @@ report 5912 "Service - Credit Memo"
         TotalCaptionLbl: Label 'Total';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
         InvDiscountAmountCaptionLbl: Label 'Invoice Discount Amount';
+        SubtotalCaptionLbl: Label 'Subtotal';
 
     protected var
         CompanyInfo: Record "Company Information";
