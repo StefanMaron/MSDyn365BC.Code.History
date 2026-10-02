@@ -5162,6 +5162,42 @@ codeunit 137069 "SCM Production Orders"
         Assert.ExpectedTestFieldError(RoutingHeader.FieldCaption(Status), Format(RoutingHeader.Status::Certified));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTRUE,ReleasedProdOrderPageHandler')]
+    procedure ReopenRefinishDoesNotRepostSetupTimeForBackwardFlushedProdOrder()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        FinishedProdOrder: Record "Production Order";
+        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+        SetupTimeAfterFirstFinish: Decimal;
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 646792] Reopening and re-finishing a production order does not repost the backward-flushed routing setup time.
+        Initialize();
+
+        // [GIVEN] Item with a backward-flushed routing that has Setup Time and Run Time.
+        CreateItemWithRoutingSetUpForBackwardFlushing(Item);
+
+        // [GIVEN] Released production order changed to Finished, posting the setup time once.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandIntInRange(10, 20));
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+        SetupTimeAfterFirstFinish := GetTotalSetupTimeOnCapacityLedgerEntries(ProductionOrder."No.");
+        Assert.IsTrue(SetupTimeAfterFirstFinish > 0, 'Setup time must be posted when the production order is finished.');
+
+        // [GIVEN] The finished production order is reopened back to Released.
+        FinishedProdOrder.Get(FinishedProdOrder.Status::Finished, ProductionOrder."No.");
+        ProdOrderStatusMgt.ReopenFinishedProdOrder(FinishedProdOrder);
+
+        // [WHEN] The production order is changed to Finished again.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] The total setup time on the capacity ledger entries is not doubled.
+        Assert.AreEqual(SetupTimeAfterFirstFinish, GetTotalSetupTimeOnCapacityLedgerEntries(ProductionOrder."No."),
+          'Setup time must not be reposted when reopening and re-finishing the production order.');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7168,6 +7204,16 @@ codeunit 137069 "SCM Production Orders"
         WarehouseReceiptLine.FindFirst();
     end;
 
+    local procedure GetTotalSetupTimeOnCapacityLedgerEntries(ProdOrderNo: Code[20]): Decimal
+    var
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+    begin
+        CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
+        CapacityLedgerEntry.SetRange("Order No.", ProdOrderNo);
+        CapacityLedgerEntry.CalcSums("Setup Time");
+        exit(CapacityLedgerEntry."Setup Time");
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnBeforeAssistEditTrackingNo', '', false, false)]
     local procedure CheckTrackingSpecOnBeforeAssistEditTrackingNoEvent(var TempTrackingSpecification: Record "Tracking Specification" temporary; var SearchForSupply: Boolean; CurrentSignFactor: Integer; LookupMode: Enum "Item Tracking Type"; MaxQuantity: Decimal)
     var
@@ -7441,6 +7487,12 @@ codeunit 137069 "SCM Production Orders"
     procedure ConfirmHandlerTRUE(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ReleasedProdOrderPageHandler(var ReleasedProductionOrder: TestPage "Released Production Order")
+    begin
     end;
 
     [ModalPageHandler]

@@ -2853,7 +2853,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         TempExchRateAdjmtLedgEntry."Currency Factor" := CustLedgerEntry."Adjusted Currency Factor";
         TempExchRateAdjmtLedgEntry."Base Amount" := CustLedgerEntry."Remaining Amount";
         TempExchRateAdjmtLedgEntry."Base Amount (LCY)" := CustLedgerEntry."Remaining Amt. (LCY)";
-        TempExchRateAdjmtLedgEntry."Adjustment Amount" := CurrAdjAmount;
+        TempExchRateAdjmtLedgEntry."Adjustment Amount" := DetailedCustLedgEntry2."Amount (LCY)";
         TempExchRateAdjmtLedgEntry.Insert();
     end;
 
@@ -2874,7 +2874,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         TempExchRateAdjmtLedgEntry."Currency Factor" := VendorLedgerEntry."Adjusted Currency Factor";
         TempExchRateAdjmtLedgEntry."Base Amount" := VendorLedgerEntry."Remaining Amount";
         TempExchRateAdjmtLedgEntry."Base Amount (LCY)" := VendorLedgerEntry."Remaining Amt. (LCY)";
-        TempExchRateAdjmtLedgEntry."Adjustment Amount" := CurrAdjAmount;
+        TempExchRateAdjmtLedgEntry."Adjustment Amount" := DetailedVendorLedgEntry2."Amount (LCY)";
         TempExchRateAdjmtLedgEntry.Insert();
     end;
 
@@ -2895,7 +2895,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         TempExchRateAdjmtLedgEntry."Currency Factor" := Currency."Currency Factor";
         TempExchRateAdjmtLedgEntry."Base Amount" := EmplLedgEntry."Remaining Amount";
         TempExchRateAdjmtLedgEntry."Base Amount (LCY)" := EmplLedgEntry."Remaining Amt. (LCY)";
-        TempExchRateAdjmtLedgEntry."Adjustment Amount" := CurrAdjAmount;
+        TempExchRateAdjmtLedgEntry."Adjustment Amount" := DtldEmplLedgEntry."Amount (LCY)";
         TempExchRateAdjmtLedgEntry.Insert();
     end;
 
