@@ -10,11 +10,11 @@ using Microsoft.Inventory.Item.Substitution;
 
 report 5701 "Item Substitutions"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Reports/ItemSubstitutions.rdlc';
     ApplicationArea = Suite;
     Caption = 'Item Substitutions';
+    ToolTip = 'View substitute items that are set up to be sold instead of the items in the filter. A detailed overview also includes description, unit cost, quantity on hand, base unit of measure, information about interchangeability and additional conditions.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -141,6 +141,16 @@ report 5701 "Item Substitutions"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Inventory/Reports/ItemSubstitutions.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

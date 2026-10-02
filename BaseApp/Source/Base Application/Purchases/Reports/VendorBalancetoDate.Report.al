@@ -13,14 +13,14 @@ using System.Utilities;
 
 report 321 "Vendor - Balance to Date"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Purchases/Reports/VendorBalancetoDate.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor - Balance to Date';
+    ToolTip = 'View, print, or save a detail balance to date for selected vendors.';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
     WordMergeDataItem = Vendor;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -359,6 +359,16 @@ report 321 "Vendor - Balance to Date"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Purchases/Reports/VendorBalancetoDate.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

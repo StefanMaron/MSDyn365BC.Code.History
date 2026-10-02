@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -116,20 +116,12 @@ codeunit 90 "Purch.-Post"
     internal procedure RunWithCheck(var PurchaseHeader2: Record "Purchase Header")
     var
         PurchHeader: Record "Purchase Header";
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
-        TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
         TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary;
-        InventorySetup: Record "Inventory Setup";
-        ErrorContextElementProcessLines: Codeunit "Error Context Element";
-        ErrorContextElementPostLine: Codeunit "Error Context Element";
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
-        ZeroPurchLineRecID: RecordId;
         EverythingInvoiced: Boolean;
         SavedPreviewMode: Boolean;
         SavedSuppressCommit: Boolean;
         SavedCalledBy: Integer;
-        BiggestLineNo: Integer;
-        ICGenJnlLineNo: Integer;
         SavedHideProgressWindow: Boolean;
         IsHandled: Boolean;
     begin
@@ -169,6 +161,88 @@ codeunit 90 "Purch.-Post"
         // Header
         CheckAndUpdate(PurchHeader);
 
+        ProcessPosting(PurchHeader, TempDropShptPostBuffer, EverythingInvoiced);
+
+        UpdateLastPostingNos(PurchHeader);
+
+        OnRunOnBeforeFinalizePosting(
+          PurchHeader, PurchRcptHeader, PurchInvHeader, PurchCrMemoHeader, ReturnShptHeader, GenJnlPostLine, SuppressCommit);
+        FinalizePosting(PurchHeader, TempDropShptPostBuffer, EverythingInvoiced);
+
+        PurchaseHeader2 := PurchHeader;
+
+        CommitAndUpdateAnalysisVeiw();
+
+        OnAfterPostPurchaseDoc(
+          PurchaseHeader2, GenJnlPostLine, PurchRcptHeader."No.", ReturnShptHeader."No.", PurchInvHeader."No.", PurchCrMemoHeader."No.",
+          SuppressCommit);
+
+        OnAfterPostPurchaseDocDropShipment(SalesShptHeader."No.", SuppressCommit, PreviewMode);
+    end;
+
+    /// <summary>
+    /// A wrapper procedure to delegate to either a procedure that allows commit or a procedure that ignores commit.
+    /// By default, commits are suppressed during the critical posting window to prevent duplicate-key races
+    /// on G/L Entry (table 17). Subscribers can opt out by setting IgnoreCommit to false via OnSetCommitBehavior.
+    /// </summary>
+    /// <param name="PurchHeader">The purchase header of the document that is being posted.</param>
+    /// <param name="TempDropShptPostBuffer">Accumulates drop-shipment buffer records during posting.</param>
+    /// <param name="EverythingInvoiced">Set to false during posting if any line is partially invoiced.</param>
+    local procedure ProcessPosting(
+        var PurchHeader: Record "Purchase Header";
+        var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary;
+        var EverythingInvoiced: Boolean)
+    var
+        IgnoreCommit: Boolean;
+    begin
+        IgnoreCommit := true;
+        OnSetCommitBehavior(IgnoreCommit);
+
+        if IgnoreCommit then
+            ProcessPostingLinesCommitBehaviorIgnore(PurchHeader, TempDropShptPostBuffer, EverythingInvoiced)
+        else
+            ProcessPostingLines(PurchHeader, TempDropShptPostBuffer, EverythingInvoiced);
+    end;
+
+    /// <summary>
+    /// A wrapper procedure to delegate to ProcessPostingLines in order to ignore commits.
+    /// While this procedure is on the call stack, the platform turns every Commit() into a no-op,
+    /// preventing intermittent duplicate-key errors on G/L Entry (table 17).
+    /// </summary>
+    /// <param name="PurchHeader">The purchase header of the document that is being posted.</param>
+    /// <param name="TempDropShptPostBuffer">Accumulates drop-shipment buffer records during posting.</param>
+    /// <param name="EverythingInvoiced">Set to false during posting if any line is partially invoiced.</param>
+    [CommitBehavior(CommitBehavior::Ignore)]
+    local procedure ProcessPostingLinesCommitBehaviorIgnore(
+        var PurchHeader: Record "Purchase Header";
+        var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary;
+        var EverythingInvoiced: Boolean)
+    begin
+        ProcessPostingLines(PurchHeader, TempDropShptPostBuffer, EverythingInvoiced);
+    end;
+
+    /// <summary>
+    /// The main procedure that processes the purchase document lines.
+    /// Will update inventory, finance, resources, jobs, etc., dependent on what lines are in the document.
+    /// Also covers PostInvoice, PostICGenJnl, and MakeInventoryAdjustment.
+    /// </summary>
+    /// <param name="PurchHeader">The purchase header of the document that is being posted.</param>
+    /// <param name="TempDropShptPostBuffer">Accumulates drop-shipment buffer records during posting.</param>
+    /// <param name="EverythingInvoiced">Set to false during posting if any line is partially invoiced.</param>
+    local procedure ProcessPostingLines(
+        var PurchHeader: Record "Purchase Header";
+        var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary;
+        var EverythingInvoiced: Boolean)
+    var
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
+        ErrorContextElementProcessLines: Codeunit "Error Context Element";
+        ErrorContextElementPostLine: Codeunit "Error Context Element";
+        ZeroPurchLineRecID: RecordId;
+        ICGenJnlLineNo: Integer;
+        BiggestLineNo: Integer;
+        IsHandled: Boolean;
+    begin
         InvoicePostingInterface.ClearBuffers();
 
         TempDropShptPostBuffer.DeleteAll();
@@ -258,21 +332,6 @@ codeunit 90 "Purch.-Post"
         OnRunOnBeforeMakeInventoryAdjustment(PurchHeader, GenJnlPostLine, ItemJnlPostLine, PreviewMode, PurchRcptHeader, PurchInvHeader, IsHandled);
         if not IsHandled then
             MakeInventoryAdjustment();
-        UpdateLastPostingNos(PurchHeader);
-
-        OnRunOnBeforeFinalizePosting(
-          PurchHeader, PurchRcptHeader, PurchInvHeader, PurchCrMemoHeader, ReturnShptHeader, GenJnlPostLine, SuppressCommit);
-        FinalizePosting(PurchHeader, TempDropShptPostBuffer, EverythingInvoiced);
-
-        PurchaseHeader2 := PurchHeader;
-
-        CommitAndUpdateAnalysisVeiw();
-
-        OnAfterPostPurchaseDoc(
-          PurchaseHeader2, GenJnlPostLine, PurchRcptHeader."No.", ReturnShptHeader."No.", PurchInvHeader."No.", PurchCrMemoHeader."No.",
-          SuppressCommit);
-
-        OnAfterPostPurchaseDocDropShipment(SalesShptHeader."No.", SuppressCommit, PreviewMode);
     end;
 
     var
@@ -438,7 +497,7 @@ codeunit 90 "Purch.-Post"
         MixedDerpFAUntilPostingDateErr: Label 'The value in the Depr. Until FA Posting Date field must be the same on lines for the same fixed asset %1.', Comment = '%1 - Fixed Asset No.';
         CannotPostSameMultipleFAWhenDeprBookValueZeroErr: Label 'You cannot select the Depr. Until FA Posting Date check box because there is no previous acquisition entry for fixed asset %1.\\If you want to depreciate new acquisitions, you can select the Depr. Acquisition Cost check box instead.', Comment = '%1 - Fixed Asset No.';
         PostingPreviewNoTok: Label '***', Locked = true;
-        PostingPreviewNoFormatTxt: Label '<Filler Character,0><Integer,6>', Comment = 'Previewed document numbers are displayed in the format ***000000', Locked = true;
+        PostingPreviewNoFormatTxt: Label '<Integer,6><Filler Character,0>', Comment = 'Previewed document numbers are displayed in the format ***000000', Locked = true;
         InvPickExistsErr: Label 'One or more related inventory picks must be registered before you can post the shipment.';
         InvPutAwayExistsErr: Label 'One or more related inventory put-aways must be registered before you can post the receipt.';
         SuppressCommit: Boolean;
@@ -466,6 +525,7 @@ codeunit 90 "Purch.-Post"
         ReverseChargeFeatureNameTok: Label 'Reverse Charge GB', Locked = true;
         ReverseChargeEventNameTok: Label 'Reverse Charge GB has been used', Locked = true;
 #endif
+        SelfBillingNoSeriesMissingErr: Label 'Specify a number series for self-billing invoices in the %1 field on vendor %2, or in the %3 field in %4.', Comment = '%1 = Self-Billing Invoice Nos. field caption, %2 = Vendor No., %3 = Posted Self-Billing Inv. Nos. field caption, %4 = Purchases & Payables Setup table caption';
 
     /// <summary>
     /// Generates a record id for an 'empty' line
@@ -688,7 +748,7 @@ codeunit 90 "Purch.-Post"
     /// <remarks>
     /// Transaction is committed after updating the document header if posting is not in PreviewMode
     /// Several related tables are locked for update after this procedure.
-    /// DocumentIsReadyToBeChecked is set to true, so that PrepareCheckDocument() is not called again in CheckPurchDocument(). Preparation already happened in RunWithCheck() (parent function).
+    /// DocumentIsReadyToBeChecked is set to true, so that PrepareCheckDocument() is not called again in CheckPurchDocument(). Preparation already happened in RunWithCheck() (parent procedure).
     /// </remarks>
     /// <param name="PurchHeader">Return Value: The purchase header of the document that is being posted, returned with updated values.</param>
     local procedure CheckAndUpdate(var PurchHeader: Record "Purchase Header")
@@ -767,7 +827,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     /// <summary>
-    /// Wrapper function for archiving purchase document
+    /// Wrapper procedure for archiving purchase document
     /// </summary>
     /// <param name="PurchHeader">The purchase header of the document that is being posted.</param>
     local procedure HandleArchiveUnpostedOrder(var PurchHeader: Record "Purchase Header")
@@ -786,7 +846,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     /// <summary>
-    /// Main function for checking if document header and lines are valid for posting.
+    /// Main procedure for checking if document header and lines are valid for posting.
     /// Checks for mandatory fields, posting dates, VAT dates, linked documents, posting restrictions, etc.
     /// </summary>
     /// <param name="PurchHeader">The purchase header of the document that is being posted.</param>
@@ -879,7 +939,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     /// <summary>
-    /// Wrapper function for checking all purchase lines of the document if they are valid for posting.
+    /// Wrapper procedure for checking all purchase lines of the document if they are valid for posting.
     /// </summary>
     /// <param name="PurchHeader">The purchase header of the document that is being posted.</param>
     local procedure CheckPurchLines(var PurchHeader: Record "Purchase Header")
@@ -3015,10 +3075,7 @@ codeunit 90 "Purch.-Post"
                         ResetPostingNoSeriesFromSetup(PurchHeader."Posting No. Series", PurchSetup."Posted Credit Memo Nos.")
                     else
                         if (PurchHeader."Document Type" <> PurchHeader."Document Type"::"Credit Memo") then
-                            if PurchHeader."Self-Billing Invoice" then
-                                ResetPostingNoSeriesFromSetup(PurchHeader."Posting No. Series", PurchSetup."Posted Self-Billing Inv. Nos.")
-                            else
-                                ResetPostingNoSeriesFromSetup(PurchHeader."Posting No. Series", PurchSetup."Posted Invoice Nos.");
+                            ResetPostingNoSeriesFromSetup(PurchHeader."Posting No. Series", PurchSetup."Posted Invoice Nos.");
                     if PurchHeader."Document Type" = PurchHeader."Document Type"::"Credit Memo" then
                         if (PurchSetup."Posted Credit Memo Nos." <> '') and (PurchHeader."Posting No. Series" = '') then
                             CheckDefaultNoSeries(PurchSetup."Posted Credit Memo Nos.");
@@ -8417,6 +8474,11 @@ codeunit 90 "Purch.-Post"
         OnAfterGetGeneralPostingSetup(GenPostingSetup, PurchLine);
     end;
 
+    procedure GetGlobalTempItemChargeAssgntPurch(var TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary)
+    begin
+        TempItemChargeAssignmentPurch.Copy(TempItemChargeAssgntPurch, true);
+    end;
+
     local procedure PostResJnlLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     var
         ResJournalLine: Record "Res. Journal Line";
@@ -8875,18 +8937,38 @@ codeunit 90 "Purch.-Post"
 
     local procedure UpdateVendorInvoiceNoForSelfBilling(var PurchHeader: Record "Purchase Header")
     var
+        Vendor: Record Vendor;
         NoSeries: Codeunit "No. Series";
+        SelfBillingNoSeriesCode: Code[20];
     begin
         if not (PurchHeader."Document Type" in [PurchHeader."Document Type"::Invoice, PurchHeader."Document Type"::Order]) then
             exit;
 
-        PurchSetup.GetRecordOnce();
-        PurchSetup.TestField("Posted Self-Billing Inv. Nos.");
+        SelfBillingNoSeriesCode := GetSelfBillingInvoiceNoSeries(PurchHeader);
+        if SelfBillingNoSeriesCode = '' then
+            Error(
+                SelfBillingNoSeriesMissingErr,
+                Vendor.FieldCaption("Self-Billing Invoice Nos."),
+                PurchHeader."Buy-from Vendor No.",
+                PurchSetup.FieldCaption("Posted Self-Billing Inv. Nos."),
+                PurchSetup.TableCaption());
 
         if PreviewMode then
             PurchHeader."Vendor Invoice No." := PostingPreviewNoTok
         else
-            PurchHeader."Vendor Invoice No." := NoSeries.GetNextNo(PurchSetup."Posted Self-Billing Inv. Nos.", PurchHeader."Posting Date");
+            PurchHeader."Vendor Invoice No." := NoSeries.GetNextNo(SelfBillingNoSeriesCode, PurchHeader."Posting Date");
+    end;
+
+    local procedure GetSelfBillingInvoiceNoSeries(PurchHeader: Record "Purchase Header"): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        Vendor.SetLoadFields("Self-Billing Invoice Nos.");
+        if Vendor.Get(PurchHeader."Buy-from Vendor No.") and (Vendor."Self-Billing Invoice Nos." <> '') then
+            exit(Vendor."Self-Billing Invoice Nos.");
+
+        PurchSetup.GetRecordOnce();
+        exit(PurchSetup."Posted Self-Billing Inv. Nos.");
     end;
 
     local procedure SelfBillingInvoiceDocument(PurchHeader: Record "Purchase Header"): Boolean
@@ -11488,6 +11570,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateReceiptInvoicingQuantities(PurchLine: Record "Purchase Line"; var SkipQuantityUpdate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetCommitBehavior(var IgnoreCommit: Boolean)
     begin
     end;
 }

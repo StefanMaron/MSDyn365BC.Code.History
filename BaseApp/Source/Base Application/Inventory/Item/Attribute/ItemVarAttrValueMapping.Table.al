@@ -83,7 +83,7 @@ table 7507 "Item Var. Attr. Value Mapping"
             exit;
 
         ItemVariantAttributeValueMapping := Rec;
-        if not ItemVariantAttributeValueMapping.IsEmpty() then
+        if ItemVariantAttributeValueMapping.Find() then
             ItemAttributeValue.Delete();
     end;
 

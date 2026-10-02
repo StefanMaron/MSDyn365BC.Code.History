@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -94,6 +94,7 @@ table 1383 "Vendor Templ."
         field(14; "Our Account No."; Text[20])
         {
             Caption = 'Our Account No.';
+            MaskType = Concealed;
             ToolTip = 'Specifies your account number with the vendor, if you have one.';
         }
         field(15; "Territory Code"; Code[10])
@@ -470,17 +471,11 @@ table 1383 "Vendor Templ."
         field(10501; "Exclude from Pmt. Pract. Rep."; Boolean)
         {
             Caption = 'Exclude from Payment Practices Report';
-#if CLEAN26
             ObsoleteReason = 'Not supported in the template.';
             ObsoleteState = Removed;
 #pragma warning disable AS0072
             ObsoleteTag = '27.0';
 #pragma warning restore AS0072
-#else
-            ObsoleteReason = 'Not supported in the template.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '26.0';
-#endif
         }
 #endif
     }

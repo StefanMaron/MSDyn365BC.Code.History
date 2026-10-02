@@ -71,69 +71,6 @@ page 9001 "Accounting Manager Role Center"
     {
         area(rolecenter)
         {
-#if not CLEAN26
-            group(Control1900724808)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '26.0';
-                ShowCaption = false;
-                part(Control99; "Finance Performance")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Visible = false;
-                }
-                part(Control1902304208; "Account Manager Activities")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-                part("User Tasks Activities"; "User Tasks Activities")
-                {
-                    ApplicationArea = Suite;
-                }
-                part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
-                {
-                    ApplicationArea = Suite;
-                }
-                part(Control1907692008; "My Customers")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-            }
-            group(Control1900724708)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '26.0';
-                ShowCaption = false;
-                part(Control103; "Trailing Sales Orders Chart")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Visible = false;
-                }
-                part(Control106; "My Job Queue")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Visible = false;
-                }
-                part(Control100; "Cash Flow Forecast Chart")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-                part(Control1902476008; "My Vendors")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-                part(Control108; "Report Inbox Part")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-                systempart(Control1901377608; MyNotes)
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-            }
-#else
                 part(Control1902304208; "Account Manager Activities")
                 {
                     ApplicationArea = Basic, Suite;
@@ -181,7 +118,6 @@ page 9001 "Accounting Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-#endif
         }
     }
 
@@ -280,7 +216,6 @@ page 9001 "Accounting Manager Role Center"
                 Caption = 'Cash Flow Date List';
                 Image = "Report";
                 RunObject = Report "Cash Flow Date List";
-                ToolTip = 'View forecast entries for a period of time that you specify. The registered cash flow forecast entries are organized by source types, such as receivables, sales orders, payables, and purchase orders. You specify the number of periods and their length.';
             }
             separator(Action115)
             {
@@ -414,7 +349,6 @@ page 9001 "Accounting Manager Role Center"
                 Caption = 'Cost Accounting P/L Statement';
                 Image = "Report";
                 RunObject = Report "Cost Acctg. Statement";
-                ToolTip = 'View the credit and debit balances per cost type, together with the chart of cost types.';
             }
             action("CA P/L Statement per Period")
             {
@@ -422,7 +356,6 @@ page 9001 "Accounting Manager Role Center"
                 Caption = 'CA P/L Statement per Period';
                 Image = "Report";
                 RunObject = Report "Cost Acctg. Stmt. per Period";
-                ToolTip = 'View profit and loss for cost types over two periods with the comparison as a percentage.';
             }
             action("CA P/L Statement with Budget")
             {
@@ -430,7 +363,6 @@ page 9001 "Accounting Manager Role Center"
                 Caption = 'CA P/L Statement with Budget';
                 Image = "Report";
                 RunObject = Report "Cost Acctg. Statement/Budget";
-                ToolTip = 'View a comparison of the balance to the budget figures and calculates the variance and the percent variance in the current accounting period, the accumulated accounting period, and the fiscal year.';
             }
             action("Cost Accounting Analysis")
             {
@@ -438,7 +370,6 @@ page 9001 "Accounting Manager Role Center"
                 Caption = 'Cost Accounting Analysis';
                 Image = "Report";
                 RunObject = Report "Cost Acctg. Analysis";
-                ToolTip = 'View balances per cost type with columns for seven fields for cost centers and cost objects. It is used as the cost distribution sheet in Cost accounting. The structure of the lines is based on the chart of cost types. You define up to seven cost centers and cost objects that appear as columns in the report.';
             }
         }
         area(embedding)
@@ -1014,7 +945,6 @@ page 9001 "Accounting Manager Role Center"
                 Caption = 'P&ost Inventory Cost to G/L';
                 Image = PostInventoryToGL;
                 RunObject = Report "Post Inventory Cost to G/L";
-                ToolTip = 'Record the quantity and value changes to the inventory in the item ledger entries and the value entries when you post inventory transactions, such as sales shipments or purchase receipts.';
             }
             separator(Action97)
             {
@@ -1026,7 +956,6 @@ page 9001 "Accounting Manager Role Center"
                 Ellipsis = true;
                 Image = CreateReminders;
                 RunObject = Report "Create Reminders";
-                ToolTip = 'Create reminders for one or more customers with overdue payments.';
             }
             action("Create Finance Charge &Memos")
             {
@@ -1035,7 +964,6 @@ page 9001 "Accounting Manager Role Center"
                 Ellipsis = true;
                 Image = CreateFinanceChargememo;
                 RunObject = Report "Create Finance Charge Memos";
-                ToolTip = 'Create finance charge memos for one or more customers with overdue payments.';
             }
             separator(Action73)
             {

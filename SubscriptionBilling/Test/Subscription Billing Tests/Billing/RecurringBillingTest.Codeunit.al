@@ -69,11 +69,11 @@ codeunit 139688 "Recurring Billing Test"
         StrMenuHandlerStep: Integer;
         BillingProposalNotCreatedErr: Label 'Billing proposal not created.', Locked = true;
         BillingToCappedErr: Label 'Billing to should be capped at the harmonized Next Billing To date.', Locked = true;
+        ExtendedTextValueErr: Label 'Sales line with extended text description should be created.', Locked = true;
+        ExtendedTextPurchValueErr: Label 'Purchase line with extended text description should be created.', Locked = true;
         RecurringBillingPage: TestPage "Recurring Billing";
         IsPartnerVendor: Boolean;
         PostDocuments: Boolean;
-        ExtendedTextValueErr: Label 'Sales line with extended text description should be created.', Locked = true;
-        ExtendedTextPurchValueErr: Label 'Purchase line with extended text description should be created.', Locked = true;
 
     #region Tests
 
@@ -591,7 +591,6 @@ codeunit 139688 "Recurring Billing Test"
     end;
 
     [Test]
-    [HandlerFunctions('ExchangeRateSelectionModalPageHandler,MessageHandler')]
     procedure CheckBillingLineUpdateRequiredOnModifyCustomerContractLine()
     var
         DiscountAmount: Decimal;
@@ -601,7 +600,7 @@ codeunit 139688 "Recurring Billing Test"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateCustomer(Customer);
+        ContractTestLibrary.CreateCustomerInLCY(Customer);
         ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
         ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer);
         BillingLine.Reset();
@@ -646,7 +645,6 @@ codeunit 139688 "Recurring Billing Test"
     end;
 
     [Test]
-    [HandlerFunctions('ExchangeRateSelectionModalPageHandler,MessageHandler')]
     procedure CheckBillingLineUpdateRequiredOnModifyVendorContractLine()
     var
         DiscountAmount: Decimal;
@@ -656,7 +654,7 @@ codeunit 139688 "Recurring Billing Test"
     begin
         Initialize();
 
-        ContractTestLibrary.CreateVendor(Vendor);
+        ContractTestLibrary.CreateVendorInLCY(Vendor);
         ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.");
         ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Vendor);
         BillingLine.Reset();
@@ -1462,6 +1460,7 @@ codeunit 139688 "Recurring Billing Test"
         Assert.AreEqual("Sales Document Type"::"Credit Memo", BillingLine.GetSalesDocumentTypeForContractNo(), 'Sales Document Type is not calculated correctly for Credit Memo.');
     end;
 
+    [Test]
     [HandlerFunctions('CreateBillingDocsCustomerPageHandler,MessageHandler')]
     procedure ExtendedTextTransferredToSalesLine()
     var
@@ -1535,7 +1534,6 @@ codeunit 139688 "Recurring Billing Test"
         Assert.IsTrue(VerifyPurchaseLine.Count() > 0, ExtendedTextPurchValueErr);
     end;
 
-    [Test]
     procedure TestBillingProposalWithZeroQuantity()
     var
         ExpectedNextBillingDate: Date;
@@ -1580,7 +1578,7 @@ codeunit 139688 "Recurring Billing Test"
         ContractType: Record "Subscription Contract Type";
         BillingDate: Date;
         CappedNextBillingTo: Date;
-    begin
+      begin
         // [SCENARIO 637042] Creating a Billing Proposal for a harmonized billing contract must not hang when the contract "Next Billing To" caps the calculated billing period below the Billing Date
         Initialize();
 

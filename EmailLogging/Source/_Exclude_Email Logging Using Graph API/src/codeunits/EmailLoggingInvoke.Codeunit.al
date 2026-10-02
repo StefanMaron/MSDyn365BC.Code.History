@@ -324,6 +324,7 @@ codeunit 1685 "Email Logging Invoke"
                 repeat
                     NextInteractionLogEntryNo := SequenceNoMgt.GetNextSeqNo(Database::"Interaction Log Entry");
                     InsertInteractionLogEntry(SegmentLine, NextInteractionLogEntryNo);
+                    OnLogMessageAsInteractionOnAfterInsertInteractionLogEntry(NextInteractionLogEntryNo, SegmentLine.Subject);
                     EntryNumbers.Add(NextInteractionLogEntryNo);
                 until SegmentLine.Next() = 0;
         end else
@@ -555,6 +556,11 @@ codeunit 1685 "Email Logging Invoke"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetInboundOutboundInteractionForSender(SenderAddress: Text; var SegmentLine: Record "Segment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogMessageAsInteractionOnAfterInsertInteractionLogEntry(NextInteractionLogEntryNo: Integer; Subject: Text)
     begin
     end;
 }

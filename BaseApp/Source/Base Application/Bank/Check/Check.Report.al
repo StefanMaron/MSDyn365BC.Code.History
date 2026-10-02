@@ -32,14 +32,9 @@ using System.Utilities;
 /// </remarks>
 report 1401 Check
 {
-    DefaultLayout = RDLC;
-#if not CLEAN27
-    RDLCLayout = './Bank/Check/CheckGB.rdlc';
-#else
-    RDLCLayout = './Bank/Check/Check.rdlc';
-#endif
     Caption = 'Check';
     Permissions = TableData "Bank Account" = m;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -980,6 +975,25 @@ report 1401 Check
         end;
     }
 
+    rendering
+    {
+#if not CLEAN27
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Bank/Check/CheckGB.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
+#else
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Bank/Check/Check.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
+#endif
+    }
+
     labels
     {
     }
@@ -1166,9 +1180,10 @@ report 1401 Check
 
         if No < 1 then
             AddToNoText(NoText, NoTextIndex, PrintExponent, Text026)
-        else
 #if not CLEAN27
-        begin
+        else begin
+#else
+        else
 #endif
             for Exponent := 4 downto 1 do begin
                 PrintExponent := false;

@@ -346,6 +346,11 @@ table 296 "Reminder Line"
                             else
                                 "VAT %" := 0;
                         end;
+                    "VAT Calculation Type"::"No Taxable VAT":
+                        begin
+                            "VAT Amount" := 0;
+                            "VAT %" := 0;
+                        end;
                 end;
                 "VAT Amount" := Round("VAT Amount", Currency."Amount Rounding Precision");
             end;
@@ -577,16 +582,9 @@ table 296 "Reminder Line"
                         ReminderHeader."Posting Date"));
 
                     Description := '';
-                    if (Amount <> 0) then begin
-                        if ReminderCommunication.NewReminderCommunicationEnabled() then
-                            Description := ReminderCommunication.FindDescriptionForLineFee(ReminderLevel, CustLedgEntry, Rec, GLAcc)
-                        else
-                            if (ReminderLevel."Add. Fee per Line Description" <> '') then
-                                Description :=
-                                    StrSubstNo(
-                                        ReminderLevel."Add. Fee per Line Description", "Reminder No.", "No. of Reminders", "Document Date",
-                                        "Posting Date", "No.", Amount, "Applies-to Document Type", "Applies-to Document No.", ReminderLevel."No.");
-                    end else
+                    if (Amount <> 0) then
+                        Description := ReminderCommunication.FindDescriptionForLineFee(ReminderLevel, CustLedgEntry, Rec, GLAcc)
+                    else
                         if GLAcc.Get("No.") then
                             Description := GLAcc.Name;
                 end;
