@@ -156,6 +156,7 @@ codeunit 418 "User Management"
                   Tabledata "Sales Header Archive" = rm,
                   Tabledata "Purchase Header Archive" = rm,
                   Tabledata "Manufacturing User Template" = rm,
+		          Tabledata "Financial Report Audit Log" = rm,
                   Tabledata "Field Monitoring Setup" = rm;
 
     trigger OnRun()
@@ -642,6 +643,7 @@ codeunit 418 "User Management"
             Database::"Sales Header Archive",
             Database::"Purchase Header Archive",
             Database::"Manufacturing User Template",
+            Database::"Financial Report Audit Log",
             Database::"Field Monitoring Setup":
                 begin
                     RenameField(TableID, FieldID, OldUserName, NewUserName, CompanyName);

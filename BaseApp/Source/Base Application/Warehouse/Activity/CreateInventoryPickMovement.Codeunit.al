@@ -821,7 +821,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                             NewWarehouseActivityLine, TempTrackingSpecification,
                             RemQtyToPickBase, OutstandingQtyBase, ReservationExists, IsHandled);
                         if not IsHandled then begin
-                            ITQtyToPickBase := Abs(TempTrackingSpecification."Qty. to Handle (Base)");
+                            ITQtyToPickBase := Minimum(RemQtyToPickBase, Abs(TempTrackingSpecification."Qty. to Handle (Base)"));
                             TotalITQtyToPickBase += ITQtyToPickBase;
                             if ITQtyToPickBase > 0 then begin
                                 NewWarehouseActivityLine.CopyTrackingFromSpec(TempTrackingSpecification);
@@ -920,7 +920,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
                     InsertShelfWhseActivLine(NewWarehouseActivityLine, RemQtyToPickBase, WhseItemTrackingSetup);
         end;
 
-        QtyRemToPickBase := OriginalRemQtyToPickBase - QtyAvailToPickBase + RemQtyToPickBase;
+        // Cap availability at the originally requested quantity so surplus stock reserved for other demand
+        // does not cancel out the blank-bin shortage line when "Always Create Pick Line" is enabled.
+        QtyRemToPickBase := OriginalRemQtyToPickBase - Minimum(QtyAvailToPickBase, OriginalRemQtyToPickBase) + RemQtyToPickBase;
         if CurrLocation."Always Create Pick Line" and (QtyRemToPickBase > 0) then begin
             MakeWarehouseActivityHeader();
             MakeWarehouseActivityLine(NewWarehouseActivityLine, '', QtyRemToPickBase, QtyRemToPickBase);
