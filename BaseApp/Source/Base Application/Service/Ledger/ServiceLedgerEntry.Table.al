@@ -472,6 +472,12 @@ table 5907 "Service Ledger Entry"
         {
             SumIndexFields = "Amount (LCY)", "Cost Amount", Quantity, "Charged Qty.";
         }
+        key(Key9; "Applies-to Entry No.")
+        {
+        }
+        key(Key10; "Service Contract No.", "Service Item No. (Serviced)", "Entry Type", "Applies-to Entry No.")
+        {
+        }
     }
 
     fieldgroups
