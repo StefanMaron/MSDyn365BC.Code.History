@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -60,6 +60,7 @@ table 3010831 "LSV Setup"
         field(30; "LSV Credit on Account No."; Code[24])
         {
             Caption = 'LSV Credit on Account No.';
+            MaskType = Concealed;
         }
         field(40; "LSV Payment Method Code"; Code[10])
         {
@@ -105,6 +106,7 @@ table 3010831 "LSV Setup"
         field(71; "LSV Sender IBAN"; Code[50])
         {
             Caption = 'LSV Sender IBAN';
+            MaskType = Concealed;
 
             trigger OnValidate()
             var

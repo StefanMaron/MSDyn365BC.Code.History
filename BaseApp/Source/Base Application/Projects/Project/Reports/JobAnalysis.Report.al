@@ -10,12 +10,12 @@ using System.Utilities;
 report 1008 "Job Analysis"
 {
     AdditionalSearchTerms = 'project overview, Job Analysis';
-    DefaultLayout = RDLC;
-    RDLCLayout = './Projects/Project/Reports/JobAnalysis.rdlc';
     ApplicationArea = Jobs;
     Caption = 'Project Analysis';
+    ToolTip = 'Analyze the project, such as the budgeted prices, usage prices, and billable prices, and then compares the three sets of prices.';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -304,6 +304,16 @@ report 1008 "Job Analysis"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Projects/Project/Reports/JobAnalysis.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

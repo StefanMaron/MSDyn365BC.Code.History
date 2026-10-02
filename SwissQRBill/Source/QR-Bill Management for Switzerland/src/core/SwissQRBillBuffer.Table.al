@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -32,6 +32,7 @@ table 11510 "Swiss QR-Bill Buffer"
         field(2; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            MaskType = Concealed;
         }
         field(3; Amount; Decimal)
         {

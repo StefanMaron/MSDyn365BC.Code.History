@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +16,7 @@ tableextension 11513 "Swiss QR-Bill Purchase Header" extends "Purchase Header"
         field(11501; "Swiss QR-Bill IBAN"; Code[50])
         {
             Caption = 'IBAN/QR-IBAN';
+            MaskType = Concealed;
             DataClassification = CustomerContent;
             Editable = false;
         }

@@ -122,7 +122,6 @@ page 9019 "CEO and President Role Center"
                 Caption = 'Customer - &Balance';
                 Image = "Report";
                 RunObject = Report "Customer - Balance to Date";
-                ToolTip = 'View a list with customers'' payment history up until a certain date. You can use the report to extract your total sales income at the close of an accounting period or fiscal year.';
             }
 #if not CLEAN28
             action("Customer - T&op 10 List")
@@ -172,7 +171,6 @@ page 9019 "CEO and President Role Center"
                 Caption = 'Vendor - &Purchase List';
                 Image = "Report";
                 RunObject = Report "Vendor - Purchase List";
-                ToolTip = 'View a list of your purchases in a period, for example, to report purchase activity to customs and tax authorities.';
             }
         }
         area(embedding)

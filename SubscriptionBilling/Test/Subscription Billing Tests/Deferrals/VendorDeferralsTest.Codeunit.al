@@ -782,7 +782,7 @@ codeunit 139913 "Vendor Deferrals Test"
         // [GIVEN] Create Vendor Contract with deferral enabled
         CreateVendorContractWithDeferrals('<2M-CM>', true, 1);
 
-        // [GIVEN] Set Discount flag to True on subscription lines
+        // [GIVEN] Set Discount flag to True on subscription lines 
         SubscriptionLine.SetRange("Subscription Header No.", ServiceObject."No.");
         SubscriptionLine.FindSet();
         repeat

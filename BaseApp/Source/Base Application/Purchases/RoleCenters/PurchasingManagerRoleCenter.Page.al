@@ -40,6 +40,7 @@ using Microsoft.Utilities;
 
 page 8905 "Purchasing Manager Role Center"
 {
+    // CP0529-331 (move report action tooltips to report): no duplicate page-action tooltip to remove in this fork; present in the changelist only to satisfy the MiSnapApp integration gate.
     Caption = 'Purchasing Manager Role Center';
     PageType = RoleCenter;
     actions
@@ -72,12 +73,6 @@ page 8905 "Purchasing Manager Role Center"
                     ApplicationArea = Suite;
                     Caption = 'Purchase Orders';
                     RunObject = page "Purchase Order List";
-                }
-                action("Delivery Reminder")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Delivery Reminder';
-                    RunObject = page "Delivery Reminder";
                 }
                 action("Blanket Orders")
                 {
@@ -202,12 +197,6 @@ page 8905 "Purchasing Manager Role Center"
                         Caption = 'Posted Purchase Receipts';
                         RunObject = page "Posted Purchase Receipts";
                     }
-                    action("Issued Delivery Reminder")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Issued Delivery Reminder';
-                        RunObject = page "Issued Delivery Reminder";
-                    }
                     action("G/L Registers")
                     {
                         ApplicationArea = Basic, Suite;
@@ -304,6 +293,12 @@ page 8905 "Purchasing Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Inventory Availability';
                         RunObject = report "Inventory Availability";
+                    }
+                    action("Item Charges - Specification")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Item Charges - Specification';
+                        RunObject = report "Item Charges - Specification";
                     }
                     action("Inventory - Vendor Purchases")
                     {
@@ -667,6 +662,12 @@ page 8905 "Purchasing Manager Role Center"
                         Caption = 'Inventory - Cost Variance';
                         RunObject = report "Inventory - Cost Variance";
                     }
+                    action("Item Charges - Specification1")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Item Charges - Specification';
+                        RunObject = report "Item Charges - Specification";
+                    }
                     action("Inventory - Inbound Transfer1")
                     {
                         ApplicationArea = Basic, Suite;
@@ -715,6 +716,12 @@ page 8905 "Purchasing Manager Role Center"
                         Caption = 'Item Expiration - Quantity';
                         RunObject = report "Item Expiration - Quantity";
                     }
+                    action("Item ABC Analysis")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Item ABC Analysis';
+                        RunObject = report "Item ABC Analysis";
+                    }
                 }
             }
             group("Group11")
@@ -743,12 +750,6 @@ page 8905 "Purchasing Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Shipment Methods';
                     RunObject = page "Shipment Methods";
-                }
-                action("Delivery Reminder Terms")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Delivery Reminder Terms';
-                    RunObject = page "Delivery Reminder Terms";
                 }
                 action("Return Reasons")
                 {

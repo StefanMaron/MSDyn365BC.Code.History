@@ -219,8 +219,8 @@ codeunit 6177 "E-Doc. Historical Matching" implements "AOAI Function", IEDocAISy
     local procedure LoadHistoricalDataIntoTempTable(var TempPurchInvLine: Record "Purch. Inv. Line" temporary; VendorNo: Code[20]; HistoricalMatchingConfig: Text)
     var
         PurchInvLine: Record "Purch. Inv. Line";
-        EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History";
         AllocationAccount: Record "Allocation Account";
+        EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         OneYearAgoDate: Date;
         RecordCount: Integer;

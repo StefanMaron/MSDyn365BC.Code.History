@@ -1715,6 +1715,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test LSV DD Payment Import - NamedType WrongCurrErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1509165758 - NamedType 283013494" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Source Currency Amount on G/L entry for account %1 is incorrect.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = G/L Account No.]D;]A;(LookupHint=Codeunit Test SR G/L Entries Foreign C. - NamedType IncorrectSourceCurrencyAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2159414784 - NamedType 99657326" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Could not find any EU customer.]]></Val>

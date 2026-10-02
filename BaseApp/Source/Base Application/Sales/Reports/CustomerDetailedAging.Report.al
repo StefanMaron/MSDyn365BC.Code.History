@@ -16,13 +16,13 @@ using System.Utilities;
 
 report 106 "Customer Detailed Aging"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Sales/Reports/CustomerDetailedAging.rdlc';
     AdditionalSearchTerms = 'customer balance,payment due';
     ApplicationArea = Basic, Suite;
     Caption = 'Customer Detailed Aging';
+    ToolTip = 'View, print, or save a detailed list of each customer''s total payments due, divided into three time periods. The report can be used to decide when to issue reminders, to evaluate a customer''s creditworthiness, or to prepare liquidity analyses.';
     EnableHyperlinks = true;
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -280,6 +280,16 @@ report 106 "Customer Detailed Aging"
             if EndDate = 0D then
                 EndDate := WorkDate();
         end;
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Sales/Reports/CustomerDetailedAging.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
     }
 
     labels

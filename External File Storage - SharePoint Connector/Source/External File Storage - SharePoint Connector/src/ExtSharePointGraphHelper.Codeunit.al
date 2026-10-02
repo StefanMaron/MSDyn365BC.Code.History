@@ -31,7 +31,7 @@ codeunit 4610 "Ext. SharePoint Graph Helper"
 
     internal procedure ListFiles(SharePointAccount: Record "Ext. SharePoint Account"; Path: Text; FilePaginationData: Codeunit "File Pagination Data"; var TempFileAccountContent: Record "File Account Content" temporary)
     var
-        GraphDriveItem: Record "SharePoint Graph Drive Item";
+        TempGraphDriveItem: Record "SharePoint Graph Drive Item";
         Response: Codeunit "SharePoint Graph Response";
         OriginalPath: Text;
     begin
@@ -44,26 +44,26 @@ codeunit 4610 "Ext. SharePoint Graph Helper"
         if Path = '' then
             Path := '/';
 
-        Response := SharePointGraphClient.GetItemsByPath(Path, GraphDriveItem);
+        Response := SharePointGraphClient.GetItemsByPath(Path, TempGraphDriveItem);
 
         if not Response.IsSuccessful() then
             ShowError(Response);
 
         FilePaginationData.SetEndOfListing(true);
 
-        if not GraphDriveItem.FindSet() then
+        if not TempGraphDriveItem.FindSet() then
             exit;
 
         repeat
             // Only include files (not folders)
-            if not GraphDriveItem.IsFolder then begin
+            if not TempGraphDriveItem.IsFolder then begin
                 TempFileAccountContent.Init();
-                TempFileAccountContent.Name := GraphDriveItem.Name;
+                TempFileAccountContent.Name := TempGraphDriveItem.Name;
                 TempFileAccountContent.Type := TempFileAccountContent.Type::"File";
                 TempFileAccountContent."Parent Directory" := CopyStr(OriginalPath, 1, MaxStrLen(TempFileAccountContent."Parent Directory"));
                 TempFileAccountContent.Insert();
             end;
-        until GraphDriveItem.Next() = 0;
+        until TempGraphDriveItem.Next() = 0;
     end;
 
     internal procedure GetFile(SharePointAccount: Record "Ext. SharePoint Account"; Path: Text; Stream: InStream)
@@ -88,7 +88,7 @@ codeunit 4610 "Ext. SharePoint Graph Helper"
 
     internal procedure CreateFile(SharePointAccount: Record "Ext. SharePoint Account"; Path: Text; Stream: InStream)
     var
-        GraphDriveItem: Record "SharePoint Graph Drive Item";
+        TempGraphDriveItem: Record "SharePoint Graph Drive Item";
         Response: Codeunit "SharePoint Graph Response";
         FileName: Text;
         FolderPath: Text;
@@ -105,9 +105,9 @@ codeunit 4610 "Ext. SharePoint Graph Helper"
         MaxSimpleUploadSize := 4 * 1024 * 1024; // 4 MB
 
         if Stream.Length <= MaxSimpleUploadSize then
-            Response := SharePointGraphClient.UploadFile(FolderPath, FileName, Stream, GraphDriveItem)
+            Response := SharePointGraphClient.UploadFile(FolderPath, FileName, Stream, TempGraphDriveItem)
         else
-            Response := SharePointGraphClient.UploadLargeFile(FolderPath, FileName, Stream, GraphDriveItem);
+            Response := SharePointGraphClient.UploadLargeFile(FolderPath, FileName, Stream, TempGraphDriveItem);
 
         if not Response.IsSuccessful() then
             ShowError(Response);
@@ -188,7 +188,7 @@ codeunit 4610 "Ext. SharePoint Graph Helper"
 
     internal procedure ListDirectories(SharePointAccount: Record "Ext. SharePoint Account"; Path: Text; FilePaginationData: Codeunit "File Pagination Data"; var TempFileAccountContent: Record "File Account Content" temporary)
     var
-        GraphDriveItem: Record "SharePoint Graph Drive Item";
+        TempGraphDriveItem: Record "SharePoint Graph Drive Item";
         Response: Codeunit "SharePoint Graph Response";
         OriginalPath: Text;
     begin
@@ -201,31 +201,31 @@ codeunit 4610 "Ext. SharePoint Graph Helper"
         if Path = '' then
             Path := '/';
 
-        Response := SharePointGraphClient.GetItemsByPath(Path, GraphDriveItem);
+        Response := SharePointGraphClient.GetItemsByPath(Path, TempGraphDriveItem);
 
         if not Response.IsSuccessful() then
             ShowError(Response);
 
         FilePaginationData.SetEndOfListing(true);
 
-        if not GraphDriveItem.FindSet() then
+        if not TempGraphDriveItem.FindSet() then
             exit;
 
         repeat
             // Only include folders
-            if GraphDriveItem.IsFolder then begin
+            if TempGraphDriveItem.IsFolder then begin
                 TempFileAccountContent.Init();
-                TempFileAccountContent.Name := GraphDriveItem.Name;
+                TempFileAccountContent.Name := TempGraphDriveItem.Name;
                 TempFileAccountContent.Type := TempFileAccountContent.Type::Directory;
                 TempFileAccountContent."Parent Directory" := CopyStr(OriginalPath, 1, MaxStrLen(TempFileAccountContent."Parent Directory"));
                 TempFileAccountContent.Insert();
             end;
-        until GraphDriveItem.Next() = 0;
+        until TempGraphDriveItem.Next() = 0;
     end;
 
     internal procedure CreateDirectory(SharePointAccount: Record "Ext. SharePoint Account"; Path: Text)
     var
-        GraphDriveItem: Record "SharePoint Graph Drive Item";
+        TempGraphDriveItem: Record "SharePoint Graph Drive Item";
         Response: Codeunit "SharePoint Graph Response";
         ParentPath: Text;
         FolderName: Text;
@@ -236,7 +236,7 @@ codeunit 4610 "Ext. SharePoint Graph Helper"
         // Split path into parent path and folder name
         SplitPath(Path, ParentPath, FolderName);
 
-        Response := SharePointGraphClient.CreateFolder(ParentPath, FolderName, GraphDriveItem);
+        Response := SharePointGraphClient.CreateFolder(ParentPath, FolderName, TempGraphDriveItem);
 
         if not Response.IsSuccessful() then
             ShowError(Response);

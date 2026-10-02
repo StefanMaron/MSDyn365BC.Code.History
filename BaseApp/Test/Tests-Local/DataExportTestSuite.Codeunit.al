@@ -249,6 +249,7 @@ codeunit 142007 "Data Export Test Suite"
         DataExports: TestPage "Data Exports";
         ExpectedFieldNo: Integer;
     begin
+        // [FEATURE] [AI TEST]
         // [SCENARIO 621112] G/L Register export configuration uses correct SystemCreatedAt field number
         Initialize();
 

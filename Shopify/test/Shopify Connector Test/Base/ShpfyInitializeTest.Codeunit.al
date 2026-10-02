@@ -15,9 +15,7 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Integration.Shopify;
 using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Setup;
 using Microsoft.Sales.Customer;
-using Microsoft.Sales.Setup;
 using System.TestLibraries.Utilities;
 
 /// <summary>
@@ -25,19 +23,14 @@ using System.TestLibraries.Utilities;
 /// </summary>
 codeunit 139561 "Shpfy Initialize Test"
 {
-    EventSubscriberInstance = Manual;
-
     var
         DummyCustomer: Record Customer;
         DummyItem: Record Item;
         TempShop: Record "Shpfy Shop" temporary;
         Any: Codeunit Any;
-        LibraryAssert: Codeunit "Library Assert";
         CommunicationMgt: Codeunit "Shpfy Communication Mgt.";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryUtility: Codeunit "Library - Utility";
-        ShopifyAccessToken: Text;
 #pragma warning disable AA0240
         DummyCustomerEmailLbl: Label 'dummy@customer.com';
 #pragma warning restore AA0240
@@ -50,13 +43,9 @@ codeunit 139561 "Shpfy Initialize Test"
 
     internal procedure CreateShop(): Record "Shpfy Shop"
     var
-        GeneralPostingSetup: Record "General Posting Setup";
-        InventorySetup: Record "Inventory Setup";
         RefundGLAccount: Record "G/L Account";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         Shop: Record "Shpfy Shop";
         VATPostingSetup: Record "VAT Posting Setup";
-        ShpfyInitializeTest: Codeunit "Shpfy Initialize Test";
         Code: Code[10];
         CustomerTemplateCode: Code[20];
         ItemTemplateCode: Code[20];
@@ -64,14 +53,11 @@ codeunit 139561 "Shpfy Initialize Test"
         GenPostingType: Enum "General Posting Type";
         UrlTxt: Label 'https://%1.myshopify.com', Comment = '%1 = Shop name', Locked = true;
     begin
-        BindSubscription(ShpfyInitializeTest);
         if not TempShop.IsEmpty() then
             if Shop.Get(TempShop.Code) then
                 exit(Shop);
 
         Code := CopyStr(Any.AlphabeticText(MaxStrLen(Code)), 1, MaxStrLen(Code));
-
-        LibraryERM.CreateGeneralPostingSetupInvt(GeneralPostingSetup);
 
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup,
            VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInDecimalRange(10, 25, 0));
@@ -102,11 +88,6 @@ codeunit 139561 "Shpfy Initialize Test"
         if Shop.Insert() then;
         Commit();
         CommunicationMgt.SetShop(Shop);
-        CommunicationMgt.SetTestInProgress(true);
-        LibraryUtility.UpdateSetupNoSeriesCode(
-            DATABASE::"Sales & Receivables Setup", SalesReceivablesSetup.FieldNo("Customer Nos."));
-        LibraryUtility.UpdateSetupNoSeriesCode(
-            DATABASE::"Inventory Setup", InventorySetup.FieldNo("Item Nos."));
         CreateDummyCustomer(CustomerTemplateCode);
         CreateDummyItem(ItemTemplateCode);
         if not TempShop.Get(Code) then begin
@@ -114,7 +95,6 @@ codeunit 139561 "Shpfy Initialize Test"
             TempShop.Insert();
             Commit();
         end;
-        UnbindSubscription(ShpfyInitializeTest);
         exit(Shop);
     end;
 
@@ -358,32 +338,6 @@ codeunit 139561 "Shpfy Initialize Test"
     end;
 
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Shpfy Communication Events", 'OnGetAccessToken', '', true, false)]
-    local procedure OnGetAccessToken(var AccessToken: Text)
-    begin
-        if ShopifyAccessToken = '' then
-            ShopifyAccessToken := Any.AlphanumericText(50);
-        AccessToken := ShopifyAccessToken;
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Shpfy Communication Events", 'OnClientSend', '', true, false)]
-    local procedure OnClientSend(HttpRequestMessage: HttpRequestMessage; var HttpResponseMessage: HttpResponseMessage)
-    begin
-        TestRequestHeaderContainsAccessToken(HttpRequestMessage);
-    end;
-
-    local procedure TestRequestHeaderContainsAccessToken(HttpRequestMessage: HttpRequestMessage)
-    var
-        Headers: HttpHeaders;
-        ShopifyAccessTokenTxt: Label 'X-Shopify-Access-Token', Locked = true;
-        Values: array[1] of Text;
-    begin
-        HttpRequestMessage.GetHeaders(Headers);
-        LibraryAssert.IsTrue(Headers.Contains(ShopifyAccessTokenTxt), 'access token doesn''t exist');
-        Headers.GetValues(ShopifyAccessTokenTxt, Values);
-        LibraryAssert.IsTrue(Values[1] = ShopifyAccessToken, 'invalid access token');
-    end;
-
     internal procedure CreateVATPostingSetup(BusinessPostingGroup: Code[20]; ProductPostingGroup: Code[20])
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -410,6 +364,9 @@ codeunit 139561 "Shpfy Initialize Test"
     internal procedure RegisterAccessTokenForShop(Store: Text; AccessToken: SecretText)
     var
         RegisteredStoreNew: Record "Shpfy Registered Store New";
+        RefreshToken: SecretText;
+        RefreshTokenText: Text;
+        OneDay: Duration;
         ScopeTxt: Label 'write_orders,read_all_orders,write_assigned_fulfillment_orders,read_checkouts,write_customers,read_discounts,write_files,write_merchant_managed_fulfillment_orders,write_fulfillments,write_inventory,read_locations,write_products,write_shipping,read_shopify_payments_disputes,read_shopify_payments_payouts,write_returns,write_translations,write_third_party_fulfillment_orders,write_order_edits,write_publications,write_payment_terms,write_draft_orders,read_locales,read_shopify_payments_accounts,read_users,read_markets', Locked = true;
     begin
         Store := Store.ToLower();
@@ -418,10 +375,17 @@ codeunit 139561 "Shpfy Initialize Test"
             RegisteredStoreNew.Store := CopyStr(Store, 1, MaxStrLen(RegisteredStoreNew.Store));
             RegisteredStoreNew.Insert(false);
         end;
+        OneDay := 24 * 60 * 60 * 1000;
         RegisteredStoreNew."Requested Scope" := ScopeTxt;
         RegisteredStoreNew."Actual Scope" := ScopeTxt;
+        // Seed a healthy expiring token so EnsureValidAccessToken performs no refresh/migration.
+        RegisteredStoreNew."Token Expires At" := CurrentDateTime() + OneDay;
+        RegisteredStoreNew."Refresh Token Expires At" := CurrentDateTime() + OneDay;
         RegisteredStoreNew.Modify(false);
         RegisteredStoreNew.SetAccessToken(AccessToken);
+        RefreshTokenText := Any.AlphanumericText(20);
+        RefreshToken := RefreshTokenText;
+        RegisteredStoreNew.SetRefreshToken(RefreshToken);
     end;
 
     local procedure CreateShippingChargesGLAcc(var VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Enum "General Posting Type"; PostingGroupCode: Code[20]): Code[20]

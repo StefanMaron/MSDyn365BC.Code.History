@@ -12,12 +12,12 @@ using System.Utilities;
 
 report 5876 "Posted Phys. Invt. Order Diff."
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Counting/Reports/PostedPhysInvtOrderDiff.rdlc';
     ApplicationArea = Warehouse;
     Caption = 'Posted Phys. Invt. Order Diff.';
+    ToolTip = 'View or print the list of differences after counting.';
     UsageCategory = ReportsAndAnalysis;
     WordMergeDataItem = "Posted Phys. Invt. Order Hdr";
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -464,6 +464,16 @@ report 5876 "Posted Phys. Invt. Order Diff."
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Inventory/Counting/Reports/PostedPhysInvtOrderDiff.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

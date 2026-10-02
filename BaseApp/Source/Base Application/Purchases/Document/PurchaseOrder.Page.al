@@ -289,6 +289,11 @@ page 50 "Purchase Order"
                     ShowMandatory = VendorInvoiceNoMandatory;
                     Editable = IsVendorInvoiceEditable;
                 }
+                field("Spend Request No."; Rec."Spend Request No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                }
                 field("Your Reference"; Rec."Your Reference")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1183,25 +1188,6 @@ page 50 "Purchase Order"
                         CurrPage.SaveRecord();
                     end;
                 }
-#if not CLEAN26
-                action(Statistics)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Statistics';
-                    Image = Statistics;
-                    ShortCutKey = 'F7';
-                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
-                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '26.0';
-
-                    trigger OnAction()
-                    begin
-                        Rec.OpenPurchaseOrderStatistics();
-                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
-                    end;
-                }
-#endif
                 action(PurchaseOrderStatistics)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1209,11 +1195,7 @@ page 50 "Purchase Order"
                     Enabled = Rec."No." <> '';
                     Image = Statistics;
                     ShortCutKey = 'F7';
-#if CLEAN26
                     Visible = true;
-#else
-                    Visible = false;
-#endif                    
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Order Statistics";
                     RunPageOnRec = true;
@@ -1631,20 +1613,14 @@ page 50 "Purchase Order"
                         end;
                     }
                 }
+#if not CLEAN29
                 separator(Action1140000)
                 {
+                    ObsoleteReason = 'Not used';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '29.0';
                 }
-                action("Deliv. Reminder Ledger &Entries")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Deliv. Reminder Ledger &Entries';
-                    Image = ReceiptReminder;
-                    RunObject = Page "Deliv. Reminder Ledger Entries";
-                    RunPageLink = "Order No." = field("No.");
-                    RunPageView = sorting("Order No.", "Order Line No.", "Posting Date")
-                                  order(ascending);
-                    ToolTip = 'View the entries that were created when delivery reminders were created. You can navigate to investigate each entry further.';
-                }
+#endif
                 action("Archive Document")
                 {
                     ApplicationArea = Suite;
@@ -2282,18 +2258,9 @@ page 50 "Purchase Order"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
-#if not CLEAN26
-                actionref(Statistics_Promoted; Statistics)
-                {
-                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '26.0';
-                }
-#else                
                 actionref(PurchaseOrderStatistics_Promoted; PurchaseOrderStatistics)
                 {
                 }
-#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }

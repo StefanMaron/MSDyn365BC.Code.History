@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -116,6 +116,7 @@ table 3010541 "DTA Setup"
         field(29; "DTA Sender IBAN"; Code[50])
         {
             Caption = 'DTA Sender IBAN';
+            MaskType = Concealed;
 
             trigger OnValidate()
             begin
@@ -140,6 +141,7 @@ table 3010541 "DTA Setup"
         field(32; "EZAG Debit Account No."; Code[11])
         {
             Caption = 'EZAG Debit Account No.';
+            MaskType = Concealed;
 
             trigger OnValidate()
             begin
@@ -149,6 +151,7 @@ table 3010541 "DTA Setup"
         field(33; "EZAG Charges Account No."; Code[11])
         {
             Caption = 'EZAG Charges Account No.';
+            MaskType = Concealed;
 
             trigger OnValidate()
             begin

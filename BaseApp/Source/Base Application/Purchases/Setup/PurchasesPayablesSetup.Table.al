@@ -213,7 +213,7 @@ table 312 "Purchases & Payables Setup"
         field(35; "Default Posting Date"; Enum "Default Posting Date")
         {
             Caption = 'Default Posting Date';
-            ToolTip = 'Specifies which date must be used as the default posting date on purchase documents. If you select Work Date, the Posting Date field will be populated with the work date at the time of creating a new purchase document. If you select No Date, the Posting Date field will be empty by default and you must manually enter a posting date before posting.';
+            ToolTip = 'Specifies the default posting date for purchase documents that you create manually. If you select Work Date, the Posting Date is set to the current work date when you create a document. If you select No Date, the Posting Date is left blank and must be entered before posting. Does not apply to purchase documents created from e-documents.';
         }
         field(36; "Default Qty. to Receive"; Option)
         {
@@ -579,20 +579,6 @@ table 312 "Purchases & Payables Setup"
             ObsoleteTag = '25.0';
         }
 #endif
-        field(5005270; "Delivery Reminder Nos."; Code[20])
-        {
-            Caption = 'Delivery Reminder Nos.';
-            TableRelation = "No. Series";
-        }
-        field(5005271; "Issued Delivery Reminder Nos."; Code[20])
-        {
-            Caption = 'Issued Delivery Reminder Nos.';
-            TableRelation = "No. Series";
-        }
-        field(5005272; "Default Del. Rem. Date Field"; Enum "Delivery Reminder Date Type")
-        {
-            Caption = 'Default Del. Rem. Date Field';
-        }
     }
 
     keys

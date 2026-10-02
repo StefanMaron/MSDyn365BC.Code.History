@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -11,6 +11,7 @@ tableextension 11511 "Swiss QR-Bill Company Info." extends "Company Information"
         field(11510; "Swiss QR-Bill IBAN"; Code[50])
         {
             Caption = 'QR-IBAN';
+            MaskType = Concealed;
             DataClassification = CustomerContent;
 
             trigger OnValidate()

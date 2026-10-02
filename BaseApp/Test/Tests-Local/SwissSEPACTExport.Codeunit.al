@@ -949,8 +949,8 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "3" in case of blanked "SWIFT Code"
         Initialize();
 
-        // [GIVEN] Vendor with bank account: "Payment Form" = "Bank Payment Domestic", blank "SWIFT Code", and a domestic IBAN whose clearing slice (positions 5-9) is all zeros so no clearing number can be derived
-        VendorNo := CreateVendorWithBankAccount(PaymentFormGbl::"Bank Payment Domestic", '', '', '', 'CH3500000123456789012');
+        // [GIVEN] Vendor with bank account having "Payment Form" = "Bank Payment Domestic" ("SWIFT Code" = "" and domestic IBAN)
+        VendorNo := CreateVendorWithBankAccount(PaymentFormGbl::"Bank Payment Domestic", '', '', '', GetIBAN(true));
         // [GIVEN] Vendor payment journal line with "Currency Code" = ""
         CreatePaymentJournalLine(GenJournalLine, VendorNo, '', '',
           GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment);

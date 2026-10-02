@@ -143,13 +143,13 @@ codeunit 139053 "Office Addin Popout"
         Clear(LibraryOfficeHostProvider);
         BindSubscription(LibraryOfficeHostProvider);
         InitializeOfficeHostProvider(OfficeHostType.OutlookItemRead);
-        AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
 
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Office Addin Popout");
 
+        AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
         SetupSales();
         SetupMarketing();
 

@@ -3007,6 +3007,9 @@ table 27 Item
         if IsHandled then
             exit;
 
+        if "No." = '' then
+            exit;
+
         WarehouseEntry.SetRange("Item No.", "No.");
         if not WarehouseEntry.IsEmpty() then
             Error(WhseEntriesExistErr, CurrentFieldName);
@@ -4241,7 +4244,7 @@ table 27 Item
     end;
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"My Item", 'rm')]
-    local procedure UpdateMyItem(CallingFieldNo: Integer)
+    procedure UpdateMyItem(CallingFieldNo: Integer)
     var
         MyItem: Record "My Item";
     begin

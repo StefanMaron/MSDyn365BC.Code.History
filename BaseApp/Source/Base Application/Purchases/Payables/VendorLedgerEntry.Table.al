@@ -11,6 +11,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.FixedAssets.FixedAsset;
@@ -101,7 +102,8 @@ table 25 "Vendor Ledger Entry"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             CalcFormula = sum("Detailed Vendor Ledg. Entry".Amount where("Vendor Ledger Entry No." = field("Entry No."),
-                                                                          "Posting Date" = field("Date Filter")));
+                                                                          "Posting Date" = field("Date Filter"),
+                                                                          "Excluded from calculation" = const(false)));
             Caption = 'Remaining Amount';
             ToolTip = 'Specifies the amount that remains to be applied to before the entry is totally applied to.';
             Editable = false;
@@ -123,7 +125,8 @@ table 25 "Vendor Ledger Entry"
             AutoFormatType = 1;
             AutoFormatExpression = '';
             CalcFormula = sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" where("Vendor Ledger Entry No." = field("Entry No."),
-                                                                                  "Posting Date" = field("Date Filter")));
+                                                                                  "Posting Date" = field("Date Filter"),
+                                                                                  "Excluded from calculation" = const(false)));
             Caption = 'Remaining Amt. (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -344,6 +347,8 @@ table 25 "Vendor Ledger Entry"
         field(53; "Transaction No."; Integer)
         {
             Caption = 'Transaction No.';
+            TableRelation = "G/L Transaction";
+            ToolTip = 'Specifies the transaction number that groups related G/L entries from the same posting.';
         }
         field(54; "Closed by Amount (LCY)"; Decimal)
         {
@@ -576,6 +581,13 @@ table 25 "Vendor Ledger Entry"
         {
             Caption = 'Prepayment';
         }
+        field(95; "G/L Register No."; Integer)
+        {
+            Caption = 'G/L Register No.';
+            Editable = false;
+            TableRelation = "G/L Register";
+            ToolTip = 'Specifies the G/L register number that groups related G/L entries from the same posting.';
+        }
         field(170; "Creditor No."; Code[20])
         {
             Caption = 'Creditor No.';
@@ -781,6 +793,10 @@ table 25 "Vendor Ledger Entry"
         key(Key26; "Applies-to ID")
         {
             IncludedFields = "Accepted Payment Tolerance";
+        }
+        // Supports the Payment Reconciliation Journal candidate search (Document Type + Open + date range).
+        key(PmtReconCandidates; "Document Type", Open, "Posting Date")
+        {
         }
     }
 
@@ -1081,7 +1097,7 @@ table 25 "Vendor Ledger Entry"
     var
         CurrExchRate: Record "Currency Exchange Rate";
         GLSetup: Record "General Ledger Setup";
-        IsHandled: Boolean;	
+        IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeRecalculateAmounts(Rec, FromCurrencyCode, ToCurrencyCode, PostingDate, IsHandled);
@@ -1090,18 +1106,18 @@ table 25 "Vendor Ledger Entry"
                 exit;
 
             "Remaining Amount" :=
-            CurrExchRate.ExchangeAmount("Remaining Amount", FromCurrencyCode, ToCurrencyCode, PostingDate);
+              CurrExchRate.ExchangeAmount("Remaining Amount", FromCurrencyCode, ToCurrencyCode, PostingDate);
             "Remaining Pmt. Disc. Possible" :=
-            CurrExchRate.ExchangeAmount("Remaining Pmt. Disc. Possible", FromCurrencyCode, ToCurrencyCode, PostingDate);
+              CurrExchRate.ExchangeAmount("Remaining Pmt. Disc. Possible", FromCurrencyCode, ToCurrencyCode, PostingDate);
 
             GLSetup.Get();
             "Remaining Pmt. Disc. Possible" :=
             GLSetup.RoundPmtDiscLCY("Remaining Amount", "Remaining Pmt. Disc. Possible", "Currency Code");
 
             "Accepted Payment Tolerance" :=
-            CurrExchRate.ExchangeAmount("Accepted Payment Tolerance", FromCurrencyCode, ToCurrencyCode, PostingDate);
+              CurrExchRate.ExchangeAmount("Accepted Payment Tolerance", FromCurrencyCode, ToCurrencyCode, PostingDate);
             "Amount to Apply" :=
-            CurrExchRate.ExchangeAmount("Amount to Apply", FromCurrencyCode, ToCurrencyCode, PostingDate);
+              CurrExchRate.ExchangeAmount("Amount to Apply", FromCurrencyCode, ToCurrencyCode, PostingDate);
         end;
         OnAfterRecalculateAmounts(Rec, FromCurrencyCode, ToCurrencyCode, PostingDate);
     end;
