@@ -10,7 +10,6 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Clause;
-using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.PaymentTerms;
@@ -69,9 +68,6 @@ report 5911 "Service - Invoice"
                     column(ReportTitleCopyText; StrSubstNo(DocumentCaption(), CopyText))
                     {
                     }
-                    column(LegalNoticeText; GetLegalNoticeText())
-                    {
-                    }
                     column(CustAddr1; CustAddr[1])
                     {
                     }
@@ -108,7 +104,7 @@ report 5911 "Service - Invoice"
                     column(CompanyInfoFaxNo; CompanyInfo."Fax No.")
                     {
                     }
-                    column(CompanyInfoEnterpriseNo; CompanyInfo."Enterprise No.")
+                    column(CompanyInfoVATRegNo; CompanyInfo."VAT Registration No.")
                     {
                     }
                     column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
@@ -130,9 +126,6 @@ report 5911 "Service - Invoice"
                     {
                     }
                     column(VATNoText; VATNoText)
-                    {
-                    }
-                    column(NoText; NoText)
                     {
                     }
                     column(VATRegNo_ServInvHeader; "Service Invoice Header"."VAT Registration No.")
@@ -204,7 +197,7 @@ report 5911 "Service - Invoice"
                     column(CompanyInfoFaxNoCaption; CompanyInfoFaxNoCaptionLbl)
                     {
                     }
-                    column(CompanyInfoEnterpriseNoCaption; CompanyInfoEnterpriseNoCaptionLbl)
+                    column(CompanyInfoVATRegistrationNoCaption; CompanyInfoVATRegistrationNoCaptionLbl)
                     {
                     }
                     column(CompanyInfoGiroNoCaption; CompanyInfoGiroNoCaptionLbl)
@@ -226,12 +219,6 @@ report 5911 "Service - Invoice"
                     {
                     }
                     column(ServiceInvoiceHeaderPostingDateCaption; ServiceInvoiceHeaderPostingDateCaptionLbl)
-                    {
-                    }
-                    column(FinishingDate; Format("Service Invoice Header"."Finishing Date"))
-                    {
-                    }
-                    column(FinishingDateText; FinishingDateText)
                     {
                     }
                     column(CompanyBankBranchNo; CompanyBankAccount."Bank Branch No.")
@@ -486,7 +473,6 @@ report 5911 "Service - Invoice"
                             if "Allow Invoice Disc." then
                                 TempVATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                             TempVATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
-                            TempVATAmountLine."VAT Base (Lowered)" := "VAT Base Amount";
                             TempVATAmountLine."VAT Clause Code" := "VAT Clause Code";
                             TempVATAmountLine.InsertLine();
 
@@ -516,7 +502,7 @@ report 5911 "Service - Invoice"
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = sorting(Number);
-                        column(VATAmtLineVATBaseLowered; TempVATAmountLine."VAT Base (Lowered)")
+                        column(VATAmtLineVATBase; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
@@ -737,8 +723,6 @@ report 5911 "Service - Invoice"
 
             trigger OnAfterGetRecord()
             begin
-                VATNoText := '';
-                NoText := '';
                 CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
@@ -821,7 +805,6 @@ report 5911 "Service - Invoice"
         VATClause: Record "VAT Clause";
         RespCenter: Record "Responsibility Center";
         TempServiceShipmentBuffer: Record "Service Shipment Buffer" temporary;
-        Country: Record "Country/Region";
         TempLineFeeNoteOnReportHist: Record "Line Fee Note on Report Hist." temporary;
         LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
@@ -854,12 +837,10 @@ report 5911 "Service - Invoice"
         TotalInvDiscAmount: Decimal;
         DimTxtArrLength: Integer;
         DimTxtArr: array[500] of Text[50];
-        NoText: Text[50];
         IsServiceContractLine: Boolean;
         AccNo: Code[20];
         ServiceItemSerialNo: Code[50];
         DisplayAdditionalFeeNote: Boolean;
-        FinishingDateText: Text[50];
 
 #pragma warning disable AA0074
         Text004: Label 'Service - Invoice %1', Comment = '%1 = Document No.';
@@ -869,7 +850,7 @@ report 5911 "Service - Invoice"
 #pragma warning restore AA0074
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoFaxNoCaptionLbl: Label 'Fax No.';
-        CompanyInfoEnterpriseNoCaptionLbl: Label 'Enterprise No.';
+        CompanyInfoVATRegistrationNoCaptionLbl: Label 'VAT Reg. No.';
         CompanyInfoGiroNoCaptionLbl: Label 'Giro No.';
         CompanyInfoBankNameCaptionLbl: Label 'Bank';
         CompanyInfoBankAccountNoCaptionLbl: Label 'Account No.';
@@ -899,7 +880,6 @@ report 5911 "Service - Invoice"
         PaymentTermsDescriptionCaptionLbl: Label 'Payment Terms';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
         InvDiscountAmountCaptionLbl: Label 'Invoice Discount Amount';
-        LegalNoticeTxt: Label 'Application of the legislation to payment provisions. The right to deduct VAT cannot be exercised before the date the invoice is paid or the date that goods or services are delivered.';
         QuantityCaptionLbl: Label 'Qty';
         SerialNoCaptionLbl: Label 'Serial No.';
 
@@ -1094,20 +1074,6 @@ report 5911 "Service - Invoice"
         until DimSetEntry.Next() = 0;
     end;
 
-    local procedure GetLegalNoticeText(): Text[250]
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        VATEntry.SetRange("Document No.", "Service Invoice Header"."No.");
-        VATEntry.SetRange("Posting Date", "Service Invoice Header"."Posting Date");
-        VATEntry.SetRange(Type, VATEntry.Type::Sale);
-        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
-        VATEntry.SetFilter("Unrealized Base", '<> 0');
-        if VATEntry.IsEmpty() then
-            exit('');
-        exit(LegalNoticeTxt);
-    end;
-
     local procedure GetLineFeeNoteOnReportHist(SalesInvoiceHeaderNo: Code[20])
     var
         LineFeeNoteOnReportHist: Record "Line Fee Note on Report Hist.";
@@ -1174,17 +1140,7 @@ report 5911 "Service - Invoice"
 
         OrderNoText := FormatDocument.SetText(ServiceInvoiceHeader."Order No." <> '', ServiceInvoiceHeader.FieldCaption("Order No."));
         ReferenceText := FormatDocument.SetText(ServiceInvoiceHeader."Your Reference" <> '', ServiceInvoiceHeader.FieldCaption("Your Reference"));
-        FinishingDateText := FormatDocument.SetText(ServiceInvoiceHeader."Finishing Date" <> 0D, ServiceInvoiceHeader.FieldCaption("Finishing Date"));
-        if not Country.DetermineCountry(ServiceInvoiceHeader."Bill-to Country/Region Code") then begin
-            if ServiceInvoiceHeader."VAT Registration No." <> '' then begin
-                VATNoText := ServiceInvoiceHeader.FieldCaption("VAT Registration No.");
-                NoText := ServiceInvoiceHeader."VAT Registration No.";
-            end
-        end else
-            if ServiceInvoiceHeader."Enterprise No." <> '' then begin
-                VATNoText := ServiceInvoiceHeader.FieldCaption(ServiceInvoiceHeader."Enterprise No.");
-                NoText := ServiceInvoiceHeader."Enterprise No.";
-            end;
+        VATNoText := FormatDocument.SetText(ServiceInvoiceHeader."VAT Registration No." <> '', ServiceInvoiceHeader.FieldCaption("VAT Registration No."));
     end;
 
     local procedure FindLastMeaningfulLine(var ServiceInvoiceLine: Record "Service Invoice Line") MoreLines: Boolean

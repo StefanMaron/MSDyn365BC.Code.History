@@ -11,12 +11,12 @@ using Microsoft.Utilities;
 
 report 313 "Vendor/Item Purchases"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Purchases/Reports/VendorItemPurchases.rdlc';
     AdditionalSearchTerms = 'vendor priority';
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor/Item Purchases';
+    ToolTip = 'View a list of item entries for each vendor in a selected period.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -164,6 +164,16 @@ report 313 "Vendor/Item Purchases"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Purchases/Reports/VendorItemPurchases.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

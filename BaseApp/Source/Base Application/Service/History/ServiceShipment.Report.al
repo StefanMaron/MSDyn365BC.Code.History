@@ -107,7 +107,7 @@ report 5913 "Service - Shipment"
                     column(EMailId; CompanyInfo."E-Mail")
                     {
                     }
-                    column(CompanyInfoEnterpriseNo; CompanyInfo."Enterprise No.")
+                    column(CompanyInfoVATRegnNo; CompanyInfo."VAT Registration No.")
                     {
                     }
                     column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
@@ -173,7 +173,7 @@ report 5913 "Service - Shipment"
                     column(PhoneNoCaption; PhoneNoCaptionLbl)
                     {
                     }
-                    column(EnterpriseNoCaption; EnterpriseNoCaptionLbl)
+                    column(VATRegNoCaption; VATRegNoCaptionLbl)
                     {
                     }
                     column(GiroNoCaption; GiroNoCaptionLbl)
@@ -663,7 +663,7 @@ report 5913 "Service - Shipment"
 #pragma warning restore AA0074
         ItemTrackingAppendixCaptionLbl: Label 'Item Tracking - Appendix';
         PhoneNoCaptionLbl: Label 'Phone No.';
-        EnterpriseNoCaptionLbl: Label 'Enterprise No.';
+        VATRegNoCaptionLbl: Label 'VAT Registration No.';
         GiroNoCaptionLbl: Label 'Giro No.';
         BankNameCaptionLbl: Label 'Bank';
         BankAccNoCaptionLbl: Label 'Account No.';

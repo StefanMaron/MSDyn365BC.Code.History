@@ -132,7 +132,7 @@ report 5912 "Service - Credit Memo"
                     column(CompanyInfoFaxNo; CompanyInfo."Fax No.")
                     {
                     }
-                    column(CompanyInfoEnterpriseNo; CompanyInfo."Enterprise No.")
+                    column(CompanyInfoVATRegNo; CompanyInfo."VAT Registration No.")
                     {
                     }
                     column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
@@ -151,9 +151,6 @@ report 5912 "Service - Credit Memo"
                     {
                     }
                     column(VATNoText; VATNoText)
-                    {
-                    }
-                    column(NoText; NoText)
                     {
                     }
                     column(VATRegNo_ServiceCrMemoHeader; "Service Cr.Memo Header"."VAT Registration No.")
@@ -216,7 +213,7 @@ report 5912 "Service - Credit Memo"
                     column(CompanyInfoFaxNoCaption; CompanyInfoFaxNoCaptionLbl)
                     {
                     }
-                    column(CompanyInfoEnterpriseNoCaption; CompanyInfoEnterpriseNoCaptionLbl)
+                    column(CompanyInfoVATRegistrationNoCaption; CompanyInfoVATRegistrationNoCaptionLbl)
                     {
                     }
                     column(CompanyInfoGiroNoCaption; CompanyInfoGiroNoCaptionLbl)
@@ -428,7 +425,6 @@ report 5912 "Service - Credit Memo"
                             if "Allow Invoice Disc." then
                                 TempVATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                             TempVATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
-                            TempVATAmountLine."VAT Base (Lowered)" := "VAT Base Amount";
                             TempVATAmountLine."VAT Clause Code" := "VAT Clause Code";
                             TempVATAmountLine.InsertLine();
 
@@ -461,7 +457,7 @@ report 5912 "Service - Credit Memo"
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = sorting(Number);
-                        column(VATAmtLineVATBaseLowered; TempVATAmountLine."VAT Base (Lowered)")
+                        column(VATAmtLineVATBase; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Service Cr.Memo Header"."Currency Code";
                             AutoFormatType = 1;
@@ -651,8 +647,6 @@ report 5912 "Service - Credit Memo"
 
             trigger OnAfterGetRecord()
             begin
-                VATNoText := '';
-                NoText := '';
                 CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
@@ -662,17 +656,6 @@ report 5912 "Service - Credit Memo"
 
                 if not CompanyBankAccount.Get("Service Cr.Memo Header"."Company Bank Account Code") then
                     CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
-
-                if not Country.DetermineCountry("Bill-to Country/Region Code") then begin
-                    if "VAT Registration No." <> '' then begin
-                        VATNoText := FieldCaption("VAT Registration No.");
-                        NoText := "VAT Registration No.";
-                    end
-                end else
-                    if "Enterprise No." <> '' then begin
-                        VATNoText := FieldCaption("Enterprise No.");
-                        NoText := "Enterprise No.";
-                    end;
             end;
         }
     }
@@ -749,7 +732,6 @@ report 5912 "Service - Credit Memo"
         DimSetEntry: Record "Dimension Set Entry";
         TempServiceShipmentBuffer: Record "Service Shipment Buffer" temporary;
         RespCenter: Record "Responsibility Center";
-        Country: Record "Country/Region";
         LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -782,8 +764,6 @@ report 5912 "Service - Credit Memo"
         TotalLineAmount: Decimal;
         DimTxtArrLength: Integer;
         DimTxtArr: array[500] of Text[50];
-        NoText: Text[50];
-        SubtotalCaptionLbl: Label 'Subtotal';
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
@@ -802,7 +782,7 @@ report 5912 "Service - Credit Memo"
         ServiceCrMemoLineLineDiscountCaptionLbl: Label 'Disc. %';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoFaxNoCaptionLbl: Label 'Fax No.';
-        CompanyInfoEnterpriseNoCaptionLbl: Label 'Enterprise No.';
+        CompanyInfoVATRegistrationNoCaptionLbl: Label 'VAT Reg. No.';
         CompanyInfoGiroNoCaptionLbl: Label 'Giro No.';
         CompanyInfoBankNameCaptionLbl: Label 'Bank';
         CompanyInfoBankAccountNoCaptionLbl: Label 'Account No.';
@@ -824,6 +804,7 @@ report 5912 "Service - Credit Memo"
         TotalCaptionLbl: Label 'Total';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
         InvDiscountAmountCaptionLbl: Label 'Invoice Discount Amount';
+        SubtotalCaptionLbl: Label 'Subtotal';
 
     protected var
         CompanyInfo: Record "Company Information";

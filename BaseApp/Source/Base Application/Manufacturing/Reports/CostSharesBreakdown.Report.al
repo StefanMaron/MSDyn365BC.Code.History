@@ -13,11 +13,11 @@ using System.Utilities;
 
 report 5848 "Cost Shares Breakdown"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Manufacturing/Reports/CostSharesBreakdown.rdlc';
     ApplicationArea = Manufacturing;
     Caption = 'Cost Shares Breakdown';
+    ToolTip = 'View the item''s cost broken down in inventory, WIP, or COGS, according to purchase and material cost, capacity cost, capacity overhead cost, manufacturing overhead cost, subcontracted cost, variance, indirect cost, revaluation, and rounding. The report breaks down cost at a single BOM level and does not roll up the costs from lower BOM levels. The report does not calculate the cost share from items that use the Average costing method.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -475,6 +475,16 @@ report 5848 "Cost Shares Breakdown"
             if (StartDate = 0D) and (EndDate = 0D) then
                 EndDate := WorkDate();
         end;
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Manufacturing/Reports/CostSharesBreakdown.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
     }
 
     labels

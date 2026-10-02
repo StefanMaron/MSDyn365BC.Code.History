@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LCX SchemaVersion="6.0" Name="PEPPOL BE.g" PsrId="63" SrcCul="en-US" TgtCul="en-US" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+  <OwnedComments>
+    <Cmt Name="Dev" />
+    <Cmt Name="LcxAdmin" />
+    <Cmt Name="Rccx" />
+  </OwnedComments>
+  <Item ItemId=";Codeunit 384216688 - NamedType 1954183790" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Payment discount not deducted from the amount payable]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Peppol.BE)(LookupHint=Codeunit PEPPOL30 BE Escompte - NamedType CompensationChargeReasonTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 384216688 - NamedType 3433689403" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Conditional early-payment discount, not part of the taxable amount]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Peppol.BE)(LookupHint=Codeunit PEPPOL30 BE Escompte - NamedType CompensationExemptionReasonTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 717783550 - Method 2792769139 - NamedType 1218325150" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[PEPPOL BIS3 Format Belgium (Belgian localization)]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Peppol.BE)(LookupHint=Codeunit PEPPOL30 BE Initialize - Method CreateElectronicDocumentFormats - NamedType PEPPOLBIS3BE_ElectronicFormatDescriptionTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1585194667 - NamedType 3006582505" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must specify either GLN, VAT Registration No. or Enterprise No. in %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Company Information]D;]A;(Namespace=Microsoft.Peppol.BE)(LookupHint=Codeunit PEPPOL30 BE Sales Validation - NamedType MissingCompInfGLNOrVATRegNoOrEnterpNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1585194667 - NamedType 4021992562" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must specify either GLN, VAT Registration No. or Enterprise No. for Customer %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Customer No.]D;]A;(Namespace=Microsoft.Peppol.BE)(LookupHint=Codeunit PEPPOL30 BE Sales Validation - NamedType MissingCustGLNOrVATRegNoOrEnterpNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1585194667 - Method 863858180 - NamedType 716457457" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The posted sales document type is not supported for PEPPOL 3.0 validation.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Peppol.BE)(LookupHint=Codeunit PEPPOL30 BE Sales Validation - Method ValidatePostedDocument - NamedType UnsupportedDocumentErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 660979608 - Method 863858180 - NamedType 716457457" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The posted service document type is not supported for PEPPOL 3.0 validation.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Peppol.BE)(LookupHint=Codeunit PEPPOL30 BE Service Validation - Method ValidatePostedDocument - NamedType UnsupportedDocumentErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";EnumExtension 888487017 - EnumValue 599488051 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[PEPPOL 3.0 - Belgium Sales Format]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 3812522396)(Namespace=Microsoft.Peppol.BE)(LookupHint=EnumExtension PEPPOL 3.0 Format BE - EnumValue PEPPOL 3.0 - BE Sales - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";EnumExtension 888487017 - EnumValue 2043099912 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[PEPPOL 3.0 - Belgium Service Format]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 3812522396)(Namespace=Microsoft.Peppol.BE)(LookupHint=EnumExtension PEPPOL 3.0 Format BE - EnumValue PEPPOL 3.0 - BE Service - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+</LCX>

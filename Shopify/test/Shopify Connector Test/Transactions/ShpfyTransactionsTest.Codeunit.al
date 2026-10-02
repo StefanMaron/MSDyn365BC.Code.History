@@ -10,7 +10,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Integration.Shopify;
 using System.TestLibraries.Utilities;
 
-codeunit 139930 "Shpfy Transactions Test"
+codeunit 139697 "Shpfy Transactions Test"
 {
     Subtype = Test;
     TestType = Uncategorized;
@@ -37,9 +37,6 @@ codeunit 139930 "Shpfy Transactions Test"
 
         Codeunit.Run(Codeunit::"Shpfy Initialize Test");
         Shop := CommunicationMgt.GetShopRecord();
-
-        // On releases/28.x, disable legacy event-mocking so requests are intercepted by [HttpClientHandler].
-        CommunicationMgt.SetTestInProgress(false);
 
         AccessToken := LibraryRandom.RandText(20);
         InitializeTest.RegisterAccessTokenForShop(Shop.GetStoreName(), AccessToken);

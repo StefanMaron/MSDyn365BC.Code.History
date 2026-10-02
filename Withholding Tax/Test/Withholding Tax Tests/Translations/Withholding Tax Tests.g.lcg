@@ -77,6 +77,33 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Tests.WithholdingTax)(LookupHint=Codeunit ERM Withholding Tax Tests I - NamedType WithoutAppliedIdErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2899581057 - NamedType 599718932" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The %1 option can be used only when the withholding tax is for employees.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = field caption]D;]A;(Namespace=Microsoft.Tests.WithholdingTax)(LookupHint=Codeunit ERM Withholding Tax Tests II - NamedType EmployeeOnlyOptionErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2899581057 - NamedType 3248272062" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[A general journal template with Type Purchases does not exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Tests.WithholdingTax)(LookupHint=Codeunit ERM Withholding Tax Tests II - NamedType GenJnlTemplateNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2899581057 - NamedType 1696276982" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The %1 can be specified only when %2 is %3 or %4.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Withholding Threshold Period field caption, %2 = Withholding Threshold Base field caption, %3 = Category in Period option, %4 = Total in Period option]D;]A;(Namespace=Microsoft.Tests.WithholdingTax)(LookupHint=Codeunit ERM Withholding Tax Tests II - NamedType ThresholdPeriodNotAllowedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2899581057 - NamedType 3034591588" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Value must be same.]]></Val>
@@ -93,6 +120,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption, %2 = WHT Business Posting Group Code, %3 = WHT Product Posting Group Code]D;]A;(Namespace=Microsoft.Tests.WithholdingTax)(LookupHint=Codeunit ERM Withholding Tax Tests II - NamedType WHTAccountCodeEmptyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2899581057 - NamedType 3495036755" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Withholding Tax Prod. Post. Group must be copied from the applied Invoice to the Payment line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Tests.WithholdingTax)(LookupHint=Codeunit ERM Withholding Tax Tests II - NamedType WHTProdPostGroupNotCopiedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 741840556 - NamedType 1367169603" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

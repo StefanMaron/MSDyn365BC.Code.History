@@ -22,9 +22,8 @@ using System.Utilities;
 /// </summary>
 report 116 Statement
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Sales/Customer/Statement.rdlc';
     Caption = 'Statement';
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -228,7 +227,7 @@ report 116 Statement
                         }
                         dataitem("Detailed Cust. Ledg. Entry"; "Detailed Cust. Ledg. Entry")
                         {
-                            DataItemTableView = sorting("Customer No.", "Posting Date", "Entry Type", "Currency Code");
+                            DataItemTableView = sorting("Customer No.", "Posting Date", "Entry Type", "Currency Code") where("Excluded from calculation" = const(false));
                             column(PostDate_DtldCustLedgEntries; Format("Posting Date"))
                             {
                             }
@@ -788,6 +787,16 @@ report 116 Statement
         begin
             InitRequestPageDataInternal();
         end;
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Sales/Customer/Statement.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
     }
 
     labels

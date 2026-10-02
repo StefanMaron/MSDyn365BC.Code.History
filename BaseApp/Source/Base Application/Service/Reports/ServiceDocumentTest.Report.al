@@ -826,7 +826,7 @@ report 5915 "Service Document - Test"
                             AutoFormatExpression = "Service Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLineVATBaseLowered; TempVATAmountLine."VAT Base (Lowered)")
+                        column(VATAmountLine__VAT_Base_; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Service Line"."Currency Code";
                             AutoFormatType = 1;
@@ -849,6 +849,11 @@ report 5915 "Service Document - Test"
                         column(VATAmountLine__VAT_Amount__Control150; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Service Header"."Currency Code";
+                            AutoFormatType = 1;
+                        }
+                        column(VATAmountLine__VAT_Base__Control151; TempVATAmountLine."VAT Base")
+                        {
+                            AutoFormatExpression = "Service Line"."Currency Code";
                             AutoFormatType = 1;
                         }
                         column(VATAmountLine__VAT___; TempVATAmountLine."VAT %")
@@ -876,6 +881,11 @@ report 5915 "Service Document - Test"
                         column(VATAmountLine__VAT_Amount__Control181; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Service Header"."Currency Code";
+                            AutoFormatType = 1;
+                        }
+                        column(VATAmountLine__VAT_Base__Control182; TempVATAmountLine."VAT Base")
+                        {
+                            AutoFormatExpression = "Service Line"."Currency Code";
                             AutoFormatType = 1;
                         }
                         column(VATAmountLine__Invoice_Discount_Amount__Control183; TempVATAmountLine."Invoice Discount Amount")

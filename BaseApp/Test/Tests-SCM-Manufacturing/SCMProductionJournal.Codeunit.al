@@ -53,6 +53,7 @@ codeunit 137034 "SCM Production Journal"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
         PostedProdJournal: Boolean;
@@ -1979,10 +1980,10 @@ codeunit 137034 "SCM Production Journal"
           Item, Item."Costing Method"::FIFO, RoutingHeader."No.", ProductionBOMHeader."No.", Item."Manufacturing Policy"::"Make-to-Order");
         CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.");
         ProductionOrderNo := ProductionOrder."No.";
-         
+
         // [WHEN] Open Production Journal based on Production Order Lines
         OpenProductionJournal(ProductionOrder, ProductionOrderNo);
-         
+
         // [THEN] Verification done in VerifyConsumptionEntriesBasedOnActualOutput after JournalPageHandler captures journal lines
         VerifyConsumptionEntriesBasedOnActualOutput(ProductionOrderNo);
 
@@ -2025,13 +2026,13 @@ codeunit 137034 "SCM Production Journal"
           Item, Item."Costing Method"::FIFO, RoutingHeader."No.", ProductionBOMHeader."No.", Item."Manufacturing Policy"::"Make-to-Order");
         CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.");
         ProductionOrderNo := ProductionOrder."No.";
-         
+
         // [GIVEN] Post output in Production Journal
         CreateAndPostOutputJournal(ProductionOrderNo, OperationNo, Item."No.", '', '');
-         
+
         // [WHEN] Open Production Journal based on Production Order Lines
         OpenProductionJournal(ProductionOrder, ProductionOrderNo);
-         
+
         // [THEN] Verification done in VerifyConsumptionEntriesBasedOnActualOutput after JournalPageHandler captures journal lines
         VerifyConsumptionEntriesBasedOnActualOutput(ProductionOrderNo);
 
@@ -2050,7 +2051,7 @@ codeunit 137034 "SCM Production Journal"
         ItemJournalLine: Record "Item Journal Line";
         ComponentQuantity: Decimal;
     begin
-       // [SCENARIO 617913] Verify the Reserve from inventory creates reservation matching Production Order line quantity.
+        // [SCENARIO 617913] Verify the Reserve from inventory creates reservation matching Production Order line quantity.
         Initialize();
 
         // [GIVEN] Generate Random component quantity.
@@ -2078,7 +2079,7 @@ codeunit 137034 "SCM Production Journal"
 
         // [THEN] Verify reserved quantity matches Production component expected quantity.
         ProdOrderComponent.CalcFields("Reserved Quantity");
-        Assert.AreEqual(ProdOrderComponent."Expected Quantity", ProdOrderComponent."Reserved Quantity",ReservedQtyProdCompErr);
+        Assert.AreEqual(ProdOrderComponent."Expected Quantity", ProdOrderComponent."Reserved Quantity", ReservedQtyProdCompErr);
     end;
 
     [Test]
@@ -2344,6 +2345,78 @@ codeunit 137034 "SCM Production Journal"
         end;
     end;
 
+    [Test]
+    procedure ExplodeRoutingWithSerialNumberTrackingSplitsOutputLines()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        ProductionBOMHeader: Record "Production BOM Header";
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJournalLine: Record "Item Journal Line";
+        OutputItemJournalTemplate: Record "Item Journal Template";
+        OutputItemJournalBatch: Record "Item Journal Batch";
+        ReservEntry: Record "Reservation Entry";
+        SerialNo: array[3] of Code[50];
+        i: Integer;
+        Qty: Integer;
+    begin
+        // [FEATURE] [AI test 0.4]
+        // [SCENARIO 624793] Explode routing splits output journal lines per serial number when item has SN-specific tracking and journal batch has "Item Tracking on Lines" enabled
+        Initialize();
+
+        // [GIVEN] Item "I" with SN-specific item tracking code and a routing with two operations
+        Qty := LibraryRandom.RandIntInRange(2, 3); 
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
+        LibraryInventory.CreateItem(ChildItem);
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, ChildItem."No.", 1);
+        CreateRoutingSetup(RoutingHeader);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        // [GIVEN] Released production order "PO" for item "I" with quantity = 3
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", Qty);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Serial number tracking "SN1", "SN2", "SN3" assigned to production order line "PO"
+        ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+        for i := 1 to Qty do begin
+            SerialNo[i] := LibraryUtility.GenerateGUID();
+            LibraryManufacturing.CreateProdOrderItemTracking(ReservEntry, ProdOrderLine, SerialNo[i], '', 1);
+        end;
+
+        // [GIVEN] Output journal batch with "Item Tracking on Lines" enabled
+        LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
+        LibraryInventory.SelectItemJournalBatchName(OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(OutputItemJournalTemplate, OutputItemJournalBatch);
+        OutputItemJournalBatch."Item Tracking on Lines" := true;
+        OutputItemJournalBatch.Modify();
+
+        // [WHEN] Create output journal and explode routing
+        LibraryManufacturing.CreateOutputJournal(ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, '', ProductionOrder."No.");
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
+
+        // [THEN] Output journal has lines for the last operation, each with quantity = 1 and assigned serial numbers
+        ItemJournalLine.SetRange("Journal Template Name", OutputItemJournalTemplate.Name);
+        ItemJournalLine.SetRange("Journal Batch Name", OutputItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Order No.", ProductionOrder."No.");
+        ItemJournalLine.SetRange("Output Quantity", 1);
+        Assert.RecordCount(ItemJournalLine, Qty);
+        for i := 1 to Qty do begin
+            ItemJournalLine.SetRange("Serial No.", SerialNo[i]);
+            Assert.RecordCount(ItemJournalLine, 1);
+        end;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2383,7 +2456,7 @@ codeunit 137034 "SCM Production Journal"
         // Random value important for test.
         LibraryManufacturing.CreateItemManufacturing(
           Item, CostingMethod, LibraryRandom.RandInt(50) + 10, Item."Reordering Policy",
-          Item."Flushing Method", RoutingNo, ProductionBOMNo);
+          Item."Flushing Method"::"Pick + Manual", RoutingNo, ProductionBOMNo);
         Item.Validate("Manufacturing Policy", ItemManufacturingPolicy);
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
         Item.Modify(true);

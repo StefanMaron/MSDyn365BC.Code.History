@@ -16499,10 +16499,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VATAmountLineVATBaseLowered.Value</Value>
+                                  <Value>=Fields!VATAmountLine__VAT_Base_.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!VATAmountLineVATBaseLoweredFormat.Value</Format>
+                                    <Format>=Fields!VATAmountLine__VAT_Base__Control151Format.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -17040,11 +17040,11 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!VATAmountLineVATBaseLowered.Value)</Value>
+                                  <Value>=Sum(Fields!VATAmountLine__VAT_Base_.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=First(Fields!VATAmountLineVATBaseLoweredFormat.Value)</Format>
+                                    <Format>=First(Fields!VATAmountLine__VAT_Base__Control182Format.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -21604,11 +21604,11 @@ End Function
         <Field Name="VATAmountLine__VAT_Amount_Format">
           <DataField>VATAmountLine__VAT_Amount_Format</DataField>
         </Field>
-        <Field Name="VATAmountLineVATBaseLowered">
-          <DataField>VATAmountLineVATBaseLowered</DataField>
+        <Field Name="VATAmountLine__VAT_Base_">
+          <DataField>VATAmountLine__VAT_Base_</DataField>
         </Field>
-        <Field Name="VATAmountLineVATBaseLoweredFormat">
-          <DataField>VATAmountLineVATBaseLoweredFormat</DataField>
+        <Field Name="VATAmountLine__VAT_Base_Format">
+          <DataField>VATAmountLine__VAT_Base_Format</DataField>
         </Field>
         <Field Name="VATAmountLine__Invoice_Discount_Amount_">
           <DataField>VATAmountLine__Invoice_Discount_Amount_</DataField>
@@ -21633,6 +21633,12 @@ End Function
         </Field>
         <Field Name="VATAmountLine__VAT_Amount__Control150Format">
           <DataField>VATAmountLine__VAT_Amount__Control150Format</DataField>
+        </Field>
+        <Field Name="VATAmountLine__VAT_Base__Control151">
+          <DataField>VATAmountLine__VAT_Base__Control151</DataField>
+        </Field>
+        <Field Name="VATAmountLine__VAT_Base__Control151Format">
+          <DataField>VATAmountLine__VAT_Base__Control151Format</DataField>
         </Field>
         <Field Name="VATAmountLine__VAT___">
           <DataField>VATAmountLine__VAT___</DataField>
@@ -21666,6 +21672,12 @@ End Function
         </Field>
         <Field Name="VATAmountLine__VAT_Amount__Control181Format">
           <DataField>VATAmountLine__VAT_Amount__Control181Format</DataField>
+        </Field>
+        <Field Name="VATAmountLine__VAT_Base__Control182">
+          <DataField>VATAmountLine__VAT_Base__Control182</DataField>
+        </Field>
+        <Field Name="VATAmountLine__VAT_Base__Control182Format">
+          <DataField>VATAmountLine__VAT_Base__Control182Format</DataField>
         </Field>
         <Field Name="VATAmountLine__Invoice_Discount_Amount__Control183">
           <DataField>VATAmountLine__Invoice_Discount_Amount__Control183</DataField>

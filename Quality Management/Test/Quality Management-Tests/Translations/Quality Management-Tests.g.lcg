@@ -394,11 +394,11 @@
   </Item>
   <Item ItemId=";Codeunit 2107338336 - NamedType 2035298515" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This transaction was blocked because the quality inspection %1 has the result of %2 for item %4 with tracking %5, which is configured to disallow the transaction "%3". You can change whether this transaction is allowed by navigating to Quality Inspection Results.]]></Val>
+      <Val><![CDATA["%1" transaction is not allowed for item %2 with tracking %3 because quality inspection %4 has result %5, which is configured to block this transaction.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=quality inspection, %2=result, %3=entry type being blocked, %4=item, %5=combined package tracking details of Lot No., Serial No. and Package No.]D;]A;(Namespace=Microsoft.Test.QualityManagement)(LookupHint=Codeunit Qlty. Tests - Misc. - NamedType EntryTypeBlockedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1=entry type being blocked, %2=item, %3=combined package tracking details of Lot No., Serial No. and Package No., %4=quality inspection, %5=result]D;]A;(Namespace=Microsoft.Test.QualityManagement)(LookupHint=Codeunit Qlty. Tests - Misc. - NamedType EntryTypeBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2107338336 - NamedType 3449695123" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -412,11 +412,11 @@
   </Item>
   <Item ItemId=";Codeunit 2107338336 - NamedType 3317216600" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This warehouse transaction was blocked because the quality inspection %1 has the result of %2 for item %4 with tracking %5 %6 %7, which is configured to disallow the transaction "%3". You can change whether this transaction is allowed by navigating to Quality Inspection Results.]]></Val>
+      <Val><![CDATA["%1" warehouse transaction is not allowed for item %2 with tracking %3 because quality inspection %4 has result %5, which is configured to block this transaction.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=quality inspection, %2=result, %3=entry type being blocked, %4=item, %5=Lot No., %6=Serial No., %7=Package No.]D;]A;(Namespace=Microsoft.Test.QualityManagement)(LookupHint=Codeunit Qlty. Tests - Misc. - NamedType WarehouseEntryTypeBlockedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1=entry type being blocked, %2=item, %3=combined package tracking details of Lot No., Serial No. and Package No., %4=quality inspection, %5=result]D;]A;(Namespace=Microsoft.Test.QualityManagement)(LookupHint=Codeunit Qlty. Tests - Misc. - NamedType WarehouseEntryTypeBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2107338336 - NamedType 3210519699" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

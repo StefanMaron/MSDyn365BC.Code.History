@@ -275,20 +275,6 @@ codeunit 4509 "Email - Outlook API Helper"
     end;
 #pragma warning restore AL0432
 #endif
-#if not CLEAN26
-#pragma warning disable AL0432
-    [Obsolete('Update OutlookAPIClient to v4.', '26.0')]
-    procedure InitializeClients(var OutlookAPIClient: interface "Email - Outlook API Client v3"; var OAuthClient: interface "Email - OAuth Client v2")
-    var
-        DefaultAPIClient: Codeunit "Email - Outlook API Client";
-        DefaultOAuthClient: Codeunit "Email - OAuth Client";
-    begin
-        OutlookAPIClient := DefaultAPIClient;
-        OAuthClient := DefaultOAuthClient;
-        OnAfterInitializeClientsV3(OutlookAPIClient, OAuthClient);
-    end;
-#pragma warning restore AL0432
-#endif
 #if not CLEAN28
 #pragma warning disable AL0432
     [Obsolete('Update OutlookAPIClient to v5.', '28.0')]
@@ -350,22 +336,6 @@ codeunit 4509 "Email - Outlook API Helper"
         OAuthClient.GetAccessToken(AccessToken);
         APIClient.SendEmail(AccessToken, EmailMessageToJson(EmailMessage));
     end;
-#if not CLEAN26
-    [Obsolete('Replaced by an overload without the MarkEmailsAsRead parameter.', '26.0')]
-    procedure RetrieveEmails(AccountId: Guid; MarkEmailsAsRead: Boolean; var EmailInbox: Record "Email Inbox")
-    var
-        TempFilters: Record "Email Retrieval Filters" temporary;
-    begin
-        TempFilters.Init();
-        RetrieveEmails(AccountId, EmailInbox, TempFilters);
-    end;
-
-    [Obsolete('Replaced by an overload without the MarkEmailsAsRead parameter.', '26.0')]
-    procedure RetrieveEmails(AccountId: Guid; MarkEmailsAsRead: Boolean; var EmailInbox: Record "Email Inbox"; var Filters: Record "Email Retrieval Filters")
-    begin
-        RetrieveEmails(AccountId, EmailInbox, Filters);
-    end;
-#endif
 
     procedure RetrieveEmails(AccountId: Guid; var EmailInbox: Record "Email Inbox")
     var
@@ -416,18 +386,19 @@ codeunit 4509 "Email - Outlook API Helper"
 
     local procedure GetEmailAddressFromEmailAccounts(AccountId: Guid): Text
     var
-        EmailAccounts: Record "Email Account";
+        TempEmailAccounts: Record "Email Account";
     begin
-        EmailAccount.GetAllAccounts(EmailAccounts);
-        EmailAccounts.SetRange("Account Id", AccountId);
-        EmailAccounts.FindFirst();
+        EmailAccount.GetAllAccounts(TempEmailAccounts);
+        TempEmailAccounts.SetRange("Account Id", AccountId);
+        TempEmailAccounts.FindFirst();
 
-        exit(EmailAccounts."Email Address");
+        exit(TempEmailAccounts."Email Address");
     end;
 
     local procedure CreateEmailInboxFromJsonObject(var EmailInbox: Record "Email Inbox"; OutlookAccount: Record "Email - Outlook Account"; var Filters: Record "Email Retrieval Filters"; EmailJsonObject: JsonObject)
     var
         EmailMessage: Codeunit "Email Message";
+        Email: Codeunit Email;
         BodyObject: JsonObject;
         SenderObject: JsonObject;
         ReceivedDateTime: DateTime;
@@ -452,6 +423,12 @@ codeunit 4509 "Email - Outlook API Helper"
         IsRead := GetBooleanFromJsonObject(EmailJsonObject, 'isRead');
         IsDraft := GetBooleanFromJsonObject(EmailJsonObject, 'isDraft');
 
+        if Email.FindRetrievedEmail(OutlookAccount.Id, ExternalMessageId, EmailInbox) then begin
+            if HasAttachments and Filters."Load Attachments" then
+                LoadMissingAttachments(EmailInbox."Message Id", EmailJsonObject);
+            exit;
+        end;
+
         BodyObject := GetJsonObjectFromJsonObject(EmailJsonObject, 'body');
         Body := GetTextFromJsonObject(BodyObject, 'content');
 
@@ -463,10 +440,13 @@ codeunit 4509 "Email - Outlook API Helper"
         HTMLBody := Filters."Body Type" = Filters."Body Type"::HTML;
         if Filters."Last Message Only" then
             Body := KeepLastMessageOnly(Body);
-        EmailMessage.Create('', Subject, Body, HTMLBody, true);
+        EmailMessage.Create('', Subject, Body, HTMLBody, not Filters.GetBypassBodySanitization());
 
         if HasAttachments then
-            AddAttachmentsToMessage(EmailJsonObject, EmailMessage);
+            AddAttachmentsToMessage(EmailJsonObject, EmailMessage, false);
+
+        if Filters."Load Headers" then
+            SetMessageHeaders(EmailJsonObject, EmailMessage);
 
         EmailInbox.Id := 0;
         EmailInbox."External Message Id" := CopyStr(ExternalMessageId, 1, MaxStrLen(EmailInbox."External Message Id"));
@@ -601,7 +581,20 @@ codeunit 4509 "Email - Outlook API Helper"
         exit(Value);
     end;
 
-    local procedure AddAttachmentsToMessage(EmailJsonObject: JsonObject; var EmailMessage: Codeunit "Email Message")
+    local procedure LoadMissingAttachments(MessageId: Guid; EmailJsonObject: JsonObject)
+    var
+        EmailMessage: Codeunit "Email Message";
+    begin
+        if not EmailMessage.Get(MessageId) then
+            exit;
+
+        if EmailMessage.Attachments_First() then
+            exit;
+
+        AddAttachmentsToMessage(EmailJsonObject, EmailMessage, true);
+    end;
+
+    local procedure AddAttachmentsToMessage(EmailJsonObject: JsonObject; var EmailMessage: Codeunit "Email Message"; MessageAlreadyRetrieved: Boolean)
     var
         Base64Convert: Codeunit "Base64 Convert";
         TempBlob: Codeunit "Temp Blob";
@@ -641,8 +634,32 @@ codeunit 4509 "Email - Outlook API Helper"
             TempBlob.CreateOutStream(AttachmentOutStream);
             Base64Convert.FromBase64(ContentBytesBase64, AttachmentOutStream);
             TempBlob.CreateInStream(AttachmentInStream);
-            EmailMessage.AddAttachment(AttachmentName, ContentType, IsInline, ContentId, AttachmentInStream);
+            EmailMessage.AddAttachment(AttachmentName, ContentType, IsInline, ContentId, AttachmentInStream, MessageAlreadyRetrieved);
         end;
+    end;
+
+    local procedure SetMessageHeaders(EmailJsonObject: JsonObject; var EmailMessage: Codeunit "Email Message")
+    var
+        HeadersArray: JsonArray;
+        HeaderObject: JsonObject;
+        JsonToken: JsonToken;
+        Counter: Integer;
+    begin
+        if not EmailJsonObject.Get('internetMessageHeaders', JsonToken) then
+            exit;
+        if not JsonToken.IsArray() then
+            exit;
+        HeadersArray := JsonToken.AsArray();
+        for Counter := 0 to HeadersArray.Count() - 1 do begin
+            HeadersArray.Get(Counter, JsonToken);
+            if not JsonToken.IsObject() then
+                continue;
+            HeaderObject := JsonToken.AsObject();
+            EmailMessage.AddHeader(
+                GetTextFromJsonObject(HeaderObject, 'name'),
+                GetTextFromJsonObject(HeaderObject, 'value'));
+        end;
+        EmailMessage.FlushHeaders();
     end;
 
     local procedure GetIntegerFromJsonObject(JsonObject: JsonObject; KeyName: Text): Integer
@@ -839,14 +856,6 @@ codeunit 4509 "Email - Outlook API Helper"
 #pragma warning disable AL0432
     [InternalEvent(false)]
     local procedure OnAfterInitializeClientsV2(var OutlookAPIClient: interface "Email - Outlook API Client v2"; var OAuthClient: interface "Email - OAuth Client v2")
-    begin
-    end;
-#pragma warning restore AL0432
-#endif
-#if not CLEAN26
-#pragma warning disable AL0432
-    [InternalEvent(false)]
-    local procedure OnAfterInitializeClientsV3(var OutlookAPIClient: interface "Email - Outlook API Client v3"; var OAuthClient: interface "Email - OAuth Client v2")
     begin
     end;
 #pragma warning restore AL0432

@@ -1,7 +1,9 @@
 namespace Microsoft.SubscriptionBilling;
 
+using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Attribute;
@@ -718,6 +720,170 @@ codeunit 139687 "Recurring Billing Docs Test"
     end;
 
     [Test]
+    [HandlerFunctions('CreateCustomerBillingDocsContractPageHandler,MessageHandler')]
+    procedure ContractSalesInvoiceUnitPriceIsVATInclusiveWhenCustomerPricesIncludeVAT()
+    var
+        Currency: Record Currency;
+        VATPostingSetup: Record "VAT Posting Setup";
+        NetUnitPrice: Decimal;
+        ExpectedUnitPrice: Decimal;
+    begin
+        // [SCENARIO] When a Subscription Contract is billed for a customer whose prices include VAT,
+        // the resulting contract invoice sales line "Unit Price" is grossed up to a VAT-inclusive value.
+        Initialize();
+
+        // [GIVEN] A customer with "Prices Including VAT" = YES and a subscription item with a non-zero VAT rate
+        CreateCustomerContractWithVATItem(VATPostingSetup, true);
+
+        // [GIVEN] A billing proposal for the contract
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer);
+
+        // [WHEN] Billing documents are created
+        CreateBillingDocuments(false);
+
+        // [THEN] The created sales invoice has "Prices Including VAT" = YES
+        BillingLine.Reset();
+        BillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
+        BillingLine.SetRange(Partner, BillingTemplate.Partner);
+        BillingLine.FindFirst();
+        NetUnitPrice := SumBillingProposalUnitPrice();
+        Assert.AreNotEqual(0, NetUnitPrice, 'The net unit price should not be zero, otherwise the test is meaningless.');
+
+        SalesHeader.Get(Enum::"Sales Document Type"::Invoice, BillingLine."Document No.");
+        SalesHeader.TestField("Prices Including VAT", true);
+
+        // [THEN] The sales line unit price equals the net price grossed up by VAT
+        SalesLine.Reset();
+        FilterSalesLineOnDocumentLine(BillingLine.GetSalesDocumentTypeFromBillingDocumentType(), BillingLine."Document No.", BillingLine."Document Line No.");
+        SalesLine.FindFirst();
+        SalesLine.TestField("VAT %", VATPostingSetup."VAT %");
+
+        Currency.InitRoundingPrecision();
+        ExpectedUnitPrice := Round(NetUnitPrice * (1 + VATPostingSetup."VAT %" / 100), Currency."Unit-Amount Rounding Precision");
+        Assert.AreEqual(ExpectedUnitPrice, SalesLine."Unit Price", 'Contract invoice unit price should be VAT-inclusive when the customer prices include VAT.');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateCustomerBillingDocsContractPageHandler,MessageHandler')]
+    procedure ContractSalesInvoiceUnitPriceIsNetWhenCustomerPricesExcludeVAT()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        NetUnitPrice: Decimal;
+    begin
+        // [SCENARIO] When a Subscription Contract is billed for a customer whose prices exclude VAT,
+        // the contract invoice sales line "Unit Price" stays net (no gross-up is applied).
+        Initialize();
+
+        // [GIVEN] A customer with "Prices Including VAT" = NO and a subscription item with a non-zero VAT rate
+        CreateCustomerContractWithVATItem(VATPostingSetup, false);
+
+        // [GIVEN] A billing proposal for the contract
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer);
+
+        // [WHEN] Billing documents are created
+        CreateBillingDocuments(false);
+
+        // [THEN] The created sales invoice has "Prices Including VAT" = NO
+        BillingLine.Reset();
+        BillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
+        BillingLine.SetRange(Partner, BillingTemplate.Partner);
+        BillingLine.FindFirst();
+        NetUnitPrice := SumBillingProposalUnitPrice();
+        Assert.AreNotEqual(0, NetUnitPrice, 'The net unit price should not be zero, otherwise the test is meaningless.');
+
+        SalesHeader.Get(Enum::"Sales Document Type"::Invoice, BillingLine."Document No.");
+        SalesHeader.TestField("Prices Including VAT", false);
+
+        // [THEN] The sales line unit price equals the net price (unchanged)
+        SalesLine.Reset();
+        FilterSalesLineOnDocumentLine(BillingLine.GetSalesDocumentTypeFromBillingDocumentType(), BillingLine."Document No.", BillingLine."Document Line No.");
+        SalesLine.FindFirst();
+        Assert.AreEqual(NetUnitPrice, SalesLine."Unit Price", 'Contract invoice unit price should stay net when the customer prices exclude VAT.');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateVendorBillingDocsContractPageHandler,MessageHandler')]
+    procedure ContractPurchInvoiceUnitCostIsVATInclusiveWhenVendorPricesIncludeVAT()
+    var
+        Currency: Record Currency;
+        VATPostingSetup: Record "VAT Posting Setup";
+        NetUnitCost: Decimal;
+        ExpectedUnitCost: Decimal;
+    begin
+        // [SCENARIO] When a Vendor Subscription Contract is billed for a vendor whose prices include VAT,
+        // the resulting contract purchase invoice line "Direct Unit Cost" is grossed up to a VAT-inclusive value.
+        Initialize();
+
+        // [GIVEN] A vendor with "Prices Including VAT" = YES and a subscription item with a non-zero VAT rate
+        CreateVendorContractWithVATItem(VATPostingSetup, true);
+
+        // [GIVEN] A billing proposal for the contract
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Vendor);
+
+        // [WHEN] Billing documents are created
+        CreateBillingDocuments(false);
+
+        // [THEN] The created purchase invoice has "Prices Including VAT" = YES
+        BillingLine.Reset();
+        BillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
+        BillingLine.SetRange(Partner, BillingTemplate.Partner);
+        BillingLine.FindFirst();
+        NetUnitCost := SumBillingProposalUnitPrice();
+        Assert.AreNotEqual(0, NetUnitCost, 'The net unit cost should not be zero, otherwise the test is meaningless.');
+
+        PurchaseHeader.Get(Enum::"Purchase Document Type"::Invoice, BillingLine."Document No.");
+        PurchaseHeader.TestField("Prices Including VAT", true);
+
+        // [THEN] The purchase line direct unit cost equals the net cost grossed up by VAT
+        PurchaseLine.Reset();
+        FilterPurchaseLineOnDocumentLine(PurchaseHeader."Document Type", BillingLine."Document No.", BillingLine."Document Line No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.TestField("VAT %", VATPostingSetup."VAT %");
+
+        Currency.InitRoundingPrecision();
+        ExpectedUnitCost := Round(NetUnitCost * (1 + VATPostingSetup."VAT %" / 100), Currency."Unit-Amount Rounding Precision");
+        Assert.AreEqual(ExpectedUnitCost, PurchaseLine."Direct Unit Cost", 'Contract purchase invoice direct unit cost should be VAT-inclusive when the vendor prices include VAT.');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateVendorBillingDocsContractPageHandler,MessageHandler')]
+    procedure ContractPurchInvoiceUnitCostIsNetWhenVendorPricesExcludeVAT()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        NetUnitCost: Decimal;
+    begin
+        // [SCENARIO] When a Vendor Subscription Contract is billed for a vendor whose prices exclude VAT,
+        // the contract purchase invoice line "Direct Unit Cost" stays net (no gross-up is applied).
+        Initialize();
+
+        // [GIVEN] A vendor with "Prices Including VAT" = NO and a subscription item with a non-zero VAT rate
+        CreateVendorContractWithVATItem(VATPostingSetup, false);
+
+        // [GIVEN] A billing proposal for the contract
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Vendor);
+
+        // [WHEN] Billing documents are created
+        CreateBillingDocuments(false);
+
+        // [THEN] The created purchase invoice has "Prices Including VAT" = NO
+        BillingLine.Reset();
+        BillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
+        BillingLine.SetRange(Partner, BillingTemplate.Partner);
+        BillingLine.FindFirst();
+        NetUnitCost := SumBillingProposalUnitPrice();
+        Assert.AreNotEqual(0, NetUnitCost, 'The net unit cost should not be zero, otherwise the test is meaningless.');
+
+        PurchaseHeader.Get(Enum::"Purchase Document Type"::Invoice, BillingLine."Document No.");
+        PurchaseHeader.TestField("Prices Including VAT", false);
+
+        // [THEN] The purchase line direct unit cost equals the net cost (unchanged)
+        PurchaseLine.Reset();
+        FilterPurchaseLineOnDocumentLine(PurchaseHeader."Document Type", BillingLine."Document No.", BillingLine."Document Line No.");
+        PurchaseLine.FindFirst();
+        Assert.AreEqual(NetUnitCost, PurchaseLine."Direct Unit Cost", 'Contract purchase invoice direct unit cost should stay net when the vendor prices exclude VAT.');
+    end;
+
+    [Test]
     [HandlerFunctions('CheckDialogConfirmHandler,ExchangeRateSelectionModalPageHandler,CreateVendorBillingDocsTestOpenPageHandler,MessageHandler')]
     procedure CheckVendorBillingProposalCanBeCreatedForPurchaseCrMemoExists()
     var
@@ -773,6 +939,49 @@ codeunit 139687 "Recurring Billing Docs Test"
         // [THEN] The Purchase Invoice is posted successfully
         PurchaseInvoiceHeader.Get(PostedDocumentNo);
         PurchaseInvoiceHeader.TestField("Recurring Billing", true);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateVendorBillingDocsContractPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
+    procedure CreateBillingDocumentsForVendorContractSetsRecurringBillingBeforeVendorValidation()
+    var
+        PayToVendor: Record Vendor;
+        PurchHdrSub: Codeunit "Rec. Billing Purch. Hdr. Sub.";
+    begin
+        // [SCENARIO #4302] When creating billing documents from a vendor contract where "Pay-to Vendor No."
+        // differs from "Buy-from Vendor No.", the purchase header must have "Recurring Billing" = true
+        // before "Pay-to Vendor No." is validated. Localization extensions that check "Recurring Billing"
+        // inside that validation (e.g., Hungarian localization) would otherwise raise an error.
+        Initialize();
+
+        // [GIVEN] A vendor contract with contract lines and a separate Pay-to Vendor
+        ContractTestLibrary.CreateVendorInLCY(PayToVendor);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, '');
+        ContractTestLibrary.DisableDeferralsForVendorContract(VendorContract, false);
+        VendorContract.SetHideValidationDialog(true);
+        VendorContract.Validate("Pay-to Vendor No.", PayToVendor."No.");
+        VendorContract.Modify(false);
+
+        // [GIVEN] A billing proposal for the vendor contract
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Vendor);
+
+        // [GIVEN] A subscriber that errors if "Recurring Billing" is false when "Pay-to Vendor No." is validated
+        BindSubscription(PurchHdrSub);
+
+        // [WHEN] Billing documents are created from the proposal (subscriber errors if "Recurring Billing" is false during vendor validation)
+        CreateBillingDocuments(false);
+
+        // Unbind before assertions to ensure cleanup regardless of assertion results
+        UnbindSubscription(PurchHdrSub);
+
+        // [THEN] The created purchase header has "Recurring Billing" = true
+        BillingLine.SetFilter("Document No.", '<>%1', '');
+        BillingLine.FindFirst();
+        PurchaseHeader.Get(Enum::"Purchase Document Type"::Invoice, BillingLine."Document No.");
+        PurchaseHeader.TestField("Recurring Billing", true);
+
+        // [THEN] The Pay-to Vendor matches the contract
+        PurchaseHeader.TestField("Pay-to Vendor No.", PayToVendor."No.");
     end;
 
     [Test]
@@ -1536,7 +1745,7 @@ codeunit 139687 "Recurring Billing Docs Test"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,GetVendorContractLinesProducesCorrectAmountsDuringSelectionPageHandler,ExchangeRateSelectionModalPageHandler')]
+    [HandlerFunctions('GetVendorContractLinesProducesCorrectAmountsDuringSelectionPageHandler')]
     procedure GetVendorContractLinesProducesCorrectAmountsDuringSelection()
     var
         Item: Record Item;
@@ -1548,7 +1757,7 @@ codeunit 139687 "Recurring Billing Docs Test"
         // [GIVEN] Setup Subscription with Subscription Line and assign it to Vendor Subscription Contract
         // [GIVEN] Create Purchase Invoice with Purchase Invoice Line
         ContractTestLibrary.DeleteAllContractRecords();
-        ContractTestLibrary.CreateVendor(Vendor);
+        ContractTestLibrary.CreateVendorInLCY(Vendor);
         ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.");
         GetVendorContractServiceCommitment(VendorContract."No.");
         ServiceCommitment."Billing Rhythm" := ServiceCommitment."Billing Base Period";
@@ -2673,6 +2882,83 @@ codeunit 139687 "Recurring Billing Docs Test"
         CustomerContractLine.SetRange("Subscription Contract No.", ContractNo);
         CustomerContractLine.FindFirst();
         CustomerContractLine.GetServiceCommitment(ServiceCommitment);
+    end;
+
+    local procedure CreateCustomerContractWithVATItem(var VATPostingSetup: Record "VAT Posting Setup"; PricesIncludingVAT: Boolean)
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+    begin
+        FindNonZeroVATPostingSetup(VATPostingSetup);
+
+        ContractTestLibrary.CreateCustomerInLCY(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Validate("Prices Including VAT", PricesIncludingVAT);
+        Customer.Modify(true);
+
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject, Customer."No.");
+        ContractTestLibrary.DisableDeferralsForCustomerContract(CustomerContract, false);
+
+        // Assign the non-zero VAT rate to the invoicing item so the contract invoice line carries VAT
+        GetCustomerContractServiceCommitment(CustomerContract."No.");
+        Item.Get(ServiceCommitment."Invoicing Item No.");
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // Set a deterministic, non-zero net price on the Subscription Line
+        ServiceCommitment.Validate("Calculation Base Amount", LibraryRandom.RandDecInRange(100, 1000, 2));
+        ServiceCommitment.Validate("Calculation Base %", 100);
+        ServiceCommitment.Modify(true);
+    end;
+
+    local procedure CreateVendorContractWithVATItem(var VATPostingSetup: Record "VAT Posting Setup"; PricesIncludingVAT: Boolean)
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+    begin
+        FindNonZeroVATPostingSetup(VATPostingSetup);
+
+        ContractTestLibrary.CreateVendorInLCY(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Validate("Prices Including VAT", PricesIncludingVAT);
+        Vendor.Modify(true);
+
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.");
+        ContractTestLibrary.DisableDeferralsForVendorContract(VendorContract, false);
+
+        // Assign the non-zero VAT rate to the invoicing item so the contract purchase invoice line carries VAT
+        GetVendorContractServiceCommitment(VendorContract."No.");
+        Item.Get(ServiceCommitment."Invoicing Item No.");
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // Set a deterministic, non-zero net price on the Subscription Line
+        ServiceCommitment.Validate("Calculation Base Amount", LibraryRandom.RandDecInRange(100, 1000, 2));
+        ServiceCommitment.Validate("Calculation Base %", 100);
+        ServiceCommitment.Modify(true);
+    end;
+
+    local procedure FindNonZeroVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
+        if VATPostingSetup."VAT %" = 0 then begin
+            VATPostingSetup."VAT %" := LibraryRandom.RandDecInRange(10, 25, 0);
+            VATPostingSetup.Modify(false);
+        end;
+    end;
+
+    local procedure SumBillingProposalUnitPrice(): Decimal
+    var
+        LocalBillingLine: Record "Billing Line";
+        TotalUnitPrice: Decimal;
+    begin
+        LocalBillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
+        LocalBillingLine.SetRange(Partner, BillingTemplate.Partner);
+        if LocalBillingLine.FindSet() then
+            repeat
+                TotalUnitPrice += LocalBillingLine."Unit Price";
+            until LocalBillingLine.Next() = 0;
+        exit(TotalUnitPrice);
     end;
 
     local procedure GetNoOfSalesInvoiceLineWithDescription(ExpectedDescriptionText: Text[100]): Integer

@@ -74,7 +74,6 @@ codeunit 136122 "Service Batch Jobs"
 
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySetupStorage.SaveSalesSetup();
-        ;
 
         IsInitialized := true;
         Commit();

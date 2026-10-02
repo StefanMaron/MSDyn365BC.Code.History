@@ -3204,7 +3204,7 @@ Cstr(Fields!ShipToAddr8.Value) + Chr(177) +
 Cstr(Fields!PhoneNo_CompanyInfo.Value) + Chr(177) + 
 Cstr(Fields!HomePage.Value) + Chr(177) + 
 Cstr(Fields!EMailId.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoEnterpriseNo.Value) + Chr(177) + 
+Cstr(Fields!CompanyInfoVATRegnNo.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoGiroNo.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoBankName.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoBankAccNo.Value) + Chr(177) + 
@@ -3236,7 +3236,7 @@ Cstr(Fields!ServiceShpHdrNoCaption.Value) + Chr(177) +
 Cstr(Fields!BankAccNoCaption.Value) + Chr(177) + 
 Cstr(Fields!BankNameCaption.Value) + Chr(177) + 
 Cstr(Fields!GiroNoCaption.Value) + Chr(177) + 
-Cstr(Fields!EnterpriseNoCaption.Value) + Chr(177) + 
+Cstr(Fields!VATRegNoCaption.Value) + Chr(177) + 
 Cstr(Fields!HomePageCaption.Value) + Chr(177) + 
 Cstr(Fields!PhoneNoCaption.Value) + Chr(177) + 
 Cstr(Fields!DocumentDate.Value) + Chr(177) + 
@@ -3906,7 +3906,7 @@ Cstr(Fields!EmailIdCaption.Value)
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoEnterpriseNoCaption1">
+            <Textbox Name="CompanyInfoVATRegistrationNoCaption1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -4215,7 +4215,7 @@ Cstr(Fields!EmailIdCaption.Value)
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoEnterpriseNo">
+            <Textbox Name="CompanyInfoVATRegistrationNo1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -4722,8 +4722,8 @@ End Function</Code>
         <Field Name="EMailId">
           <DataField>EMailId</DataField>
         </Field>
-        <Field Name="CompanyInfoEnterpriseNo">
-          <DataField>CompanyInfoEnterpriseNo</DataField>
+        <Field Name="CompanyInfoVATRegnNo">
+          <DataField>CompanyInfoVATRegnNo</DataField>
         </Field>
         <Field Name="CompanyInfoGiroNo">
           <DataField>CompanyInfoGiroNo</DataField>
@@ -4788,8 +4788,8 @@ End Function</Code>
         <Field Name="PhoneNoCaption">
           <DataField>PhoneNoCaption</DataField>
         </Field>
-        <Field Name="EnterpriseNoCaption">
-          <DataField>EnterpriseNoCaption</DataField>
+        <Field Name="VATRegNoCaption">
+          <DataField>VATRegNoCaption</DataField>
         </Field>
         <Field Name="GiroNoCaption">
           <DataField>GiroNoCaption</DataField>

@@ -22,12 +22,12 @@ using System.Utilities;
 
 report 715 "Price List"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Reports/PriceList.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Price List';
+    ToolTip = 'View, print, or save a list of your items and their prices, for example, to send to customers. You can create the list for specific customers, campaigns, currencies, or other criteria.';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -484,6 +484,16 @@ report 715 "Price List"
             if SalesPriceType = SalesPriceType::"All Customers" then
                 SalesCodeCtrlEnable := false;
         end;
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Inventory/Reports/PriceList.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
     }
 
     labels

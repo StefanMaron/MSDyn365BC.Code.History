@@ -76,14 +76,14 @@ Cstr(Fields!CompanyAddr5.Value) + Chr(177) +
 Cstr(Fields!CompanyAddr6.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoPhoneNo.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoFaxNo.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoEnterpriseNo.Value) + Chr(177) + 
+Cstr(Fields!CompanyInfoVATRegNo.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoGiroNo.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoBankName.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoBankAccountNo.Value) + Chr(177) + 
 Cstr(Fields!ReportTitleCopyText.Value) + Chr(177) + 
 Cstr(Fields!BillToCustNo_ServiceCrMemoHeader.Value) + Chr(177) + 
 Cstr(Fields!VATNoText.Value) + Chr(177) + 
-Cstr(Fields!NoText.Value) + Chr(177) + 
+Cstr(Fields!VATRegNo_ServiceCrMemoHeader.Value) + Chr(177) + 
 Cstr(Fields!SalesPersonText.Value) + Chr(177) + 
 Cstr(Fields!SalesPurchPersonName.Value) + Chr(177) + 
 Cstr(Fields!ReferenceText.Value) + Chr(177) + 
@@ -100,7 +100,7 @@ Cstr(Fields!BillToCustNo_ServiceCrMemoHeaderCaption.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoBankAccountNoCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoBankNameCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoGiroNoCaption.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoEnterpriseNoCaption.Value) + Chr(177) + 
+Cstr(Fields!CompanyInfoVATRegistrationNoCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoFaxNoCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoPhoneNoCaption.Value) + Chr(177) + 
 Cstr(Fields!PageCaption.Value)
@@ -1183,7 +1183,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Code.BlankZero(Fields!Quantity_ServCrMemoLine.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!Quantity_ServCrMemoLineFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -1273,7 +1273,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Code.BlankZero(Fields!UnitPrice_ServCrMemoLine.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!UnitPrice_ServCrMemoLineFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -1305,7 +1305,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Code.BlankZero(Fields!LineDisc_ServCrMemoLine.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!LineDisc_ServCrMemoLineFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -1365,7 +1365,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Code.BlankZero(Fields!LineAmt_ServCrMemoLine.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!LineAmt_ServCrMemoLineFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -1465,7 +1465,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Fields!ServShptBuffQty.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!ServShptBuffQtyFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -2265,7 +2265,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!Amt_ServCrMemoLineFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -2512,7 +2512,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=-Last(Fields!TotalInvDiscAmount.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!InvDiscountAmountFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -2760,7 +2760,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!Amt_ServCrMemoLineFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -4350,7 +4350,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=-(Last(Fields!TotalLineAmount.Value) - Last(Fields!TotalInvDiscAmount.Value) - Last(Fields!TotalAmountInclVAT.Value))</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!LineAmtInvDiscAmtInclVATFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -4598,7 +4598,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!AmtInclVAT_ServCrMemoLineFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -5143,7 +5143,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Last(Fields!TotalAmountInclVAT.Value)-Last(Fields!TotalAmount.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!AmtInclVATAmtFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -5389,7 +5389,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Last(Fields!TotalAmount.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!Amt_ServCrMemoLineFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -6598,7 +6598,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Fields!VATAmtLineVAT.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!VATAmtLineVATFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -6630,7 +6630,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Fields!VATAmtLineLineAmt.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!VATAmtLineLineAmtFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -6662,7 +6662,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Fields!VATAmtLineInvDiscBaseAmt.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!VATAmtLineInvDiscBaseAmtFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -6694,7 +6694,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Fields!VATAmtLineInvoiceDisctAmt.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!VATAmtLineInvoiceDisctAmtFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -6723,10 +6723,10 @@ Cstr(Fields!PageCaption.Value)
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!VATAmtLineVATBaseLowered.Value</Value>
+                                                    <Value>=Fields!VATAmtLineVATBase.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!VATAmtLineVATBaseFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -6758,7 +6758,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Fields!VATAmtLineVATAmt.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!VATAmtLineVATAmtFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -7069,7 +7069,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!VATAmtLineLineAmtFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -7102,7 +7102,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!VATAmtLineInvDiscBaseAmtFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -7135,7 +7135,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!VATAmtLineInvoiceDisctAmtFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -7164,11 +7164,11 @@ Cstr(Fields!PageCaption.Value)
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Sum(Fields!VATAmtLineVATBaseLowered.Value)</Value>
+                                                    <Value>=Sum(Fields!VATAmtLineVATBase.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!VATAmtLineVATBaseFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -7201,7 +7201,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!VATAmtLineVATAmtFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -8440,7 +8440,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Fields!VATClauseAmount.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!VATClauseAmountFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -8530,7 +8530,7 @@ Cstr(Fields!PageCaption.Value)
                                                     <Value>=Fields!VATClauseAmount.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
-                                                      <Format>N</Format>
+                                                      <Format>=Fields!VATClauseAmountFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -8885,7 +8885,7 @@ Cstr(Fields!PageCaption.Value)
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoEnterpriseNoCaption">
+            <Textbox Name="CompanyInfoVATRegistrationNoCaption1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -9393,7 +9393,7 @@ Cstr(Fields!PageCaption.Value)
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoEnterpriseNo">
+            <Textbox Name="CompanyInfoVATRegistrationNo1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -10001,8 +10001,8 @@ End Function</Code>
         <Field Name="CompanyInfoFaxNo">
           <DataField>CompanyInfoFaxNo</DataField>
         </Field>
-        <Field Name="CompanyInfoEnterpriseNo">
-          <DataField>CompanyInfoEnterpriseNo</DataField>
+        <Field Name="CompanyInfoVATRegNo">
+          <DataField>CompanyInfoVATRegNo</DataField>
         </Field>
         <Field Name="CompanyInfoGiroNo">
           <DataField>CompanyInfoGiroNo</DataField>
@@ -10021,9 +10021,6 @@ End Function</Code>
         </Field>
         <Field Name="VATNoText">
           <DataField>VATNoText</DataField>
-        </Field>
-        <Field Name="NoText">
-          <DataField>NoText</DataField>
         </Field>
         <Field Name="VATRegNo_ServiceCrMemoHeader">
           <DataField>VATRegNo_ServiceCrMemoHeader</DataField>
@@ -10085,8 +10082,8 @@ End Function</Code>
         <Field Name="CompanyInfoFaxNoCaption">
           <DataField>CompanyInfoFaxNoCaption</DataField>
         </Field>
-        <Field Name="CompanyInfoEnterpriseNoCaption">
-          <DataField>CompanyInfoEnterpriseNoCaption</DataField>
+        <Field Name="CompanyInfoVATRegistrationNoCaption">
+          <DataField>CompanyInfoVATRegistrationNoCaption</DataField>
         </Field>
         <Field Name="CompanyInfoGiroNoCaption">
           <DataField>CompanyInfoGiroNoCaption</DataField>
@@ -10238,11 +10235,11 @@ End Function</Code>
         <Field Name="LineDimensionsCaption">
           <DataField>LineDimensionsCaption</DataField>
         </Field>
-        <Field Name="VATAmtLineVATBaseLowered">
-          <DataField>VATAmtLineVATBaseLowered</DataField>
+        <Field Name="VATAmtLineVATBase">
+          <DataField>VATAmtLineVATBase</DataField>
         </Field>
-        <Field Name="VATAmtLineVATBaseLoweredFormat">
-          <DataField>VATAmtLineVATBaseLoweredFormat</DataField>
+        <Field Name="VATAmtLineVATBaseFormat">
+          <DataField>VATAmtLineVATBaseFormat</DataField>
         </Field>
         <Field Name="VATAmtLineVATAmt">
           <DataField>VATAmtLineVATAmt</DataField>

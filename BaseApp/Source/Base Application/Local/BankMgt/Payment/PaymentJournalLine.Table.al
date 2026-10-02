@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -322,6 +322,7 @@ table 2000001 "Payment Journal Line"
         field(20; "Beneficiary Bank Account No."; Text[50])
         {
             Caption = 'Beneficiary Bank Account No.';
+            MaskType = Concealed;
             Editable = false;
         }
         field(22; "Bank Account"; Code[20])
@@ -651,6 +652,7 @@ table 2000001 "Payment Journal Line"
         field(81; "Beneficiary IBAN"; Code[50])
         {
             Caption = 'Beneficiary IBAN';
+            MaskType = Concealed;
 
             trigger OnValidate()
             var
