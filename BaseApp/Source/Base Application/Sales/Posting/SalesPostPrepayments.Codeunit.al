@@ -2008,7 +2008,9 @@ codeunit 442 "Sales-Post Prepayments"
     begin
         if HasInvoiceDiscount and (SalesHeader."Prepayment %" <> 0) then begin
             Currency.Initialize(SalesHeader."Currency Code");
+
             PrepmtAmt := CalcPrepmtAmount(SalesHeader, Currency);
+
             if TotalPrepmtInvLineBuffer.Amount > PrepmtAmt then begin
                 DifferenceAmt := TotalPrepmtInvLineBuffer.Amount - PrepmtAmt;
 

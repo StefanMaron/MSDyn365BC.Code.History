@@ -2266,34 +2266,6 @@ codeunit 136317 "Inv. Pick On Job Planning"
         Assert.AreEqual(QtyToUse2, JobPlanningLine2."Reserved Quantity", 'JPL2 should have correct Reserved Quantity after picking item-tracked JPL1.');
     end;
 
-    local procedure CreateDefaultWarehouseEmployee(var NewDefaultLocation: Record Location)
-    var
-        WarehouseEmployee: Record "Warehouse Employee";
-    begin
-        WarehouseEmployee.SetRange(Default, true);
-        if WarehouseEmployee.FindFirst() then begin
-            if WarehouseEmployee."Location Code" <> NewDefaultLocation.Code then begin
-                WarehouseEmployee.Delete(true);
-                LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
-            end;
-        end
-        else
-            LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
-    end;
-
-    local procedure CreateSerialTrackedItem(var Item: Record Item; WMSSpecific: Boolean)
-    var
-        ItemTrackingCode: Record "Item Tracking Code";
-    begin
-        LibraryInventory.CreateItem(Item);
-        LibraryItemTracking.AddSerialNoTrackingInfo(Item);
-        if not WMSSpecific then begin
-            ItemTrackingCode.Get(Item."Item Tracking Code");
-            ItemTrackingCode.Validate("SN Warehouse Tracking", false);
-            ItemTrackingCode.Modify(true);
-        end;
-    end;
-
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -2361,6 +2333,34 @@ codeunit 136317 "Inv. Pick On Job Planning"
         VerifyWarehouseActivityLine(JobPlanningLine1);
         VerifyWarehouseActivityLine(JobPlanningLine2);
         VerifyWarehouseActivityLine(JobPlanningLine3);
+    end;
+
+    local procedure CreateDefaultWarehouseEmployee(var NewDefaultLocation: Record Location)
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        WarehouseEmployee.SetRange(Default, true);
+        if WarehouseEmployee.FindFirst() then begin
+            if WarehouseEmployee."Location Code" <> NewDefaultLocation.Code then begin
+                WarehouseEmployee.Delete(true);
+                LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
+            end;
+        end
+        else
+            LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
+    end;
+
+    local procedure CreateSerialTrackedItem(var Item: Record Item; WMSSpecific: Boolean)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryItemTracking.AddSerialNoTrackingInfo(Item);
+        if not WMSSpecific then begin
+            ItemTrackingCode.Get(Item."Item Tracking Code");
+            ItemTrackingCode.Validate("SN Warehouse Tracking", false);
+            ItemTrackingCode.Modify(true);
+        end;
     end;
 
     local procedure Initialize()

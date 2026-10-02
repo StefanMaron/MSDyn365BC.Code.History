@@ -1,11 +1,11 @@
-#if not CLEAN28
+#if not CLEAN29
 codeunit 18479 "GST Subcontracting"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
     ObsoleteReason = ' Subcontracting is moving to a separate extension. This codeunit will be removed in future.';
     ObsoleteState = Pending;
-    ObsoleteTag = '28.0';
+    ObsoleteTag = '29.0';
 
     var
         SourceCode: Record "Source Code";

@@ -17,7 +17,7 @@ using System.Text;
 codeunit 20560 "Subc. Purch. Factbox Mgmt."
 {
     var
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         SubcFeatureFlagHandler: Codeunit "Subc. Feature Flag Handler";
 #pragma warning restore AL0432
@@ -36,7 +36,7 @@ codeunit 20560 "Subc. Purch. Factbox Mgmt."
         PurchOrderNo: Code[20];
         PurchOrderLineNo: Integer;
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -61,7 +61,7 @@ codeunit 20560 "Subc. Purch. Factbox Mgmt."
         PurchOrderNo: Code[20];
         PurchOrderLineNo: Integer;
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -89,7 +89,7 @@ codeunit 20560 "Subc. Purch. Factbox Mgmt."
         NoOfTransferOrders: Integer;
         PurchOrderLineNo: Integer;
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -126,7 +126,7 @@ codeunit 20560 "Subc. Purch. Factbox Mgmt."
         PurchOrderNo: Code[20];
         PurchOrderLineNo: Integer;
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -160,7 +160,7 @@ codeunit 20560 "Subc. Purch. Factbox Mgmt."
         PurchOrderNo: Code[20];
         PurchOrderLineNo: Integer;
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -203,7 +203,7 @@ codeunit 20560 "Subc. Purch. Factbox Mgmt."
         PurchOrderNo: Code[20];
         ProdOrderLineNo: Integer;
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -284,7 +284,7 @@ codeunit 20560 "Subc. Purch. Factbox Mgmt."
         RecRef: RecordRef;
         NoOfTransferHeaders: Integer;
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -388,7 +388,7 @@ codeunit 20560 "Subc. Purch. Factbox Mgmt."
         PageManagement: Codeunit "Page Management";
         SelectionFilterMgt: Codeunit SelectionFilterManagement;
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -412,13 +412,38 @@ codeunit 20560 "Subc. Purch. Factbox Mgmt."
     end;
 
     /// <summary>
+    /// Opens the subcontracting transfer order(s) linked to the given purchase order.
+    /// </summary>
+    /// <param name="PurchaseHeader">The purchase order to show the related subcontracting transfer orders for.</param>
+    /// <param name="IsReturn">When true, filters to return transfer orders; when false, filters to outbound transfer orders.</param>
+    procedure ShowTransferOrdersFromPurchaseOrder(PurchaseHeader: Record "Purchase Header"; IsReturn: Boolean)
+    var
+        TransferHeader: Record "Transfer Header";
+        PageManagement: Codeunit "Page Management";
+    begin
+#if not CLEAN29
+#pragma warning disable AL0432
+        if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
+#pragma warning restore AL0432
+            exit;
+#endif
+        TransferHeader.SetRange("Subcontr. Purch. Order No.", PurchaseHeader."No.");
+        TransferHeader.SetRange("Subc. Return Order", IsReturn);
+        if TransferHeader.Count() = 1 then begin
+            TransferHeader.FindFirst();
+            PageManagement.PageRun(TransferHeader);
+        end else
+            PageManagement.PageRunList(TransferHeader);
+    end;
+
+    /// <summary>
     /// Returns the number of subcontractor prices matching the given purchase line.
     /// </summary>
     /// <param name="PurchaseLine">The purchase line to match subcontractor prices against.</param>
     /// <returns>The count of matching subcontractor price entries, or 0 if the line is not an item line.</returns>
     procedure CalcNoOfPurchasePrices(var PurchaseLine: Record "Purchase Line"): Integer
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -437,7 +462,7 @@ codeunit 20560 "Subc. Purch. Factbox Mgmt."
     var
         SubcontractorPrice: Record "Subcontractor Price";
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432

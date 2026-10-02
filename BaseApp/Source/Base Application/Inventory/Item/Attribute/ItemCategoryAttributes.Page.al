@@ -47,17 +47,11 @@ page 5734 "Item Category Attributes"
                                                                                                             Blocked = const(false));
 
                     trigger OnValidate()
-                    var
-                        ItemAttribute: Record "Item Attribute";
                     begin
                         PersistInheritanceData();
-
-                        ItemAttribute.SetLoadFields(Type);
-                        ItemAttribute.Get(Rec."Attribute ID");
-                        if (ItemAttribute.Type = ItemAttribute.Type::Option) and (Rec.Value = '') then
-                            Error(BlankOptionAttributeNotificationMsg, Rec."Attribute Name")
-                        else
-                            ChangeDefaultValue();
+                        ChangeDefaultValue();
+                        if (Rec.Value <> '') and not HasBlankOptionAttributes() then
+                            ClearBlankOptionAttributeNotification();
                     end;
                 }
                 field("Unit of Measure"; Rec."Unit of Measure")
@@ -110,7 +104,7 @@ page 5734 "Item Category Attributes"
         ItemAttributeValueMapping.SetRange("Item Attribute ID", Rec."Attribute ID");
         if ItemAttributeValueMapping.FindFirst() then begin
             if ItemAttributeManagement.SearchCategoryItemsForAttribute(ItemCategoryCode, Rec."Attribute ID") then
-                if Confirm(DeleteItemInheritedParentCategoryAttributesQst, false, ItemCategoryCode) then begin
+                if Confirm(StrSubstNo(DeleteItemInheritedParentCategoryAttributesQst, ItemCategoryCode, ItemCategoryCode)) then begin
                     ItemAttributeValue.SetRange("Attribute ID", Rec."Attribute ID");
                     ItemAttributeValue.SetRange(ID, ItemAttributeValueMapping."Item Attribute Value ID");
                     if ItemAttributeValue.FindFirst() then begin
@@ -135,8 +129,10 @@ page 5734 "Item Category Attributes"
         if ItemCategoryCode <> '' then begin
             ItemAttribute.Get(Rec."Attribute ID");
 
-            if (ItemAttribute.Type = ItemAttribute.Type::Option) and (Rec.Value = '') then
+            if (ItemAttribute.Type = ItemAttribute.Type::Option) and (Rec.Value = '') then begin
+                ShowBlankOptionAttributeNotification(Rec."Attribute Name");
                 exit(true);
+            end;
 
             ItemAttributeValueMapping."Table ID" := DATABASE::"Item Category";
             ItemAttributeValueMapping."No." := ItemCategoryCode;
@@ -152,6 +148,11 @@ page 5734 "Item Category Attributes"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
+        if HasBlankOptionAttributes() then begin
+            Message(OptionTypeMsg);
+            if Rec."Inherited-From Key Value" = '' then
+                exit(false);
+        end;
         exit(true);
     end;
 
@@ -161,8 +162,9 @@ page 5734 "Item Category Attributes"
         RowEditable: Boolean;
         StyleTxt: Text;
         ChangingDefaultValueMsg: Label 'The new default value will not apply to items that use the current item category, ''''%1''''. It will only apply to new items.', Comment = '%1 - item category code';
-        DeleteItemInheritedParentCategoryAttributesQst: Label 'One or more items belong to item category ''''%1''''.\\Do you want to delete the inherited item attributes for the items in question?', Comment = '%1 - item category code';
+        DeleteItemInheritedParentCategoryAttributesQst: Label 'One or more items belong to item category ''''%1''''.\\Do you want to delete the inherited item attributes for the items in question?', Comment = '%1 - item category code,%2 - item category code';
         BlankOptionAttributeNotificationMsg: Label 'You must enter a value for the Option attribute %1. Blank values are not allowed for Option-type attributes.', Comment = '%1 - attribute name';
+        OptionTypeMsg: Label 'You must enter a value for all Option-type attributes before closing this page.';
 
     protected var
         TempRecentlyItemAttributeValueMapping: Record "Item Attribute Value Mapping" temporary;
@@ -236,16 +238,14 @@ page 5734 "Item Category Attributes"
 
         if TempNewItemAttributeValue.FindSet() then
             repeat
-                ItemAttribute.Get(TempNewItemAttributeValue."Attribute ID");
-                if not ((ItemAttribute.Type = ItemAttribute.Type::Option) and (TempNewItemAttributeValue.Value = '')) then begin
-                    ItemAttributeValueMapping."Table ID" := DATABASE::"Item Category";
-                    ItemAttributeValueMapping."No." := CategoryCode;
-                    ItemAttributeValueMapping."Item Attribute ID" := TempNewItemAttributeValue."Attribute ID";
-                    ItemAttributeValueMapping."Item Attribute Value ID" := TempNewItemAttributeValue.ID;
-                    OnSaveAttributesOnBeforeItemAttributeValueMappingInsert(ItemAttributeValueMapping, TempNewItemAttributeValue);
-                    ItemAttributeValueMapping.Insert();
-                    ItemAttribute.RemoveUnusedArbitraryValues();
-                end;
+                ItemAttributeValueMapping."Table ID" := DATABASE::"Item Category";
+                ItemAttributeValueMapping."No." := CategoryCode;
+                ItemAttributeValueMapping."Item Attribute ID" := TempNewItemAttributeValue."Attribute ID";
+                ItemAttributeValueMapping."Item Attribute Value ID" := TempNewItemAttributeValue.ID;
+                OnSaveAttributesOnBeforeItemAttributeValueMappingInsert(ItemAttributeValueMapping, TempNewItemAttributeValue);
+                ItemAttributeValueMapping.Insert();
+                ItemAttribute.Get(ItemAttributeValueMapping."Item Attribute ID");
+                ItemAttribute.RemoveUnusedArbitraryValues();
             until TempNewItemAttributeValue.Next() = 0;
 
         TempNewCategItemAttributeValue.LoadCategoryAttributesFactBoxData(CategoryCode);
@@ -347,6 +347,7 @@ page 5734 "Item Category Attributes"
     begin
         TempRecentlyItemAttributeValueMapping.SetRange("Item Attribute ID", AttributeID);
         TempRecentlyItemAttributeValueMapping.DeleteAll();
+        ClearBlankOptionAttributeNotification();
     end;
 
     procedure GetItemCategoryCode(): Code[20];
@@ -354,9 +355,38 @@ page 5734 "Item Category Attributes"
         exit(ItemCategoryCode);
     end;
 
-    procedure GetBlankOptionAttributeNotificationID(): Guid
+    local procedure ShowBlankOptionAttributeNotification(AttributeName: Text[250])
+    var
+        BlankOptionNotification: Notification;
     begin
-        exit('1ab28806-432f-46cc-844e-85b0fc36f883');
+        BlankOptionNotification.Id := GetBlankOptionAttributeNotificationID();
+        BlankOptionNotification.Message := StrSubstNo(BlankOptionAttributeNotificationMsg, AttributeName);
+        BlankOptionNotification.Scope := NotificationScope::LocalScope;
+        BlankOptionNotification.Send();
+    end;
+
+    local procedure ClearBlankOptionAttributeNotification()
+    var
+        BlankOptionNotification: Notification;
+    begin
+        BlankOptionNotification.Id := GetBlankOptionAttributeNotificationID();
+        BlankOptionNotification.Recall();
+    end;
+
+    local procedure HasBlankOptionAttributes(): Boolean
+    var
+        ItemAttribute: Record "Item Attribute";
+    begin
+        if Rec.FindSet() then
+            repeat
+                if Rec.Value = '' then begin
+                    ItemAttribute.SetLoadFields("Type");
+                    ItemAttribute.Get(Rec."Attribute ID");
+                    if ItemAttribute.Type = ItemAttribute.Type::Option then
+                        exit(true);
+                end;
+            until Rec.Next() = 0;
+        exit(false);
     end;
 
     local procedure InsertItemAttributeValueMapping(ItemCategory: Code[20]; AttributeID: Integer; AttributeValueID: Integer)
@@ -370,6 +400,11 @@ page 5734 "Item Category Attributes"
         ItemAttributeValueMapping."Item Attribute Value ID" := AttributeValueID;
         ItemAttributeValueMapping.Insert();
         InsertRecentlyAddedCategoryAttribute(ItemAttributeValueMapping);
+    end;
+
+    procedure GetBlankOptionAttributeNotificationID(): Guid
+    begin
+        exit('1ab28806-432f-46cc-844e-85b0fc36f883');
     end;
 
     [IntegrationEvent(false, false)]

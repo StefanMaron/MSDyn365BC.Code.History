@@ -17,6 +17,7 @@ codeunit 5139 "Job Archive Management"
     Permissions = tabledata "Job Archive" = ri,
                   tabledata "Job Task Archive" = rim,
                   tabledata "Job Planning Line Archive" = rim,
+                  tabledata "Job Assigned Resource Archive" = rim,
                   tabledata "Comment Line" = r,
                   tabledata "Comment Line Archive" = ri;
 
@@ -70,6 +71,8 @@ codeunit 5139 "Job Archive Management"
         JobTaskArchive: Record "Job Task Archive";
         JobPlanningLine: Record "Job Planning Line";
         JobPlanningLineArchive: Record "Job Planning Line Archive";
+        JobAssignedResource: Record "Job Assigned Resource";
+        JobAssignedResourceArchive: Record "Job Assigned Resource Archive";
         CommentLineTableName: Enum "Comment Line Table Name";
     begin
         JobArchive.Init();
@@ -110,6 +113,15 @@ codeunit 5139 "Job Archive Management"
                 JobPlanningLineArchive.Insert();
                 AddCalculatedValuesToJobPlanningLineArchive(JobPlanningLineArchive, JobPlanningLine);
             until JobPlanningLine.Next() = 0;
+
+        JobAssignedResource.SetRange("Job No.", Job."No.");
+        if JobAssignedResource.FindSet() then
+            repeat
+                JobAssignedResourceArchive.Init();
+                JobAssignedResourceArchive.TransferFields(JobAssignedResource);
+                JobAssignedResourceArchive."Version No." := JobArchive."Version No.";
+                JobAssignedResourceArchive.Insert();
+            until JobAssignedResource.Next() = 0;
 
         OnAfterStoreJob(Job, JobArchive);
     end;
@@ -210,6 +222,7 @@ codeunit 5139 "Job Archive Management"
 
             RestoreComments(CommentLine."Table Name"::Job, JobArchive."No.", JobArchive."Version No.");
             RestoreJobTasks(JobArchive, Job);
+            RestoreJobAssignedResources(JobArchive, Job);
             OnAfterRestoreJob(JobArchive, Job);
             Message(RestoreMsg, Job.TableCaption(), JobArchive."No.");
         end;
@@ -283,6 +296,25 @@ codeunit 5139 "Job Archive Management"
             until JobPlanningLineArchive.Next() = 0;
     end;
 
+    local procedure RestoreJobAssignedResources(var JobArchive: Record "Job Archive"; Job: Record Job)
+    var
+        JobAssignedResource: Record "Job Assigned Resource";
+        JobAssignedResourceArchive: Record "Job Assigned Resource Archive";
+    begin
+        JobAssignedResource.SetRange("Job No.", Job."No.");
+        if not JobAssignedResource.IsEmpty() then
+            JobAssignedResource.DeleteAll();
+
+        JobAssignedResourceArchive.SetRange("Job No.", JobArchive."No.");
+        JobAssignedResourceArchive.SetRange("Version No.", JobArchive."Version No.");
+        if JobAssignedResourceArchive.FindSet() then
+            repeat
+                JobAssignedResource.Init();
+                JobAssignedResource.TransferFields(JobAssignedResourceArchive);
+                JobAssignedResource.Insert();
+            until JobAssignedResourceArchive.Next() = 0;
+    end;
+
     local procedure CheckJobRestorePermissions(var Job: Record Job; var JobArchive: Record "Job Archive")
     var
         JobLedgerEntry: Record "Job Ledger Entry";
@@ -344,6 +376,7 @@ codeunit 5139 "Job Archive Management"
                 NewJobArchive.Insert();
                 RenameJobTaskArchive(OldJobNo, NewJobNo, OldJobArchive."Version No.");
                 RenameJobPlanningLineArchive(OldJobNo, NewJobNo, OldJobArchive."Version No.");
+                RenameJobAssignedResourceArchive(OldJobNo, NewJobNo, OldJobArchive."Version No.");
                 RenameCommentLineArchive(OldJobNo, NewJobNo, OldJobArchive."Version No.");
             until OldJobArchive.Next() = 0;
 
@@ -384,6 +417,23 @@ codeunit 5139 "Job Archive Management"
                 RecordLinkManagement.CopyLinks(OldJobPlanningLineArchive, NewJobPlanningLineArchive);
                 NewJobPlanningLineArchive.Insert();
             until OldJobPlanningLineArchive.Next() = 0;
+    end;
+
+    local procedure RenameJobAssignedResourceArchive(OldJobNo: Code[20]; NewJobNo: Code[20]; VersionNo: Integer)
+    var
+        NewJobAssignedResourceArchive: Record "Job Assigned Resource Archive";
+        OldJobAssignedResourceArchive: Record "Job Assigned Resource Archive";
+    begin
+        OldJobAssignedResourceArchive.SetLoadFields("Job No.", "Version No.");
+        OldJobAssignedResourceArchive.SetRange("Job No.", OldJobNo);
+        OldJobAssignedResourceArchive.SetRange("Version No.", VersionNo);
+        if OldJobAssignedResourceArchive.FindSet() then
+            repeat
+                NewJobAssignedResourceArchive.Init();
+                NewJobAssignedResourceArchive.TransferFields(OldJobAssignedResourceArchive);
+                NewJobAssignedResourceArchive."Job No." := NewJobNo;
+                NewJobAssignedResourceArchive.Insert();
+            until OldJobAssignedResourceArchive.Next() = 0;
     end;
 
     local procedure RenameCommentLineArchive(OldJobNo: Code[20]; NewJobNo: Code[20]; VersionNo: Integer)
