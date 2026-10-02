@@ -1656,6 +1656,7 @@ codeunit 134400 "ERM Incoming Documents"
         DocumentNo: Code[20];
         PostingDate: Date;
         MessageText: Text;
+        DummyRecordId: RecordId;
     begin
         CreateNewIncomingDocument(IncomingDocument);
         CreateTestGLEntries();
@@ -1686,6 +1687,7 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.AreEqual(0D, IncomingDocument."Posting Date", 'Posting date is not set correctly');
         Assert.AreEqual(0DT, IncomingDocument."Posted Date-Time", 'Posting date time is not set correctly');
         Assert.AreEqual(IncomingDocument."Document Type"::" ", IncomingDocument."Document Type", 'Document Type should be removed');
+        Assert.AreEqual(DummyRecordId, IncomingDocument."Related Record ID", 'Related Record ID should be removed');
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -1694,6 +1696,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument: Record "Incoming Document";
         PurchaseHeader: Record "Purchase Header";
         IncomingDocumentCard: TestPage "Incoming Document";
+        DummyRecordId: RecordId;
     begin
         PurchaseHeader.SetFilter("Incoming Document Entry No.", '<>0');
         PurchaseHeader.DeleteAll();
@@ -1720,6 +1723,7 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.AreEqual(0D, IncomingDocument."Posting Date", 'Posting date is not set correctly');
         Assert.AreEqual(0DT, IncomingDocument."Posted Date-Time", 'Posting date time is not set correctly');
         Assert.AreEqual(IncomingDocument."Document Type"::" ", IncomingDocument."Document Type", 'Document Type should be removed');
+        Assert.AreEqual(DummyRecordId, IncomingDocument."Related Record ID", 'Related Record ID should be removed');
         if DoDelete then
             Assert.IsFalse(PurchaseHeader.FindFirst(), 'Purchase document should not be deleted')
         else begin
@@ -1874,6 +1878,30 @@ codeunit 134400 "ERM Incoming Documents"
         ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
 
         IncomingDocument.HyperlinkToDocument(DocumentNo, PostingDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomingDocumentsProcessedFilterHandler')]
+    [Scope('OnPrem')]
+    procedure TestIncomingDocsDefaultToUnprocessed()
+    begin
+        VerifyIncomingDocumentsProcessedFilter('', false);
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomingDocumentsProcessedFilterHandler')]
+    [Scope('OnPrem')]
+    procedure TestIncomingDocsPreserveProcessedFilter()
+    begin
+        VerifyIncomingDocumentsProcessedFilter(Format(true), true);
+    end;
+
+    [Test]
+    [HandlerFunctions('IncomingDocumentsProcessedFilterHandler')]
+    [Scope('OnPrem')]
+    procedure TestIncomingDocsPreserveUnprocessedFilter()
+    begin
+        VerifyIncomingDocumentsProcessedFilter(Format(false), false);
     end;
 
     [Test]
@@ -2175,6 +2203,24 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocuments.GotoRecord(IncomingDocumentRec);
         Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocuments.CreateGenJnlLine.Enabled(), 'Editable value unexpected.');
         Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocuments.CreateDocument.Enabled(), 'Editable value unexpected.');
+    end;
+
+    local procedure VerifyIncomingDocumentsProcessedFilter(ProcessedFilter: Text; ExpectedProcessed: Boolean)
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        IncomingDocument.DeleteAll();
+        CreateIncomingDocument(IncomingDocument, 'Processed Document', true);
+        CreateIncomingDocument(IncomingDocument, 'Unprocessed Document', false);
+
+        IncomingDocument.Reset();
+        if ProcessedFilter <> '' then
+            IncomingDocument.SetFilter(Processed, ProcessedFilter);
+
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(ExpectedProcessed);
+        Page.RunModal(Page::"Incoming Documents", IncomingDocument);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure GetIncomeStatementAcc(): Code[20]
@@ -2728,6 +2774,17 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocuments.OK().Invoke();
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure IncomingDocumentsProcessedFilterHandler(var IncomingDocuments: TestPage "Incoming Documents")
+    begin
+        IncomingDocuments.Processed.AssertEquals(LibraryVariableStorage.DequeueBoolean());
+        Assert.IsFalse(IncomingDocuments.Next(), 'Expected the page to contain one incoming document.');
+        Assert.IsTrue(IncomingDocuments.ShowAll.Enabled(), 'Expected Show All to be enabled for a filtered view.');
+        Assert.IsFalse(IncomingDocuments.ShowUnprocessed.Enabled(), 'Expected Show Unprocessed to be disabled for a filtered view.');
+        IncomingDocuments.OK().Invoke();
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure IncomingDocumentCardHandler(var IncomingDocumentCard: TestPage "Incoming Document")
@@ -2866,4 +2923,3 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.AreEqual(1, TempBlobList.Count(), NoOfAttachmentsSameErr);
     end;
 }
-

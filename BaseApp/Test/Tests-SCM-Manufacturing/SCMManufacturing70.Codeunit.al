@@ -11,7 +11,7 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
-#if not CLEAN28
+#if not CLEAN29
 using Microsoft.Inventory.Item.Catalog;
 #endif
 using Microsoft.Inventory.Journal;
@@ -89,7 +89,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         LowLevelCodeQst: Label 'Calculate low-level code';
         RoutingStatusQst: Label 'then all related allocated capacity will be deleted';
         NumberOfLineErr: Label 'Number of line must be same.';
-#if not CLEAN28
+#if not CLEAN29
         StatusTxt: Label 'Status must be';
         CertifiedTxt: Label 'Certified';
 #endif
@@ -104,7 +104,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         TrackingQuantity: Decimal;
         StartingDateTimeErr: Label 'Starting Date Time must be greater or equal';
         FinishedStatusQst: Label '\\  * Some consumption is still missing.\\ Do you still want to finish the order?';
-#if not CLEAN28
+#if not CLEAN29
         ModifyRtngErr: Label 'You cannot modify Routing No. %1 because there is at least one %2 associated with it.', Locked = true;
         DeleteRtngErr: Label 'You cannot delete Prod. Order Line %1 because there is at least one %2 associated with it.', Locked = true;
 #endif
@@ -115,12 +115,12 @@ codeunit 137063 "SCM Manufacturing 7.0"
         IncorrectQtyOnEndingDateErr: Label 'Incorrect Quantity planned for given Ending Date.';
         WrongVersionCodeErr: Label 'Wrong version code.';
         ItemPlannedForExactDemandTxt: Label 'The item is planned to cover the exact demand.';
-#if not CLEAN28
+#if not CLEAN29
         SubcontractingDescriptionErr: Label 'The description in Subcontracting Worksheet must be from Work Center if available.';
 #endif
         ProductionStatusErr: Label 'Selected Production Order must be released.';
         QuanityPerErrorLbl: Label '%1 must be %2 in %3', Comment = '%1 = "Quantity Per", %2 = Expected Value, %3 = Table Caption';
-#if not CLEAN28
+#if not CLEAN29
         OperationNoErr: Label 'Operation No. must be equal to %1', Comment = '%1 = Operation No.';
 #endif
         ProductionRoutingErr: Label 'Production order routing number must be equal to SKU routing number';
@@ -643,7 +643,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         VerifyPurchaseLine(Vendor."No.", Item."No.", Quantity);
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     [Test]
     [Scope('OnPrem')]
     procedure B44327_RefreshProdOrderSubcontracting()
@@ -1777,7 +1777,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         VerifyProdOrderLineForStartingDateTime(ProductionOrder."No.", ProductionOrder."Starting Date-Time");
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     [Test]
     [Scope('OnPrem')]
     procedure CalculateSubcontractForReleasedProdOrderWithVariantCode()
@@ -2004,7 +2004,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderCompCmtLine.Caption();
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     [Test]
     [Scope('OnPrem')]
     procedure ChangeRtngOnProdOrdLnWithSubcontr()
@@ -2570,7 +2570,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         VerifyEarliestShipmentDate(ExpectedShipmentDate, TempOrderPromisingLine);
         ChangeTypeInReqWkshTemplate(OldReqTemplateType);
     end;
-#if not CLEAN28
+#if not CLEAN29
     [Test]
     [Scope('OnPrem')]
     procedure CalculateSubcontractsForMultilineProductionOrder()
@@ -2696,7 +2696,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
             VerifyCommentForProdOrderComponent(ProductionOrder."No.", ProductionBOMCommentLine.Comment);
         until ProductionBOMCommentLine.Next() = 0;
     end;
-#if not CLEAN28
+#if not CLEAN29
     [Test]
     procedure VendorItemNoWhenCalculateSubcontractsItemVendorCatalog()
     var
@@ -3040,7 +3040,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RequisitionLine.TestField("Order Date", CalcDate('<-CY>', WorkDate()));
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     [Test]
     procedure SubcontractingWorksheetDescriptionIsPopulatedFromWorkCenter()
     var
@@ -3303,7 +3303,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
                 ProductionOrder.Quantity * FamilyLine.Quantity,
                 FamilyLine.TableCaption()));
     end;
-#if not CLEAN28
+#if not CLEAN29
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('ConfirmHandler')]
@@ -3516,7 +3516,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // [THEN] Version two of production bom gets certified.
         UpdateStatusOnProductionBOMVersion(ProductionBOMVersion[2], ProductionBOMVersion[2].Status::Certified);
     end;
-#if not CLEAN28
+#if not CLEAN29
     [Test]
     [Scope('OnPrem')]
     procedure VerifySubConWorkSheetOrderByOperationNo()
@@ -3626,7 +3626,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     end;
 
     [Test]
-    [HandlerFunctions('ChangeStatusOnProdOrderToFinished,ErrorMessageHandler')]
+    [HandlerFunctions('ChangeStatusOnProdOrderToFinished')]
     procedure ChangeProductionOrderStatusWithoutVariantCode()
     var
         ProductionOrder: array[4] of Record "Production Order";
@@ -3662,7 +3662,8 @@ codeunit 137063 "SCM Manufacturing 7.0"
             ProductionOrder[1]."Source Type"::Item, Item[1]."No.", LibraryRandom.RandInt(5));
 
         // [GIVEN] Refresh Production Order "X".
-        LibraryManufacturing.RefreshProdOrder(ProductionOrder[1], false, true, true, true, false);
+        AssertError LibraryManufacturing.RefreshProdOrder(ProductionOrder[1], false, true, true, true, false);
+        Assert.ExpectedTestFieldError(ProductionOrder[1].FieldCaption("Variant Code"), '');
 
         // [GIVEN] Create Production Order "Y".
         LibraryManufacturing.CreateProductionOrder(
@@ -3892,7 +3893,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         CapacityItemJournalBatch.Modify(true);
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     local procedure CreateSubcontractingSetup(var WorkCenter: Record "Work Center"; var RoutingHeader: Record "Routing Header"; OperationNo: Code[10])
     var
         RoutingLine: Record "Routing Line";
@@ -4039,8 +4040,8 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         // Just refresh production order in order to create lines
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
-        if not ViaReport then // Calculate it again
-            begin
+        // Calculate it again
+        if not ViaReport then begin
             ProdOrderLine.SetRange(Status, ProductionOrder.Status);
             ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
             if ProdOrderLine.Find('-') then
@@ -4150,7 +4151,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ItemJournalBatch2.FindFirst();
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     local procedure FindRequisitionLineForProductionOrder(var RequisitionLine: Record "Requisition Line"; ProductionOrder: Record "Production Order")
     begin
         RequisitionLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
@@ -4210,7 +4211,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         AvailabilityManagement.SetSourceRecord(TempOrderPromisingLine, SalesHeader);
         AvailabilityManagement.CalcCapableToPromise(TempOrderPromisingLine, SalesHeader."No.");
     end;
-#if not CLEAN28
+#if not CLEAN29
     local procedure CalculateSubcontractOrder(var RequisitionLine: Record "Requisition Line"; WorkCenterNo: Code[20]; ProductionOrder: Record "Production Order")
     var
         WorkCenter: Record "Work Center";
@@ -4338,7 +4339,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-2M>', WorkDate()), CalcDate('<2M>', WorkDate()));
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     local procedure CreateMachineCenterSetup(var MachineCenter: Record "Machine Center"; WorkCenterNo: Code[20])
     begin
         LibraryManufacturing.CreateMachineCenterWithCalendar(MachineCenter, WorkCenterNo, LibraryRandom.RandDec(10, 1));
@@ -4376,7 +4377,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     local procedure CreateProdOrderWithSubcontractWorkCenter(var WorkCenter: Record "Work Center"; var ProductionOrder: Record "Production Order")
     var
         RoutingHeader: Record "Routing Header";
@@ -4462,7 +4463,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         CreateFamily(Family, RoutingHeader."No.", Item."No.", Item2."No.");
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     local procedure CreateItemVendor(var ItemVendor: Record "Item Vendor"; VendorNo: Code[20]; ItemNo: Code[20]; VendorItemNo: Text[20])
     begin
         ItemVendor.Init();
@@ -5267,7 +5268,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
           ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     local procedure CreateAndUpdateVariantCodeOnProductionOrderLine(var ProdOrderLine: Record "Prod. Order Line")
     var
         ItemVariant: Record "Item Variant";
@@ -5283,7 +5284,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderLine.FindFirst();
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     local procedure SetupProdOrdWithRtng(var ProdOrd: Record "Production Order"; ItemNo: Code[20])
     var
         ProdOrderLine: Record "Prod. Order Line";
@@ -5336,7 +5337,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         PurchaseOrder.Close();
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     local procedure UpdateVendorItemNoOnItem(var Item: Record Item; VendorItemNo: Text[20])
     begin
         Item.Validate("Vendor Item No.", VendorItemNo);
@@ -5536,7 +5537,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderRoutingLine.Validate("Run Time", LibraryRandom.RandDec(10, 2));
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     local procedure VerifyCapacityLedgerEntry(WorkCenter: Record "Work Center"; Quantity: Decimal)
     var
         CapacityLedgerEntry: Record "Capacity Ledger Entry";
@@ -5761,7 +5762,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         Assert.AreEqual(2, RequisitionLine.Count, NumberOfLineErr);  // Value requried.
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     local procedure VerifyProdOrderRequisitionLine(ProdOrderLine: Record "Prod. Order Line")
     var
         RequisitionLine: Record "Requisition Line";
@@ -5928,7 +5929,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ItemLedgerEntry.FindFirst();
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     local procedure CreateMultipleSubcontractingSetup(
     var WorkCenter: array[2] of Record "Work Center";
     var RoutingHeader: Record "Routing Header";

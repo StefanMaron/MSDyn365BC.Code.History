@@ -73,9 +73,6 @@
 			"path": "..\\Tests\\NATIVEINVOICINGTEST"
 		},
 		{
-			"path": "..\\Tests\\Performance-Internal"
-		},
-		{
 			"path": "..\\Tests\\Permissions"
 		},
 		{
@@ -134,6 +131,9 @@
 		},
 		{
 			"path": "..\\Tests\\BCPT-SampleTests"
+		},
+		{
+			"path": "../../../../../../Users/v-cwurtzen/.claude/plans"
 		}
 	],
 	"settings": {}

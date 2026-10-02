@@ -12,6 +12,7 @@ report 99000792 "Work/Machine Center Load"
 {
     ApplicationArea = Manufacturing;
     Caption = 'Work/Machine Center Load';
+    ToolTip = 'Get an overview of availability at the work center and machine center, such as the capacity, the allocated quantity, availability after order, and the load in percent.';
     DefaultRenderingLayout = WorkMachineCenterLoadWord;
     UsageCategory = ReportsAndAnalysis;
 
@@ -311,12 +312,14 @@ report 99000792 "Work/Machine Center Load"
             Type = Word;
             LayoutFile = './Manufacturing/Reports/WorkMachineCenterLoad.docx';
             Caption = 'Work/Machine Center Load (Word)';
+            Summary = 'Report layout made for print. Use a Word editor to modify the layout.';
         }
         layout(WorkMachineCenterLoadExcel)
         {
             Type = Excel;
             LayoutFile = './Manufacturing/Reports/WorkMachineCenterLoad.xlsx';
             Caption = 'Work/Machine Center Load (Excel)';
+            Summary = 'Report layout primarily made for data analysis. Use an Excel editor to modify the layout.';
         }
     }
 

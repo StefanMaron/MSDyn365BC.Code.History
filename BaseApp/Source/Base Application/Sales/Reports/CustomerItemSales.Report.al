@@ -18,10 +18,12 @@ report 113 "Customer/Item Sales"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Customer/Item Sales';
+    ToolTip = 'View a list of item sales for each customer during a selected time period. The report contains information on quantity, sales amount, profit, and possible discounts. It can be used, for example, to analyze a company''s customer groups.';
+    DataAccessIntent = ReadOnly;
+    ExcelLayoutMultipleDataSheets = true;
     DefaultRenderingLayout = Excel;
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
-    DataAccessIntent = ReadOnly;
 
     dataset
     {
@@ -329,7 +331,7 @@ report 113 "Customer/Item Sales"
 
                 trigger OnPreDataItem()
                 begin
-                    if TempValueEntryBuffer.IsEmpty() then
+                    if TempValueEntryBuffer.IsEmpty() or (CurrReport.TargetFormat() = ReportFormat::Excel) then
                         CurrReport.Break();
                 end;
             }
@@ -370,7 +372,7 @@ report 113 "Customer/Item Sales"
 
             trigger OnPreDataItem()
             begin
-                if not ReportHasData then
+                if (not ReportHasData) or (CurrReport.TargetFormat() = ReportFormat::Excel) then
                     CurrReport.Break();
             end;
         }
@@ -448,22 +450,25 @@ report 113 "Customer/Item Sales"
             Caption = 'Customer Item Sales Excel';
             Type = Excel;
             LayoutFile = './Sales/Reports/CustomerItemSales.xlsx';
+            Summary = 'Report layout primarily made for data analysis. Use an Excel editor to modify the layout.';
         }
         layout(Word)
         {
             Caption = 'Customer Item Sales Word';
             Type = Word;
             LayoutFile = './Sales/Reports/CustomerItemSales.docx';
+            Summary = 'Report layout made for print. Use a Word editor to modify the layout.';
         }
 #if not CLEAN27
         layout(RDLC)
         {
-            Caption = 'Customer/Item Sales RDLC';
+            Caption = 'Customer Item Sales RDLC (Obsolete)';
             Type = RDLC;
             LayoutFile = './Sales/Reports/CustomerItemSales.rdlc';
             ObsoleteState = Pending;
             ObsoleteReason = 'The RDLC layout has been replaced by the Excel and Word layouts and will be removed in a future release.';
             ObsoleteTag = '27.0';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
 #endif
     }

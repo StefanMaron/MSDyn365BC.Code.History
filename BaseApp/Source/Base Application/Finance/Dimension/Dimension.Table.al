@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -43,6 +43,7 @@ table 348 Dimension
         field(1; "Code"; Code[20])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies the code for the dimension.';
             NotBlank = true;
 
             trigger OnValidate()
@@ -72,6 +73,7 @@ table 348 Dimension
         field(2; Name; Text[30])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies the dimension code you enter in the Code field.';
         }
         /// <summary>
         /// The caption used for dimension code fields in forms and reports.
@@ -80,6 +82,7 @@ table 348 Dimension
         field(3; "Code Caption"; Text[80])
         {
             Caption = 'Code Caption';
+            ToolTip = 'Specifies the caption of the dimension. This is displayed as the name of dimension fields.';
         }
         /// <summary>
         /// The caption used for dimension filter fields in forms and reports.
@@ -88,6 +91,7 @@ table 348 Dimension
         field(4; "Filter Caption"; Text[80])
         {
             Caption = 'Filter Caption';
+            ToolTip = 'Specifies the caption of the dimension code when used as a filter. This is displayed as the name of dimension filter fields.';
         }
         /// <summary>
         /// Extended description of the dimension providing additional context about its purpose and usage.
@@ -95,6 +99,7 @@ table 348 Dimension
         field(5; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the dimension code.';
         }
         /// <summary>
         /// Indicates whether the dimension is blocked from being used in new transactions.
@@ -103,6 +108,7 @@ table 348 Dimension
         field(6; Blocked; Boolean)
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
         }
         /// <summary>
         /// The consolidation code used when consolidating financial data across business units.
@@ -112,6 +118,7 @@ table 348 Dimension
         {
             AccessByPermission = TableData "Business Unit" = R;
             Caption = 'Consolidation Code';
+            ToolTip = 'Specifies the code that is used for consolidation.';
         }
         /// <summary>
         /// Maps this dimension to an intercompany dimension for transactions between related companies.
@@ -120,6 +127,7 @@ table 348 Dimension
         field(8; "Map-to IC Dimension Code"; Code[20])
         {
             Caption = 'Map-to IC Dimension Code';
+            ToolTip = 'Specifies which intercompany dimension corresponds to the dimension on the line.';
             TableRelation = "IC Dimension";
 
             trigger OnValidate()
@@ -170,7 +178,7 @@ table 348 Dimension
         GLSetup: Record "General Ledger Setup";
     begin
         DimVal.SetRange("Dimension Code", xRec.Code);
-        if CheckIfDimUsed(xRec.Code, 0, '', '', 0) then begin
+        if CheckIfDimUsed(xRec.Code, Enum::"Dim Type Checked".FromInteger(0), '', '', 0) then begin
             if DimVal.FindSet() then
                 repeat
                     if DimVal.CheckIfDimValueUsed() then
@@ -335,7 +343,7 @@ table 348 Dimension
     /// <param name="AnalysisViewChecked">The analysis view to check if analysis-specific validation is needed.</param>
     /// <param name="AnalysisAreaChecked">The analysis area (Sales/Purchase) for item-related checks.</param>
     /// <returns>True if the dimension is used and cannot be deleted; false otherwise.</returns>
-    procedure CheckIfDimUsed(DimChecked: Code[20]; DimTypeChecked: Option " ",Global1,Global2,Shortcut3,Shortcut4,Shortcut5,Shortcut6,Shortcut7,Shortcut8,Budget1,Budget2,Budget3,Budget4,Analysis1,Analysis2,Analysis3,Analysis4,ItemBudget1,ItemBudget2,ItemBudget3,ItemAnalysis1,ItemAnalysis2,ItemAnalysis3; BudgetNameChecked: Code[10]; AnalysisViewChecked: Code[10]; AnalysisAreaChecked: Integer): Boolean
+    procedure CheckIfDimUsed(DimChecked: Code[20]; DimTypeChecked: Enum "Dim Type Checked"; BudgetNameChecked: Code[10]; AnalysisViewChecked: Code[10]; AnalysisAreaChecked: Integer): Boolean
     var
         GLSetup: Record "General Ledger Setup";
         GLBudgetName: Record "G/L Budget Name";
@@ -357,18 +365,7 @@ table 348 Dimension
 
         OnBeforeCheckIfDimUsed(DimChecked, DimTypeChecked, UsedAsCustomDim, CustomDimErr, AnalysisViewChecked, AnalysisAreaChecked);
 
-        CheckAllDim := DimTypeChecked in [DimTypeChecked::" "];
-        CheckGlobalDim := DimTypeChecked in [DimTypeChecked::Global1, DimTypeChecked::Global2];
-        CheckShortcutDim := DimTypeChecked in [DimTypeChecked::Shortcut3, DimTypeChecked::Shortcut4, DimTypeChecked::Shortcut5,
-                                               DimTypeChecked::Shortcut6, DimTypeChecked::Shortcut7, DimTypeChecked::Shortcut8];
-        CheckBudgetDim := DimTypeChecked in [DimTypeChecked::Budget1, DimTypeChecked::Budget2, DimTypeChecked::Budget3,
-                                             DimTypeChecked::Budget4];
-        CheckAnalysisViewDim := DimTypeChecked in [DimTypeChecked::Analysis1, DimTypeChecked::Analysis2, DimTypeChecked::Analysis3,
-                                                   DimTypeChecked::Analysis4];
-        CheckItemBudgetDim :=
-          DimTypeChecked in [DimTypeChecked::ItemBudget1, DimTypeChecked::ItemBudget2, DimTypeChecked::ItemBudget3];
-        CheckItemAnalysisViewDim :=
-          DimTypeChecked in [DimTypeChecked::ItemAnalysis1, DimTypeChecked::ItemAnalysis2, DimTypeChecked::ItemAnalysis3];
+        CheckAllDimensions(DimTypeChecked, CheckAllDim, CheckGlobalDim, CheckShortcutDim, CheckBudgetDim, CheckAnalysisViewDim, CheckItemBudgetDim, CheckItemAnalysisViewDim, UsedAsCustomDim, CustomDimErr);
 
         UsedAsGlobalDim := false;
         UsedAsShortcutDim := false;
@@ -464,27 +461,7 @@ table 348 Dimension
 
         CheckIfDimUsedAsAnalysisViewDim(AnalysisView, DimChecked, DimTypeChecked, CheckAllDim, CheckAnalysisViewDim, AnalysisViewChecked);
 
-        if CheckAllDim or CheckItemAnalysisViewDim then begin
-            if AnalysisViewChecked <> '' then begin
-                ItemAnalysisView.SetRange("Analysis Area", AnalysisAreaChecked);
-                ItemAnalysisView.SetRange(Code, AnalysisViewChecked);
-            end;
-            if ItemAnalysisView.FindSet() then
-                repeat
-                    if (DimTypeChecked <> DimTypeChecked::ItemAnalysis1) and
-                       (DimChecked = ItemAnalysisView."Dimension 1 Code")
-                    then
-                        UsedAsItemAnalysisViewDim := true;
-                    if (DimTypeChecked <> DimTypeChecked::ItemAnalysis2) and
-                       (DimChecked = ItemAnalysisView."Dimension 2 Code")
-                    then
-                        UsedAsItemAnalysisViewDim := true;
-                    if (DimTypeChecked <> DimTypeChecked::ItemAnalysis3) and
-                       (DimChecked = ItemAnalysisView."Dimension 3 Code")
-                    then
-                        UsedAsItemAnalysisViewDim := true;
-                until ItemAnalysisView.Next() = 0;
-        end;
+        CheckIfDimUsedAsItemAnalysisViewDim(ItemAnalysisView, DimChecked, DimTypeChecked, AnalysisViewChecked, AnalysisAreaChecked, CheckAllDim, CheckItemAnalysisViewDim);
 
         if UsedAsGlobalDim or
            UsedAsShortcutDim or
@@ -504,7 +481,7 @@ table 348 Dimension
     /// Checks if a dimension is used in analysis views and updates the usage flags accordingly.
     /// This is a helper procedure for the main CheckIfDimUsed function.
     /// </summary>
-    local procedure CheckIfDimUsedAsAnalysisViewDim(AnalysisView: Record "Analysis View"; DimChecked: Code[20]; DimTypeChecked: Option " ",Global1,Global2,Shortcut3,Shortcut4,Shortcut5,Shortcut6,Shortcut7,Shortcut8,Budget1,Budget2,Budget3,Budget4,Analysis1,Analysis2,Analysis3,Analysis4,ItemBudget1,ItemBudget2,ItemBudget3,ItemAnalysis1,ItemAnalysis2,ItemAnalysis3; CheckAllDim: Boolean; CheckAnalysisViewDim: Boolean; AnalysisViewChecked: Code[10])
+    local procedure CheckIfDimUsedAsAnalysisViewDim(AnalysisView: Record "Analysis View"; DimChecked: Code[20]; DimTypeChecked: Enum "Dim Type Checked"; CheckAllDim: Boolean; CheckAnalysisViewDim: Boolean; AnalysisViewChecked: Code[10])
     var
         IsHandled: Boolean;
     begin
@@ -536,6 +513,65 @@ table 348 Dimension
                         UsedAsAnalysisViewDim := true;
                 until AnalysisView.Next() = 0;
         end;
+    end;
+
+    local procedure CheckAllDimensions(var DimTypeChecked: Enum "Dim Type Checked"; var CheckAllDim: Boolean; var CheckGlobalDim: Boolean; var CheckShortcutDim: Boolean; var CheckBudgetDim: Boolean; var CheckAnalysisViewDim: Boolean; var CheckItemBudgetDim: Boolean; var CheckItemAnalysisViewDim: Boolean; var UsedAsCustomDim: Boolean; var CustomDimErr: Text)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAllDimensions(DimTypeChecked, CheckAllDim, CheckGlobalDim, CheckShortcutDim, CheckBudgetDim, CheckAnalysisViewDim, CheckItemBudgetDim, CheckItemAnalysisViewDim, UsedAsCustomDim, CustomDimErr, IsHandled);
+        if IsHandled then
+            exit;
+
+        CheckAllDim := DimTypeChecked in [DimTypeChecked::" "];
+        CheckGlobalDim := DimTypeChecked in [DimTypeChecked::Global1, DimTypeChecked::Global2];
+        CheckShortcutDim := DimTypeChecked in [DimTypeChecked::Shortcut3, DimTypeChecked::Shortcut4, DimTypeChecked::Shortcut5,
+                                               DimTypeChecked::Shortcut6, DimTypeChecked::Shortcut7, DimTypeChecked::Shortcut8];
+        CheckBudgetDim := DimTypeChecked in [DimTypeChecked::Budget1, DimTypeChecked::Budget2, DimTypeChecked::Budget3,
+                                             DimTypeChecked::Budget4];
+        CheckAnalysisViewDim := DimTypeChecked in [DimTypeChecked::Analysis1, DimTypeChecked::Analysis2, DimTypeChecked::Analysis3,
+                                                   DimTypeChecked::Analysis4];
+        CheckItemBudgetDim :=
+          DimTypeChecked in [DimTypeChecked::ItemBudget1, DimTypeChecked::ItemBudget2, DimTypeChecked::ItemBudget3];
+        CheckItemAnalysisViewDim :=
+          DimTypeChecked in [DimTypeChecked::ItemAnalysis1, DimTypeChecked::ItemAnalysis2, DimTypeChecked::ItemAnalysis3];
+
+        OnAfterCheckAllDimensions(DimTypeChecked, CheckAllDim, CheckGlobalDim, CheckShortcutDim, CheckBudgetDim, CheckAnalysisViewDim, CheckItemBudgetDim, CheckItemAnalysisViewDim, UsedAsCustomDim, CustomDimErr);
+    end;
+
+    local procedure CheckIfDimUsedAsItemAnalysisViewDim(var ItemAnalysisView: Record "Item Analysis View"; DimChecked: Code[20]; DimTypeChecked: Enum "Dim Type Checked"; AnalysisViewChecked: Code[10]; AnalysisAreaChecked: Integer; CheckAllDim: Boolean; CheckItemAnalysisViewDim: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIfDimUsedAsItemAnalysisViewDim(ItemAnalysisView, DimChecked, DimTypeChecked, AnalysisViewChecked, AnalysisAreaChecked, CheckAllDim, CheckItemAnalysisViewDim, UsedAsItemAnalysisViewDim, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CheckAllDim or CheckItemAnalysisViewDim then begin
+            if AnalysisViewChecked <> '' then begin
+                ItemAnalysisView.SetRange("Analysis Area", AnalysisAreaChecked);
+                ItemAnalysisView.SetRange(Code, AnalysisViewChecked);
+            end;
+            if ItemAnalysisView.FindSet() then
+                repeat
+                    if (DimTypeChecked <> DimTypeChecked::ItemAnalysis1) and
+                       (DimChecked = ItemAnalysisView."Dimension 1 Code")
+                    then
+                        UsedAsItemAnalysisViewDim := true;
+                    if (DimTypeChecked <> DimTypeChecked::ItemAnalysis2) and
+                       (DimChecked = ItemAnalysisView."Dimension 2 Code")
+                    then
+                        UsedAsItemAnalysisViewDim := true;
+                    if (DimTypeChecked <> DimTypeChecked::ItemAnalysis3) and
+                       (DimChecked = ItemAnalysisView."Dimension 3 Code")
+                    then
+                        UsedAsItemAnalysisViewDim := true;
+                until ItemAnalysisView.Next() = 0;
+        end;
+
+        OnAfterCheckIfDimUsedAsItemAnalysisViewDim(ItemAnalysisView, DimChecked, DimTypeChecked, AnalysisViewChecked, AnalysisAreaChecked, CheckAllDim, CheckItemAnalysisViewDim, UsedAsItemAnalysisViewDim);
     end;
 
     local procedure MakeCheckDimErr(CustomDimErr: Text)
@@ -777,7 +813,7 @@ table 348 Dimension
     /// <param name="AnalysisViewChecked">Analysis view code being checked</param>
     /// <param name="AnalysisAreaChecked">Analysis area being checked</param>
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckIfDimUsed(DimChecked: Code[20]; DimTypeChecked: Option " ",Global1,Global2,Shortcut3,Shortcut4,Shortcut5,Shortcut6,Shortcut7,Shortcut8,Budget1,Budget2,Budget3,Budget4,Analysis1,Analysis2,Analysis3,Analysis4,ItemBudget1,ItemBudget2,ItemBudget3,ItemAnalysis1,ItemAnalysis2,ItemAnalysis3; var UsedAsCustomDim: Boolean; var CustomDimErr: Text; AnalysisViewChecked: Code[10]; AnalysisAreaChecked: Integer)
+    local procedure OnBeforeCheckIfDimUsed(DimChecked: Code[20]; DimTypeChecked: Enum "Dim Type Checked"; var UsedAsCustomDim: Boolean; var CustomDimErr: Text; AnalysisViewChecked: Code[10]; AnalysisAreaChecked: Integer)
     begin
     end;
 
@@ -794,7 +830,27 @@ table 348 Dimension
     /// <param name="UsedAsAnalysisViewDim">Set to true if dimension is used as analysis view dimension</param>
     /// <param name="IsHandled">Set to true to skip standard analysis view dimension checking</param>
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckIfDimUsedAsAnalysisViewDim(AnalysisView: Record "Analysis View"; DimChecked: Code[20]; DimTypeChecked: Option " ",Global1,Global2,Shortcut3,Shortcut4,Shortcut5,Shortcut6,Shortcut7,Shortcut8,Budget1,Budget2,Budget3,Budget4,Analysis1,Analysis2,Analysis3,Analysis4,ItemBudget1,ItemBudget2,ItemBudget3,ItemAnalysis1,ItemAnalysis2,ItemAnalysis3; CheckAllDim: Boolean; CheckAnalysisViewDim: Boolean; AnalysisViewChecked: Code[10]; var UsedAsAnalysisViewDim: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCheckIfDimUsedAsAnalysisViewDim(AnalysisView: Record "Analysis View"; DimChecked: Code[20]; DimTypeChecked: Enum "Dim Type Checked"; CheckAllDim: Boolean; CheckAnalysisViewDim: Boolean; AnalysisViewChecked: Code[10]; var UsedAsAnalysisViewDim: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAllDimensions(var DimTypeChecked: Enum "Dim Type Checked"; var CheckAllDim: Boolean; var CheckGlobalDim: Boolean; var CheckShortcutDim: Boolean; var CheckBudgetDim: Boolean; var CheckAnalysisViewDim: Boolean; var CheckItemBudgetDim: Boolean; var CheckItemAnalysisViewDim: Boolean; var UsedAsCustomDim: Boolean; var CustomDimErr: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckAllDimensions(var DimTypeChecked: Enum "Dim Type Checked"; var CheckAllDim: Boolean; var CheckGlobalDim: Boolean; var CheckShortcutDim: Boolean; var CheckBudgetDim: Boolean; var CheckAnalysisViewDim: Boolean; var CheckItemBudgetDim: Boolean; var CheckItemAnalysisViewDim: Boolean; var UsedAsCustomDim: Boolean; var CustomDimErr: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfDimUsedAsItemAnalysisViewDim(var ItemAnalysisView: Record "Item Analysis View"; var DimChecked: Code[20]; var DimTypeChecked: Enum "Dim Type Checked"; var AnalysisViewChecked: Code[10]; var AnalysisAreaChecked: Integer; var CheckAllDim: Boolean; var CheckItemAnalysisViewDim: Boolean; var UsedAsItemAnalysisViewDim: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckIfDimUsedAsItemAnalysisViewDim(var ItemAnalysisView: Record "Item Analysis View"; var DimChecked: Code[20]; var DimTypeChecked: Enum "Dim Type Checked"; var AnalysisViewChecked: Code[10]; var AnalysisAreaChecked: Integer; var CheckAllDim: Boolean; var CheckItemAnalysisViewDim: Boolean; var UsedAsItemAnalysisViewDim: Boolean)
     begin
     end;
 }

@@ -21,6 +21,7 @@ using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.SpendRequest;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
@@ -85,6 +86,7 @@ table 38 "Purchase Header"
 
             trigger OnValidate()
             var
+                MatchedOrderLineMgmt: Codeunit "Matched Order Line Mgmt.";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -201,6 +203,8 @@ table 38 "Purchase Header"
                         Rec.Validate("Remit-to Code", '');
                 end else
                     SelectDefaultRemitAddress(Rec);
+
+                MatchedOrderLineMgmt.ApplyVendorsReceiptOnInvoicePolicy(Rec);
             end;
         }
         field(3; "No."; Code[20])
@@ -2167,6 +2171,36 @@ table 38 "Purchase Header"
                 Validate("VAT Base Discount %");
             end;
         }
+        field(146; "Spend Request No."; Code[20])
+        {
+            Caption = 'Spend Request No.';
+            ToolTip = 'Specifies the spend request that this purchase document relates to.';
+            TableRelation = "Spend Request" where(Status = const(Approved), "Document Type" = const(" "));
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            var
+                SpendRequest: Record "Spend Request";
+                DimensionSetIDArr: array[10] of Integer;
+            begin
+                if Rec."Spend Request No." = '' then begin
+                    Rec."Spend Request Close" := false;
+                    exit;
+                end;
+                SpendRequest.ValidateSpendRequest(Rec."Spend Request No.", Rec."Spend Request Close");
+                if SpendRequest."Dimension Set ID" <> 0 then begin
+                    DimensionSetIDArr[1] := Rec."Dimension Set ID";
+                    DimensionSetIDArr[2] := SpendRequest."Dimension Set ID";
+                    Rec."Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
+                end;
+            end;
+        }
+        field(147; "Spend Request Close"; Boolean)
+        {
+            Caption = 'Spend Request Close';
+            ToolTip = 'Specifies that the spend request will be closed when the purchase document is posted.';
+            DataClassification = CustomerContent;
+        }
         field(151; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
@@ -2738,10 +2772,7 @@ table 38 "Purchase Header"
             var
                 MatchedOrderLineMgmt: Codeunit "Matched Order Line Mgmt.";
             begin
-                if "Receipt on Invoice" then
-                    MatchedOrderLineMgmt.CheckReceiptOnInvoiceAllowed(Rec);
-
-                MatchedOrderLineMgmt.RefreshMatchedOrderLineReceipt(Rec);
+                MatchedOrderLineMgmt.ApplyReceiptOnInvoiceToLines(Rec);
             end;
         }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
@@ -3117,9 +3148,6 @@ table 38 "Purchase Header"
         CreateVendorQst: Label 'You cannot Release Quote or Make Order unless you specify a vendor on the quote.\\Do you want to create vendor(s) now?';
         SelectVendorTemplateQst: Label 'Do you want to select the vendor template?';
         CalledFromWhseDoc: Boolean;
-#if not CLEAN26
-        SkipStatsPrep: Boolean;
-#endif
 
     protected var
         PurchSetup: Record "Purchases & Payables Setup";
@@ -5660,39 +5688,6 @@ table 38 "Purchase Header"
         end;
     end;
 
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    /// <summary>
-    /// Open statistics page for purchase orders.
-    /// </summary>
-    /// <remarks>
-    /// Commit is executed before opening the statistics page.
-    /// </remarks>
-    procedure OpenPurchaseOrderStatistics()
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeOpenPurchaseOrderStatistics(Rec, IsHandled);
-        if IsHandled then
-            exit;
-
-        OpenDocumentStatisticsInternal();
-    end;
-
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    /// <summary>
-    /// Open statistics page for purchase documents.
-    /// </summary>
-    /// <remarks>
-    /// Commit is executed before opening the statistics page.
-    /// </remarks>
-    procedure OpenDocumentStatistics()
-    begin
-        OpenDocumentStatisticsInternal();
-    end;
-#endif
-
     /// <summary>
     /// Prepares the opening document statistics for a purchase document. It checks the user's permissions,
     /// calculates the invoice discount, creates a dimension set for order documents, and commits any changes made.
@@ -5716,55 +5711,6 @@ table 38 "Purchase Header"
         Commit();
     end;
 
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    /// <summary>
-    /// Opens a purchase document statistics page based on the document type.
-    /// After the page is closed, the recalculate invoice discount field is set to false on all purchase document lines.
-    /// </summary>
-    procedure ShowDocumentStatisticsPage()
-    var
-        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
-        StatisticsPageId: Integer;
-    begin
-        StatisticsPageId := GetStatisticsPageID();
-
-        OnGetStatisticsPageID(StatisticsPageId, Rec);
-
-        SkipStatsPrep := true;
-        PAGE.RunModal(StatisticsPageId, Rec);
-        ResetSkipStatisticsPreparationFlag();
-
-        PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
-    end;
-
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    procedure SkipStatisticsPreparation(): Boolean
-    begin
-        exit(SkipStatsPrep)
-    end;
-
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    procedure ResetSkipStatisticsPreparationFlag()
-    begin
-        SkipStatsPrep := false;
-    end;
-
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    local procedure OpenDocumentStatisticsInternal()
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeOpenDocumentStatistics(Rec, IsHandled);
-        if IsHandled then
-            exit;
-
-        PrepareOpeningDocumentStatistics();
-        ShowDocumentStatisticsPage();
-    end;
-#endif
-
     local procedure IsOrderDocument(): Boolean
     begin
         case "Document Type" of
@@ -5777,15 +5723,6 @@ table 38 "Purchase Header"
         exit(false);
     end;
 
-#if not CLEAN26
-    local procedure GetStatisticsPageID(): Integer
-    begin
-        if IsOrderDocument() then
-            exit(PAGE::"Purchase Order Statistics");
-
-        exit(PAGE::"Purchase Statistics");
-    end;
-#endif
     [IntegrationEvent(true, false)]
     procedure OnCheckPurchasePostRestrictions()
     begin
@@ -8571,14 +8508,6 @@ table 38 "Purchase Header"
     begin
     end;
 
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenPurchaseOrderStatistics(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetShipToCodeEmpty(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
@@ -8859,26 +8788,10 @@ table 38 "Purchase Header"
     begin
     end;
 
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenDocumentStatistics(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareOpeningDocumentStatistics(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
-
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnGetStatisticsPageID(var PageID: Integer; PurchaseHeader: Record "Purchase Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeTestStatusOpen(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; CallingFieldNo: Integer)

@@ -13,11 +13,11 @@ using System.Utilities;
 
 report 722 "Phys. Inventory List"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Reports/PhysInventoryList.rdlc';
     ApplicationArea = Warehouse;
     Caption = 'Physical Inventory List';
+    ToolTip = 'View a list of the lines that you have calculated in the Phys. Inventory Journal window. You can use this report during the physical inventory count to mark down actual quantities on hand in the warehouse and compare them to what is recorded in the program.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -241,6 +241,16 @@ report 722 "Phys. Inventory List"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Inventory/Reports/PhysInventoryList.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

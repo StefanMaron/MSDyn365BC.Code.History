@@ -1720,7 +1720,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // Random values used are not important for test.
         LibraryManufacturing.CreateItemManufacturing(
           Item, CostingMethod, LibraryRandom.RandDec(50, 2) + LibraryRandom.RandDec(10, 2), ReorderingPolicy,
-          Item."Flushing Method", RoutingNo, ProductionBOMNo);
+          Item."Flushing Method"::"Pick + Manual", RoutingNo, ProductionBOMNo);
 
         Item.Validate("Manufacturing Policy", ManufacturingPolicy);
         Item.Validate("Replenishment System", ReplenishmentSystem);
