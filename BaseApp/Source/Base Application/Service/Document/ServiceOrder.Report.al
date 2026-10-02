@@ -21,6 +21,7 @@ report 5900 "Service Order"
     DefaultLayout = RDLC;
     RDLCLayout = './Service/Document/ServiceOrder.rdlc';
     Caption = 'Service Order';
+    ToolTip = 'Create a new service order to perform service on a customer''s item.';
     WordMergeDataItem = "Service Header";
 
     dataset
@@ -83,10 +84,10 @@ report 5900 "Service Order"
                     column(CustAddr1; CustAddr[1])
                     {
                     }
-                    column(CompanyAddr8; CompanyAddr[8])
+                    column(CompanyAddr7; CompanyAddr[7])
                     {
                     }
-                    column(CompanyAddr7; CompanyAddr[7])
+                    column(CompanyAddr8; CompanyAddr[8])
                     {
                     }
                     column(CompanyAddr6; CompanyAddr[6])
@@ -159,18 +160,6 @@ report 5900 "Service Order"
                     {
                     }
                     column(Description_ServHeaderCaption; "Service Header".FieldCaption(Description))
-                    {
-                    }
-                    column(CompanyInfoBusinessIdCode; CompanyInfo."Business Identity Code")
-                    {
-                    }
-                    column(CompanyInfoegHomeCity; CompanyInfo."Registered Home City")
-                    {
-                    }
-                    column(CompanyInfoBusinessIdentityCodeCaption; CompanyInfoBusinessIdentityCodeLbl)
-                    {
-                    }
-                    column(CompanyInfoRegisteredHomeCityCaption; CompanyInfoRegisteredHomeCityLbl)
                     {
                     }
                     dataitem(DimensionLoop1; "Integer")
@@ -676,7 +665,6 @@ report 5900 "Service Order"
         DimSetEntry2: Record "Dimension Set Entry";
         LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
-        FormatDocument: Codeunit "Format Document";
         NoOfCopies: Integer;
         NoOfLoops: Integer;
         OutputNo: Integer;
@@ -722,13 +710,12 @@ report 5900 "Service Order"
         TotalCaptionLbl: Label 'Total';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
-        CompanyInfoBusinessIdentityCodeLbl: Label 'Business Identity Code';
-        CompanyInfoRegisteredHomeCityLbl: Label 'Registered Home City';
 
     protected var
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
+        FormatDocument: Codeunit "Format Document";
 
     local procedure IsReportInPreviewMode(): Boolean
     var

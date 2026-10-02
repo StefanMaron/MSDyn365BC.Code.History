@@ -96,10 +96,10 @@ report 5902 "Service Quote"
                     column(CustAddr1; CustAddr[1])
                     {
                     }
-                    column(CompanyAddr8; CompanyAddr[8])
+                    column(CompanyAddr7; CompanyAddr[7])
                     {
                     }
-                    column(CompanyAddr7; CompanyAddr[7])
+                    column(CompanyAddr8; CompanyAddr[8])
                     {
                     }
                     column(CompanyAddr6; CompanyAddr[6])
@@ -160,18 +160,6 @@ report 5902 "Service Quote"
                     {
                     }
                     column(No1_ServHeaderCaption; "Service Header".FieldCaption("No."))
-                    {
-                    }
-                    column(CompanyInfoBusinessIdCode; CompanyInfo."Business Identity Code")
-                    {
-                    }
-                    column(CompanyInfoRegHomeCity; CompanyInfo."Registered Home City")
-                    {
-                    }
-                    column(CompanyInfoBusinessIdentityCodeCaption; CompanyInfoBusinessIdentityCodeLbl)
-                    {
-                    }
-                    column(CompanyInfoRegisteredHomeCityCaption; CompanyInfoRegisteredHomeCityLbl)
                     {
                     }
                     dataitem(DimensionLoop1; "Integer")
@@ -743,8 +731,6 @@ report 5902 "Service Quote"
         ShipToAddressCaptionLbl: Label 'Ship-to Address';
         HomePageCaptionLbl: Label 'Home Page';
         EmailCaptionLbl: Label 'Email';
-        CompanyInfoBusinessIdentityCodeLbl: Label 'Business Identity Code';
-        CompanyInfoRegisteredHomeCityLbl: Label 'Registered Home City';
 
     protected var
         CompanyInfo: Record "Company Information";

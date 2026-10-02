@@ -4155,9 +4155,7 @@ Fields!CompanyAddr4.Value + chr(177) +
 Fields!CompanyAddr5.Value + chr(177) +
 Fields!CompanyAddr6.Value + chr(177) +
 Fields!CompanyInfoPhNo.Value + chr(177) +
-Fields!CompanyInfoFaxNo.Value + chr(177) +
-Fields!CompanyInfoBusinessIdCode.Value+ chr(177) +
-Fields!CompanyInfoRegHomeCity.Value</Value>
+Fields!CompanyInfoFaxNo.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -6584,8 +6582,9 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
                   </Style>
                 </Paragraph>
               </Paragraphs>
+              <Left>5.10741in</Left>
               <Height>20pt</Height>
-              <Width>18.0972cm</Width>
+              <Width>4.95742cm</Width>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6613,7 +6612,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               </Paragraphs>
               <Top>0.275in</Top>
               <Height>11pt</Height>
-              <Width>342.13373pt</Width>
+              <Width>365.63379pt</Width>
               <ZIndex>1</ZIndex>
               <Style>
                 <Border />
@@ -6642,7 +6641,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               </Paragraphs>
               <Top>29.79999pt</Top>
               <Height>11pt</Height>
-              <Width>342.13373pt</Width>
+              <Width>365.63379pt</Width>
               <ZIndex>2</ZIndex>
               <Style>
                 <Border />
@@ -6671,7 +6670,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               </Paragraphs>
               <Top>39.80001pt</Top>
               <Height>11pt</Height>
-              <Width>342.13373pt</Width>
+              <Width>365.63379pt</Width>
               <ZIndex>3</ZIndex>
               <Style>
                 <Border />
@@ -6700,7 +6699,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               </Paragraphs>
               <Top>49.80003pt</Top>
               <Height>11pt</Height>
-              <Width>342.13373pt</Width>
+              <Width>365.63379pt</Width>
               <ZIndex>4</ZIndex>
               <Style>
                 <Border />
@@ -6729,7 +6728,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               </Paragraphs>
               <Top>59.80003pt</Top>
               <Height>11pt</Height>
-              <Width>342.13373pt</Width>
+              <Width>365.63379pt</Width>
               <ZIndex>5</ZIndex>
               <Style>
                 <Border />
@@ -6758,7 +6757,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               </Paragraphs>
               <Top>69.80003pt</Top>
               <Height>11pt</Height>
-              <Width>342.13373pt</Width>
+              <Width>365.63379pt</Width>
               <ZIndex>6</ZIndex>
               <Style>
                 <Border />
@@ -6817,7 +6816,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               <Top>79.80003pt</Top>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
-              <Width>9.53443cm</Width>
+              <Width>10.36346cm</Width>
               <ZIndex>8</ZIndex>
               <Style>
                 <Border />
@@ -6876,7 +6875,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               <Top>89.80003pt</Top>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
-              <Width>9.53443cm</Width>
+              <Width>10.36346cm</Width>
               <ZIndex>10</ZIndex>
               <Style>
                 <Border />
@@ -6935,7 +6934,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               <Top>109.80003pt</Top>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
-              <Width>9.53443cm</Width>
+              <Width>10.36346cm</Width>
               <ZIndex>12</ZIndex>
               <Style>
                 <Border />
@@ -6964,9 +6963,9 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
                 </Paragraph>
               </Paragraphs>
               <Top>40pt</Top>
-              <Left>12.06971cm</Left>
+              <Left>12.97283cm</Left>
               <Height>11pt</Height>
-              <Width>6.0275cm</Width>
+              <Width>4.95742cm</Width>
               <ZIndex>13</ZIndex>
               <Style>
                 <Border />
@@ -6995,9 +6994,9 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
                 </Paragraph>
               </Paragraphs>
               <Top>50pt</Top>
-              <Left>12.06971cm</Left>
+              <Left>12.97283cm</Left>
               <Height>11pt</Height>
-              <Width>6.0275cm</Width>
+              <Width>4.95742cm</Width>
               <ZIndex>14</ZIndex>
               <Style>
                 <Border />
@@ -7026,9 +7025,9 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
                 </Paragraph>
               </Paragraphs>
               <Top>60pt</Top>
-              <Left>12.06971cm</Left>
+              <Left>12.97283cm</Left>
               <Height>11pt</Height>
-              <Width>6.0275cm</Width>
+              <Width>4.95742cm</Width>
               <ZIndex>15</ZIndex>
               <Style>
                 <Border />
@@ -7057,9 +7056,9 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
                 </Paragraph>
               </Paragraphs>
               <Top>70pt</Top>
-              <Left>12.06971cm</Left>
+              <Left>12.97283cm</Left>
               <Height>11pt</Height>
-              <Width>6.0275cm</Width>
+              <Width>4.95742cm</Width>
               <ZIndex>16</ZIndex>
               <Style>
                 <Border />
@@ -7088,9 +7087,9 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
                 </Paragraph>
               </Paragraphs>
               <Top>80pt</Top>
-              <Left>12.06971cm</Left>
+              <Left>12.97283cm</Left>
               <Height>11pt</Height>
-              <Width>6.0275cm</Width>
+              <Width>4.95742cm</Width>
               <ZIndex>17</ZIndex>
               <Style>
                 <Border />
@@ -7119,9 +7118,9 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
                 </Paragraph>
               </Paragraphs>
               <Top>90pt</Top>
-              <Left>12.06971cm</Left>
+              <Left>12.97283cm</Left>
               <Height>11pt</Height>
-              <Width>6.0275cm</Width>
+              <Width>4.95742cm</Width>
               <ZIndex>18</ZIndex>
               <Style>
                 <Border />
@@ -7149,9 +7148,9 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
                 </Paragraph>
               </Paragraphs>
               <Top>100pt</Top>
-              <Left>12.07324cm</Left>
+              <Left>13.00811cm</Left>
               <Height>11pt</Height>
-              <Width>3.12534cm</Width>
+              <Width>2.22222cm</Width>
               <ZIndex>19</ZIndex>
               <Style>
                 <Border />
@@ -7182,7 +7181,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               <Top>100pt</Top>
               <Left>15.23033cm</Left>
               <Height>11pt</Height>
-              <Width>2.86688cm</Width>
+              <Width>2.69992cm</Width>
               <ZIndex>20</ZIndex>
               <Style>
                 <Border />
@@ -7242,7 +7241,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               <Top>119.80003pt</Top>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
-              <Width>9.53443cm</Width>
+              <Width>10.36346cm</Width>
               <ZIndex>22</ZIndex>
               <Style>
                 <Border />
@@ -7302,7 +7301,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               <Top>129.80002pt</Top>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
-              <Width>9.53443cm</Width>
+              <Width>10.36346cm</Width>
               <ZIndex>24</ZIndex>
               <Style>
                 <Border />
@@ -7362,7 +7361,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               <Top>139.79993pt</Top>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
-              <Width>9.53443cm</Width>
+              <Width>10.36346cm</Width>
               <ZIndex>26</ZIndex>
               <Style>
                 <Border />
@@ -7422,7 +7421,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               <Top>149.79987pt</Top>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
-              <Width>9.53443cm</Width>
+              <Width>10.36346cm</Width>
               <ZIndex>28</ZIndex>
               <Style>
                 <Border />
@@ -7482,7 +7481,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               <Top>159.79987pt</Top>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
-              <Width>9.53443cm</Width>
+              <Width>10.36346cm</Width>
               <ZIndex>30</ZIndex>
               <Style>
                 <Border />
@@ -7543,7 +7542,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               <Top>169.79987pt</Top>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
-              <Width>9.53443cm</Width>
+              <Width>10.36346cm</Width>
               <ZIndex>32</ZIndex>
               <Style>
                 <Border />
@@ -7603,7 +7602,7 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               <Top>179.79988pt</Top>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
-              <Width>9.53443cm</Width>
+              <Width>10.36346cm</Width>
               <ZIndex>34</ZIndex>
               <Style>
                 <Border />
@@ -7631,9 +7630,9 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
                 </Paragraph>
               </Paragraphs>
               <Top>20pt</Top>
-              <Left>4.75185in</Left>
+              <Left>5.10741in</Left>
               <Height>11pt</Height>
-              <Width>2.37304in</Width>
+              <Width>1.95175in</Width>
               <ZIndex>35</ZIndex>
               <Style>
                 <Border>
@@ -7658,134 +7657,12 @@ Fields!CompanyInfoRegHomeCity.Value</Value>
               <rd:DefaultName>Textbox11</rd:DefaultName>
               <Top>99.80003pt</Top>
               <Height>10pt</Height>
-              <Width>4.75185in</Width>
+              <Width>5.07824in</Width>
               <ZIndex>36</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
                 </Border>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoBusinessIdentityCodeCaption">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Fields!CompanyInfoBusinessIdentityCodeCaption.Value</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <FontFamily>Segoe UI</FontFamily>
-                    <FontSize>8pt</FontSize>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>111.5pt</Top>
-              <Left>12.06971cm</Left>
-              <Height>11pt</Height>
-              <Width>3.12534cm</Width>
-              <ZIndex>37</ZIndex>
-              <Style>
-                <Border />
-                <FontFamily>Segoe UI</FontFamily>
-                <FontSize>8pt</FontSize>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoBusinessIdentityCode">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetDataFromBody(24,ReportItems!Textbox76.Value)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <FontFamily>Segoe UI</FontFamily>
-                    <FontSize>8pt</FontSize>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>111.5pt</Top>
-              <Left>15.2268cm</Left>
-              <Height>11pt</Height>
-              <Width>2.86688cm</Width>
-              <ZIndex>38</ZIndex>
-              <Style>
-                <Border />
-                <FontFamily>Segoe UI</FontFamily>
-                <FontSize>8pt</FontSize>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoRegisteredHomeCityCaption">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Fields!CompanyInfoRegisteredHomeCityCaption.Value</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <FontFamily>Segoe UI</FontFamily>
-                    <FontSize>8pt</FontSize>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>122.5pt</Top>
-              <Left>12.06971cm</Left>
-              <Height>11pt</Height>
-              <Width>3.12534cm</Width>
-              <ZIndex>39</ZIndex>
-              <Style>
-                <Border />
-                <FontFamily>Segoe UI</FontFamily>
-                <FontSize>8pt</FontSize>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoRegisteredHomeCity">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetDataFromBody(25,ReportItems!Textbox76.Value)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <FontFamily>Segoe UI</FontFamily>
-                    <FontSize>8pt</FontSize>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>122.5pt</Top>
-              <Left>15.2268cm</Left>
-              <Height>11pt</Height>
-              <Width>2.86688cm</Width>
-              <ZIndex>41</ZIndex>
-              <Style>
-                <Border />
-                <FontFamily>Segoe UI</FontFamily>
-                <FontSize>8pt</FontSize>
               </Style>
             </Textbox>
           </ReportItems>
@@ -8219,11 +8096,11 @@ End Function</Code>
         <Field Name="BilltoName_ServeContrHdr">
           <DataField>BilltoName_ServeContrHdr</DataField>
         </Field>
-        <Field Name="CompanyAddr8">
-          <DataField>CompanyAddr8</DataField>
-        </Field>
         <Field Name="CompanyAddr7">
           <DataField>CompanyAddr7</DataField>
+        </Field>
+        <Field Name="CompanyAddr8">
+          <DataField>CompanyAddr8</DataField>
         </Field>
         <Field Name="CompanyAddr6">
           <DataField>CompanyAddr6</DataField>
@@ -8302,18 +8179,6 @@ End Function</Code>
         </Field>
         <Field Name="ServContrHdrNxtInvDtCptn">
           <DataField>ServContrHdrNxtInvDtCptn</DataField>
-        </Field>
-        <Field Name="CompanyInfoBusinessIdCode">
-          <DataField>CompanyInfoBusinessIdCode</DataField>
-        </Field>
-        <Field Name="CompanyInfoRegHomeCity">
-          <DataField>CompanyInfoRegHomeCity</DataField>
-        </Field>
-        <Field Name="CompanyInfoBusinessIdentityCodeCaption">
-          <DataField>CompanyInfoBusinessIdentityCodeCaption</DataField>
-        </Field>
-        <Field Name="CompanyInfoRegisteredHomeCityCaption">
-          <DataField>CompanyInfoRegisteredHomeCityCaption</DataField>
         </Field>
         <Field Name="Type_ContrServeDiscount">
           <DataField>Type_ContrServeDiscount</DataField>

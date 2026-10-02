@@ -12,12 +12,12 @@ using System.Utilities;
 
 report 915 "Assemble to Order - Sales"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Assembly/Reports/AssembletoOrderSales.rdlc';
     AdditionalSearchTerms = 'kit to order,kit sale';
     ApplicationArea = Assembly;
     Caption = 'Assemble to Order - Sales';
+    ToolTip = 'View key sales figures for assembly components that may be sold either as part of assembly items in assemble-to-order sales or as separate items directly from inventory. Use this report to analyze the quantity, cost, sales, and profit figures of assembly components to support decisions, such as whether to price a kit differently or to stop or start using a particular item in assemblies.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -202,6 +202,16 @@ report 915 "Assemble to Order - Sales"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Assembly/Reports/AssembletoOrderSales.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

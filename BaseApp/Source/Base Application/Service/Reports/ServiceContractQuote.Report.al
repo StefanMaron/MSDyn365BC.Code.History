@@ -79,10 +79,10 @@ report 5972 "Service Contract Quote"
                     {
                         IncludeCaption = true;
                     }
-                    column(CompanyAddr8; CompanyAddr[8])
+                    column(CompanyAddr7; CompanyAddr[7])
                     {
                     }
-                    column(CompanyAddr7; CompanyAddr[7])
+                    column(CompanyAddr8; CompanyAddr[8])
                     {
                     }
                     column(CompanyAddr6; CompanyAddr[6])
@@ -161,18 +161,6 @@ report 5972 "Service Contract Quote"
                     {
                     }
                     column(ServContractEMailCaption; ServContractEMailCaptionLbl)
-                    {
-                    }
-                    column(CompanyInfoBusinessIdCode; CompanyInfo."Business Identity Code")
-                    {
-                    }
-                    column(CompanyInfoRegHomeCity; CompanyInfo."Registered Home City")
-                    {
-                    }
-                    column(CompanyInfoBusinessIdentityCodeCaption; CompanyInfoBusinessIdentityCodeLbl)
-                    {
-                    }
-                    column(CompanyInfoRegisteredHomeCityCaption; CompanyInfoRegisteredHomeCityLbl)
                     {
                     }
                     dataitem("Contract/Service Discount"; "Contract/Service Discount")
@@ -504,8 +492,6 @@ report 5972 "Service Contract Quote"
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
         CommentsCaptionLbl: Label 'Comments';
         ServCommentLine2DtCaptionLbl: Label 'Date';
-        CompanyInfoBusinessIdentityCodeLbl: Label 'Business Identity Code';
-        CompanyInfoRegisteredHomeCityLbl: Label 'Registered Home City';
 
     protected var
         CompanyInfo: Record "Company Information";

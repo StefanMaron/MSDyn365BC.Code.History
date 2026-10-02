@@ -12,6 +12,7 @@ report 5808 "Item Age Composition - Value"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Item Age Composition by Quantity and Value';
+    ToolTip = 'View, print, or save an overview of the current age composition of selected items in your inventory.';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = Excel;
@@ -443,6 +444,7 @@ report 5808 "Item Age Composition - Value"
             Caption = 'Item Age Composition by Quantity and Value Excel';
             Type = Excel;
             LayoutFile = './Inventory/Reports/ItemAgeCompositionValue.xlsx';
+            Summary = 'Report layout primarily made for data analysis. Use an Excel editor to modify the layout.';
         }
 #if not CLEAN28
         layout(RDLC)
@@ -453,6 +455,7 @@ report 5808 "Item Age Composition - Value"
             ObsoleteState = Pending;
             ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
             ObsoleteTag = '28.0';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
 #endif
     }

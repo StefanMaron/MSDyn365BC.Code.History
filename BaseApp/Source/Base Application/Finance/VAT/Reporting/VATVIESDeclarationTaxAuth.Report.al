@@ -16,11 +16,10 @@ using System.Utilities;
 /// </summary>
 report 19 "VAT- VIES Declaration Tax Auth"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Finance/VAT/Reporting/VATVIESDeclarationTaxAuth.rdlc';
     ApplicationArea = VAT;
     Caption = 'VAT- VIES Declaration Tax Auth';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -95,16 +94,19 @@ report 19 "VAT- VIES Declaration Tax Auth"
             column(HeaderText; HeaderText)
             {
             }
-            column(CompanyInfoBusinessIdentityCode; CompanyInfo."Business Identity Code")
+            column(CompanyInfoBusinessIdentityCode; BusinessIdentityCodeTxt)
             {
             }
-            column(CompanyInfoRegisteredHomeCity; CompanyInfo."Registered Home City")
+            column(CompanyInfoRegisteredHomeCity; RegisteredHomeCityTxt)
             {
             }
-            column(BusinessIdentityCodeCaption; BusIdentityCodeCaptionLbl)
+            column(BusinessIdentityCodeCaption; BusinessIdentityCodeLbl)
             {
             }
-            column(RegHomeCityCaption; RegHomeCityCaptionLbl)
+            column(RegHomeCityCaption; RegisteredHomeCityLbl)
+            {
+            }
+            column(ServiceSuppliesCode4Caption; ServiceSuppliesCode4CaptionTxt)
             {
             }
 
@@ -154,7 +156,6 @@ report 19 "VAT- VIES Declaration Tax Auth"
             begin
                 if (StartDate = 0D) or (EndDate = 0D) then
                     Error(Text002);
-                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
                 CompanyInfo.TestField("VAT Registration No.");
 
@@ -209,6 +210,16 @@ report 19 "VAT- VIES Declaration Tax Auth"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Finance/VAT/Reporting/VATVIESDeclarationTaxAuth.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 
@@ -279,7 +290,7 @@ report 19 "VAT- VIES Declaration Tax Auth"
         CountryRegionCodeCaption = 'Customer Country/Region Code';
         Customers_VAT_Registration_No_Caption = 'Customer VAT Registration No.';
         TotalValueofItemSuppliesCaption = 'Total Value of Item Supplies';
-        TotalValueOfServiceSuppliesCode4Caption = 'Total Value of Service Supplies(Code 4)';
+        CodeCaption = 'Code';
         EU3PartyItemTradeAmtCaption = 'EU 3-Party Item Trade Amount';
         TotalValueOfServiceSuppliesCaption = 'Total Value of Service Supplies';
         EU3PartyServiceTradeAmtCaption = 'EU 3-Party Service Trade Amount';
@@ -290,8 +301,14 @@ report 19 "VAT- VIES Declaration Tax Auth"
     }
 
     trigger OnInitReport()
+    var
+        IsHandled: Boolean;
     begin
         GLSetup.Get();
+        CompanyInfo.Get();
+
+        IsHandled := false;
+        OnAfterInitReportForGlobalVariable(IsHandled, BusinessIdentityCodeTxt, BusinessIdentityCodeLbl, RegisteredHomeCityTxt, RegisteredHomeCityLbl, ServiceSuppliesCode4CaptionTxt);
     end;
 
     trigger OnPreReport()
@@ -329,8 +346,11 @@ report 19 "VAT- VIES Declaration Tax Auth"
         Text002: Label 'Start and end date must be filled in.';
 #pragma warning restore AA0074
         VATRegistrationNoFilter: Text[250];
-        BusIdentityCodeCaptionLbl: Label 'Business Identity Code';
-        RegHomeCityCaptionLbl: Label 'Registered Home City';
+        BusinessIdentityCodeTxt: Text;
+        BusinessIdentityCodeLbl: Text;
+        RegisteredHomeCityTxt: Text;
+        RegisteredHomeCityLbl: Text;
+        ServiceSuppliesCode4CaptionTxt: Text;
 
     /// <summary>
     /// Initializes VIES declaration tax authority report with currency and period parameters.
@@ -348,5 +368,9 @@ report 19 "VAT- VIES Declaration Tax Auth"
         VATRegistrationNoFilter := SetVATRegistrationNoFilter;
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitReportForGlobalVariable(var IsHandled: Boolean; var BusinessIdentityCodeTxt: Text; var BusinessIdentityCodeLbl: Text; var RegisteredHomeCityTxt: Text; var RegisteredHomeCityLbl: Text; var ServiceSuppliesCode4CaptionTxt: Text)
+    begin
+    end;
 }
 

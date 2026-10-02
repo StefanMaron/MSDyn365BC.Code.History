@@ -9,11 +9,11 @@ using System.Utilities;
 
 report 99000768 "Prod. Order - Detailed Calc."
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Manufacturing/Reports/ProdOrderDetailedCalc.rdlc';
     ApplicationArea = Manufacturing;
     Caption = 'Prod. Order - Detailed Calc.';
+    ToolTip = 'View a list of the production orders. This list contains the expected costs and the quantity per production order or per operation of a production order.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -168,6 +168,16 @@ report 99000768 "Prod. Order - Detailed Calc."
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Manufacturing/Reports/ProdOrderDetailedCalc.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

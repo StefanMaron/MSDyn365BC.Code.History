@@ -94,11 +94,7 @@ Cstr(Fields!Status_ServHeaderCaption.Value) + Chr(177) +
 Cstr(Fields!ServiceHeaderOrderDateCaption.Value) + Chr(177) + 
 Cstr(Fields!OrderTime_ServHeaderCaption.Value) + Chr(177) + 
 Cstr(Fields!ContractNoCaption.Value) + Chr(177) + 
-Cstr(Fields!PageCaption.Value)+ Chr(177) + 
-Cstr(Fields!CompanyInfoBusinessIdentityCodeCaption.Value)+ Chr(177) + 
-Cstr(Fields!CompanyInfoBusinessIdCode.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoRegisteredHomeCityCaption.Value)+ Chr(177) + 
-Cstr(Fields!CompanyInfoegHomeCity.Value)
+Cstr(Fields!PageCaption.Value)
 , 1)</Hidden>
                                             </Visibility>
                                             <Style />
@@ -4899,7 +4895,7 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
       <Width>18.06cm</Width>
       <Page>
         <PageHeader>
-          <Height>8.88399cm</Height>
+          <Height>7.71982cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -4936,8 +4932,8 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>6.53087cm</Top>
-              <Left>11.68998cm</Left>
+              <Top>5.57837cm</Top>
+              <Left>11.7cm</Left>
               <Height>0.423cm</Height>
               <Width>2.55cm</Width>
               <ZIndex>1</ZIndex>
@@ -5114,8 +5110,8 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>6.10787cm</Top>
-              <Left>11.68998cm</Left>
+              <Top>5.15537cm</Top>
+              <Left>11.7cm</Left>
               <Height>0.423cm</Height>
               <Width>2.55cm</Width>
               <ZIndex>9</ZIndex>
@@ -5139,8 +5135,8 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>6.95386cm</Top>
-              <Left>11.68998cm</Left>
+              <Top>6.00136cm</Top>
+              <Left>11.7cm</Left>
               <Height>0.423cm</Height>
               <Width>2.55cm</Width>
               <ZIndex>10</ZIndex>
@@ -5164,8 +5160,8 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>7.37686cm</Top>
-              <Left>11.68998cm</Left>
+              <Top>6.42436cm</Top>
+              <Left>11.7cm</Left>
               <Height>0.423cm</Height>
               <Width>2.55cm</Width>
               <ZIndex>11</ZIndex>
@@ -5189,8 +5185,8 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>7.79986cm</Top>
-              <Left>11.68998cm</Left>
+              <Top>6.84736cm</Top>
+              <Left>11.7cm</Left>
               <Height>0.423cm</Height>
               <Width>2.55cm</Width>
               <ZIndex>12</ZIndex>
@@ -5214,8 +5210,8 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.22286cm</Top>
-              <Left>11.68998cm</Left>
+              <Top>7.27036cm</Top>
+              <Left>11.7cm</Left>
               <Height>0.423cm</Height>
               <Width>2.55cm</Width>
               <ZIndex>13</ZIndex>
@@ -5240,8 +5236,8 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.53087cm</Top>
-              <Left>14.38998cm</Left>
+              <Top>5.57837cm</Top>
+              <Left>14.4cm</Left>
               <Height>0.423cm</Height>
               <Width>2.7cm</Width>
               <ZIndex>14</ZIndex>
@@ -5583,8 +5579,8 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.10787cm</Top>
-              <Left>14.38998cm</Left>
+              <Top>5.15537cm</Top>
+              <Left>14.4cm</Left>
               <Height>0.423cm</Height>
               <Width>2.7cm</Width>
               <ZIndex>28</ZIndex>
@@ -5632,8 +5628,8 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>6.95386cm</Top>
-              <Left>14.38998cm</Left>
+              <Top>6.00136cm</Top>
+              <Left>14.4cm</Left>
               <Height>0.423cm</Height>
               <Width>2.7cm</Width>
               <ZIndex>30</ZIndex>
@@ -5684,8 +5680,8 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.37686cm</Top>
-              <Left>14.38998cm</Left>
+              <Top>6.42436cm</Top>
+              <Left>14.4cm</Left>
               <Height>0.423cm</Height>
               <Width>2.7cm</Width>
               <ZIndex>32</ZIndex>
@@ -5786,8 +5782,8 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.79986cm</Top>
-              <Left>14.38998cm</Left>
+              <Top>6.84736cm</Top>
+              <Left>14.4cm</Left>
               <Height>0.423cm</Height>
               <Width>2.7cm</Width>
               <ZIndex>36</ZIndex>
@@ -5812,8 +5808,8 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>8.22286cm</Top>
-              <Left>14.38998cm</Left>
+              <Top>7.27036cm</Top>
+              <Left>14.4cm</Left>
               <Height>0.423cm</Height>
               <Width>2.7cm</Width>
               <ZIndex>37</ZIndex>
@@ -5843,109 +5839,6 @@ Cstr(Fields!CompanyInfoegHomeCity.Value)
               <Height>0.423cm</Height>
               <Width>2.90318cm</Width>
               <ZIndex>38</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoBusinessIndentityCaption">
-              <CanGrow>true</CanGrow>
-              <CanShrink>true</CanShrink>
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(36,1)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>4.81539cm</Top>
-              <Left>11.7cm</Left>
-              <Height>0.423cm</Height>
-              <Width>2.1cm</Width>
-              <ZIndex>40</ZIndex>
-              <Style>
-                <Border />
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoBusinessIndentity">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(37,1)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>4.81539cm</Top>
-              <Left>14.01cm</Left>
-              <Height>0.423cm</Height>
-              <Width>4.05cm</Width>
-              <ZIndex>41</ZIndex>
-              <Style>
-                <Border />
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoRegHomeCityCaption">
-              <CanGrow>true</CanGrow>
-              <CanShrink>true</CanShrink>
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(38,1)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>5.28353cm</Top>
-              <Left>11.7cm</Left>
-              <Height>0.423cm</Height>
-              <Width>2.1cm</Width>
-              <ZIndex>42</ZIndex>
-              <Style>
-                <Border />
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoRegHomeCity">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(39,1)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>5.28353cm</Top>
-              <Left>14.01cm</Left>
-              <Height>0.423cm</Height>
-              <Width>4.05cm</Width>
-              <ZIndex>43</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -6139,11 +6032,11 @@ End Function
         <Field Name="CustAddr1">
           <DataField>CustAddr1</DataField>
         </Field>
-        <Field Name="CompanyAddr8">
-          <DataField>CompanyAddr8</DataField>
-        </Field>
         <Field Name="CompanyAddr7">
           <DataField>CompanyAddr7</DataField>
+        </Field>
+        <Field Name="CompanyAddr8">
+          <DataField>CompanyAddr8</DataField>
         </Field>
         <Field Name="CompanyAddr6">
           <DataField>CompanyAddr6</DataField>
@@ -6216,18 +6109,6 @@ End Function
         </Field>
         <Field Name="Description_ServHeaderCaption">
           <DataField>Description_ServHeaderCaption</DataField>
-        </Field>
-        <Field Name="CompanyInfoBusinessIdCode">
-          <DataField>CompanyInfoBusinessIdCode</DataField>
-        </Field>
-        <Field Name="CompanyInfoegHomeCity">
-          <DataField>CompanyInfoegHomeCity</DataField>
-        </Field>
-        <Field Name="CompanyInfoBusinessIdentityCodeCaption">
-          <DataField>CompanyInfoBusinessIdentityCodeCaption</DataField>
-        </Field>
-        <Field Name="CompanyInfoRegisteredHomeCityCaption">
-          <DataField>CompanyInfoRegisteredHomeCityCaption</DataField>
         </Field>
         <Field Name="DimText">
           <DataField>DimText</DataField>

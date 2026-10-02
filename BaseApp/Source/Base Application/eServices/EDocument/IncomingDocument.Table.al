@@ -787,6 +787,7 @@ table 130 "Incoming Document"
 
         TestField(Posted, false);
 
+        Clear("Related Record ID");
         "Document Type" := "Document Type"::" ";
         "Document No." := '';
         // To clear the filters and prevent the page from putting values back

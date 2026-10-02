@@ -9,12 +9,12 @@ using Microsoft.Inventory.Ledger;
 
 report 5700 "Catalog Item Sales"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Reports/CatalogItemSales.rdlc';
     AdditionalSearchTerms = 'non-inventoriable sale,special sales order';
     ApplicationArea = Basic, Suite;
     Caption = 'Catalog Item Sales';
+    ToolTip = 'View a list of item sales for each catalog item during a selected time period. It can be used to review a company''s sale of catalog items.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -143,6 +143,16 @@ report 5700 "Catalog Item Sales"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Inventory/Reports/CatalogItemSales.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

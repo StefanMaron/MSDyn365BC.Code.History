@@ -96,10 +96,10 @@ report 5970 "Service Contract"
                     column(CustAddr1; CustAddr[1])
                     {
                     }
-                    column(CompanyAddr8; CompanyAddr[8])
+                    column(CompanyAddr7; CompanyAddr[7])
                     {
                     }
-                    column(CompanyAddr7; CompanyAddr[7])
+                    column(CompanyAddr8; CompanyAddr[8])
                     {
                     }
                     column(CompanyAddr6; CompanyAddr[6])
@@ -177,18 +177,6 @@ report 5970 "Service Contract"
                     column(Status_ServContractML; Format("Service Contract Header".Status))
                     {
                         IncludeCaption = false;
-                    }
-                    column(CompanyInfoBusinessIdCode; CompanyInfo."Business Identity Code")
-                    {
-                    }
-                    column(CompanyInfoRegHomeCity; CompanyInfo."Registered Home City")
-                    {
-                    }
-                    column(CompanyInfoBusinessIdentityCodeCaption; CompanyInfoBusinessIdentityCodeLbl)
-                    {
-                    }
-                    column(CompanyInfoRegisteredHomeCityCaption; CompanyInfoRegisteredHomeCityLbl)
-                    {
                     }
                     dataitem("Contract/Service Discount"; "Contract/Service Discount")
                     {
@@ -519,8 +507,6 @@ report 5970 "Service Contract"
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
         CommentsCaptionLbl: Label 'Comments';
         Date_servcommentline2CaptionLbl: Label 'Date';
-        CompanyInfoBusinessIdentityCodeLbl: Label 'Business Identity Code';
-        CompanyInfoRegisteredHomeCityLbl: Label 'Registered Home City';
 
     protected var
         CompanyInfo: Record "Company Information";

@@ -7,11 +7,11 @@ namespace Microsoft.Projects.Project.Ledger;
 report 1015 "Job Register"
 {
     AdditionalSearchTerms = 'Job Register';
-    DefaultLayout = RDLC;
-    RDLCLayout = './Projects/Project/Reports/JobRegister.rdlc';
     ApplicationArea = Jobs;
     Caption = 'Project Register';
+    ToolTip = 'View one or more selected project registers. By using a filter, you can select only those register entries that you want to see. If you do not set a filter, the report can be impractical because it can contain a large amount of information. On the project journal template, you can indicate that you want the report to print when you post.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -148,6 +148,16 @@ report 1015 "Job Register"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Projects/Project/Reports/JobRegister.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

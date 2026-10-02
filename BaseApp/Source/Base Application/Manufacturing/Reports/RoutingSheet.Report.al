@@ -13,12 +13,12 @@ using System.Utilities;
 
 report 99000787 "Routing Sheet"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Manufacturing/Reports/RoutingSheet.rdlc';
     AdditionalSearchTerms = 'operations sheet,process structure sheet';
     ApplicationArea = Manufacturing;
     Caption = 'Routing Sheet';
+    ToolTip = 'View basic information for routings, such as send-ahead quantity, setup time, run time and time unit. This report shows you the operations to be performed in this routing, the work or machine centers to be used, the personnel, the tools, and the description of each operation.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -348,6 +348,16 @@ report 99000787 "Routing Sheet"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Manufacturing/Reports/RoutingSheet.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

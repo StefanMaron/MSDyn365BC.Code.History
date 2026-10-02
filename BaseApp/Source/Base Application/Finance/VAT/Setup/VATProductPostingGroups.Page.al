@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -33,18 +33,23 @@ page 471 "VAT Product Posting Groups"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code for the posting group the determines how to calculate VAT for items or resources that you purchase or sell.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the posting group the determines how to calculate VAT for items or resources that you purchase or sell.';
                 }
+#if not CLEAN29
+#pragma warning disable AL0432
                 field("Print on Invoice"; Rec."Print on Invoice")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to include the Description on sales invoices and credit memos.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '29.0';
+                    ObsoleteReason = 'The Print VAT Information on Invoices functionality is discontinued and this setting is no longer used.';
                 }
+#pragma warning restore AL0432
+#endif
             }
         }
         area(factboxes)

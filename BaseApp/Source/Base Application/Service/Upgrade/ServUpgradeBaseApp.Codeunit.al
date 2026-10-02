@@ -9,6 +9,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Service.Item;
+using Microsoft.Service.Reports;
 using Microsoft.Service.Setup;
 using System.Environment;
 using System.Upgrade;
@@ -45,6 +46,7 @@ codeunit 104059 "Serv. Upgrade BaseApp"
         UpgradeServiceItemWorksheetReportSelection();
         UpdateServiceEntries();
         EnableDeleteFiledContractsWithRelatedMainContract();
+        UpgradeServiceReportSelections();
 
         if not UpgradeTag.HasUpgradeTag(GetVATDateFieldServiceBlankUpgrade()) then begin
             UpdateServiceBlankEntries();
@@ -238,6 +240,27 @@ codeunit 104059 "Serv. Upgrade BaseApp"
         UpgradeTag.SetUpgradeTag(GetEnableDeleteFiledContractsWithRelatedMainContractUpgradeTag());
     end;
 
+    local procedure UpgradeServiceReportSelections()
+    var
+        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
+    begin
+        if UpgradeTag.HasUpgradeTag(GetLocalServiceReportsUpgradeTag()) then
+            exit;
+
+        if ReportSelectionMgt.ReportSelectionsExist("Report Selection Usage"::"SM.Quote", Report::"Service Quote") then
+            ReportSelectionMgt.UpdateReportSelection("Report Selection Usage"::"SM.Quote", '1', Report::"Service Quote (FI)");
+        if ReportSelectionMgt.ReportSelectionsExist("Report Selection Usage"::"SM.Order", Report::"Service Order") then
+            ReportSelectionMgt.UpdateReportSelection("Report Selection Usage"::"SM.Order", '1', Report::"Service Order (FI)");
+        if ReportSelectionMgt.ReportSelectionsExist("Report Selection Usage"::"SM.Invoice", Report::"Service - Invoice") then
+            ReportSelectionMgt.UpdateReportSelection("Report Selection Usage"::"SM.Invoice", '1', Report::"Service - Invoice (FI)");
+        if ReportSelectionMgt.ReportSelectionsExist("Report Selection Usage"::"SM.Contract Quote", Report::"Service Contract Quote") then
+            ReportSelectionMgt.UpdateReportSelection("Report Selection Usage"::"SM.Contract Quote", '1', Report::"Service Contract Quote (FI)");
+        if ReportSelectionMgt.ReportSelectionsExist("Report Selection Usage"::"SM.Contract", Report::"Service Contract") then
+            ReportSelectionMgt.UpdateReportSelection("Report Selection Usage"::"SM.Contract", '1', Report::"Service Contract (FI)");
+
+        UpgradeTag.SetUpgradeTag(GetLocalServiceReportsUpgradeTag());
+    end;
+
     // Upgrade definitions
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', true, false)]
@@ -247,6 +270,7 @@ codeunit 104059 "Serv. Upgrade BaseApp"
         PerCompanyUpgradeTags.Add(GetVATDateFieldServiceBlankUpgrade());
         PerCompanyUpgradeTags.Add(GetServiceItemWorksheetSelectionUpgradeTag());
         PerCompanyUpgradeTags.Add(GetEnableDeleteFiledContractsWithRelatedMainContractUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetLocalServiceReportsUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::Microsoft.Foundation.Company."Company-Initialize", 'OnCompanyInitialize', '', true, false)]
@@ -274,5 +298,10 @@ codeunit 104059 "Serv. Upgrade BaseApp"
     internal procedure GetEnableDeleteFiledContractsWithRelatedMainContractUpgradeTag(): Code[250]
     begin
         exit('MS-366089-EnableDeleteFiledContractsWithRelatedMainContractUpgradeTag-20241001');
+    end;
+
+    internal procedure GetLocalServiceReportsUpgradeTag(): Code[250]
+    begin
+        exit('MS-622000-LocalServiceReportsUpgradeTag-20260310');
     end;
 }

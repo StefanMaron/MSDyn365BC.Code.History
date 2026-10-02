@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -29,6 +29,7 @@ table 324 "VAT Product Posting Group"
         field(1; "Code"; Code[20])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies a code for the posting group the determines how to calculate VAT for items or resources that you purchase or sell.';
             NotBlank = true;
         }
         /// <summary>
@@ -37,6 +38,7 @@ table 324 "VAT Product Posting Group"
         field(2; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the posting group the determines how to calculate VAT for items or resources that you purchase or sell.';
         }
         /// <summary>
         /// Timestamp indicating when this VAT product posting group was last modified.
@@ -45,10 +47,22 @@ table 324 "VAT Product Posting Group"
         {
             Caption = 'Last Modified DateTime';
         }
+#if not CLEANSCHEMA32
+#pragma warning disable AA0232
         field(13400; "Print on Invoice"; Boolean)
         {
             Caption = 'Print on Invoice';
+            ObsoleteReason = 'The Print VAT Information on Invoices functionality is discontinued and this setting is no longer used.';
+#if not CLEAN29
+            ObsoleteState = Pending;
+            ObsoleteTag = '29.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '32.0';
+#endif
         }
+#pragma warning restore AA0232
+#endif
     }
 
     keys

@@ -43,11 +43,10 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         EDocument: Record "E-Document";
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
-        EDocImportParameters: Record "E-Doc. Import Parameters";
+        TempEDocImportParameters: Record "E-Doc. Import Parameters";
         Vendor2: Record Vendor;
         CompanyInformation: Record "Company Information";
         VATPostingSetup2: Record "VAT Posting Setup";
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
         EDocumentProcessing: Codeunit "E-Document Processing";
         EDocImport: Codeunit "E-Doc. Import";
@@ -63,8 +62,7 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         Vendor2."Country/Region Code" := CompanyInformation."Country/Region Code";
         Vendor2."No." := 'EDOC001';
         Vendor2."VAT Registration No." := 'XXXXXXX001';
-        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
-        Vendor2."VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
+        Vendor2."VAT Bus. Posting Group" := Vendor."VAT Bus. Posting Group";
         Vendor2.Insert();
 
         // [GIVEN] A VAT Posting Setup with VAT % = 10 for the vendor's bus posting group
@@ -88,8 +86,8 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
 
         // [WHEN] Prepare Draft is run
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Ready for draft");
-        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
-        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+        TempEDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(EDocument, TempEDocImportParameters);
 
         // [THEN] The VAT Prod. Posting Group is resolved from the matching setup
         EDocumentPurchaseLine.SetRecFilter();
@@ -103,8 +101,6 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         VATPostingSetup2.Delete();
         VATProductPostingGroup.SetRecFilter();
         VATProductPostingGroup.Delete();
-        VATBusinessPostingGroup.SetRecFilter();
-        VATBusinessPostingGroup.Delete();
     end;
 
     [Test]
@@ -113,13 +109,11 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         EDocument: Record "E-Document";
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
-        EDocImportParameters: Record "E-Doc. Import Parameters";
+        TempEDocImportParameters: Record "E-Doc. Import Parameters";
         Vendor2: Record Vendor;
         CompanyInformation: Record "Company Information";
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
         EDocumentProcessing: Codeunit "E-Document Processing";
         EDocImport: Codeunit "E-Doc. Import";
-        LibraryERM: Codeunit "Library - ERM";
     begin
         // [SCENARIO] When a draft line has a VAT Rate but no matching VAT Posting Setup exists, Prepare Draft leaves the field blank and sets the mismatch flag
         Initialize(Enum::"Service Integration"::"Mock");
@@ -131,8 +125,7 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         Vendor2."Country/Region Code" := CompanyInformation."Country/Region Code";
         Vendor2."No." := 'EDOC001';
         Vendor2."VAT Registration No." := 'XXXXXXX001';
-        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
-        Vendor2."VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
+        Vendor2."VAT Bus. Posting Group" := Vendor."VAT Bus. Posting Group";
         Vendor2.Insert();
 
         // [GIVEN] E-Document purchase header and line with VAT Rate = 99 (no matching setup)
@@ -146,8 +139,8 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
 
         // [WHEN] Prepare Draft is run
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Ready for draft");
-        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
-        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+        TempEDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(EDocument, TempEDocImportParameters);
 
         // [THEN] The VAT Prod. Posting Group is blank and mismatch flag is set
         EDocumentPurchaseLine.SetRecFilter();
@@ -157,8 +150,6 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         // Cleanup
         Vendor2.SetRecFilter();
         Vendor2.Delete();
-        VATBusinessPostingGroup.SetRecFilter();
-        VATBusinessPostingGroup.Delete();
     end;
 
     [Test]
@@ -167,11 +158,10 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         EDocument: Record "E-Document";
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
-        EDocImportParameters: Record "E-Doc. Import Parameters";
+        TempEDocImportParameters: Record "E-Doc. Import Parameters";
         Vendor2: Record Vendor;
         CompanyInformation: Record "Company Information";
         VATPostingSetup2: Record "VAT Posting Setup";
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
         EDocumentProcessing: Codeunit "E-Document Processing";
         EDocImport: Codeunit "E-Doc. Import";
@@ -187,8 +177,7 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         Vendor2."Country/Region Code" := CompanyInformation."Country/Region Code";
         Vendor2."No." := 'EDOC001';
         Vendor2."VAT Registration No." := 'XXXXXXX001';
-        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
-        Vendor2."VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
+        Vendor2."VAT Bus. Posting Group" := Vendor."VAT Bus. Posting Group";
         Vendor2.Insert();
 
         // [GIVEN] A Full VAT Posting Setup with VAT % = 10
@@ -212,8 +201,8 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
 
         // [WHEN] Prepare Draft is run
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Ready for draft");
-        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
-        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+        TempEDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(EDocument, TempEDocImportParameters);
 
         // [THEN] Full VAT setup is not matched
         EDocumentPurchaseLine.SetRecFilter();
@@ -227,8 +216,6 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         VATPostingSetup2.Delete();
         VATProductPostingGroup.SetRecFilter();
         VATProductPostingGroup.Delete();
-        VATBusinessPostingGroup.SetRecFilter();
-        VATBusinessPostingGroup.Delete();
     end;
 
     [Test]
@@ -237,11 +224,10 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         EDocument: Record "E-Document";
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
-        EDocImportParameters: Record "E-Doc. Import Parameters";
+        TempEDocImportParameters: Record "E-Doc. Import Parameters";
         Vendor2: Record Vendor;
         CompanyInformation: Record "Company Information";
         VATPostingSetup2: Record "VAT Posting Setup";
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
         EDocumentProcessing: Codeunit "E-Document Processing";
         EDocImport: Codeunit "E-Doc. Import";
@@ -257,8 +243,7 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         Vendor2."Country/Region Code" := CompanyInformation."Country/Region Code";
         Vendor2."No." := 'EDOC001';
         Vendor2."VAT Registration No." := 'XXXXXXX001';
-        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
-        Vendor2."VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
+        Vendor2."VAT Bus. Posting Group" := Vendor."VAT Bus. Posting Group";
         Vendor2.Insert();
 
         // [GIVEN] A Sales Tax Posting Setup with VAT % = 10
@@ -282,8 +267,8 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
 
         // [WHEN] Prepare Draft is run
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Ready for draft");
-        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
-        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+        TempEDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(EDocument, TempEDocImportParameters);
 
         // [THEN] Sales Tax setup is not matched
         EDocumentPurchaseLine.SetRecFilter();
@@ -297,8 +282,6 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         VATPostingSetup2.Delete();
         VATProductPostingGroup.SetRecFilter();
         VATProductPostingGroup.Delete();
-        VATBusinessPostingGroup.SetRecFilter();
-        VATBusinessPostingGroup.Delete();
     end;
 
     [Test]
@@ -307,11 +290,10 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         EDocument: Record "E-Document";
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
-        EDocImportParameters: Record "E-Doc. Import Parameters";
+        TempEDocImportParameters: Record "E-Doc. Import Parameters";
         Vendor2: Record Vendor;
         CompanyInformation: Record "Company Information";
         VATPostingSetup2: Record "VAT Posting Setup";
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
         EDocumentProcessing: Codeunit "E-Document Processing";
         EDocImport: Codeunit "E-Doc. Import";
@@ -327,8 +309,7 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         Vendor2."Country/Region Code" := CompanyInformation."Country/Region Code";
         Vendor2."No." := 'EDOC001';
         Vendor2."VAT Registration No." := 'XXXXXXX001';
-        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
-        Vendor2."VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
+        Vendor2."VAT Bus. Posting Group" := Vendor."VAT Bus. Posting Group";
         Vendor2.Insert();
 
         // [GIVEN] A Reverse Charge VAT Posting Setup with VAT % = 20
@@ -353,8 +334,8 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
 
         // [WHEN] Prepare Draft is run
         EDocumentProcessing.ModifyEDocumentProcessingStatus(EDocument, "Import E-Doc. Proc. Status"::"Ready for draft");
-        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
-        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+        TempEDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(EDocument, TempEDocImportParameters);
 
         // [THEN] Reverse Charge VAT setup is matched
         EDocumentPurchaseLine.SetRecFilter();
@@ -368,8 +349,6 @@ codeunit 135576 "E-Doc Purch. VAT Tests"
         VATPostingSetup2.Delete();
         VATProductPostingGroup.SetRecFilter();
         VATProductPostingGroup.Delete();
-        VATBusinessPostingGroup.SetRecFilter();
-        VATBusinessPostingGroup.Delete();
     end;
 
     local procedure Initialize(Integration: Enum "Service Integration")

@@ -561,6 +561,18 @@ codeunit 134163 "Company Init Unit Test"
         LibraryReportSelection: Codeunit "Library - Report Selection";
     begin
         ReportId := LibraryReportSelection.GetReportId(RecUsage, Sequence);
+        case ReportId of
+            Report::"Service Contract":
+                ReportId := 13410; // Report::"Service Contract FI";
+            Report::"Service - Invoice":
+                ReportId := 13411; // Report::"Service - Invoice FI";
+            Report::"Service Contract Quote":
+                ReportId := 13412; // Report::"Service Contract Quote FI";
+            Report::"Service Quote":
+                ReportId := 13414; // Report::"Service Quote FI"
+            Report::"Service Order":
+                ReportId := 13416; // Report::"Service Order FI";
+        end;
     end;
 
     local procedure CheckJobWIPMethods()

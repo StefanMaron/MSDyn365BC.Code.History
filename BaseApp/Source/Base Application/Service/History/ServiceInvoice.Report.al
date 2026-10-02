@@ -19,7 +19,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
-using Microsoft.Sales.Setup;
 using Microsoft.Service.Item;
 using Microsoft.Service.Setup;
 using Microsoft.Utilities;
@@ -115,18 +114,6 @@ report 5911 "Service - Invoice"
                     {
                     }
                     column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
-                    {
-                    }
-                    column(CompanyInfoBusinessIDCode; CompanyInfo."Business Identity Code")
-                    {
-                    }
-                    column(CompanyInfoRegHomeCity; CompanyInfo."Registered Home City")
-                    {
-                    }
-                    column(CompanyInfoBusinessIdentityCodeCaption; CompanyInfoBusinessIdentityCodeCaptionLbl)
-                    {
-                    }
-                    column(CompanyInfoRegisteredHomeCityCaption; CompanyInfoRegisteredHomeCityCaptionLbl)
                     {
                     }
                     column(BillToCustNo_ServInvHeader; "Service Invoice Header"."Bill-to Customer No.")
@@ -232,12 +219,6 @@ report 5911 "Service - Invoice"
                     {
                     }
                     column(ServiceInvoiceHeaderPostingDateCaption; ServiceInvoiceHeaderPostingDateCaptionLbl)
-                    {
-                    }
-                    column(RefNoText; RefNoText)
-                    {
-                    }
-                    column(RefernceNo_ServInvHeader; "Service Invoice Header"."Reference No.")
                     {
                     }
                     column(CompanyBankBranchNo; CompanyBankAccount."Bank Branch No.")
@@ -755,12 +736,6 @@ report 5911 "Service - Invoice"
                 if not Cust.Get("Bill-to Customer No.") then
                     Clear(Cust);
 
-                if ("Reference No." = '') or (not SalesSetup."Print Reference No.") then begin
-                    RefNoText := '';
-                    "Reference No." := '';
-                end else
-                    RefNoText := FieldCaption("Reference No.");
-
                 GetLineFeeNoteOnReportHist("No.");
             end;
         }
@@ -814,7 +789,6 @@ report 5911 "Service - Invoice"
     begin
         GLSetup.Get();
         CompanyInfo.Get();
-        SalesSetup.Get();
         ServiceSetup.Get();
         FormatDocument.SetLogoPosition(ServiceSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
     end;
@@ -831,7 +805,6 @@ report 5911 "Service - Invoice"
         VATClause: Record "VAT Clause";
         RespCenter: Record "Responsibility Center";
         TempServiceShipmentBuffer: Record "Service Shipment Buffer" temporary;
-        SalesSetup: Record "Sales & Receivables Setup";
         TempLineFeeNoteOnReportHist: Record "Line Fee Note on Report Hist." temporary;
         LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
@@ -868,7 +841,6 @@ report 5911 "Service - Invoice"
         AccNo: Code[20];
         ServiceItemSerialNo: Code[50];
         DisplayAdditionalFeeNote: Boolean;
-        RefNoText: Text[30];
 
 #pragma warning disable AA0074
         Text004: Label 'Service - Invoice %1', Comment = '%1 = Document No.';
@@ -880,8 +852,6 @@ report 5911 "Service - Invoice"
         CompanyInfoFaxNoCaptionLbl: Label 'Fax No.';
         CompanyInfoVATRegistrationNoCaptionLbl: Label 'VAT Reg. No.';
         CompanyInfoGiroNoCaptionLbl: Label 'Giro No.';
-        CompanyInfoBusinessIdentityCodeCaptionLbl: Label 'Business Identity Code';
-        CompanyInfoRegisteredHomeCityCaptionLbl: Label 'Registered Home City';
         CompanyInfoBankNameCaptionLbl: Label 'Bank';
         CompanyInfoBankAccountNoCaptionLbl: Label 'Account No.';
         AmountCaptionLbl: Label 'Amount';

@@ -16,6 +16,7 @@ report 5971 "Service Contract-Detail"
     DefaultLayout = RDLC;
     RDLCLayout = './Service/Reports/ServiceContractDetail.rdlc';
     Caption = 'Service Contract-Detail';
+    ToolTip = 'View detailed information for the service contract.';
     WordMergeDataItem = "Service Contract Header";
 
     dataset
@@ -57,10 +58,10 @@ report 5971 "Service Contract-Detail"
                 column(BilltoName_ServeContrHdr; "Service Contract Header"."Bill-to Name")
                 {
                 }
-                column(CompanyAddr8; CompanyAddr[8])
+                column(CompanyAddr7; CompanyAddr[7])
                 {
                 }
-                column(CompanyAddr7; CompanyAddr[7])
+                column(CompanyAddr8; CompanyAddr[8])
                 {
                 }
                 column(CompanyAddr6; CompanyAddr[6])
@@ -142,18 +143,6 @@ report 5971 "Service Contract-Detail"
                 {
                 }
                 column(ServContrHdrNxtInvDtCptn; ServContrHdrNxtInvDtCptnLbl)
-                {
-                }
-                column(CompanyInfoBusinessIdCode; CompanyInfo."Business Identity Code")
-                {
-                }
-                column(CompanyInfoRegHomeCity; CompanyInfo."Registered Home City")
-                {
-                }
-                column(CompanyInfoBusinessIdentityCodeCaption; CompanyInfoBusinessIdentityCodeLbl)
-                {
-                }
-                column(CompanyInfoRegisteredHomeCityCaption; CompanyInfoRegisteredHomeCityLbl)
                 {
                 }
                 dataitem("Contract/Service Discount"; "Contract/Service Discount")
@@ -385,8 +374,6 @@ report 5971 "Service Contract-Detail"
         ServeCmntLineDateCaptionLbl: Label 'Date';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
         CommentsCaptionLbl: Label 'Comments';
-        CompanyInfoBusinessIdentityCodeLbl: Label 'Business Identity Code';
-        CompanyInfoRegisteredHomeCityLbl: Label 'Registered Home City';
         StatusCaptionLbl: Label 'Status';
         InvoicePeriodCaptionLbl: Label 'Invoice Period';
 }

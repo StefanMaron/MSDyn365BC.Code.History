@@ -19,12 +19,12 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>18.30794cm</Width>
+                  <Width>7.20785in</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>11.57775cm</Height>
+                  <Height>4.55817in</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -34,18 +34,18 @@
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>0.07938cm</Width>
+                                    <Width>0.03125in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.07938cm</Width>
+                                    <Width>0.03125in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.07938cm</Width>
+                                    <Width>0.03125in</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.31745cm</Height>
+                                    <Height>0.12498in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -190,21 +190,21 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>2.53967cm</Width>
+                                    <Width>0.99987in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2cm</Width>
+                                    <Width>0.7874in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2cm</Width>
+                                    <Width>0.7874in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2cm</Width>
+                                    <Width>0.7874in</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -240,7 +240,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.95237cm</Height>
+                                    <Height>0.37495in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -377,7 +377,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -543,15 +543,15 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>4.76189cm</Width>
+                                    <Width>1.87476in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>6.34921cm</Width>
+                                    <Width>2.49969in</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -608,7 +608,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -642,7 +642,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -699,7 +699,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -755,7 +755,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -811,7 +811,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -867,7 +867,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -923,7 +923,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1055,36 +1055,36 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>1.6cm</Width>
+                                    <Width>0.62992in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.49999cm</Width>
+                                    <Width>0.98425in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.49999cm</Width>
+                                    <Width>0.98425in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.95001cm</Width>
+                                    <Width>0.76772in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.95001cm</Width>
+                                    <Width>0.76772in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.95001cm</Width>
+                                    <Width>0.76772in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.95001cm</Width>
+                                    <Width>0.76772in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.95001cm</Width>
+                                    <Width>0.76772in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.95001cm</Width>
+                                    <Width>0.76772in</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1323,7 +1323,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.95237cm</Height>
+                                    <Height>0.37495in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1588,7 +1588,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -1813,7 +1813,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2056,7 +2056,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2248,7 +2248,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2443,7 +2443,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2794,24 +2794,24 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>2.53967cm</Width>
+                                    <Width>0.99987in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2cm</Width>
+                                    <Width>0.7874in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2cm</Width>
+                                    <Width>0.7874in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2cm</Width>
+                                    <Width>0.7874in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>8.25396cm</Width>
+                                    <Width>3.24959in</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.95237cm</Height>
+                                    <Height>0.37495in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2884,7 +2884,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.95237cm</Height>
+                                    <Height>0.37495in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2990,7 +2990,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.42301cm</Height>
+                                    <Height>0.16654in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3109,18 +3109,18 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>0.3cm</Width>
+                                    <Width>0.11811in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.3cm</Width>
+                                    <Width>0.11811in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.3cm</Width>
+                                    <Width>0.11811in</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.31745cm</Height>
+                                    <Height>0.12498in</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -3307,7 +3307,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
       <Width>18.30794cm</Width>
       <Page>
         <PageHeader>
-          <Height>9.20441cm</Height>
+          <Height>7.64337cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -3469,7 +3469,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>8.17286cm</Top>
+              <Top>7.22036cm</Top>
               <Left>11.7cm</Left>
               <Height>0.42301cm</Height>
               <Width>2.85cm</Width>
@@ -3520,7 +3520,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.05787cm</Top>
+              <Top>5.10537cm</Top>
               <Left>11.7cm</Left>
               <Height>0.423cm</Height>
               <Width>2.85cm</Width>
@@ -3547,7 +3547,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.48087cm</Top>
+              <Top>5.52837cm</Top>
               <Left>11.7cm</Left>
               <Height>0.423cm</Height>
               <Width>2.85cm</Width>
@@ -3574,7 +3574,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.90387cm</Top>
+              <Top>5.95137cm</Top>
               <Left>11.7cm</Left>
               <Height>0.423cm</Height>
               <Width>2.85cm</Width>
@@ -3601,7 +3601,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.74987cm</Top>
+              <Top>6.79737cm</Top>
               <Left>11.7cm</Left>
               <Height>0.423cm</Height>
               <Width>2.85cm</Width>
@@ -3628,7 +3628,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.32687cm</Top>
+              <Top>6.37437cm</Top>
               <Left>11.7cm</Left>
               <Height>0.423cm</Height>
               <Width>2.85cm</Width>
@@ -3798,7 +3798,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>8.17286cm</Top>
+              <Top>7.22036cm</Top>
               <Left>14.7cm</Left>
               <Height>0.42301cm</Height>
               <Width>1.8cm</Width>
@@ -4044,7 +4044,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.03187cm</Top>
+              <Top>5.07937cm</Top>
               <Left>14.7cm</Left>
               <Height>0.423cm</Height>
               <Width>1.8cm</Width>
@@ -4195,7 +4195,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.48087cm</Top>
+              <Top>5.52837cm</Top>
               <Left>14.7cm</Left>
               <Height>0.423cm</Height>
               <Width>1.8cm</Width>
@@ -4221,7 +4221,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.90387cm</Top>
+              <Top>5.95137cm</Top>
               <Left>14.7cm</Left>
               <Height>0.423cm</Height>
               <Width>1.8cm</Width>
@@ -4247,7 +4247,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.32687cm</Top>
+              <Top>6.37437cm</Top>
               <Left>14.7cm</Left>
               <Height>0.423cm</Height>
               <Width>1.8cm</Width>
@@ -4275,7 +4275,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.74987cm</Top>
+              <Top>6.79737cm</Top>
               <Left>14.7cm</Left>
               <Height>0.423cm</Height>
               <Width>1.8cm</Width>
@@ -4328,7 +4328,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
               <Left>1.14762cm</Left>
               <Height>0.31746cm</Height>
               <Width>0.95238cm</Width>
-              <ZIndex>41</ZIndex>
+              <ZIndex>42</ZIndex>
               <Visibility>
                 <Hidden>=Code.SetPicture(ReportItems!CompanyInfoPicture.Value,1)</Hidden>
               </Visibility>
@@ -4356,7 +4356,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
               <Left>2.4873cm</Left>
               <Height>0.31746cm</Height>
               <Width>0.95238cm</Width>
-              <ZIndex>42</ZIndex>
+              <ZIndex>43</ZIndex>
               <Visibility>
                 <Hidden>=Code.SetPicture(ReportItems!CompanyInfo1Picture.Value,2)</Hidden>
               </Visibility>
@@ -4384,7 +4384,7 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
               <Left>3.80951cm</Left>
               <Height>0.31746cm</Height>
               <Width>0.95238cm</Width>
-              <ZIndex>43</ZIndex>
+              <ZIndex>44</ZIndex>
               <Visibility>
                 <Hidden>=Code.SetPicture(ReportItems!CompanyInfo2Picture.Value,3)</Hidden>
               </Visibility>
@@ -4392,108 +4392,6 @@ Fields!Status_ServContractML.Value, 1)</Hidden>
               <Style>
                 <PaddingLeft>2pt</PaddingLeft>
                 <PaddingRight>2pt</PaddingRight>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoBusinessIdentityCaption">
-              <CanGrow>true</CanGrow>
-              <CanShrink>true</CanShrink>
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=First(Fields!CompanyInfoBusinessIdentityCodeCaption.Value, "DataSet_Result")</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>4.71765cm</Top>
-              <Left>11.7cm</Left>
-              <Height>0.423cm</Height>
-              <Width>2.1cm</Width>
-              <ZIndex>44</ZIndex>
-              <Style>
-                <Border />
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoBusinessIdentity">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=First(Fields!CompanyInfoBusinessIdCode.Value, "DataSet_Result")</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>4.71765cm</Top>
-              <Left>14.01cm</Left>
-              <Height>0.423cm</Height>
-              <Width>4.2cm</Width>
-              <ZIndex>45</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoRegHomeCaption">
-              <CanGrow>true</CanGrow>
-              <CanShrink>true</CanShrink>
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=First(Fields!CompanyInfoRegisteredHomeCityCaption.Value, "DataSet_Result")</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>5.21187cm</Top>
-              <Left>11.7cm</Left>
-              <Height>0.423cm</Height>
-              <Width>2.1cm</Width>
-              <ZIndex>46</ZIndex>
-              <Style>
-                <Border />
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoRegHome">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=First(Fields!CompanyInfoRegHomeCity.Value, "DataSet_Result")</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>5.21187cm</Top>
-              <Left>14.01cm</Left>
-              <Height>0.423cm</Height>
-              <Width>4.2cm</Width>
-              <ZIndex>47</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
           </ReportItems>
@@ -4951,11 +4849,11 @@ End Function</Code>
         <Field Name="CustAddr1">
           <DataField>CustAddr1</DataField>
         </Field>
-        <Field Name="CompanyAddr8">
-          <DataField>CompanyAddr8</DataField>
-        </Field>
         <Field Name="CompanyAddr7">
           <DataField>CompanyAddr7</DataField>
+        </Field>
+        <Field Name="CompanyAddr8">
+          <DataField>CompanyAddr8</DataField>
         </Field>
         <Field Name="CompanyAddr6">
           <DataField>CompanyAddr6</DataField>
@@ -5028,18 +4926,6 @@ End Function</Code>
         </Field>
         <Field Name="Status_ServContractML">
           <DataField>Status_ServContractML</DataField>
-        </Field>
-        <Field Name="CompanyInfoBusinessIdCode">
-          <DataField>CompanyInfoBusinessIdCode</DataField>
-        </Field>
-        <Field Name="CompanyInfoRegHomeCity">
-          <DataField>CompanyInfoRegHomeCity</DataField>
-        </Field>
-        <Field Name="CompanyInfoBusinessIdentityCodeCaption">
-          <DataField>CompanyInfoBusinessIdentityCodeCaption</DataField>
-        </Field>
-        <Field Name="CompanyInfoRegisteredHomeCityCaption">
-          <DataField>CompanyInfoRegisteredHomeCityCaption</DataField>
         </Field>
         <Field Name="Type_ContractDisc">
           <DataField>Type_ContractDisc</DataField>

@@ -8255,13 +8255,7 @@ Cstr(Fields!CompanyInfoGiroNoCaption.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoVATRegistrationNoCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoFaxNoCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoPhoneNoCaption.Value) + Chr(177) + 
-Cstr(Fields!PageCaption.Value) +Chr(177) +
-Cstr(Fields!CompanyInfoBusinessIDCode.Value) + Chr(177) +
-Cstr(Fields!CompanyInfoRegHomeCity.Value) + Chr(177) +
-Cstr(Fields!CompanyInfoBusinessIdentityCodeCaption.Value) + Chr(177) +
-Cstr(Fields!CompanyInfoRegisteredHomeCityCaption.Value)+ Chr(177) +
-Cstr(Fields!RefNoText.Value)+ Chr(177) +
-Cstr(Fields!RefernceNo_ServInvHeader.Value)
+Cstr(Fields!PageCaption.Value)
 , 1)</Hidden>
                                             </Visibility>
                                             <Style />
@@ -9043,7 +9037,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
       <Width>19cm</Width>
       <Page>
         <PageHeader>
-          <Height>11.50698cm</Height>
+          <Height>9.81365cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -9079,7 +9073,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>10.30611cm</Top>
+              <Top>9.35361cm</Top>
               <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9121,7 +9115,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>9.46011cm</Top>
+              <Top>8.50761cm</Top>
               <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9162,7 +9156,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.61412cm</Top>
+              <Top>7.66162cm</Top>
               <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9186,7 +9180,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>9.88312cm</Top>
+              <Top>8.93062cm</Top>
               <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9210,7 +9204,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>7.76811cm</Top>
+              <Top>6.81561cm</Top>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
               <ZIndex>7</ZIndex>
@@ -9379,7 +9373,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>10.30611cm</Top>
+              <Top>9.35361cm</Top>
               <Left>14.7195cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9499,7 +9493,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>9.03711cm</Top>
+              <Top>8.08461cm</Top>
               <Left>14.7195cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9523,7 +9517,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>9.03711cm</Top>
+              <Top>8.08461cm</Top>
               <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9547,7 +9541,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>9.99986cm</Top>
+              <Top>8.50761cm</Top>
               <Left>3.32825cm</Left>
               <Height>0.423cm</Height>
               <Width>8.11239cm</Width>
@@ -9571,7 +9565,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>9.99986cm</Top>
+              <Top>8.50761cm</Top>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
               <ZIndex>22</ZIndex>
@@ -9596,7 +9590,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>8.61412cm</Top>
+              <Top>7.66162cm</Top>
               <Left>14.7195cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9620,7 +9614,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>9.03711cm</Top>
+              <Top>8.08461cm</Top>
               <Left>3.32825cm</Left>
               <Height>0.423cm</Height>
               <Width>8.14767cm</Width>
@@ -9644,7 +9638,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>9.03711cm</Top>
+              <Top>8.08461cm</Top>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
               <ZIndex>25</ZIndex>
@@ -9670,7 +9664,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>9.88312cm</Top>
+              <Top>8.93062cm</Top>
               <Left>14.7195cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9694,7 +9688,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.61412cm</Top>
+              <Top>7.66162cm</Top>
               <Left>3.32825cm</Left>
               <Height>0.423cm</Height>
               <Width>8.14767cm</Width>
@@ -9718,7 +9712,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.61412cm</Top>
+              <Top>7.66162cm</Top>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
               <ZIndex>28</ZIndex>
@@ -9744,7 +9738,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>9.46011cm</Top>
+              <Top>8.50761cm</Top>
               <Left>14.7195cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
@@ -9770,7 +9764,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.76811cm</Top>
+              <Top>6.81561cm</Top>
               <Left>3.32825cm</Left>
               <Height>0.423cm</Height>
               <Width>8.18294cm</Width>
@@ -10199,7 +10193,7 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.76811cm</Top>
+              <Top>6.81561cm</Top>
               <Left>11.58175cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
@@ -10230,156 +10224,6 @@ Cstr(Fields!RefernceNo_ServInvHeader.Value)
               <Height>0.423cm</Height>
               <Width>4.66979cm</Width>
               <ZIndex>49</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoRegHomeCity">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(49,1)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>6.96792cm</Top>
-              <Left>13.68887cm</Left>
-              <Height>0.423cm</Height>
-              <Width>4.2cm</Width>
-              <ZIndex>51</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoBusinessIDCode">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(48,1)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>6.48143cm</Top>
-              <Left>13.68887cm</Left>
-              <Height>0.423cm</Height>
-              <Width>4.2cm</Width>
-              <ZIndex>52</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoBusinessIDCodeCaption">
-              <CanGrow>true</CanGrow>
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(50,1)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>6.46853cm</Top>
-              <Left>11.58175cm</Left>
-              <Height>0.423cm</Height>
-              <Width>2.1cm</Width>
-              <ZIndex>53</ZIndex>
-              <Style>
-                <Border>
-                  <Style>None</Style>
-                </Border>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoRegHomeCityCaption">
-              <CanGrow>true</CanGrow>
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(51,1)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>6.98561cm</Top>
-              <Left>11.58175cm</Left>
-              <Height>0.423cm</Height>
-              <Width>2.1cm</Width>
-              <ZIndex>54</ZIndex>
-              <Style>
-                <Border>
-                  <Style>None</Style>
-                </Border>
-              </Style>
-            </Textbox>
-            <Textbox Name="ServiceInvoiceHeaderReferenceNo">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(53,1)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>9.51336cm</Top>
-              <Left>3.33011cm</Left>
-              <Height>0.423cm</Height>
-              <Width>8.11239cm</Width>
-              <ZIndex>55</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="RefNoText">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(52,1)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>9.51336cm</Top>
-              <Left>0.00073in</Left>
-              <Height>0.423cm</Height>
-              <Width>3.15cm</Width>
-              <ZIndex>56</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -10540,18 +10384,6 @@ End Function</Code>
         <Field Name="CompanyInfoBankAccountNo">
           <DataField>CompanyInfoBankAccountNo</DataField>
         </Field>
-        <Field Name="CompanyInfoBusinessIDCode">
-          <DataField>CompanyInfoBusinessIDCode</DataField>
-        </Field>
-        <Field Name="CompanyInfoRegHomeCity">
-          <DataField>CompanyInfoRegHomeCity</DataField>
-        </Field>
-        <Field Name="CompanyInfoBusinessIdentityCodeCaption">
-          <DataField>CompanyInfoBusinessIdentityCodeCaption</DataField>
-        </Field>
-        <Field Name="CompanyInfoRegisteredHomeCityCaption">
-          <DataField>CompanyInfoRegisteredHomeCityCaption</DataField>
-        </Field>
         <Field Name="BillToCustNo_ServInvHeader">
           <DataField>BillToCustNo_ServInvHeader</DataField>
         </Field>
@@ -10656,12 +10488,6 @@ End Function</Code>
         </Field>
         <Field Name="ServiceInvoiceHeaderPostingDateCaption">
           <DataField>ServiceInvoiceHeaderPostingDateCaption</DataField>
-        </Field>
-        <Field Name="RefNoText">
-          <DataField>RefNoText</DataField>
-        </Field>
-        <Field Name="RefernceNo_ServInvHeader">
-          <DataField>RefernceNo_ServInvHeader</DataField>
         </Field>
         <Field Name="CompanyBankBranchNo">
           <DataField>CompanyBankBranchNo</DataField>

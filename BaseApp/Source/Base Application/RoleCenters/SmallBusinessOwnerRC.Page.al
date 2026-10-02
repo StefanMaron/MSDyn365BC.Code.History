@@ -143,7 +143,6 @@ page 9020 "Small Business Owner RC"
                 Caption = 'S&tatement';
                 Image = "Report";
                 RunObject = Report "Customer Statement";
-                ToolTip = 'View all entries for selected customers for a selected period. You can choose to have all overdue balances displayed, regardless of the period specified. You can also choose to include an aging band. For each currency, the report displays open entries and, if specified in the report, overdue entries. The statement can be sent to customers, for example, at the close of an accounting period or as a reminder of overdue balances.';
             }
             separator(Action61)
             {
@@ -154,7 +153,6 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Customer - Order Su&mmary';
                 Image = "Report";
                 RunObject = Report "Customer - Order Summary";
-                ToolTip = 'View the order detail (the quantity not yet shipped) for each customer in three periods of 30 days each, starting from a selected date. There are also columns with orders to be shipped before and after the three periods and a column with the total order detail for each customer. The report can be used to analyze a company''s expected sales volume.';
             }
 #if not CLEAN28
             action("Customer - T&op 10 List")
@@ -175,7 +173,6 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Customer/&Item Sales';
                 Image = "Report";
                 RunObject = Report "Customer/Item Sales";
-                ToolTip = 'View a list of item sales for each customer during a selected time period. The report contains information on quantity, sales amount, profit, and possible discounts. It can be used, for example, to analyze a company''s customer groups.';
             }
             separator(Action75)
             {
@@ -186,7 +183,6 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Salesperson - Sales &Statistics';
                 Image = "Report";
                 RunObject = Report "Salesperson - Sales Statistics";
-                ToolTip = 'View amounts for sales, profit, invoice discount, and payment discount, as well as profit percentage, for each salesperson for a selected period. The report also shows the adjusted profit and adjusted profit percentage, which reflect any changes to the original costs of the items in the sales.';
             }
             action("Price &List")
             {
@@ -206,7 +202,6 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Inventory - Sales &Back Orders';
                 Image = "Report";
                 RunObject = Report "Inventory - Sales Back Orders";
-                ToolTip = 'View a list with the order lines whose shipment date has been exceeded. The following information is shown for the individual orders for each item: number, customer name, customer''s telephone number, shipment date, order quantity and quantity on back order. The report also shows whether there are other items for the customer on back order.';
             }
             separator(Action129)
             {
@@ -996,7 +991,6 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Adjust &Item Costs/Prices';
                 Image = AdjustItemCost;
                 RunObject = Report "Adjust Item Costs/Prices";
-                ToolTip = 'Adjusts the Last Direct Cost, Standard Cost, Unit Price, Profit %, and Indirect Cost % fields on the item or stockkeeping unit cards. For example, you can change Last Direct Cost by 5% on all items from a specific vendor. The changes are processed immediately when the batch job is started. The fields on the item card that are dependent on the adjusted field are also changed.';
             }
             action("Adjust &Cost - Item Entries")
             {
@@ -1004,7 +998,6 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Adjust &Cost - Item Entries';
                 Image = AdjustEntries;
                 RunObject = Report "Adjust Cost - Item Entries";
-                ToolTip = 'Adjust inventory values in value entries so that you use the correct adjusted cost for updating the general ledger and so that sales and profit statistics are up to date.';
             }
             action("Post Inve&ntory Cost to G/L")
             {
@@ -1013,7 +1006,6 @@ page 9020 "Small Business Owner RC"
                 Ellipsis = true;
                 Image = PostInventoryToGL;
                 RunObject = Report "Post Inventory Cost to G/L";
-                ToolTip = 'Post the quantity and value changes to the inventory in the item ledger entries and the value entries when you post inventory transactions, such as sales shipments or purchase receipts.';
             }
             action("Calc. and Post VAT Settlem&ent")
             {
