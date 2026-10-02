@@ -177,56 +177,6 @@ codeunit 134286 "Non. Ded. VAT Currency"
     end;
 
     [Test]
-    procedure PostFCYPurchInvWithPartialNonDedVATAndSourceCurrConsistency()
-    var
-        PurchHeader: Record "Purchase Header";
-        PurchLine: Record "Purchase Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        CurrencyCode: Code[10];
-        DocNo: Code[20];
-    begin
-        // [SCENARIO 640619] Posting a foreign currency Purchase Invoice with partial Non-Deductible VAT does not cause a G/L Entry consistency error when "Check Source Curr. Consistency" is enabled in General Ledger Setup.
-        Initialize();
-
-        // [GIVEN] "Check Source Curr. Consistency" is enabled in General Ledger Setup
-        EnableCheckSourceCurrConsistency();
-
-        // [GIVEN] Normal VAT Posting Setup with "VAT %" = 20 and partial "Non-Deductible VAT %" = 50, with a dedicated Non-Deductible Purchase VAT Account
-        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 20);
-        LibraryNonDeductibleVAT.SetAllowNonDeductibleVATForVATPostingSetup(VATPostingSetup);
-        VATPostingSetup.Validate("Non-Deductible VAT %", 50);
-        VATPostingSetup.Validate("Non-Ded. Purchase VAT Account", LibraryERM.CreateGLAccountNo());
-        VATPostingSetup.Modify(true);
-
-        // [GIVEN] Currency "C" with exchange rate that differs from LCY
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 100, 130);
-
-        // [GIVEN] Purchase Invoice in currency "C" with Normal VAT and partial Non-Deductible VAT
-        LibraryPurchase.CreatePurchHeader(
-            PurchHeader, PurchHeader."Document Type"::Invoice,
-            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
-        PurchHeader.Validate("Currency Code", CurrencyCode);
-        PurchHeader.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(
-            PurchLine, PurchHeader, PurchLine.Type::Item,
-            LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), 1);
-        PurchLine.Validate("Direct Unit Cost", 100);
-        PurchLine.Modify(true);
-
-        // [WHEN] Post the Purchase Invoice (must not raise a source currency consistency error)
-        DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
-
-        // [THEN] G/L Entries are balanced in LCY and in source currency
-        VerifyGLEntriesBalanced(DocNo, PurchHeader."Posting Date");
-        VerifyGLEntriesSourceCurrencyBalanced(DocNo, PurchHeader."Posting Date", CurrencyCode);
-
-        // [THEN] The deductible VAT G/L entry carries the deductible half of the 20 source-currency VAT amount (100 base * 20% VAT * (100% - 50% Non-Deductible))
-        VerifyGLEntrySourceCurrencyAmountForAccount(DocNo, PurchHeader."Posting Date", CurrencyCode, VATPostingSetup."Purchase VAT Account", 10);
-        // [THEN] The non-deductible VAT G/L entry carries the non-deductible half of the 20 source-currency VAT amount (100 base * 20% VAT * 50% Non-Deductible)
-        VerifyGLEntrySourceCurrencyAmountForAccount(DocNo, PurchHeader."Posting Date", CurrencyCode, VATPostingSetup."Non-Ded. Purchase VAT Account", 10);
-    end;
-
-    [Test]
     procedure PostFCYJournalWithNonDedVAT100NoGLConsistencyError()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -293,6 +243,56 @@ codeunit 134286 "Non. Ded. VAT Currency"
 
         // [THEN] G/L Entries are balanced in LCY (no consistency error)
         VerifyGLEntriesBalanced(DocumentNo, PostingDate);
+    end;
+
+    [Test]
+    procedure PostFCYPurchInvWithPartialNonDedVATAndSourceCurrConsistency()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CurrencyCode: Code[10];
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 640619] Posting a foreign currency Purchase Invoice with partial Non-Deductible VAT does not cause a G/L Entry consistency error when "Check Source Curr. Consistency" is enabled in General Ledger Setup.
+        Initialize();
+
+        // [GIVEN] "Check Source Curr. Consistency" is enabled in General Ledger Setup
+        EnableCheckSourceCurrConsistency();
+
+        // [GIVEN] Normal VAT Posting Setup with "VAT %" = 20 and partial "Non-Deductible VAT %" = 50, with a dedicated Non-Deductible Purchase VAT Account
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 20);
+        LibraryNonDeductibleVAT.SetAllowNonDeductibleVATForVATPostingSetup(VATPostingSetup);
+        VATPostingSetup.Validate("Non-Deductible VAT %", 50);
+        VATPostingSetup.Validate("Non-Ded. Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Currency "C" with exchange rate that differs from LCY
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 100, 130);
+
+        // [GIVEN] Purchase Invoice in currency "C" with Normal VAT and partial Non-Deductible VAT
+        LibraryPurchase.CreatePurchHeader(
+            PurchHeader, PurchHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        PurchHeader.Validate("Currency Code", CurrencyCode);
+        PurchHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchLine, PurchHeader, PurchLine.Type::Item,
+            LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), 1);
+        PurchLine.Validate("Direct Unit Cost", 100);
+        PurchLine.Modify(true);
+
+        // [WHEN] Post the Purchase Invoice (must not raise a source currency consistency error)
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+
+        // [THEN] G/L Entries are balanced in LCY and in source currency
+        VerifyGLEntriesBalanced(DocNo, PurchHeader."Posting Date");
+        VerifyGLEntriesSourceCurrencyBalanced(DocNo, PurchHeader."Posting Date", CurrencyCode);
+
+        // [THEN] The deductible VAT G/L entry carries the deductible half of the 20 source-currency VAT amount (100 base * 20% VAT * (100% - 50% Non-Deductible))
+        VerifyGLEntrySourceCurrencyAmountForAccount(DocNo, PurchHeader."Posting Date", CurrencyCode, VATPostingSetup."Purchase VAT Account", 10);
+        // [THEN] The non-deductible VAT G/L entry carries the non-deductible half of the 20 source-currency VAT amount (100 base * 20% VAT * 50% Non-Deductible)
+        VerifyGLEntrySourceCurrencyAmountForAccount(DocNo, PurchHeader."Posting Date", CurrencyCode, VATPostingSetup."Non-Ded. Purchase VAT Account", 10);
     end;
 
     local procedure Initialize()

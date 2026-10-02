@@ -10,12 +10,12 @@ using Microsoft.Inventory.Item;
 
 report 712 "Inventory - Sales Statistics"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Reports/InventorySalesStatistics.rdlc';
     ApplicationArea = Suite;
     Caption = 'Inventory Sales Statistics';
+    ToolTip = 'View, print, or save a summary of selected items'' sales per customer, for example, to analyze the profit on individual items or trends in revenues and profit. The report specifies direct unit cost, unit price, sales quantity, sales in LCY, profit percentage, and profit.';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -155,6 +155,16 @@ report 712 "Inventory - Sales Statistics"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Inventory/Reports/InventorySalesStatistics.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

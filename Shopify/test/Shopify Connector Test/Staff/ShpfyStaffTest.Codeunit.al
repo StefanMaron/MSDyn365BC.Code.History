@@ -20,7 +20,6 @@ codeunit 139551 "Shpfy Staff Test"
     var
         Shop: Record "Shpfy Shop";
         Any: Codeunit Any;
-        OrdersAPISubscriber: Codeunit "Shpfy Orders API Subscriber";
         InitializeTest: Codeunit "Shpfy Initialize Test";
         IsInitialized: Boolean;
         ResponseResourceUrl: Text;
@@ -199,6 +198,7 @@ codeunit 139551 "Shpfy Staff Test"
     end;
 
     [Test]
+    [HandlerFunctions('HttpSubmitHandler')]
     procedure TestImportOrderToBCAssignSalesperson()
     var
         StaffMember: Record "Shpfy Staff Member";
@@ -224,15 +224,14 @@ codeunit 139551 "Shpfy Staff Test"
         JShopifyOrder := OrderHandlingHelper.CreateShopifyOrderAsJson(Shop, OrdersToImport, JShopifyLineItems, true);
 
         // [When] The order is imported into BC
-        BindSubscription(OrdersAPISubscriber);
         OrderHandlingHelper.ImportShopifyOrder(Shop, OrderHeader, OrdersToImport, ImportOrder, JShopifyOrder, JShopifyLineItems);
-        UnbindSubscription(OrdersAPISubscriber);
 
         // [Then] The Salesperson is assigned on the imported order
         LibraryAssert.IsTrue(OrderHeader."Salesperson Code" = StaffMember."Salesperson Code", 'Salesperson should be assigned on the imported order.');
     end;
 
     [Test]
+    [HandlerFunctions('HttpSubmitHandler')]
     procedure TestCreateSOFromImportedOrderSalespersonAssigned()
     var
         StaffMember: Record "Shpfy Staff Member";
@@ -254,9 +253,7 @@ codeunit 139551 "Shpfy Staff Test"
         StaffMember.Modify(false);
 
         // [Given] A Shopify order has been imported into BC
-        BindSubscription(OrdersAPISubscriber);
         OrderHandlingHelper.ImportShopifyOrder(Shop, OrderHeader, ImportOrder, true);
-        UnbindSubscription(OrdersAPISubscriber);
         Commit();
 
         // [When] A Sales Order is created in BC from the imported Shopify order
@@ -271,7 +268,6 @@ codeunit 139551 "Shpfy Staff Test"
     local procedure Initialize()
     var
         ShpfyStaffMember: Record "Shpfy Staff Member";
-        CommunicationMgt: Codeunit "Shpfy Communication Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         AccessToken: SecretText;
@@ -298,8 +294,6 @@ codeunit 139551 "Shpfy Staff Test"
         Shop := InitializeTest.CreateShop();
         Shop."Advanced Shopify Plan" := true;
         Shop.Modify();
-
-        CommunicationMgt.SetTestInProgress(false);
 
         //Register Shopify Access Token
         AccessToken := LibraryRandom.RandText(20);

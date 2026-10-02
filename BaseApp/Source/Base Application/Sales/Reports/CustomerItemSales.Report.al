@@ -16,13 +16,13 @@ using System.Utilities;
 /// </summary>
 report 113 "Customer/Item Sales"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Sales/Reports/CustomerItemSales.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Customer/Item Sales';
+    ToolTip = 'View a list of item sales for each customer during a selected time period. The report contains information on quantity, sales amount, profit, and possible discounts. It can be used, for example, to analyze a company''s customer groups.';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -289,6 +289,16 @@ report 113 "Customer/Item Sales"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Sales/Reports/CustomerItemSales.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

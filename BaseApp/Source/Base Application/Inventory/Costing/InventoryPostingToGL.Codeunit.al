@@ -130,6 +130,13 @@ codeunit 5802 "Inventory Posting To G/L"
         OnAfterSetRunOnlyCheck(CalledFromItemPosting, RunOnlyCheck, CalledFromTestReport);
     end;
 
+    procedure GetGLRegister(var GLRegister: Record "G/L Register"; var NextVATEntryNo: Integer; var NextTransactionNo: Integer)
+    begin
+        GenJnlPostLine.GetGLReg(GLRegister);
+        NextVATEntryNo := GenJnlPostLine.GetNextVATEntryNo();
+        NextTransactionNo := GenJnlPostLine.GetNextTransactionNo();
+    end;
+
     /// <summary>
     /// Resets the transaction-scoped state of the underlying Codeunit "Gen. Jnl.-Post Line"
     /// instance held by this codeunit so the next G/L posting call re-takes the G/L Entry

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -7,6 +7,7 @@ namespace Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.WithholdingTax;
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Utilities;
 using System.Security.AccessControl;
 
@@ -34,6 +35,7 @@ table 45 "G/L Register"
         field(1; "No."; Integer)
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the general ledger register.';
         }
         /// <summary>
         /// First G/L entry number in this posting batch.
@@ -41,6 +43,7 @@ table 45 "G/L Register"
         field(2; "From Entry No."; Integer)
         {
             Caption = 'From Entry No.';
+            ToolTip = 'Specifies the first general ledger entry number in the register.';
             TableRelation = "G/L Entry";
         }
         /// <summary>
@@ -49,6 +52,7 @@ table 45 "G/L Register"
         field(3; "To Entry No."; Integer)
         {
             Caption = 'To Entry No.';
+            ToolTip = 'Specifies the last general ledger entry number in the register.';
             TableRelation = "G/L Entry";
         }
         /// <summary>
@@ -57,6 +61,7 @@ table 45 "G/L Register"
         field(4; "Creation Date"; Date)
         {
             Caption = 'Creation Date';
+            ToolTip = 'Specifies the date when the entries in the register were posted.';
         }
         /// <summary>
         /// Source code indicating the journal or process that created this register.
@@ -64,6 +69,7 @@ table 45 "G/L Register"
         field(5; "Source Code"; Code[10])
         {
             Caption = 'Source Code';
+            ToolTip = 'Specifies the source code for the entries in the register.';
             TableRelation = "Source Code";
         }
         /// <summary>
@@ -72,6 +78,7 @@ table 45 "G/L Register"
         field(6; "User ID"; Code[50])
         {
             Caption = 'User ID';
+            ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
         }
@@ -81,6 +88,7 @@ table 45 "G/L Register"
         field(7; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';
+            ToolTip = 'Specifies the batch name of the general journal that the entries were posted from.';
         }
         /// <summary>
         /// First VAT entry number in this posting batch.
@@ -88,6 +96,7 @@ table 45 "G/L Register"
         field(8; "From VAT Entry No."; Integer)
         {
             Caption = 'From VAT Entry No.';
+            ToolTip = 'Specifies the first VAT entry number in the register.';
             TableRelation = "VAT Entry";
         }
         /// <summary>
@@ -96,6 +105,7 @@ table 45 "G/L Register"
         field(9; "To VAT Entry No."; Integer)
         {
             Caption = 'To VAT Entry No.';
+            ToolTip = 'Specifies the last entry number in the register.';
             TableRelation = "VAT Entry";
         }
         /// <summary>
@@ -104,6 +114,7 @@ table 45 "G/L Register"
         field(10; Reversed; Boolean)
         {
             Caption = 'Reversed';
+            ToolTip = 'Specifies if the register has been reversed (undone) from the Reverse Entries window.';
         }
         /// <summary>
         /// The Creation Time field has been replaced with the SystemCreateAt field but needs to be kept for historical audit purposes.
@@ -111,6 +122,7 @@ table 45 "G/L Register"
         field(11; "Creation Time"; Time)
         {
             Caption = 'Creation Time';
+            ToolTip = 'Specifies the time when the entries in the register were posted.';
         }
         /// <summary>
         /// Journal template name from the original journal that created this register.
@@ -118,6 +130,17 @@ table 45 "G/L Register"
         field(12; "Journal Templ. Name"; Code[10])
         {
             Caption = 'Journal Template Name';
+        }
+        /// <summary>
+        /// Number of G/L transactions in this register.
+        /// </summary>
+        field(13; "No. of Transactions"; Integer)
+        {
+            CalcFormula = count("G/L Transaction" where("G/L Register No." = field("No.")));
+            Caption = 'No. of Transactions';
+            Editable = false;
+            FieldClass = FlowField;
+            ToolTip = 'Specifies the number of general ledger transactions in this register.';
         }
         field(28040; "From WHT Entry No."; Integer)
         {
@@ -163,6 +186,22 @@ table 45 "G/L Register"
 
     }
 
+    procedure GetNextEntryNo(UseLegacyPosting: Boolean): Integer
+    begin
+        if not UseLegacyPosting then
+            exit(GetNextEntryNo());
+        Rec.LockTable();
+        exit(GetLastEntryNo() + 1);
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"G/L Register", 'r')]
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"G/L Register"));
+    end;
+
     /// <summary>
     /// Retrieves the last (highest) register number from the G/L Register table.
     /// </summary>
@@ -197,6 +236,27 @@ table 45 "G/L Register"
         "Journal Templ. Name" := TemplateName;
     end;
 
+    procedure UpdateGLEntriesWithRegisterNo()
+    var
+        GLEntry: Record "G/L Entry";
+        GLTransaction: Record "G/L Transaction";
+    begin
+        GLEntry.SetLoadFields("Entry No.", "G/L Register No.", "Transaction No.");
+        GLEntry.SetRange("Entry No.", Rec."From Entry No.", Rec."To Entry No.");
+        if GLEntry.FindSet(true) then
+            repeat
+                if GLEntry."G/L Register No." = 0 then begin
+                    GLEntry."G/L Register No." := Rec."No.";
+                    GLEntry.Modify();
+                    if not GLTransaction.Get(GLEntry."Transaction No.") then begin
+                        GLTransaction.Init();
+                        GLTransaction."No." := GLEntry."Transaction No.";
+                        GLTransaction."G/L Register No." := Rec."No.";
+                        GLTransaction.Insert();
+                    end;
+                end;
+            until GLEntry.Next() = 0;
+    end;
 
     /// <summary>
     /// Integration event raised after initializing a G/L Register record.

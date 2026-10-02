@@ -7,6 +7,7 @@ namespace Microsoft.Purchases.Payables;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.SalesTax;
@@ -108,6 +109,8 @@ table 380 "Detailed Vendor Ledg. Entry"
         field(13; "Transaction No."; Integer)
         {
             Caption = 'Transaction No.';
+            TableRelation = "G/L Transaction";
+            ToolTip = 'Specifies the transaction number that groups related G/L entries from the same posting.';
         }
         field(14; "Journal Batch Name"; Code[10])
         {
@@ -251,6 +254,18 @@ table 380 "Detailed Vendor Ledg. Entry"
             Editable = false;
             TableRelation = "Exch. Rate Adjmt. Reg.";
         }
+        field(95; "G/L Register No."; Integer)
+        {
+            Caption = 'G/L Register No.';
+            Editable = false;
+            TableRelation = "G/L Register";
+            ToolTip = 'Specifies the G/L register number that groups related G/L entries from the same posting.';
+        }
+        field(7000004; "Excluded from calculation"; Boolean)
+        {
+            Caption = 'Excluded from calculation';
+            Editable = false;
+        }
         field(17130; "Document Date"; Date)
         {
             Caption = 'Document Date';
@@ -263,7 +278,7 @@ table 380 "Detailed Vendor Ledg. Entry"
         {
             Clustered = true;
         }
-        key(Key2; "Vendor No.", "Currency Code")
+        key(Key2; "Vendor No.", "Currency Code", "Excluded from calculation")
         {
             SumIndexFields = Amount, "Amount (LCY)";
         }
@@ -271,7 +286,7 @@ table 380 "Detailed Vendor Ledg. Entry"
         {
             IncludedFields = Amount, "Amount (LCY)";
         }
-        key(Key4; "Vendor Ledger Entry No.", "Ledger Entry Amount", "Posting Date")
+        key(Key4; "Vendor Ledger Entry No.", "Ledger Entry Amount", "Posting Date", "Excluded from calculation")
         {
             IncludedFields = "Currency Code", Amount, "Amount (LCY)", "Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)";
         }
@@ -279,7 +294,7 @@ table 380 "Detailed Vendor Ledg. Entry"
         {
             IncludedFields = Amount, "Amount (LCY)";
         }
-        key(Key6; "Vendor No.", "Currency Code", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Initial Entry Due Date", "Posting Date")
+        key(Key6; "Vendor No.", "Currency Code", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Initial Entry Due Date", "Posting Date", "Excluded from calculation")
         {
             IncludedFields = Amount, "Amount (LCY)";
         }

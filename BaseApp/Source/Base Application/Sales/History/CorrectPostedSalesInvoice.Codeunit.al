@@ -1040,10 +1040,8 @@ codeunit 1303 "Correct Posted Sales Invoice"
                 SalesCrMemoLine.GetSalesInvoiceLine(SalesInvoiceLine, TempUsedSalesInvoiceLine);
                 if SalesInvoiceLine."Line No." <> 0 then begin
                     UpdateSalesOrderLinesFromCreditMemo(SalesInvoiceLine, SalesCrMemoLine);
-                    if not TempUsedSalesInvoiceLine.Get(SalesInvoiceLine."Document No.", SalesInvoiceLine."Line No.") then begin
-                        TempUsedSalesInvoiceLine := SalesInvoiceLine;
-                        TempUsedSalesInvoiceLine.Insert();
-                    end;
+                    TempUsedSalesInvoiceLine := SalesInvoiceLine;
+                    if TempUsedSalesInvoiceLine.Insert() then;
                 end;
             until SalesCrMemoLine.Next() = 0;
     end;

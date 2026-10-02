@@ -410,7 +410,6 @@ page 5701 "Stockkeeping Unit List"
                 Caption = 'Inventory - List';
                 Image = "Report";
                 RunObject = Report "Inventory - List";
-                ToolTip = 'View various information about the item, such as name, unit of measure, posting group, shelf number, vendor''s item number, lead time calculation, minimum inventory, and alternate item number. You can also see if the item is blocked.';
             }
             action("Inventory Availability")
             {
@@ -418,7 +417,6 @@ page 5701 "Stockkeeping Unit List"
                 Caption = 'Inventory Availability';
                 Image = "Report";
                 RunObject = Report "Inventory Availability";
-                ToolTip = 'View, print, or save a summary of historical inventory transactions with selected items, for example, to decide when to purchase the items. The report specifies quantity on sales order, quantity on purchase order, back orders from vendors, minimum inventory, and whether there are reorders.';
             }
 #if not CLEAN28
             action("Inventory - Availability Plan")
@@ -439,7 +437,6 @@ page 5701 "Stockkeeping Unit List"
                 Caption = 'Inventory - Availability Plan (Excel)';
                 Image = ItemAvailability;
                 RunObject = Report "Inv. Availability Plan";
-                ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
             }
             action("Item/Vendor Catalog")
             {
@@ -447,7 +444,6 @@ page 5701 "Stockkeeping Unit List"
                 Caption = 'Item/Vendor Catalog';
                 Image = "Report";
                 RunObject = Report "Item/Vendor Catalog";
-                ToolTip = 'View a list of the vendors for the selected items. For each combination of item and vendor, it shows direct unit cost, lead time calculation and the vendor''s item number.';
             }
         }
         area(processing)

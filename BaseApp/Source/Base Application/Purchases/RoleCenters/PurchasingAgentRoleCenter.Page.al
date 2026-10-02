@@ -120,7 +120,6 @@ page 9007 "Purchasing Agent Role Center"
                 Caption = 'Vendor/&Item Purchases';
                 Image = "Report";
                 RunObject = Report "Vendor/Item Purchases";
-                ToolTip = 'View a list of item entries for each vendor in a selected period.';
             }
             separator(Action28)
             {
@@ -144,7 +143,6 @@ page 9007 "Purchasing Agent Role Center"
                 Caption = 'Inventory - &Availability Plan (Excel)';
                 Image = ItemAvailability;
                 RunObject = Report "Inv. Availability Plan";
-                ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
             }
             action("Inventory &Purchase Orders")
             {
@@ -152,7 +150,6 @@ page 9007 "Purchasing Agent Role Center"
                 Caption = 'Inventory &Purchase Orders';
                 Image = "Report";
                 RunObject = Report "Inventory Purchase Orders";
-                ToolTip = 'View a list of items on order from vendors. The report also shows the expected receipt date and the quantity and amount on back orders. The report can be used, for example, to see when items should be received and whether a reminder of a back order should be issued.';
             }
             action("Inventory - &Vendor Purchases")
             {
@@ -160,7 +157,6 @@ page 9007 "Purchasing Agent Role Center"
                 Caption = 'Inventory - &Vendor Purchases';
                 Image = "Report";
                 RunObject = Report "Inventory - Vendor Purchases";
-                ToolTip = 'View a list of the vendors that your company has purchased items from within a selected period. It shows invoiced quantity, amount and discount. The report can be used to analyze a company''s item purchases.';
             }
             action("Inventory &Cost and Price List")
             {
@@ -168,7 +164,6 @@ page 9007 "Purchasing Agent Role Center"
                 Caption = 'Inventory &Cost and Price List';
                 Image = "Report";
                 RunObject = Report "Inventory Cost and Price List";
-                ToolTip = 'View price information for your items or stockkeeping units, such as direct unit cost, last direct cost, unit price, profit percentage, and profit.';
             }
             separator(Action1500000)
             {

@@ -349,7 +349,7 @@ report 7305 "Whse.-Source - Create Document"
                     "Whse. Document Type", WhseWkshLine."Whse. Document Type"::"Internal Put-away");
                     WhseWkshLine.SetRange("Whse. Document No.", WhseInternalPutAwayHeader."No.");
 
-                    OnBeforeProcessWhseMovWkshLines("Whse. Put-away Worksheet Line");
+                    OnAfterWhseInternalPutAwayLineOnPreDataItem("Whse. Internal Put-away Line");
                 end;
             }
             dataitem("Assembly Line"; "Assembly Line")
@@ -541,7 +541,6 @@ report 7305 "Whse.-Source - Create Document"
 
                     OnPreDataItemJobPlanningLineOnAfterSetFilters("Job Planning Line", JobHeader);
 
-                    // Check for existing WhseWorksheetLines with both old format (Database::Job) and new format (Database::"Job Planning Line")
                     WhseWkshLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
                     WhseWkshLine.SetFilter("Source Type", '%1|%2', Database::Job, Database::"Job Planning Line");
                     WhseWkshLine.SetRange("Source No.", JobHeader."No.");
@@ -1377,6 +1376,11 @@ report 7305 "Whse.-Source - Create Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterWhsePutAwayWorksheetLineOnPostDataItem(var WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterWhseInternalPutAwayLineOnPreDataItem(var WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line")
     begin
     end;
 

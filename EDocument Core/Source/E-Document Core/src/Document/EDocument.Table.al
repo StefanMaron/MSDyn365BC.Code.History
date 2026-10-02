@@ -429,16 +429,20 @@ table 6121 "E-Document"
         EDocumentIntegrationLog: Record "E-Document Integration Log";
         EDocumentLog: Record "E-Document Log";
         EDocImportedLine: Record "E-Doc. Imported Line";
+        EDocExternalReference: Record "E-Doc. External Reference";
         EDocumentMessage: Record "E-Document Message";
         EDocumentServiceStatus: Record "E-Document Service Status";
 #if not CLEAN27
         PurchaseHeader: Record "Purchase Header";
 #endif
+        EDocumentErrorHelper: Codeunit "E-Document Error Helper";
         IProcessStructuredData: Interface IProcessStructuredData;
 #if not CLEAN27
         NullGuid: Guid;
 #endif
     begin
+        EDocumentErrorHelper.ClearErrorMessages(Rec);
+
         EDocumentLog.SetRange("E-Doc. Entry No", Rec."Entry No");
         if not EDocumentLog.IsEmpty() then
             EDocumentLog.DeleteAll(true);
@@ -467,6 +471,10 @@ table 6121 "E-Document"
         EDocumentMessage.SetRange("E-Document Entry No.", Rec."Entry No");
         if not EDocumentMessage.IsEmpty() then
             EDocumentMessage.DeleteAll(true);
+
+        EDocExternalReference.SetRange("E-Document Entry No.", Rec."Entry No");
+        if not EDocExternalReference.IsEmpty() then
+            EDocExternalReference.DeleteAll(true);
 
 #if not CLEAN27
         // Version 1 processing cleanup
@@ -561,7 +569,7 @@ table 6121 "E-Document"
     var
         Telemetry: Codeunit Telemetry;
         ToStringLbl: Label '%1,%2,%3,%4', Locked = true;
-        DeleteLinkedNotAllowedErr: Label 'The E-Document is linked to sales or purchase document and cannot be deleted.';
+        DeleteLinkedNotAllowedErr: Label 'The E-Document is linked to a source document and cannot be deleted.';
         DeleteProcessedNotAllowedErr: Label 'The E-Document has already been processed and cannot be deleted.';
         DeleteUniqueNotAllowedErr: Label 'Only duplicate E-Documents can be deleted without a confirmation in the user interface.';
         NoFileErr: label 'No previewable attachment exists for this %2.', Comment = '%1 - a table caption';

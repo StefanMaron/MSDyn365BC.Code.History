@@ -1128,7 +1128,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         // Verify: Verify "As of..." value is correct in report Inventory Valuation - WIP
         LibraryReportDataset.LoadDataSetFile();
         VerifyVariantLineInPriceListReport(
-          'SourceNo_ProductionOrder', Item."No.", 'LastWIP', -ComponentItem."Unit Cost", 'AtLastDate', ComponentItem."Unit Cost");
+          'SourceNo_ProductionOrder', Item."No.", 'LastWIP', -ComponentItem."Unit Cost" * OutputQty[3], 'AtLastDate', ComponentItem."Unit Cost" * OutputQty[3]);
     end;
 
     [Test]
@@ -1726,7 +1726,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         // Random value unimportant for test.
         LibraryManufacturing.CreateItemManufacturing(
           Item, Item."Costing Method"::FIFO, LibraryRandom.RandDec(50, 2), Item."Reordering Policy",
-          Item."Flushing Method", RoutingNo, ProductionBOMNo);
+          Item."Flushing Method"::"Pick + Manual", RoutingNo, ProductionBOMNo);
         Item.Validate("Manufacturing Policy", ItemManufacturingPolicy);
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
         Item.Modify(true);

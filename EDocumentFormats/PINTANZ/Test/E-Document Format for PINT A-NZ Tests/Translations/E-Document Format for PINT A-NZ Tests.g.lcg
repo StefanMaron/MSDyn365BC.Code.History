@@ -5,4 +5,13 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 2447391569 - NamedType 2265274365" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The status of the EDocument was not updated to the expected status after the step was executed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit PINT A-NZ Structured Tests - NamedType EDocumentStatusNotUpdatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

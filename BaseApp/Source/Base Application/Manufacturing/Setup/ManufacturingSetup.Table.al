@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -404,16 +404,4 @@ table 99000765 "Manufacturing Setup"
     begin
         exit(ManufacturingSetupFeatureTelemetryNameLbl);
     end;
-
-#if not CLEAN26
-#pragma warning disable AS0072
-    [Obsolete('Feature ''Manual Flushing Method without requiring pick'' will be enabled by default in version 29.0.', '26.0')]
-    procedure IsFeatureKeyFlushingMethodManualWithoutPickEnabled(): Boolean
-    var
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
-    begin
-        exit(FeatureKeyManagement.IsManufacturingFlushingMethodActivateManualWithoutPickEnabled());
-    end;
-#pragma warning restore AS0072
-#endif
 }

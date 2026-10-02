@@ -394,8 +394,6 @@ page 7002 "Sales Prices"
         CustPriceGr: Record "Customer Price Group";
         Campaign: Record Campaign;
         ClientTypeManagement: Codeunit "Client Type Management";
-        StartingDateFilter: Text;
-        CurrencyCodeFilter: Text;
         PageCaptionText: Text;
 #pragma warning disable AA0074
         Text000: Label 'All Customers';
@@ -412,11 +410,13 @@ page 7002 "Sales Prices"
         IncorrectSalesTypeToCopyPricesErr: Label 'To copy sales prices, The Sales Type Filter field must contain Customer.';
 
     protected var
+        StartingDateFilter: Text;
+        CurrencyCodeFilter: Text;
         SalesTypeFilter: Option Customer,"Customer Price Group","All Customers",Campaign,"None";
         SalesCodeFilter: Text;
         ItemNoFilter: Text;
 
-    local procedure GetRecFilters()
+    procedure GetRecFilters()
     begin
         if Rec.GetFilters() <> '' then
             UpdateBasicRecFilters();
