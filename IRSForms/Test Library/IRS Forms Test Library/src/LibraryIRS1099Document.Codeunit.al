@@ -44,21 +44,21 @@ codeunit 148001 "Library IRS 1099 Document"
 
     procedure CreateFormDocuments(StartingDate: Date; EndingDate: Date; VendorNo: Code[20]; FormNo: Code[20]; Replace: Boolean)
     var
-        IRS1099CalcParameters: Record "IRS 1099 Calc. Params";
+        TempIRS1099CalcParameters: Record "IRS 1099 Calc. Params";
         IRS1099FormDocument: Codeunit "IRS 1099 Form Document";
     begin
-        IRS1099CalcParameters."Period No." := LibraryIRSReportingPeriod.GetReportingPeriod(StartingDate, EndingDate);
-        IRS1099CalcParameters."Vendor No." := VendorNo;
-        IRS1099CalcParameters."Form No." := FormNo;
-        IRS1099CalcParameters.Replace := Replace;
-        IRS1099FormDocument.CreateFormDocs(IRS1099CalcParameters);
+        TempIRS1099CalcParameters."Period No." := LibraryIRSReportingPeriod.GetReportingPeriod(StartingDate, EndingDate);
+        TempIRS1099CalcParameters."Vendor No." := VendorNo;
+        TempIRS1099CalcParameters."Form No." := FormNo;
+        TempIRS1099CalcParameters.Replace := Replace;
+        IRS1099FormDocument.CreateFormDocs(TempIRS1099CalcParameters);
     end;
 
     procedure CreateFormDocuments(var TempVendFormBoxBuffer: Record "IRS 1099 Vend. Form Box Buffer" temporary);
     var
-        DummyIRS1099CalcParameters: Record "IRS 1099 Calc. Params";
+        TempDummyIRS1099CalcParameters: Record "IRS 1099 Calc. Params";
     begin
-        CreateFormDocuments(TempVendFormBoxBuffer, DummyIRS1099CalcParameters);
+        CreateFormDocuments(TempVendFormBoxBuffer, TempDummyIRS1099CalcParameters);
     end;
 
     procedure CreateFormDocuments(var TempVendFormBoxBuffer: Record "IRS 1099 Vend. Form Box Buffer" temporary; IRS1099CalcParameters: Record "IRS 1099 Calc. Params");
@@ -119,11 +119,6 @@ codeunit 148001 "Library IRS 1099 Document"
         MockVendLedgEntryWithIRSDataCustom(VendorLedgerEntry, "Gen. Journal Document Type"::" ", StartingDate, EndingDate, FormNo, FormBoxNo, Amount);
     end;
 
-    procedure MockVendLedgEntryWithIRSData(var VendorLedgerEntry: Record "Vendor Ledger Entry"; StartingDate: Date; EndingDate: Date; VendorNo: Code[20]; FormNo: Code[20]; FormBoxNo: Code[20]; Amount: Decimal)
-    begin
-        MockVendLedgEntryWithIRSDataCustom(VendorLedgerEntry, "Gen. Journal Document Type"::" ", StartingDate, EndingDate, VendorNo, FormNo, FormBoxNo, Amount);
-    end;
-
     procedure MockInvVendLedgEntryWithIRSData(var VendorLedgerEntry: Record "Vendor Ledger Entry"; StartingDate: Date; EndingDate: Date; FormNo: Code[20]; FormBoxNo: Code[20]; Amount: Decimal)
     begin
         MockVendLedgEntryWithIRSDataCustom(VendorLedgerEntry, "Gen. Journal Document Type"::Invoice, StartingDate, EndingDate, FormNo, FormBoxNo, Amount);
@@ -136,21 +131,15 @@ codeunit 148001 "Library IRS 1099 Document"
 
     procedure MockVendLedgEntryWithIRSDataCustom(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; StartingDate: Date; EndingDate: Date; FormNo: Code[20]; FormBoxNo: Code[20]; Amount: Decimal)
     begin
-        MockVendLedgEntryWithIRSDataCustom(VendorLedgerEntry, DocType, StartingDate, EndingDate, '', FormNo, FormBoxNo, Amount);
-    end;
-
-    procedure MockVendLedgEntryWithIRSDataCustom(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; StartingDate: Date; EndingDate: Date; VendorNo: Code[20]; FormNo: Code[20]; FormBoxNo: Code[20]; Amount: Decimal)
-    begin
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Document Type" := DocType;
-        VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."IRS 1099 Subject For Reporting" := true;
         VendorLedgerEntry."IRS 1099 Reporting Period" := LibraryIRSReportingPeriod.GetReportingPeriod(StartingDate, EndingDate);
         VendorLedgerEntry."IRS 1099 Form No." := FormNo;
         VendorLedgerEntry."IRS 1099 Form Box No." := FormBoxNo;
         vendorLedgerEntry."IRS 1099 Reporting Amount" := Amount;
         VendorLedgerEntry.Insert();
-        MockInitialDtldLedgEntry(VendorLedgerEntry."Entry No.", VendorNo, Amount);
+        MockInitialDtldLedgEntry(VendorLedgerEntry."Entry No.", '', Amount);
     end;
 
     procedure MockFormDocumentForVendor(PeriodNo: Code[20]; VendNo: Code[20]; FormNo: Code[20]; Status: Enum "IRS 1099 Form Doc. Status"): Integer

@@ -28,6 +28,7 @@ using System.Threading;
 
 page 9007 "Purchasing Agent Role Center"
 {
+    // CP0529-331 (move Purchases report action tooltips to report): this NA fork has no matching page-action tooltip to remove; present in the changelist only to satisfy the MiSnapApp integration gate.
     Caption = 'Purchasing Agent';
     PageType = RoleCenter;
 

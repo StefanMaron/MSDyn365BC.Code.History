@@ -24,8 +24,6 @@ tableextension 10035 "IRS 1099 Vendor Ledger Entry" extends "Vendor Ledger Entry
             trigger OnValidate()
             begin
                 IRS1099FormDocument.CheckIfVendLedgEntryAllowed(Rec."Entry No.");
-                if "IRS 1099 Reporting Period" <> '' then
-                    IRS1099VendorFormBox.CheckVendorSubjectFor1099Reporting(Rec."Vendor No.", "IRS 1099 Reporting Period");
                 Validate("IRS 1099 Form No.", '');
             end;
         }
@@ -37,8 +35,6 @@ tableextension 10035 "IRS 1099 Vendor Ledger Entry" extends "Vendor Ledger Entry
             trigger OnValidate()
             begin
                 IRS1099FormDocument.CheckIfVendLedgEntryAllowed(Rec."Entry No.");
-                if "IRS 1099 Form No." <> '' then
-                    IRS1099VendorFormBox.CheckVendorSubjectFor1099Reporting(Rec."Vendor No.", "IRS 1099 Reporting Period");
                 Validate("IRS 1099 Form Box No.", '');
                 Validate("IRS 1099 Reporting Amount", 0);
             end;
@@ -51,8 +47,6 @@ tableextension 10035 "IRS 1099 Vendor Ledger Entry" extends "Vendor Ledger Entry
             trigger OnValidate()
             begin
                 IRS1099FormDocument.CheckIfVendLedgEntryAllowed(Rec."Entry No.");
-                if "IRS 1099 Form Box No." <> '' then
-                    IRS1099VendorFormBox.CheckVendorSubjectFor1099Reporting(Rec."Vendor No.", "IRS 1099 Reporting Period");
                 "IRS 1099 Subject For Reporting" := "IRS 1099 Form Box No." <> '';
                 IRS1099VendorFormBox.UpdatePurchDocFormBoxNoFromVendLedgEntry(Rec);
             end;

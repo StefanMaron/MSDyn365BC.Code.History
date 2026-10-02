@@ -109,7 +109,6 @@ codeunit 10145 "E-Invoice Mgt."
         NullParameterErr: Label 'The %1 cannot be empty', Locked = true;
         ProcessResponseErr: Label 'Cannot process response for document %1. %2', Locked = true;
         ResetCancellationRequestErr: Label 'Reset cancellation request for document %1.', Locked = true;
-        StampAttemptsTelemetryMsg: Label 'Stamp request completed. Attempts: %1, RoundingModel: %2, Succeeded: %3, ErrorCode: %4, DocumentType: %5', Locked = true;
         SendDocMsg: Label 'Sending document: %1', Locked = true;
         SendDocSuccessMsg: Label 'Document %1 successfully sent', Locked = true;
         SendEmailErr: Label 'Cannot send email. %1', Locked = true;
@@ -120,6 +119,7 @@ codeunit 10145 "E-Invoice Mgt."
         ProcessPaymentErr: Label 'Cannot process payment %2', Locked = true;
         SendPaymentMsg: Label 'Sending payment', Locked = true;
         SendPaymentSuccessMsg: Label 'Payment successfully sent', Locked = true;
+        StampAttemptsTelemetryMsg: Label 'Stamp request completed for document type: %1. Attempts: %2, Rounding model: %3, Succeeded: %4, Error code: %5.', Locked = true;
         SpecialCharsTxt: Label 'áéíñóúüÁÉÍÑÓÚÜ', Locked = true;
         SchemaLocation1xsdTxt: Label '%1  %2', Comment = '%1 - namespase; %2 - xsd location.';
         SchemaLocation2xsdTxt: Label '%1  %2  %3  %4', Comment = '%1 - namespase1; %2 - xsd location1; %3 - namespase2; %4 - xsd location2.';
@@ -3797,7 +3797,7 @@ codeunit 10145 "E-Invoice Mgt."
 
     local procedure SendEmail(var TempBlobPDF: codeunit "Temp Blob"; SendToAddress: Text; Subject: Text; MessageBody: Text; FilePathEDoc: Text; FileNamePDF: Text; XMLInstream: InStream)
     var
-        EmailAccount: Record "Email Account";
+        TempEmailAccount: Record "Email Account";
         Email: Codeunit Email;
         Message: Codeunit "Email Message";
         EmailScenario: Codeunit "Email Scenario";
@@ -3817,9 +3817,9 @@ codeunit 10145 "E-Invoice Mgt."
             TempBlobPDF.CreateInStream(PDFInStream);
             Message.AddAttachment(CopyStr(FileNamePDF, 1, 250), 'PDF', PDFInStream);
         end;
-        EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount);
+        EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, TempEmailAccount);
         ClearLastError();
-        SendOK := Email.Send(Message, EmailAccount."Account Id", EmailAccount.Connector);
+        SendOK := Email.Send(Message, TempEmailAccount."Account Id", TempEmailAccount.Connector);
 
         if not SendOK then begin
             Session.LogMessage('0000C7R', StrSubstNo(SendEmailErr, GetLastErrorText()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
@@ -7846,9 +7846,9 @@ codeunit 10145 "E-Invoice Mgt."
         ErrorCode: Code[10];
         InitialModel: Integer;
         ModelIndex: Integer;
+        StampAttempts: Integer;
         AdvanceAmount: Decimal;
         AdvanceSettle: Boolean;
-        AttemptCount: Integer;
         Succeeded: Boolean;
     begin
         AdvanceSettle := false;
@@ -7858,10 +7858,9 @@ codeunit 10145 "E-Invoice Mgt."
         end;
 
         // Try default model first (avoids extra CreateTempDocument when model 0 works)
-        AttemptCount := 0;
         RoundingModel := 0;
-        AttemptCount += 1;
         RequestStamp(DocumentHeaderRecordRef, Prepayment, Reverse);
+        StampAttempts := 1;
 
         ErrorCode := DocumentHeaderRecordRef.Field(10035).Value();
         // Rounding-related CFDI errors:
@@ -7872,7 +7871,7 @@ codeunit 10145 "E-Invoice Mgt."
         // CFDI40167 - Per-line tax Importe <> Round(Base * Rate, 6)
         if not (ErrorCode in ['CFDI40108', 'CFDI40110', 'CFDI40111', 'CFDI40119', 'CFDI40167']) then begin
             Succeeded := ErrorCode = '';
-            LogStampAttemptsTelemetry(DocumentHeaderRecordRef, AttemptCount, RoundingModel, Succeeded, ErrorCode);
+            LogStampAttemptsTelemetry(DocumentHeaderRecordRef, StampAttempts, RoundingModel, Succeeded, ErrorCode);
             exit;
         end;
 
@@ -7880,12 +7879,12 @@ codeunit 10145 "E-Invoice Mgt."
         InitialModel := FindValidRoundingModel(DocumentHeaderRecordRef, AdvanceSettle);
         if InitialModel > 0 then begin
             RoundingModel := InitialModel;
-            AttemptCount += 1;
+            StampAttempts += 1;
             RequestStamp(DocumentHeaderRecordRef, Prepayment, Reverse);
             ErrorCode := DocumentHeaderRecordRef.Field(10035).Value();
             if not (ErrorCode in ['CFDI40108', 'CFDI40110', 'CFDI40111', 'CFDI40119', 'CFDI40167']) then begin
                 Succeeded := ErrorCode = '';
-                LogStampAttemptsTelemetry(DocumentHeaderRecordRef, AttemptCount, RoundingModel, Succeeded, ErrorCode);
+                LogStampAttemptsTelemetry(DocumentHeaderRecordRef, StampAttempts, RoundingModel, Succeeded, ErrorCode);
                 exit;
             end;
         end;
@@ -7894,29 +7893,34 @@ codeunit 10145 "E-Invoice Mgt."
         for ModelIndex := 1 to 3 do
             if ModelIndex <> InitialModel then begin
                 RoundingModel := ModelIndex;
-                AttemptCount += 1;
+                StampAttempts += 1;
                 RequestStamp(DocumentHeaderRecordRef, Prepayment, Reverse);
                 ErrorCode := DocumentHeaderRecordRef.Field(10035).Value();
                 if not (ErrorCode in ['CFDI40108', 'CFDI40110', 'CFDI40111', 'CFDI40119', 'CFDI40167']) then begin
                     Succeeded := ErrorCode = '';
-                    LogStampAttemptsTelemetry(DocumentHeaderRecordRef, AttemptCount, RoundingModel, Succeeded, ErrorCode);
+                    LogStampAttemptsTelemetry(DocumentHeaderRecordRef, StampAttempts, RoundingModel, Succeeded, ErrorCode);
                     exit;
                 end;
             end;
 
-        // All attempts exhausted
-        LogStampAttemptsTelemetry(DocumentHeaderRecordRef, AttemptCount, RoundingModel, false, ErrorCode);
+        LogStampAttemptsTelemetry(DocumentHeaderRecordRef, StampAttempts, RoundingModel, false, ErrorCode);
     end;
 
-    local procedure LogStampAttemptsTelemetry(var DocumentHeaderRecordRef: RecordRef; AttemptCount: Integer; UsedRoundingModel: Integer; Succeeded: Boolean; ErrorCode: Code[10])
+    local procedure LogStampAttemptsTelemetry(var DocumentHeaderRecordRef: RecordRef; StampAttempts: Integer; UsedRoundingModel: Integer; Succeeded: Boolean; ErrorCode: Code[10])
+    var
+        DocTypeText: Text;
+        Severity: Verbosity;
     begin
+        DocTypeText := GetDocTypeTextFromDatabaseId(DocumentHeaderRecordRef.Number);
+        if Succeeded then
+            Severity := Verbosity::Normal
+        else
+            Severity := Verbosity::Error;
+
         Session.LogMessage(
             '0000NQ1',
-            StrSubstNo(StampAttemptsTelemetryMsg, AttemptCount, UsedRoundingModel, Succeeded, ErrorCode, GetDocTypeTextFromDatabaseId(DocumentHeaderRecordRef.Number)),
-            Verbosity::Normal,
-            DataClassification::SystemMetadata,
-            TelemetryScope::ExtensionPublisher,
-            'Category', MXElectronicInvoicingTok);
+            StrSubstNo(StampAttemptsTelemetryMsg, DocTypeText, StampAttempts, UsedRoundingModel, Succeeded, ErrorCode),
+            Severity, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
     local procedure UpdatePartialPaymentAmounts(var TempDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry" temporary; var CustLedgerEntry: Record "Cust. Ledger Entry"; var TempVATAmountLine: Record "VAT Amount Line" temporary)

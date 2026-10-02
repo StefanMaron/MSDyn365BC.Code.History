@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -103,6 +103,7 @@ table 10307 "ACH Cecoban Detail"
         field(23; "Payee Account No."; Text[20])
         {
             Caption = 'Payee Account No.';
+            MaskType = Concealed;
         }
         field(24; "Payee Account Name"; Text[40])
         {

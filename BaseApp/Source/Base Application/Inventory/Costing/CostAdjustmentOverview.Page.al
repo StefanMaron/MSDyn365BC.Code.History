@@ -451,7 +451,6 @@ page 5801 "Cost Adjustment Overview"
                     Caption = 'Post inventory cost to G/L';
                     Image = PostInventoryToGL;
                     RunObject = Report "Post Inventory Cost to G/L";
-                    ToolTip = 'Post the quantity and value changes to the inventory in the item ledger entries and the value entries when you post inventory transactions, such as sales shipments or purchase receipts.';
                 }
             }
             group(Diagnostics)
@@ -498,7 +497,6 @@ page 5801 "Cost Adjustment Overview"
                 action("Reset Cost Is Adjusted")
                 {
                     Caption = 'Reset Cost Is Adjusted';
-                    ToolTip = 'Mark that the cost of the item must be adjusted.';
                     Image = MoveToNextPeriod;
 
                     RunObject = report "Reset Cost Is Adjusted";
@@ -506,7 +504,6 @@ page 5801 "Cost Adjustment Overview"
                 action("Costing Issues Detection")
                 {
                     Caption = 'Costing Issues Detection report';
-                    ToolTip = 'Run the diagnostic report to detect issues in item related data that may cause costing calculation errors.';
                     Image = ShowWarning;
 
                     RunObject = report "Costing Errors Detection";

@@ -9,11 +9,11 @@ using Microsoft.Utilities;
 
 report 312 "Purchase Statistics"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Purchases/Reports/PurchaseStatistics.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Purchase Statistics';
+    ToolTip = 'View a list of amounts for purchases, invoice discount, and payment discount in LCY for each vendor.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -286,6 +286,16 @@ report 312 "Purchase Statistics"
             if Format(PeriodLengthReq) = '' then
                 Evaluate(PeriodLengthReq, '<1M>');
         end;
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Purchases/Reports/PurchaseStatistics.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
     }
 
     labels

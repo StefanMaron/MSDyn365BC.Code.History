@@ -34,9 +34,11 @@ table 1451 "MS - Yodlee Bank Acc. Link"
         }
         field(8; "Bank Account No."; Text[30])
         {
+            MaskType = Concealed;
         }
         field(100; "Temp Linked Bank Account No."; Code[20])
         {
+            MaskType = Concealed;
         }
     }
 

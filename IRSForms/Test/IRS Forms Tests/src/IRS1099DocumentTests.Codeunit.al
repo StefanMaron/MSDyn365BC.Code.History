@@ -39,7 +39,6 @@ codeunit 148010 "IRS 1099 Document Tests"
         PeriodNoFieldVisibleErr: Label 'Field Period No. should be visible.';
         PeriodNoNotVisibleErr: Label 'Field Period No. should not be visible.';
         ChangingPostingDateInPurchHeaderWhileHavingLineMsg: Label 'You have changed the Posting Date on the purchase header, which might affect the prices and discounts on the purchase lines.\You should review the lines and manually update prices and discounts if needed';
-        VendorNotSetupForIRS1099Err: Label 'Vendor %1 is not set up for IRS 1099 reporting in the reporting period %2.', Comment = '%1 = Vendor No., %2 = Period No.';
 
 
     trigger OnRun()
@@ -356,7 +355,7 @@ codeunit 148010 "IRS 1099 Document Tests"
     procedure CreateFormDocumentForVendorWithExistingFormDocumentAndReplaceOption()
     var
         TempIRS1099VendFormBoxBuffer: Record "IRS 1099 Vend. Form Box Buffer" temporary;
-        IRS1099CalcParameters: Record "IRS 1099 Calc. Params";
+        TempIRS1099CalcParameters: Record "IRS 1099 Calc. Params";
         IRS1099FormDocHeader: Record "IRS 1099 Form Doc. Header";
         IRS1099FormDocLine: Record "IRS 1099 Form Doc. Line";
         PeriodNo, FormNo, VendNo, FormBoxNo : Code[20];
@@ -381,9 +380,9 @@ codeunit 148010 "IRS 1099 Document Tests"
         LibraryIRS1099Document.MockVendorFormBoxBuffer(TempIRS1099VendFormBoxBuffer, EntryNo, PeriodNo, VendNo, FormNo, FormBoxNo);
 
         // [WHEN] Run create form documents for MISC with Replace option
-        IRS1099CalcParameters."Form No." := FormNo;
-        IRS1099CalcParameters.Replace := true;
-        LibraryIRS1099Document.CreateFormDocuments(TempIRS1099VendFormBoxBuffer, IRS1099CalcParameters);
+        TempIRS1099CalcParameters."Form No." := FormNo;
+        TempIRS1099CalcParameters.Replace := true;
+        LibraryIRS1099Document.CreateFormDocuments(TempIRS1099VendFormBoxBuffer, TempIRS1099CalcParameters);
 
         // [THEN] The form document for MISC and "X" exists after running create form documents function
         LibraryIRS1099Document.FindIRS1099FormDocHeader(IRS1099FormDocHeader, PeriodNo, VendNo, FormNo);
@@ -403,7 +402,7 @@ codeunit 148010 "IRS 1099 Document Tests"
     procedure CreateFormDocumentForVendorWithExistingSubmittedFormDocumentAndReplaceOption()
     var
         TempIRS1099VendFormBoxBuffer: Record "IRS 1099 Vend. Form Box Buffer" temporary;
-        IRS1099CalcParameters: Record "IRS 1099 Calc. Params";
+        TempIRS1099CalcParameters: Record "IRS 1099 Calc. Params";
         IRS1099FormDocHeader: Record "IRS 1099 Form Doc. Header";
         OriginalIRS1099FormDocLine, IRS1099FormDocLine : Record "IRS 1099 Form Doc. Line";
         PeriodNo, FormNo, VendNo, FormBoxNo : Code[20];
@@ -428,9 +427,9 @@ codeunit 148010 "IRS 1099 Document Tests"
         LibraryIRS1099Document.MockVendorFormBoxBuffer(TempIRS1099VendFormBoxBuffer, EntryNo, PeriodNo, VendNo, FormNo, FormBoxNo);
 
         // [WHEN] Run create form documents for MISC with Replace option
-        IRS1099CalcParameters."Form No." := FormNo;
-        IRS1099CalcParameters.Replace := true;
-        LibraryIRS1099Document.CreateFormDocuments(TempIRS1099VendFormBoxBuffer, IRS1099CalcParameters);
+        TempIRS1099CalcParameters."Form No." := FormNo;
+        TempIRS1099CalcParameters.Replace := true;
+        LibraryIRS1099Document.CreateFormDocuments(TempIRS1099VendFormBoxBuffer, TempIRS1099CalcParameters);
 
         // [THEN] The form document for MISC and "X" exists after running create form documents function
         LibraryIRS1099Document.FindIRS1099FormDocHeader(IRS1099FormDocHeader, PeriodNo, VendNo, FormNo);
@@ -450,7 +449,7 @@ codeunit 148010 "IRS 1099 Document Tests"
     procedure CreateFormDocumentForVendorWithExistingReleasedFormDocumentAndReplaceOption()
     var
         TempIRS1099VendFormBoxBuffer: Record "IRS 1099 Vend. Form Box Buffer" temporary;
-        IRS1099CalcParameters: Record "IRS 1099 Calc. Params";
+        TempIRS1099CalcParameters: Record "IRS 1099 Calc. Params";
         IRS1099FormDocHeader: Record "IRS 1099 Form Doc. Header";
         IRS1099FormDocLine: Record "IRS 1099 Form Doc. Line";
         PeriodNo, FormNo, VendNo, FormBoxNo : Code[20];
@@ -475,9 +474,9 @@ codeunit 148010 "IRS 1099 Document Tests"
         LibraryIRS1099Document.MockVendorFormBoxBuffer(TempIRS1099VendFormBoxBuffer, EntryNo, PeriodNo, VendNo, FormNo, FormBoxNo);
 
         // [WHEN] Run create form documents for MISC with Replace option
-        IRS1099CalcParameters."Form No." := FormNo;
-        IRS1099CalcParameters.Replace := true;
-        LibraryIRS1099Document.CreateFormDocuments(TempIRS1099VendFormBoxBuffer, IRS1099CalcParameters);
+        TempIRS1099CalcParameters."Form No." := FormNo;
+        TempIRS1099CalcParameters.Replace := true;
+        LibraryIRS1099Document.CreateFormDocuments(TempIRS1099VendFormBoxBuffer, TempIRS1099CalcParameters);
 
         // [THEN] The form document for MISC and "X" exists after running create form documents function
         LibraryIRS1099Document.FindIRS1099FormDocHeader(IRS1099FormDocHeader, PeriodNo, VendNo, FormNo);
@@ -643,7 +642,7 @@ codeunit 148010 "IRS 1099 Document Tests"
     procedure CreateFormDocumentForVendorThatHasSubmittedFormWithInitialID()
     var
         TempIRS1099VendFormBoxBuffer: Record "IRS 1099 Vend. Form Box Buffer" temporary;
-        IRS1099CalcParameters: Record "IRS 1099 Calc. Params";
+        TempIRS1099CalcParameters: Record "IRS 1099 Calc. Params";
         IRS1099FormDocHeader: Record "IRS 1099 Form Doc. Header";
         OriginalIRS1099FormDocLine, IRS1099FormDocLine : Record "IRS 1099 Form Doc. Line";
         PeriodNo, FormNo, VendNo, FormBoxNo : Code[20];
@@ -671,8 +670,8 @@ codeunit 148010 "IRS 1099 Document Tests"
         LibraryIRS1099Document.MockVendorFormBoxBuffer(TempIRS1099VendFormBoxBuffer, EntryNo, PeriodNo, VendNo, FormNo, FormBoxNo);
 
         // [WHEN] Run create form documents for MISC form
-        IRS1099CalcParameters."Form No." := FormNo;
-        LibraryIRS1099Document.CreateFormDocuments(TempIRS1099VendFormBoxBuffer, IRS1099CalcParameters);
+        TempIRS1099CalcParameters."Form No." := FormNo;
+        LibraryIRS1099Document.CreateFormDocuments(TempIRS1099VendFormBoxBuffer, TempIRS1099CalcParameters);
 
         // [THEN] Submitted form document for MISC and "X" still exists
         IRS1099FormDocHeader.Get(DocId);
@@ -1382,110 +1381,138 @@ codeunit 148010 "IRS 1099 Document Tests"
     end;
 
     [Test]
-    procedure ValidateIRS1099PeriodOnVendLedgEntryForNon1099Vendor()
+    procedure InvoiceLineScheduledForPostingSyncsIRSDataWithoutModifyError()
     var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        VendorLedgEntry: Record "Vendor Ledger Entry";
-        VendNo: Code[20];
-        FormNo: Code[20];
-        PeriodNo: Code[20];
-        InvNo: Code[20];
-    begin
-        // [FEATURE] [AI test]
-        // [SCENARIO 620132] Setting IRS 1099 Reporting Period on vendor ledger entry of a vendor with no 1099 setup raises an error
-
-        Initialize();
-        // [GIVEN] IRS Reporting Period "P" with form "F" and form box "FB"
-        PeriodNo := LibraryIRSReportingPeriod.CreateOneDayReportingPeriod(WorkDate());
-        FormNo := LibraryIRS1099FormBox.CreateSingleFormInReportingPeriod(WorkDate(), WorkDate());
-        LibraryIRS1099FormBox.CreateSingleFormBoxInReportingPeriod(WorkDate(), WorkDate(), FormNo);
-
-        // [GIVEN] Vendor "V" with NO IRS 1099 form box setup (plain vendor)
-        VendNo := LibraryPurchase.CreateVendorNo();
-
-        // [GIVEN] Posted purchase invoice for vendor "V"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendNo);
-        LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemNo(), 1, 100);
-        InvNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // [WHEN] Validate "IRS 1099 Reporting Period" in the vendor ledger entry
-        LibraryERM.FindVendorLedgerEntry(VendorLedgEntry, VendorLedgEntry."Document Type"::Invoice, InvNo);
-        // [THEN] An error is raised because vendor "V" has no 1099 setup for the period
-        asserterror VendorLedgEntry.Validate("IRS 1099 Reporting Period", PeriodNo);
-        Assert.ExpectedError(StrSubstNo(VendorNotSetupForIRS1099Err, VendNo, PeriodNo));
-    end;
-
-    [Test]
-    procedure ValidateIRS1099FormBoxOnVendLedgEntryFor1099Vendor()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        VendorLedgEntry: Record "Vendor Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
         VendNo: Code[20];
         FormNo: Code[20];
         FormBoxNo: Code[20];
-        InvNo: Code[20];
+        PeriodDate: Date;
     begin
-        // [FEATURE] [AI test]
-        // [SCENARIO 620132] Vendor WITH 1099 setup can still validate form box on its ledger entry without error
-
+        // [FEATURE] [Recurring Journal] [Background Posting] [AI test 1.0]
+        // [SCENARIO 626641] Validating an IRS-relevant field on a Vendor Invoice journal line whose Job Queue Status
+        //                   is "Scheduled for Posting" must not fail. Background posting re-validates the Posting Date
+        //                   of recurring lines while the status is set; the IRS 1099 sync subscriber derives its fields
+        //                   onto the record buffer without re-entering the line's OnModify posting guard, and the
+        //                   owning posting engine persists them.
         Initialize();
-        // [GIVEN] IRS Reporting Period with Form "F" and Form Box "FB"
-        LibraryIRSReportingPeriod.CreateOneDayReportingPeriod(WorkDate());
-        FormNo := LibraryIRS1099FormBox.CreateSingleFormInReportingPeriod(WorkDate(), WorkDate());
-        FormBoxNo := LibraryIRS1099FormBox.CreateSingleFormBoxInReportingPeriod(WorkDate(), WorkDate(), FormNo);
+        // [GIVEN] An IRS Reporting Period and a vendor with a 1099 form box setup in that period
+        PeriodDate := WorkDate();
+        LibraryIRSReportingPeriod.CreateOneDayReportingPeriod(PeriodDate);
+        FormNo := LibraryIRS1099FormBox.CreateSingleFormInReportingPeriod(PeriodDate);
+        FormBoxNo := LibraryIRS1099FormBox.CreateSingleFormBoxInReportingPeriod(PeriodDate, FormNo);
+        VendNo := LibraryIRS1099FormBox.CreateVendorNoWithFormBox(PeriodDate, FormNo, FormBoxNo);
+        // [GIVEN] A Vendor Invoice recurring journal line with Posting Date outside the IRS period, so validation will sync IRS data
+        CreateRecurringGenJnlLineForVendor(GenJournalLine, VendNo, GenJournalLine."Document Type"::Invoice, CalcDate('<-1D>', PeriodDate));
+        // [GIVEN] The line has been scheduled for background posting (status written without triggers)
+        GenJournalLine."Job Queue Status" := GenJournalLine."Job Queue Status"::"Scheduled for Posting";
+        GenJournalLine.Modify(false);
 
-        // [GIVEN] Vendor "V" WITH IRS 1099 form box setup
-        VendNo := LibraryIRS1099FormBox.CreateVendorNoWithFormBox(WorkDate(), WorkDate(), FormNo, FormBoxNo);
+        // [WHEN] The posting engine re-validates the Posting Date to a date inside the IRS period
+        GenJournalLine.Validate("Posting Date", PeriodDate);
+        // [WHEN] The owning posting engine saves the recurring line (Modify without running OnModify)
+        GenJournalLine.Modify(false);
 
-        // [GIVEN] Posted purchase invoice for vendor "V"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendNo);
-        LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemNo(), 1, 100);
-        InvNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // [WHEN] Validate "IRS 1099 Form Box No." in the vendor ledger entry
-        LibraryERM.FindVendorLedgerEntry(VendorLedgEntry, VendorLedgEntry."Document Type"::Invoice, InvNo);
-        // [THEN] No error is raised for a vendor that has 1099 setup
-        VendorLedgEntry.Validate("IRS 1099 Form Box No.", FormBoxNo);
-        VendorLedgEntry.TestField("IRS 1099 Form Box No.", FormBoxNo);
+        // [THEN] No "scheduled for posting" error is raised and the IRS data is synced and persisted
+        Assert.AreEqual(PeriodDate, GenJournalLine."Posting Date", 'Posting Date mismatch');
+        VerifyIRS1099DataInGenJnlLine(GenJournalLine, PeriodDate, FormNo, FormBoxNo);
+        GenJournalLine.Find();
+        VerifyIRS1099DataInGenJnlLine(GenJournalLine, PeriodDate, FormNo, FormBoxNo);
     end;
 
     [Test]
-    procedure ClearIRS1099PeriodOnVendLedgEntryForNon1099Vendor()
+    procedure BlankDocTypeLineScheduledForPostingIsUnaffected()
     var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        VendorLedgEntry: Record "Vendor Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
         VendNo: Code[20];
         FormNo: Code[20];
-        PeriodNo: Code[20];
-        InvNo: Code[20];
+        FormBoxNo: Code[20];
+        PeriodDate: Date;
     begin
-        // [FEATURE] [AI test]
-        // [SCENARIO 620132] Clearing IRS 1099 Reporting Period on a non-1099 vendor ledger entry does not raise an error
-
+        // [FEATURE] [Recurring Journal] [Background Posting] [AI test 1.0]
+        // [SCENARIO 626641] A journal line with blank Document Type is skipped by the IRS 1099 sync, so validating it
+        //                   while scheduled for posting also succeeds.
         Initialize();
-        // [GIVEN] IRS Reporting Period "P" with form "F" and form box "FB"
-        PeriodNo := LibraryIRSReportingPeriod.CreateOneDayReportingPeriod(WorkDate());
-        FormNo := LibraryIRS1099FormBox.CreateSingleFormInReportingPeriod(WorkDate(), WorkDate());
-        LibraryIRS1099FormBox.CreateSingleFormBoxInReportingPeriod(WorkDate(), WorkDate(), FormNo);
+        // [GIVEN] An IRS Reporting Period and a vendor with a 1099 form box setup in that period
+        PeriodDate := WorkDate();
+        LibraryIRSReportingPeriod.CreateOneDayReportingPeriod(PeriodDate);
+        FormNo := LibraryIRS1099FormBox.CreateSingleFormInReportingPeriod(PeriodDate);
+        FormBoxNo := LibraryIRS1099FormBox.CreateSingleFormBoxInReportingPeriod(PeriodDate, FormNo);
+        VendNo := LibraryIRS1099FormBox.CreateVendorNoWithFormBox(PeriodDate, FormNo, FormBoxNo);
+        // [GIVEN] A Vendor recurring journal line with blank Document Type scheduled for background posting
+        CreateRecurringGenJnlLineForVendor(GenJournalLine, VendNo, GenJournalLine."Document Type"::" ", CalcDate('<-1D>', PeriodDate));
+        GenJournalLine."Job Queue Status" := GenJournalLine."Job Queue Status"::"Scheduled for Posting";
+        GenJournalLine.Modify(false);
 
-        // [GIVEN] Vendor "V" with NO IRS 1099 form box setup
-        VendNo := LibraryPurchase.CreateVendorNo();
+        // [WHEN] The posting engine re-validates the Posting Date
+        GenJournalLine.Validate("Posting Date", PeriodDate);
 
-        // [GIVEN] Posted purchase invoice for vendor "V", with IRS period set directly (bypassing validation)
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendNo);
-        LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemNo(), 1, 100);
-        InvNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        LibraryERM.FindVendorLedgerEntry(VendorLedgEntry, VendorLedgEntry."Document Type"::Invoice, InvNo);
-        VendorLedgEntry."IRS 1099 Reporting Period" := PeriodNo;
-        VendorLedgEntry.Modify();
+        // [THEN] No error is raised
+        Assert.AreEqual(PeriodDate, GenJournalLine."Posting Date", 'Posting Date mismatch');
+    end;
 
-        // [WHEN] Clear "IRS 1099 Reporting Period" by validating with ''
-        // [THEN] No error is raised (clearing must always be allowed)
-        VendorLedgEntry.Validate("IRS 1099 Reporting Period", '');
-        VendorLedgEntry.TestField("IRS 1099 Reporting Period", '');
+    [Test]
+    procedure ScheduledLineEditIsNotSilentlyPersistedBySubscriber()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        VendNo: Code[20];
+        FormNo: Code[20];
+        FormBoxNo: Code[20];
+        PeriodDate: Date;
+        OriginalPostingDate: Date;
+    begin
+        // [FEATURE] [Recurring Journal] [Background Posting] [AI test 1.0]
+        // [SCENARIO 626641] The IRS 1099 sync subscriber must not save a line that is scheduled for posting.
+        //                   Only the process that owns the line may persist it, so the Gen. Journal Line job
+        //                   queue guard stays in force and an edit cannot slip past it.
+        Initialize();
+        // [GIVEN] An IRS Reporting Period and a vendor with a 1099 form box setup in that period
+        PeriodDate := WorkDate();
+        LibraryIRSReportingPeriod.CreateOneDayReportingPeriod(PeriodDate);
+        FormNo := LibraryIRS1099FormBox.CreateSingleFormInReportingPeriod(PeriodDate);
+        FormBoxNo := LibraryIRS1099FormBox.CreateSingleFormBoxInReportingPeriod(PeriodDate, FormNo);
+        VendNo := LibraryIRS1099FormBox.CreateVendorNoWithFormBox(PeriodDate, FormNo, FormBoxNo);
+        OriginalPostingDate := CalcDate('<-1D>', PeriodDate);
+        // [GIVEN] A Vendor Invoice recurring journal line scheduled for background posting
+        CreateRecurringGenJnlLineForVendor(GenJournalLine, VendNo, GenJournalLine."Document Type"::Invoice, OriginalPostingDate);
+        GenJournalLine."Job Queue Status" := GenJournalLine."Job Queue Status"::"Scheduled for Posting";
+        GenJournalLine.Modify(false);
+
+        // [WHEN] An IRS-relevant field is validated while the line is scheduled
+        GenJournalLine.Validate("Posting Date", PeriodDate);
+
+        // [THEN] The subscriber ran and derived the IRS data onto the record buffer
+        Assert.AreEqual(FormBoxNo, GenJournalLine."IRS 1099 Form Box No.", 'Subscriber should derive IRS data onto the record buffer');
+
+        // [THEN] The subscriber leaves the change on the record and does not write the scheduled line to the database
+        GenJournalLine2.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+        Assert.AreEqual(OriginalPostingDate, GenJournalLine2."Posting Date", 'Scheduled line Posting Date must not be persisted by the subscriber');
+        Assert.AreEqual('', GenJournalLine2."IRS 1099 Form Box No.", 'Scheduled line IRS data must not be persisted by the subscriber');
+
+        // [WHEN] The scheduled line is modified directly through the table trigger
+        asserterror GenJournalLine.Modify(true);
+
+        // [THEN] The job queue guard still blocks the modification
+        Assert.ExpectedError('scheduled for posting');
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    local procedure CreateRecurringGenJnlLineForVendor(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date)
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Recurring, true);
+        GenJournalTemplate.Modify(true);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, DocumentType,
+            GenJournalLine."Account Type"::Vendor, VendorNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), -LibraryRandom.RandDec(1000, 2));
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure Initialize()

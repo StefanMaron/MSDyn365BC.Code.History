@@ -48,6 +48,7 @@ using Microsoft.Finance.Payroll;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.RoleCenters;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.SpendRequest;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Clause;
 using Microsoft.Finance.VAT.Ledger;
@@ -388,11 +389,26 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyPermissionSetInPlan();
         ClassifyFinancialReports();
         ClassifyICBankAccount();
+        ClassifyICAPILog();
         ClassifyAllocationAccounts();
         ClassifyAgents();
         ClassifyOrderTakerAgent();
         ClassifySalesValidationAgent();
+        ClassifySalesReturnAgent();
         ClasifyScheduledPerformanceProfiling();
+        ClassifySpendRequests();
+    end;
+
+    local procedure ClassifySpendRequests()
+    var
+        SpendRequest: Record "Spend Request";
+    begin
+        SetTableFieldsToNormal(Database::"Spend Request");
+        SetTableFieldsToNormal(Database::"Spend Request Detail");
+        SetTableFieldsToNormal(Database::"Spend Request To G/L Link");
+        SetFieldToPersonal(Database::"Spend Request", SpendRequest.FieldNo("Requested By"));
+        SetFieldToPersonal(Database::"Spend Request", SpendRequest.FieldNo("Approved/Rejected by User ID"));
+        SetFieldToPersonal(Database::"Spend Request", SpendRequest.FieldNo("Approved/Rejected by User Name"));
     end;
 
     local procedure ClassifyFinancialReports()
@@ -412,6 +428,11 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(Database::"Financial Report Audit Log");
         SetTableFieldsToNormal(Database::"Financial Report Status");
         SetFieldToPersonal(Database::"Financial Report User Filters", FinancialReportUserFilters.FieldNo("User ID"));
+        SetTableFieldsToNormal(Database::"Financial Report Package");
+        SetTableFieldsToNormal(Database::"Fin. Report Package Report");
+        SetTableFieldsToNormal(Database::"Fin. Report Package Schedule");
+        SetTableFieldsToNormal(Database::"Fin. Report Package Recipient");
+        SetTableFieldsToNormal(Database::"Fin. Rep. Package Export Log");
         SetFieldToPersonal(Database::"Financial Report Audit Log", FinancialReportAuditLog.FieldNo("User"));
     end;
 
@@ -3789,6 +3810,17 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, RemitAddress.FieldNo(IBAN));
     end;
 
+    local procedure ClassifyICAPILog()
+    var
+        DummyICAPILog: Record "IC API Log";
+        TableNo: Integer;
+    begin
+        TableNo := Database::"IC API Log";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyICAPILog.FieldNo("Request Body"));
+        SetFieldToPersonal(TableNo, DummyICAPILog.FieldNo("Response Body"));
+    end;
+
     local procedure ClassifyOrderTakerAgent()
     begin
         SetTableFieldsToNormal(4305); // "SOA Instruction Template"
@@ -3810,6 +3842,11 @@ codeunit 1751 "Data Classification Eval. Data"
     local procedure ClassifySalesValidationAgent()
     begin
         SetTableFieldsToNormal(53607); // "Sales Val. Agent KPI"
+    end;
+
+    local procedure ClassifySalesReturnAgent()
+    begin
+        SetTableFieldsToNormal(53701); // "Sales Ret. Agent KPI"
     end;
 
     local procedure ClassifyAgents()

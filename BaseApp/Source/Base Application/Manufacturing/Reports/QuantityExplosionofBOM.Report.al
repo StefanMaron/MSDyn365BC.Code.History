@@ -14,6 +14,7 @@ report 99000753 "Quantity Explosion of BOM"
     DefaultRenderingLayout = ExcelLayout;
     ApplicationArea = Manufacturing;
     Caption = 'Quantity Explosion of BOM';
+    ToolTip = 'View an indented BOM listing for the item or items that you specify in the filters. The production BOM is completely exploded for all levels.';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -266,12 +267,14 @@ report 99000753 "Quantity Explosion of BOM"
             Caption = 'Quantity Explosion of BOM Word';
             Type = Word;
             LayoutFile = './Manufacturing/Reports/QuantityExplosionofBOM.docx';
+            Summary = 'Report layout made for print. Use a Word editor to modify the layout.';
         }
         layout(ExcelLayout)
         {
             Caption = 'Quantity Explosion of BOM Excel';
             Type = Excel;
             LayoutFile = './Manufacturing/Reports/QuantityExplosionOfBOM.xlsx';
+            Summary = 'Report layout primarily made for data analysis. Use an Excel editor to modify the layout.';
         }
 #if not CLEAN27
         layout(RDLCLayout)
@@ -282,6 +285,7 @@ report 99000753 "Quantity Explosion of BOM"
             ObsoleteState = Pending;
             ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
             ObsoleteTag = '27.0';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
 #endif
     }

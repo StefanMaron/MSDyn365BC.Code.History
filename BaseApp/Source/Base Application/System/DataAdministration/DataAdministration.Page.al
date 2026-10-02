@@ -130,7 +130,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Delete Expired Sales Quotes';
-                        Tooltip = 'Delete Expired Sales Quotes';
                         RunObject = report "Delete Expired Sales Quotes";
                         Ellipsis = true;
                     }
@@ -143,7 +142,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Delete Blanket Sales Orders';
-                        ToolTip = 'Delete Blanket Sales Orders';
                         RunObject = Report "Delete Invd Blnkt Sales Orders";
                         Ellipsis = true;
                     }
@@ -151,7 +149,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Delete Sales Orders';
-                        ToolTip = 'Delete Sales Orders';
                         RunObject = Report "Delete Invoiced Sales Orders";
                         Ellipsis = true;
                     }
@@ -159,7 +156,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Delete Sales Return Orders';
-                        ToolTip = 'Delete Sales Return Orders';
                         RunObject = Report "Delete Invd Sales Ret. Orders";
                         Ellipsis = true;
                     }
@@ -167,7 +163,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Delete Blanket Purchase Orders';
-                        ToolTip = 'Delete Blanket Purchase Orders';
                         RunObject = Report "Delete Invd Blnkt Purch Orders";
                         Ellipsis = true;
                     }
@@ -175,7 +170,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Delete Purchase Orders';
-                        ToolTip = 'Delete Purchase Orders';
                         RunObject = Report "Delete Invoiced Purch. Orders";
                         Ellipsis = true;
                     }
@@ -183,7 +177,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = PurchReturnOrder;
                         Caption = 'Delete Purchase Return Orders';
-                        ToolTip = 'Delete Purchase Return Orders';
                         RunObject = Report "Delete Invd Purch. Ret. Orders";
                         Ellipsis = true;
                     }
@@ -191,7 +184,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Delete Registered Warehouse Documents';
-                        ToolTip = 'Delete Registered Warehouse Documents';
                         RunObject = Report "Delete Registered Whse. Docs.";
                         Ellipsis = true;
                     }
@@ -204,7 +196,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Delete Campaign Entries';
-                        ToolTip = 'Delete Campaign Entries';
 
                         RunObject = report "Delete Campaign Entries";
                         Ellipsis = true;
@@ -213,7 +204,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Delete Logged Segments';
-                        ToolTip = 'Delete Logged Segments';
 
                         RunObject = report "Delete Logged Segments";
                         Ellipsis = true;
@@ -222,7 +212,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Delete Opportunities';
-                        ToolTip = 'Delete Opportunities';
 
                         RunObject = report "Delete Opportunities";
                         Ellipsis = true;
@@ -231,7 +220,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Delete Tasks';
-                        ToolTip = 'Delete Tasks';
 
                         RunObject = report "Delete Tasks";
                         Ellipsis = true;
@@ -240,7 +228,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Delete Interaction Log Entries';
-                        ToolTip = 'Delete Interaction Log Entries';
                         RunObject = report "Delete Interaction Log Entries";
                         Ellipsis = true;
                     }
@@ -253,7 +240,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = CostAccounting;
                         Caption = 'Delete Cost Budget Entries';
-                        ToolTip = 'Delete Cost Budget Entries';
 
                         RunObject = report "Delete Cost Budget Entries";
                         Ellipsis = true;
@@ -262,7 +248,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = CostAccounting;
                         Caption = 'Delete Cost Entries';
-                        ToolTip = 'Delete Cost Entries';
 
                         RunObject = report "Delete Cost Entries";
                         Ellipsis = true;
@@ -271,7 +256,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = CostAccounting;
                         Caption = 'Delete Old Cost Entries';
-                        ToolTip = 'Delete Old Cost Entries';
 
                         RunObject = report "Delete Old Cost Entries";
                         Ellipsis = true;
@@ -285,7 +269,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Delete Phys. Inventory Ledger';
-                        ToolTip = 'Delete Phys. Inventory Ledger';
 
                         RunObject = report "Delete Phys. Inventory Ledger";
                         Ellipsis = true;
@@ -358,7 +341,6 @@ page 9035 "Data Administration"
                         Image = Customer;
                         RunObject = Report "Date Compress Customer Ledger";
                         Ellipsis = true;
-                        ToolTip = 'Save database space by combining related entries in one new entry. You can compress entries from closed fiscal years only.';
                     }
                     action("Date Compress Vendor Ledger Entries")
                     {
@@ -367,7 +349,6 @@ page 9035 "Data Administration"
                         Image = Vendor;
                         RunObject = Report "Date Compress Vendor Ledger";
                         Ellipsis = true;
-                        ToolTip = 'Save database space by combining related entries in one new entry. You can compress entries from closed fiscal years only.';
                     }
                     action("Date Compress Resource Ledger Entries")
                     {
@@ -376,7 +357,6 @@ page 9035 "Data Administration"
                         Image = Resource;
                         RunObject = Report "Date Compress Resource Ledger";
                         Ellipsis = true;
-                        ToolTip = 'Save database space by combining related entries in one new entry. You can compress entries from closed fiscal years only.';
                     }
                     action("Date Compress FA Ledger Entries")
                     {
@@ -412,7 +392,6 @@ page 9035 "Data Administration"
                         Image = Bin;
                         RunObject = Report "Date Compress Whse. Entries";
                         Ellipsis = true;
-                        ToolTip = 'Save database space by combining related entries in one new entry. You can compress entries from closed fiscal years only.';
                     }
                     action("Date Compress Item Budget Entries")
                     {
@@ -421,7 +400,6 @@ page 9035 "Data Administration"
                         Image = LedgerBudget;
                         RunObject = Report "Date Comp. Item Budget Entries";
                         Ellipsis = true;
-                        ToolTip = 'Save database space by combining related entries in one new entry. You can compress entries from closed fiscal years only.';
                     }
                 }
                 group(DeleteEmptyRegisters)
@@ -456,7 +434,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Resource Registers';
-                        ToolTip = 'Resource Registers';
                         RunObject = report "Delete Empty Res. Registers";
                         Ellipsis = true;
                     }
@@ -464,7 +441,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Item Registers';
-                        ToolTip = 'Item Registers';
                         RunObject = report "Delete Empty Item Registers";
                         Ellipsis = true;
                     }
@@ -472,7 +448,6 @@ page 9035 "Data Administration"
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Warehouse Registers';
-                        ToolTip = 'Warehouse Registers';
                         RunObject = report "Delete Empty Whse. Registers";
                         Ellipsis = true;
                     }
