@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -271,7 +271,7 @@ page 99000768 "Manufacturing Setup"
                 ObsoleteReason = 'Preparation for replacement by Subcontracting app';
                 ObsoleteState = Pending;
                 ObsoleteTag = '28.0';
-                
+
                 action("Activate Legacy Subcontracting")
                 {
                     ApplicationArea = Manufacturing;
@@ -328,8 +328,8 @@ page 99000768 "Manufacturing Setup"
                         LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
                         PreChecksPassedMsg: Label 'Pre-checks passed. You can now disable Legacy Subcontracting using the action "Disable Legacy Subcontracting".';
                     begin
-                        LegacySubcFeatureHandler.CheckCanDisableLegacySubcontracting();
-                        Message(PreChecksPassedMsg);
+                        if LegacySubcFeatureHandler.CanDisableLegacySubcontracting() then
+                            Message(PreChecksPassedMsg);
                     end;
                 }
             }

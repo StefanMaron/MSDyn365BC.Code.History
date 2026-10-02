@@ -2968,7 +2968,7 @@ codeunit 134982 "ERM Financial Reports"
         CloseIncomeStatement.DocumentNo.SetValue(LibraryVariableStorage.DequeueText()); // Document No.
         CloseIncomeStatement.OK().Invoke();
     end;
-    
+
     [RequestPageHandler]
     procedure CloseIncomeStatementBalAccountHandler(var CloseIncomeStatement: TestRequestPage "Close Income Statement")
     begin

@@ -36,6 +36,10 @@ report 5405 "Calc. Consumption"
                     NeededQty: Decimal;
                     IsHandled: Boolean;
                 begin
+                    if ("Flushing Method" = "Flushing Method"::Forward) and
+                       ("Routing Link Code" <> '') then
+                        CurrReport.Skip();
+
                     Window.Update(2, "Item No.");
 
                     Clear(ItemJnlLine);
@@ -84,10 +88,10 @@ report 5405 "Calc. Consumption"
                     NextConsumpJnlLineNo := 10000;
 
                 Window.Open(
-                    Text000 +
-                    Text001 +
-                    Text002 +
-                    Text003);
+                  Text000 +
+                  Text001 +
+                  Text002 +
+                  Text003);
             end;
         }
     }
@@ -208,9 +212,6 @@ report 5405 "Calc. Consumption"
         WorkCenter: Record "Work Center";
         ProdOrdRoutLine: Record "Prod. Order Routing Line";
 #endif
-#if not CLEAN26
-        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
-#endif
         QtyToPost: Decimal;
         ShouldModifyItemJnlLine: Boolean;
         ShouldAdjustQty: Boolean;
@@ -220,12 +221,7 @@ report 5405 "Calc. Consumption"
 
         Window.Update(3, QtyToPost);
 
-#if not CLEAN26
-        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
-            ShouldAdjustQty := "Prod. Order Component"."Flushing Method" in ["Prod. Order Component"."Flushing Method"::Manual, "Prod. Order Component"."Flushing Method"::"Pick + Manual", "Prod. Order Component"."Flushing Method"::Forward, "Prod. Order Component"."Flushing Method"::"Pick + Forward"]
-        else
-#endif
-            ShouldAdjustQty := "Prod. Order Component"."Flushing Method" in ["Prod. Order Component"."Flushing Method"::"Pick + Manual", "Prod. Order Component"."Flushing Method"::Forward, "Prod. Order Component"."Flushing Method"::"Pick + Forward"];
+        ShouldAdjustQty := "Prod. Order Component"."Flushing Method" in ["Prod. Order Component"."Flushing Method"::"Pick + Manual", "Prod. Order Component"."Flushing Method"::Forward, "Prod. Order Component"."Flushing Method"::"Pick + Forward"];
         if ShouldAdjustQty then begin
             Location.SetLoadFields("Prod. Consump. Whse. Handling");
             if Location.Get(LocationCode) and (Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then

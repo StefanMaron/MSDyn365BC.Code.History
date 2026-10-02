@@ -25,7 +25,6 @@ codeunit 134920 "ERM General Journal UT"
         GenJnlManagement: Codeunit GenJnlManagement;
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryVariableStorageCounter: Codeunit "Library - Variable Storage";
-        IsInitialized: Boolean;
         DocNoFilterErr: Label 'The document numbers cannot be renumbered while there is an active filter on the Document No. field.';
         WrongJobQueueStatus: Label 'Journal line cannot be modified because it has been scheduled for posting.';
         WrongFieldVisibilityErr: Label 'Wrong field visiblity';
@@ -46,6 +45,7 @@ codeunit 134920 "ERM General Journal UT"
         RecurringFrequencyNotClearedErr: Label 'The recurring frequency should be cleared.';
         YearlyRecurringFrequencyTok: Label '1Y', Locked = true;
         RecurringFrequencyNotLocalizedErr: Label 'The recurring frequency should be displayed using the localized date formula tokens.';
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -6268,10 +6268,9 @@ codeunit 134920 "ERM General Journal UT"
         if not LocalizedValuesRead then
             Error(GetLastErrorText());
 
-        // [THEN] The field matches Format() in the German session and, when the German translation is available, differs from the invariant token (1Y)
+        // [THEN] The field shows the German localized date formula (1J), matching Format() in the German session and differing from the invariant token (1Y)
         Assert.AreEqual(ExpectedLocalizedRecurringFrequency, LocalizedRecurringFrequency, RecurringFrequencyNotLocalizedErr);
-        if ExpectedLocalizedRecurringFrequency <> InvariantRecurringFrequency then
-            Assert.AreNotEqual(InvariantRecurringFrequency, LocalizedRecurringFrequency, RecurringFrequencyNotLocalizedErr);
+        Assert.AreNotEqual(InvariantRecurringFrequency, LocalizedRecurringFrequency, RecurringFrequencyNotLocalizedErr);
     end;
 
     [TryFunction]

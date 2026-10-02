@@ -745,8 +745,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         DimSetID1: Integer;
         DimSetID2: Integer;
     begin
-        // [FEATURE] [AI test 0.4]
-        // [SCENARIO 623780] Close/Open Balance Sheet generates separate journal lines per dimension combination
+        // [SCENARIO 623780] Close/Open Balance Sheet generates separate journal lines when Global Dimensions 1 and 2 are the same but a non-global dimension differs
 
         Initialize();
 

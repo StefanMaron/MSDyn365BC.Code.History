@@ -292,6 +292,8 @@ table 254 "VAT Entry"
         {
             Caption = 'Transaction No.';
             Editable = false;
+            TableRelation = "G/L Transaction";
+            ToolTip = 'Specifies the transaction number that groups related G/L entries from the same posting.';
         }
         /// <summary>
         /// Unrealized VAT amount when using unrealized VAT functionality for payment-based VAT recognition.
@@ -771,6 +773,13 @@ table 254 "VAT Entry"
                 VATDateReportingMgt.CheckDateAllowed(xRec."VAT Reporting Date", Rec.FieldNo("VAT Reporting Date"), true, false);
                 VATDateReportingMgt.UpdateLinkedEntries(Rec);
             end;
+        }
+        field(95; "G/L Register No."; Integer)
+        {
+            Caption = 'G/L Register No.';
+            Editable = false;
+            TableRelation = "G/L Register";
+            ToolTip = 'Specifies the G/L register number that groups related G/L entries from the same posting.';
         }
         /// <summary>
         /// Percentage of VAT that is non-deductible based on business use or regulatory restrictions.

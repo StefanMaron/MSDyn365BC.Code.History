@@ -22,8 +22,6 @@ using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 #if not CLEAN28
 using Microsoft.Manufacturing.Setup;
-#endif
-#if not CLEAN28
 using Microsoft.Purchases.Document;
 #endif
 using Microsoft.Utilities;

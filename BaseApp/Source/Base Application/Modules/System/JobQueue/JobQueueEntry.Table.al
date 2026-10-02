@@ -680,20 +680,37 @@ table 472 "Job Queue Entry"
     end;
 
     procedure FinalizeLogEntry(JobQueueLogEntry: Record "Job Queue Log Entry"; LastErrorCallStack: Text)
+    var
+        RefreshedJobQueueLogEntry: Record "Job Queue Log Entry";
+        ErrorCallStackText: Text;
     begin
+        // Compute the field values first
         if Rec.Status = Status::Error then begin
             JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
             JobQueueLogEntry."Error Message" := Rec."Error Message";
             if LastErrorCallStack <> '' then
-                JobQueueLogEntry.SetErrorCallStack(LastErrorCallstack)
+                ErrorCallStackText := LastErrorCallStack
             else
-                JobQueueLogEntry.SetErrorCallStack(GetLastErrorCallstack());
+                ErrorCallStackText := GetLastErrorCallstack();
+            JobQueueLogEntry.SetErrorCallStack(ErrorCallStackText);
             JobQueueLogEntry."Error Message Register Id" := Rec."Error Message Register Id";
         end else
             JobQueueLogEntry.Status := JobQueueLogEntry.Status::Success;
         JobQueueLogEntry."End Date/Time" := CurrentDateTime();
         OnBeforeModifyLogEntry(JobQueueLogEntry, Rec);
-        JobQueueLogEntry.Modify(true);
+
+        // Refresh from database to get the latest version, then apply computed values
+        if RefreshedJobQueueLogEntry.Get(JobQueueLogEntry."Entry No.") then begin
+            RefreshedJobQueueLogEntry.Status := JobQueueLogEntry.Status;
+            RefreshedJobQueueLogEntry."End Date/Time" := JobQueueLogEntry."End Date/Time";
+            if JobQueueLogEntry.Status = RefreshedJobQueueLogEntry.Status::Error then begin
+                RefreshedJobQueueLogEntry."Error Message" := JobQueueLogEntry."Error Message";
+                RefreshedJobQueueLogEntry.SetErrorCallStack(ErrorCallStackText);
+                RefreshedJobQueueLogEntry."Error Message Register Id" := JobQueueLogEntry."Error Message Register Id";
+            end;
+            RefreshedJobQueueLogEntry.Modify(true);
+        end else
+            JobQueueLogEntry.Insert(true);
     end;
 
     procedure SetStatus(NewStatus: Option)
@@ -745,12 +762,17 @@ table 472 "Job Queue Entry"
     procedure CheckRequiredPermissions()
     var
         [SecurityFiltering(SecurityFilter::Ignored)]
+        DummyJobQueueEntry: Record "Job Queue Entry";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         DummyJobQueueLogEntry: Record "Job Queue Log Entry";
         [SecurityFiltering(SecurityFilter::Ignored)]
         DummyErrorMessageRegister: Record "Error Message Register";
         [SecurityFiltering(SecurityFilter::Ignored)]
         DummyErrorMessage: Record "Error Message";
     begin
+        if not DummyJobQueueEntry.WritePermission() then
+            Error(NoPermissionsErr, DummyJobQueueEntry.TableName());
+
         if not DummyJobQueueLogEntry.WritePermission() then
             Error(NoPermissionsErr, DummyJobQueueLogEntry.TableName());
 
@@ -764,12 +786,17 @@ table 472 "Job Queue Entry"
     procedure HasRequiredPermissions(): Boolean
     var
         [SecurityFiltering(SecurityFilter::Ignored)]
+        DummyJobQueueEntry: Record "Job Queue Entry";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         DummyJobQueueLogEntry: Record "Job Queue Log Entry";
         [SecurityFiltering(SecurityFilter::Ignored)]
         DummyErrorMessageRegister: Record "Error Message Register";
         [SecurityFiltering(SecurityFilter::Ignored)]
         DummyErrorMessage: Record "Error Message";
     begin
+        if not DummyJobQueueEntry.WritePermission() then
+            exit(false);
+
         if not DummyJobQueueLogEntry.WritePermission() then
             exit(false);
 
@@ -1115,6 +1142,8 @@ table 472 "Job Queue Entry"
                 else
                     Message(ScheduledForPostingMsg, JobQueueEntry."User Session Started", JobQueueEntry."User ID");
             end;
+
+        OnAfterShowStatusMsg(Rec, JQID);
     end;
 
     procedure LookupRecordToProcess()
@@ -1684,6 +1713,11 @@ table 472 "Job Queue Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetStatusValue(var JobQueueEntry: Record "Job Queue Entry"; var xJobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowStatusMsg(JobQueueEntry: Record "Job Queue Entry"; JQID: Guid)
     begin
     end;
 }

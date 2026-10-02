@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -14,9 +14,6 @@ using Microsoft.Warehouse.Request;
 codeunit 99000760 "Mfg. Item Jnl. Check Line"
 {
     var
-#if not CLEAN28
-        ItemJnlCheckLine: Codeunit "Item Jnl.-Check Line";
-#endif
         CannotPostTheseLinesErr: Label 'You cannot post these lines because you have not entered a quantity on one or more of the lines. ';
 #if not CLEAN28
         CannotPostTheseLinesWIPErr: Label 'You cannot post these lines because you have not entered a WIP quantity on one or more of the lines.';
@@ -51,24 +48,15 @@ codeunit 99000760 "Mfg. Item Jnl. Check Line"
             ItemJournalLine.TestField("Order Type", ItemJournalLine."Order Type"::Production, ErrorInfo.Create());
             ShouldCheckItemNo := not CalledFromAdjustment and (ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Output);
             OnRunCheckOnAfterCalcShouldCheckItemNo(ItemJournalLine, ProdOrderLine, CalledFromAdjustment, ShouldCheckItemNo);
-#if not CLEAN26
-            ItemJnlCheckLine.RunOnRunCheckOnAfterCalcShouldCheckItemNo(ItemJournalLine, ProdOrderLine, CalledFromAdjustment, ShouldCheckItemNo);
-#endif
             if ShouldCheckItemNo then
                 if CheckFindProdOrderLine(ProdOrderLine, ItemJournalLine."Order No.", ItemJournalLine."Order Line No.") then begin
                     ItemJournalLine.TestField("Item No.", ProdOrderLine."Item No.", ErrorInfo.Create());
                     OnAfterCheckFindProdOrderLine(ItemJournalLine, ProdOrderLine);
-#if not CLEAN26
-                    ItemJnlCheckLine.RunOnAfterCheckFindProdOrderLine(ItemJournalLine, ProdOrderLine);
-#endif
                 end;
 
             if ItemJournalLine.Subcontracting then begin
                 IsHandled := false;
                 OnBeforeCheckSubcontracting(ItemJournalLine, IsHandled);
-#if not CLEAN26
-                ItemJnlCheckLine.RunOnBeforeCheckSubcontracting(ItemJournalLine, IsHandled);
-#endif
                 if not IsHandled then begin
                     WorkCenter.Get(ItemJournalLine."Work Center No.");
                     WorkCenter.TestField("Subcontractor No.", ErrorInfo.Create());
@@ -97,9 +85,6 @@ codeunit 99000760 "Mfg. Item Jnl. Check Line"
     begin
         IsHandled := false;
         OnBeforeCheckWarehouse(ItemJnlLine, IsHandled);
-#if not CLEAN26
-        ItemJnlCheckLine.RunOnBeforeCheckWarehouse(ItemJnlLine, IsHandled);
-#endif
         if IsHandled then
             exit;
 
@@ -168,9 +153,6 @@ codeunit 99000760 "Mfg. Item Jnl. Check Line"
     begin
         IsHandled := false;
         OnBeforeCheckWarehouseLastOutputOperation(ItemJnlLine, Result, IsHandled);
-#if not CLEAN26
-        ItemJnlCheckLine.RunOnBeforeCheckWarehouseLastOutputOperation(ItemJnlLine, Result, IsHandled);
-#endif
         if IsHandled then
             exit(Result);
 

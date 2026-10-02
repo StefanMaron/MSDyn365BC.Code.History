@@ -44,6 +44,7 @@ codeunit 137500 "SCM Legacy Subcontracting"
         LibraryITLocalization: Codeunit "Library - IT Localization";
 
         Initialized: Boolean;
+        SubcontractingAppNotInstalled: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -399,26 +400,6 @@ codeunit 137500 "SCM Legacy Subcontracting"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CheckCanDisableRaisesErrorWhenAppNotInstalled()
-    var
-        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
-        ITMigrationAppNotInstalledErr: Label 'The app "IT Subcontracting Migration" must be installed before you can disable Legacy Subcontracting. Please install the app first and then use the dedicated action "Disable Legacy Subcontracting" to disable Legacy Subcontracting and migrate to the new subcontracting app.';
-    begin
-        // [SCENARIO] CheckCanDisableLegacySubcontracting raises error when new subcontracting app is not installed
-        Initialize();
-
-        // [GIVEN] ManufacturingSetup."Legacy Subcontracting" = true
-        SetLegacySubcontracting(true);
-
-        // [WHEN] Call CheckCanDisableLegacySubcontracting
-        asserterror LegacySubcFeatureHandler.CheckCanDisableLegacySubcontracting();
-
-        // [THEN] Error: successor app must be installed first
-        Assert.ExpectedError(ITMigrationAppNotInstalledErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure UpgradeSetsFlagForCompaniesWithLegacySubcontractingData()
     var
         ManufacturingSetup: Record "Manufacturing Setup";
@@ -606,8 +587,8 @@ codeunit 137500 "SCM Legacy Subcontracting"
         TransferLine."WIP Outstanding Qty." := 1;
         TransferLine.Insert();
 
-        // [WHEN] Call CheckCanDisableLegacySubcontracting
-        asserterror LegacySubcFeatureHandler.CheckCanDisableLegacySubcontracting();
+        // [WHEN] Call CanDisableLegacySubcontracting
+        asserterror LegacySubcFeatureHandler.CanDisableLegacySubcontracting();
 
         // [THEN] Error: open subcontracting transfers must be completed first
         Assert.ExpectedError(OpenSubcontractingTransfersExistErr);
@@ -623,7 +604,7 @@ codeunit 137500 "SCM Legacy Subcontracting"
         Item: Record Item;
         TransferLine: Record "Transfer Line";
         LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
-        OpenWIPPurchaseOrdersExistErr: Label 'There are still open subcontracting purchase orders. All subcontracting purchase orders must be completed before disabling Legacy Subcontracting.';
+        OpenWIPPurchaseOrdersExistErr: Label 'There are still open purchase orders with WIP Items. All purchase orders with WIP Items must be completed before disabling Legacy Subcontracting.';
     begin
         // [SCENARIO] CheckCanDisableLegacySubcontracting raises error when open WIP purchase orders exist
         Initialize();
@@ -643,8 +624,8 @@ codeunit 137500 "SCM Legacy Subcontracting"
         PurchaseLine."WIP Item" := true;
         PurchaseLine.Modify();
 
-        // [WHEN] Call CheckCanDisableLegacySubcontracting
-        asserterror LegacySubcFeatureHandler.CheckCanDisableLegacySubcontracting();
+        // [WHEN] Call CanDisableLegacySubcontracting
+        asserterror LegacySubcFeatureHandler.CanDisableLegacySubcontracting();
 
         // [THEN] Error: open WIP purchase orders must be completed first
         Assert.ExpectedError(OpenWIPPurchaseOrdersExistErr);
@@ -652,14 +633,51 @@ codeunit 137500 "SCM Legacy Subcontracting"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PreCheckDisableSucceedsWhenITMigrationAppInstalled()
+    procedure PreCheckDisableErrorWordingMatchesWIPItemFilterForPurchaseOrders()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        Item: Record Item;
+        TransferLine: Record "Transfer Line";
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
+        OpenWIPPurchaseOrdersExistErr: Label 'There are still open purchase orders with WIP Items. All purchase orders with WIP Items must be completed before disabling Legacy Subcontracting.';
+    begin
+        // [SCENARIO 641607] CheckCanDisableLegacySubcontracting error wording consistently refers to purchase orders with WIP Items in both sentences, instead of implying all subcontracting purchase orders
+        Initialize();
+
+        // [GIVEN] ManufacturingSetup."Legacy Subcontracting" = true
+        SetLegacySubcontracting(true);
+
+        // [GIVEN] No open WIP transfers (to pass the first check)
+        TransferLine.SetRange("WIP Item", true);
+        TransferLine.DeleteAll();
+
+        // [GIVEN] An open purchase order line with "WIP Item" = true exists
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine."WIP Item" := true;
+        PurchaseLine.Modify();
+
+        // [WHEN] Call CanDisableLegacySubcontracting
+        asserterror LegacySubcFeatureHandler.CanDisableLegacySubcontracting();
+
+        // [THEN] The full error message consistently refers to purchase orders "with WIP Items" in both sentences, not "all subcontracting purchase orders"
+        Assert.AreEqual(OpenWIPPurchaseOrdersExistErr, GetLastErrorText(), 'Error message wording must consistently describe purchase orders with WIP Items in both sentences.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PreCheckDisableSucceedsWhenPrerequisitesMet()
     var
         TransferLine: Record "Transfer Line";
         PurchaseLine: Record "Purchase Line";
         LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
         SCMLegacySubcontracting: Codeunit "SCM Legacy Subcontracting";
     begin
-        // [SCENARIO] CheckCanDisableLegacySubcontracting succeeds when no open data exists and IT Migration app is installed
+        // [SCENARIO 647210] Disabling Legacy Subcontracting is allowed once the prerequisites are met, regardless of the environment type
         Initialize();
 
         // [GIVEN] ManufacturingSetup."Legacy Subcontracting" = true
@@ -674,13 +692,56 @@ codeunit 137500 "SCM Legacy Subcontracting"
         if not PurchaseLine.IsEmpty() then
             PurchaseLine.DeleteAll();
 
-        // [GIVEN] IT Migration app is mocked as installed
+        // [GIVEN] The Subcontracting app and the IT Migration app are mocked as installed
         BindSubscription(SCMLegacySubcontracting);
 
-        // [WHEN] Call CheckCanDisableLegacySubcontracting
-        LegacySubcFeatureHandler.CheckCanDisableLegacySubcontracting();
+        // [WHEN] Call CanDisableLegacySubcontracting
+        ClearLastError();
+        LegacySubcFeatureHandler.CanDisableLegacySubcontracting();
 
-        // [THEN] No error is raised - the call completed successfully
+        // [THEN] No error is raised - disabling is no longer restricted to sandbox environments
+        Assert.AreEqual('', GetLastErrorText(), 'Disabling Legacy Subcontracting should be allowed when the prerequisites are met.');
+        UnbindSubscription(SCMLegacySubcontracting);
+    end;
+
+    [Test]
+    [HandlerFunctions('DeclineInstallConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure DisableKeepsLegacyEnabledWhenAppInstallDeclined()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+        TransferLine: Record "Transfer Line";
+        PurchaseLine: Record "Purchase Line";
+        LegacySubcFeatureHandler: Codeunit "Legacy Subc. Feature Handler";
+        SCMLegacySubcontracting: Codeunit "SCM Legacy Subcontracting";
+    begin
+        // [SCENARIO 647791] Declining the "install the Subcontracting app" prompt must keep Legacy Subcontracting enabled instead of disabling it and stranding the legacy data
+        Initialize();
+
+        // [GIVEN] ManufacturingSetup."Legacy Subcontracting" = true
+        SetLegacySubcontracting(true);
+
+        // [GIVEN] No open WIP data blocking the disable pre-checks
+        TransferLine.SetRange("WIP Item", true);
+        if not TransferLine.IsEmpty() then
+            TransferLine.DeleteAll();
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("WIP Item", true);
+        if not PurchaseLine.IsEmpty() then
+            PurchaseLine.DeleteAll();
+
+        // [GIVEN] The Subcontracting app is reported as not installed
+        SCMLegacySubcontracting.SetSubcontractingAppNotInstalled(true);
+        BindSubscription(SCMLegacySubcontracting);
+
+        // [WHEN] Disabling Legacy Subcontracting and declining the prompt to install the Subcontracting app
+        ManufacturingSetup.Get();
+        LegacySubcFeatureHandler.SetLegacySubcontracting(ManufacturingSetup, false);
+
+        // [THEN] Legacy Subcontracting remains enabled so the legacy price list and data stay intact and migration can still be triggered later (no install, no migration, no session restart)
+        ManufacturingSetup.Get();
+        Assert.IsTrue(ManufacturingSetup."Legacy Subcontracting", 'Declining the app install must not disable Legacy Subcontracting.');
+
         UnbindSubscription(SCMLegacySubcontracting);
     end;
 
@@ -714,6 +775,24 @@ codeunit 137500 "SCM Legacy Subcontracting"
     local procedure MockITMigrationAppInstalled(var Result: Boolean)
     begin
         Result := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Legacy Subc. Feature Handler", 'OnCheckIsSubcontractingAppInstalled', '', false, false)]
+    local procedure MockSubcontractingAppInstalled(var Result: Boolean)
+    begin
+        Result := not SubcontractingAppNotInstalled;
+    end;
+
+    internal procedure SetSubcontractingAppNotInstalled(NotInstalled: Boolean)
+    begin
+        SubcontractingAppNotInstalled := NotInstalled;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure DeclineInstallConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 
     local procedure RefreshApplicationAreas()

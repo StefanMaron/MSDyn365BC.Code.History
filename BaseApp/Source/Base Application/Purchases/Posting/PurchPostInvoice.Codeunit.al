@@ -351,6 +351,8 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         InvoicePostingBuffer."Dimension Set ID" := PurchLine."Dimension Set ID";
         InvoicePostingBuffer."Job No." := PurchLine."Job No.";
         InvoicePostingBuffer."VAT %" := PurchLine.GetVATPct();
+        InvoicePostingBuffer."Spend Request No." := PurchLine."Spend Request No.";
+        InvoicePostingBuffer."Spend Request Close" := PurchLine."Spend Request Close";
         NonDeductibleVAT.Copy(InvoicePostingBuffer, PurchLine);
         InvoicePostingBuffer."VAT Difference" := PurchLine."VAT Difference";
         if InvoicePostingBuffer.Type = InvoicePostingBuffer.Type::"Fixed Asset" then begin
@@ -432,7 +434,8 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
             exit;
 
         case PurchLine."VAT Calculation Type" of
-            PurchLine."VAT Calculation Type"::"Normal VAT", PurchLine."VAT Calculation Type"::"Full VAT":
+            PurchLine."VAT Calculation Type"::"Normal VAT", PurchLine."VAT Calculation Type"::"Full VAT",
+            PurchLine."VAT Calculation Type"::"No Taxable VAT":
                 InvoicePostingBuffer.CalcDiscount(
                   PurchHeader."Prices Including VAT", -PurchLine."Inv. Discount Amount", -PurchLineACY."Inv. Discount Amount");
             PurchLine."VAT Calculation Type"::"Reverse Charge VAT":
@@ -458,7 +461,8 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
             exit;
 
         case PurchLine."VAT Calculation Type" of
-            PurchLine."VAT Calculation Type"::"Normal VAT", PurchLine."VAT Calculation Type"::"Full VAT":
+            PurchLine."VAT Calculation Type"::"Normal VAT", PurchLine."VAT Calculation Type"::"Full VAT",
+            PurchLine."VAT Calculation Type"::"No Taxable VAT":
                 InvoicePostingBuffer.CalcDiscount(
                   PurchHeader."Prices Including VAT", -PurchLine."Line Discount Amount", -PurchLineACY."Line Discount Amount");
             PurchLine."VAT Calculation Type"::"Reverse Charge VAT":
@@ -750,6 +754,8 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         GenJnlLine."Payment Method Code" := PurchHeader."Payment Method Code";
         GenJnlLine."Recipient Bank Account" := PurchHeader."Bank Account";
         GenJnlLine."Related Entry No." := PurchHeader."Related Entry No.";
+        GenJnlLine."Spend Request No." := PurchHeader."Spend Request No.";
+        GenJnlLine."Spend Request Close" := PurchHeader."Spend Request Close";
 
         GenJnlLine.CopyFromPurchHeaderApplyTo(PurchHeader);
         GenJnlLine."Applies-to Occurrence No." := PurchHeader."Applies-to Occurrence No.";

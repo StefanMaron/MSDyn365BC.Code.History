@@ -7265,7 +7265,7 @@ codeunit 137072 "SCM Production Orders II"
         LibraryInventory.CreateItem(ComponentItem);
         ComponentItem.Validate("Reordering Policy", ComponentItem."Reordering Policy"::"Lot-for-Lot");
         ComponentItem.Validate("Replenishment System", ComponentItem."Replenishment System"::"Purchase");
-        ComponentItem.Validate("Flushing Method", ComponentItem."Flushing Method"::Manual);
+        ComponentItem.Validate("Flushing Method", ComponentItem."Flushing Method"::"Pick + Manual");
         ComponentItem.Modify(true);
 
         // [GIVEN] Create main item with Make-to-Order manufacturing policy
@@ -7273,7 +7273,7 @@ codeunit 137072 "SCM Production Orders II"
         MainItem.Validate("Manufacturing Policy", MainItem."Manufacturing Policy"::"Make-to-Order");
         MainItem.Validate("Replenishment System", MainItem."Replenishment System"::"Prod. Order");
         MainItem.Validate("Reordering Policy", MainItem."Reordering Policy"::Order);
-        MainItem.Validate("Flushing Method", MainItem."Flushing Method"::Manual);
+        MainItem.Validate("Flushing Method", MainItem."Flushing Method"::"Pick + Manual");
         MainItem.Modify(true);
 
         // [GIVEN] Create PINK and VIOLET variants for main item
@@ -7611,8 +7611,8 @@ codeunit 137072 "SCM Production Orders II"
         ItemLedgerEntry.SetRange("Entry No.", ItemLedgerEntry."Entry No.");
         UndoProdPostingMgmt.ReverseProdItemLedgerEntry(ItemLedgerEntry);
 
-        // [THEN] Verify Reverse Item Ledger Entry is created.
-        VerifyReverseItemLedgerEntry(CompItem."No.", UnitOfMeasure.Code);
+        // [THEN] Reversal item ledger entry uses the component unit of measure with the correct positive base quantity.
+        VerifyReverseItemLedgerEntry(CompItem."No.", UnitOfMeasure2.Code);
     end;
 
     [Test]
@@ -7710,7 +7710,7 @@ codeunit 137072 "SCM Production Orders II"
         LibraryInventory.CreateItem(ComponentItem);
         ComponentItem.Validate("Reordering Policy", ComponentItem."Reordering Policy"::"Lot-for-Lot");
         ComponentItem.Validate("Replenishment System", ComponentItem."Replenishment System"::"Purchase");
-        ComponentItem.Validate("Flushing Method", ComponentItem."Flushing Method"::Manual);
+        ComponentItem.Validate("Flushing Method", ComponentItem."Flushing Method"::"Pick + Manual");
         ComponentItem.Modify(true);
 
         // [GIVEN] Create main item with Make-to-stock manufacturing policy
@@ -7718,7 +7718,7 @@ codeunit 137072 "SCM Production Orders II"
         MainItem.Validate("Manufacturing Policy", MainItem."Manufacturing Policy"::"Make-to-Stock");
         MainItem.Validate("Replenishment System", MainItem."Replenishment System"::"Prod. Order");
         MainItem.Validate("Reordering Policy", MainItem."Reordering Policy"::Order);
-        MainItem.Validate("Flushing Method", MainItem."Flushing Method"::Manual);
+        MainItem.Validate("Flushing Method", MainItem."Flushing Method"::"Pick + Manual");
         MainItem.Modify(true);
 
         // [GIVEN] Create PINK and VIOLET variants for main item
@@ -10513,6 +10513,7 @@ codeunit 137072 "SCM Production Orders II"
         ItemLedgerEntry.SetRange("Item No.", CompItemNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
         ItemLedgerEntry.SetRange("Unit of Measure Code", UnitOfMeasureCode);
+        ItemLedgerEntry.SetFilter(Quantity, '>0');
         ItemLedgerEntry.FindFirst();
 
         Assert.AreEqual(0.001, ItemLedgerEntry.Quantity, QtyMustBeEqualErr);

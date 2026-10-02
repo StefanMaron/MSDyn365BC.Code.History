@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -278,4 +278,3 @@ page 99000788 "Production BOM Lines"
         IsSaaSExcelAddinEnabled: Boolean;
         ExcelFileNameTxt: Label 'Production BOM Lines - %1 - %2', Comment = '%1 = Production BOM No., %2 = Version Code';
 }
-

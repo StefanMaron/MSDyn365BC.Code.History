@@ -23,27 +23,22 @@ page 738 "VAT Return Period Card"
                 field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the start date of the VAT return period.';
                 }
                 field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the end date of the VAT return period.';
                 }
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the due date for the VAT return period.';
                 }
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the status of the VAT return period.';
                 }
                 field("Received Date"; Rec."Received Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT return period received date.';
                 }
             }
         }
@@ -60,6 +55,11 @@ page 738 "VAT Return Period Card"
                 Image = RefreshLines;
                 ToolTip = 'Receive the VAT returns that have been submitted.';
                 Visible = false;
+
+                trigger OnAction()
+                begin
+                    exit;
+                end;
             }
             action("Create VAT Return")
             {
@@ -69,6 +69,11 @@ page 738 "VAT Return Period Card"
                 Image = RefreshLines;
                 ToolTip = 'Create a new VAT return from this VAT return period.';
                 Visible = false;
+
+                trigger OnAction()
+                begin
+                    exit;
+                end;
             }
         }
         area(navigation)
@@ -81,6 +86,11 @@ page 738 "VAT Return Period Card"
                 Image = ShowList;
                 ToolTip = 'Open the VAT return card for this VAT return period.';
                 Visible = false;
+
+                trigger OnAction()
+                begin
+                    exit;
+                end;
             }
         }
         area(Promoted)

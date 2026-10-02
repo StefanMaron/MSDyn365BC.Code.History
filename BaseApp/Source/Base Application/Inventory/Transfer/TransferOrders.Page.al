@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -434,7 +434,6 @@ page 5742 "Transfer Orders"
                 Caption = 'Inventory - Inbound Transfer';
                 Image = "Report";
                 RunObject = Report "Inventory - Inbound Transfer";
-                ToolTip = 'View which items are currently on inbound transfer orders.';
             }
         }
         area(Promoted)

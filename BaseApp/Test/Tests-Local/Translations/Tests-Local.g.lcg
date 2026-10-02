@@ -5,13 +5,13 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
-  <Item ItemId=";Codeunit 4025009802 - Method 169919563 - NamedType 4241940164" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4025009802 - Method 2243439292 - NamedType 2391950814" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The app "IT Subcontracting Migration" must be installed before you can disable Legacy Subcontracting. Please install the app first and then use the dedicated action "Disable Legacy Subcontracting" to disable Legacy Subcontracting and migrate to the new subcontracting app.]]></Val>
+      <Val><![CDATA[There are still open purchase orders with WIP Items. All purchase orders with WIP Items must be completed before disabling Legacy Subcontracting.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Legacy Subcontracting - Method CheckCanDisableRaisesErrorWhenAppNotInstalled - NamedType ITMigrationAppNotInstalledErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Legacy Subcontracting - Method PreCheckDisableErrorWordingMatchesWIPItemFilterForPurchaseOrders - NamedType OpenWIPPurchaseOrdersExistErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4025009802 - Method 4030059819 - NamedType 3508163944" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -25,7 +25,7 @@
   </Item>
   <Item ItemId=";Codeunit 4025009802 - Method 1173676173 - NamedType 2391950814" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are still open subcontracting purchase orders. All subcontracting purchase orders must be completed before disabling Legacy Subcontracting.]]></Val>
+      <Val><![CDATA[There are still open purchase orders with WIP Items. All purchase orders with WIP Items must be completed before disabling Legacy Subcontracting.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

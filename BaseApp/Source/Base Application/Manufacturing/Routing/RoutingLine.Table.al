@@ -689,4 +689,3 @@ table 99000764 "Routing Line"
     begin
     end;
 }
-

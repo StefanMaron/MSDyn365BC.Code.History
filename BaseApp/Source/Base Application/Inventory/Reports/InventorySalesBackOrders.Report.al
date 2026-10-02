@@ -14,6 +14,7 @@ report 718 "Inventory - Sales Back Orders"
     AdditionalSearchTerms = 'delayed order,unfulfilled demand';
     ApplicationArea = Basic, Suite;
     Caption = 'Inventory - Sales Back Orders';
+    ToolTip = 'View a list with the order lines whose shipment date has been exceeded. The following information is shown for the individual orders for each item: number, customer name, customer''s telephone number, shipment date, order quantity and quantity on back order. The report also shows whether there are other items for the customer on back order.';
     UsageCategory = ReportsAndAnalysis;
     DefaultRenderingLayout = Excel;
 
@@ -262,6 +263,7 @@ report 718 "Inventory - Sales Back Orders"
             ObsoleteState = Pending;
             ObsoleteReason = 'The RDLC layout has been replaced by the Excel and Word layouts and will be removed in a future release.';
             ObsoleteTag = '27.0';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
 #endif
     }

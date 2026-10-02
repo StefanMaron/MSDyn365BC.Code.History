@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetPurchasesPayablesAndSalesReceivablesSetupsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetLocationBinPolicySetupsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetAllowInventoryAdjmtUpgradeTag());
-#if not CLEAN28
+#if not CLEAN29
         PerCompanyUpgradeTags.Add(GetDirectTransferPostingToEnumUpgradeTag());
 #endif
         PerCompanyUpgradeTags.Add(GetDirectTransferOnTransferRouteUpgradeTag());
@@ -181,7 +181,9 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetZeroClosedBankAccountLedgerEntriesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDepreciationBooksGLIntegrationUpgradeTag());
         PerCompanyUpgradeTags.Add(GetLegacySubcontractingUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetPurchLineReceiptOnInvoiceUpgradeTag());
         PerCompanyUpgradeTags.Add(GetWarehouseActivitySourceTypeForJobPlanningLineUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetRemittanceAdviceReportSelectionUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -1097,7 +1099,7 @@ codeunit 9998 "Upgrade Tag Definitions"
     begin
         exit('MS-474798-AllowInventoryAdjmtUpgradeTag-20230518');
     end;
-#if not CLEAN28
+#if not CLEAN29
     internal procedure GetDirectTransferPostingToEnumUpgradeTag(): Code[250]
     begin
         exit('MS-617394-DirectTransferPostingToEnum-20260113');
@@ -1274,10 +1276,19 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-406123-LegacySubcontracting-20260507');
     end;
 
+    internal procedure GetPurchLineReceiptOnInvoiceUpgradeTag(): Code[250]
+    begin
+        exit('MS-625392-PurchLineReceiptOnInvoiceUpgradeTag-20260703');
+    end;
+
+    internal procedure GetRemittanceAdviceReportSelectionUpgradeTag(): Code[250]
+    begin
+        exit('MS-RemittanceAdviceReportSelection-20260723');
+    end;
+
     internal procedure GetWarehouseActivitySourceTypeForJobPlanningLineUpgradeTag(): Code[250]
     begin
         // Upgrade legacy Job-related warehouse records from (Database::Job, 0) to (Database::"Job Planning Line", Order)
         exit('MS-625654-WarehouseActivitySourceTypeForJobPlanningLineUpgradeTag-20260518');
     end;
-
 }

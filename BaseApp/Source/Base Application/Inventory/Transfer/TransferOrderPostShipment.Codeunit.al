@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -73,6 +73,9 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TransHeader.SetHideValidationDialog(HideValidationDialog);
 
             OnBeforeTransferOrderPostShipment(TransHeader, SuppressCommit, PreviewMode);
+
+            if not SuppressCommit then
+                SuppressCommit := TransHeader.ShouldPostReceiptWithShipment();
 
             TransHeader.CheckBeforePost();
 

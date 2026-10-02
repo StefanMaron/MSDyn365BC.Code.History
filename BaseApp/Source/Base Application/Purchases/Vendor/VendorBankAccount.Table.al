@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -10,6 +10,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Purchases.Payables;
+using System.Automation;
 using System.Email;
 using System.Globalization;
 
@@ -135,6 +136,7 @@ table 288 "Vendor Bank Account"
         field(14; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            MaskType = Concealed;
             ToolTip = 'Specifies the number used by the bank for the bank account.';
 
             trigger OnValidate()
@@ -215,6 +217,7 @@ table 288 "Vendor Bank Account"
         field(24; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            MaskType = Concealed;
             ToolTip = 'Specifies the bank account''s international bank account number.';
 
             trigger OnValidate()
@@ -333,6 +336,8 @@ table 288 "Vendor Bank Account"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
     begin
+        ApprovalsMgmt.OnCancelVendorBankAccountApprovalRequest(Rec);
+
         VendorLedgerEntry.SetRange("Vendor No.", "Vendor No.");
         VendorLedgerEntry.SetRange("Recipient Bank Account", Code);
         VendorLedgerEntry.SetRange(Open, true);
@@ -366,9 +371,23 @@ table 288 "Vendor Bank Account"
         end;
     end;
 
+    trigger OnRename()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOnRename(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        ApprovalsMgmt.OnRenameRecordInApprovalRequest(xRec.RecordId, RecordId);
+
+    end;
+
     var
         PostCode: Record "Post Code";
         AbiCabCodes: Record "ABI/CAB Codes";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         Text12100: Label 'The field IBAN is mandatory. You will not be able to use the account in a payment file until the IBAN is correctly filled in.';
         Text12101: Label '\\Are you sure you want to continue?';
         Text12102: Label 'The action was cancelled by the user.';
@@ -437,6 +456,11 @@ table 288 "Vendor Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetBBan(var IBAN: Code[50]; var VendorBankAccount: Record "Vendor Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRename(var VendorBankAccount: Record "Vendor Bank Account"; xVendorBankAccount: Record "Vendor Bank Account"; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,4 +1,4 @@
-namespace System.Environment.Configuration;
+﻿namespace System.Environment.Configuration;
 #if not CLEAN28
 using Microsoft.Manufacturing.Setup;
 #endif
