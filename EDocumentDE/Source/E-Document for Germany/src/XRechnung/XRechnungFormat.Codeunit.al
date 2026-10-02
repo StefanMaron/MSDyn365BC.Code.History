@@ -8,6 +8,7 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.IO.Peppol;
 using Microsoft.Foundation.Company;
+using Microsoft.Peppol.DE;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
@@ -23,22 +24,23 @@ codeunit 13914 "XRechnung Format" implements "E-Document"
 
     var
         EDocPEPPOLBIS30: Codeunit "EDoc PEPPOL BIS 3.0";
-        EDocPEPPOLValidationDE: Codeunit "EDoc PEPPOL Validation DE";
         EDocImportXRechnung: Codeunit "Import XRechnung Document";
         EDocumentDEHelper: Codeunit "E-Document DE Helper";
 
     procedure Check(var SourceDocumentHeader: RecordRef; EDocumentService: Record "E-Document Service"; EDocumentProcessingPhase: Enum "E-Document Processing Phase")
     var
         CompanyInformation: Record "Company Information";
+        DEContext: Codeunit "PEPPOL30 DE Context";
     begin
         OnBeforeCheck(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
         CheckCompanyInfoMandatory(CompanyInformation);
+        EDocumentDEHelper.CheckSellerContactMandatory(SourceDocumentHeader);
         CheckBankAccountIBANMandatory(SourceDocumentHeader, CompanyInformation);
         EDocumentDEHelper.CheckBuyerReferenceMandatory(EDocumentService, SourceDocumentHeader);
-        EDocPEPPOLValidationDE.SetSkipVATRegNoCheck(EDocumentDEHelper.HasRoutingNo(SourceDocumentHeader));
-        BindSubscription(EDocPEPPOLValidationDE);
+        DEContext.Start();
+        DEContext.SetSkipCustomerVATRegNoCheck(EDocumentDEHelper.HasRoutingNo(SourceDocumentHeader));
         EDocPEPPOLBIS30.Check(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
-        UnbindSubscription(EDocPEPPOLValidationDE);
+        DEContext.Stop();
         OnAfterCheck(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
     end;
 
@@ -82,6 +84,12 @@ codeunit 13914 "XRechnung Format" implements "E-Document"
         TempBlob.FromRecord(TempRecordExportBuffer, TempRecordExportBuffer.FieldNo("File Content"));
     end;
 
+    /// <summary>
+    /// Checks the Company Information data that the electronic document requires.
+    /// The E-Mail supplies the seller electronic address (BT-34), which XRechnung requires
+    /// (PEPPOL-EN16931-R020). BT-34 is a party level routing address and is always taken from Company
+    /// Information, never from the salesperson, so it is independent of the seller contact (BG-6).
+    /// </summary>
     local procedure CheckCompanyInfoMandatory(var CompanyInformation: Record "Company Information")
     begin
         CompanyInformation.Get();
@@ -161,11 +169,13 @@ codeunit 13914 "XRechnung Format" implements "E-Document"
     end;
 
 #if not CLEAN29
-    [Obsolete('Buyer Reference enum has been removed. The buyer reference is now resolved from the document and customer fields.', '29.0')]
+#pragma warning disable AA0228
+    [Obsolete('Buyer Reference is resolved automatically via priority chain: Document field > Customer E-Invoice Routing No. > Your Reference.', '29.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBuyerReferenceOnElseCase(var SourceDocumentHeader: RecordRef; EDocumentService: Record "E-Document Service")
     begin
     end;
+#pragma warning restore AA0228
 #endif
 
     [IntegrationEvent(false, false)]

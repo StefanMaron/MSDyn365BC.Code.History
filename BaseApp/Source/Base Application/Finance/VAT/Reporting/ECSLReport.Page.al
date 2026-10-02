@@ -32,7 +32,6 @@ page 321 "ECSL Report"
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnAssistEdit()
                     begin
@@ -124,7 +123,6 @@ page 321 "ECSL Report"
                 {
                     ApplicationArea = BasicEU;
                     Importance = Additional;
-                    ToolTip = 'Specifies the first date of the reporting period.';
 
                     trigger OnValidate()
                     begin
@@ -135,7 +133,6 @@ page 321 "ECSL Report"
                 {
                     ApplicationArea = BasicEU;
                     Importance = Additional;
-                    ToolTip = 'Specifies the last date of the reporting period.';
 
                     trigger OnValidate()
                     begin
@@ -227,6 +224,7 @@ page 321 "ECSL Report"
                     trigger OnAction()
                     begin
                         // MESSAGE('Show errors');
+                        exit;
                     end;
                 }
                 action(Release)
@@ -240,6 +238,7 @@ page 321 "ECSL Report"
                     trigger OnAction()
                     begin
                         // MESSAGE('Release');
+                        exit;
                     end;
                 }
                 action(Reopen)
@@ -253,6 +252,7 @@ page 321 "ECSL Report"
                     trigger OnAction()
                     begin
                         // MESSAGE('Reopen');
+                        exit;
                     end;
                 }
             }

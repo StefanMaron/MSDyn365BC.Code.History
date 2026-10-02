@@ -32,4 +32,31 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.eServices.EDocument.Formats)(LookupHint=Report ZUGFeRD Custom Sales Invoice - ReportLayout CustomSalesInvoice - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3373438194 - NamedType 2265274365" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The status of the EDocument was not updated to the expected status after the step was executed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit E-Doc. DE Struct. Import Tests - NamedType EDocumentStatusNotUpdatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1457630582 - NamedType 2265274365" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The status of the EDocument was not updated to the expected status after the step was executed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit XRechnung Structured Tests - NamedType EDocumentStatusNotUpdatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1457630582 - NamedType 3704804811" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unsupported XML root element: %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = local name of the XML root element]D;]A;(LookupHint=Codeunit XRechnung Structured Tests - NamedType UnsupportedXmlRootElementErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

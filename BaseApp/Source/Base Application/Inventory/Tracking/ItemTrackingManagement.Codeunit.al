@@ -371,16 +371,6 @@ codeunit 6500 "Item Tracking Management"
         exit(false);
     end;
 
-#if not CLEAN26
-    [Obsolete('Moved to codeunit Mfg. Item Tracking Mgt.', '26.0')]
-    procedure RetrieveConsumpItemTracking(ItemJnlLine: Record "Item Journal Line"; var TempHandlingSpecification: Record "Tracking Specification" temporary): Boolean
-    var
-        MfgItemTrackingMgt: Codeunit "Mfg. Item Tracking Mgt.";
-    begin
-        exit(MfgItemTrackingMgt.RetrieveConsumpItemTracking(ItemJnlLine, TempHandlingSpecification));
-    end;
-#endif
-
     procedure SumUpItemTracking(var ReservEntry: Record "Reservation Entry"; var TempHandlingSpecification: Record "Tracking Specification" temporary; SumPerLine: Boolean; SumPerTracking: Boolean): Boolean
     var
         ItemTrackingCode: Record "Item Tracking Code";
@@ -606,6 +596,11 @@ codeunit 6500 "Item Tracking Management"
         ReservEntry.SetPointer(FromRowID);
         ReservEntry.SetPointerFilter();
         CopyItemTracking3(ReservEntry, ToRowID, SwapSign, SkipReservation);
+    end;
+
+    procedure CopyItemTracking(var ReservEntry: Record "Reservation Entry"; ToRowID: Text[250]; SwapSign: Boolean)
+    begin
+        CopyItemTracking3(ReservEntry, ToRowID, SwapSign, false);
     end;
 
     local procedure CopyItemTracking3(var ReservEntry: Record "Reservation Entry"; ToRowID: Text[250]; SwapSign: Boolean; SkipReservation: Boolean)
@@ -2686,6 +2681,7 @@ codeunit 6500 "Item Tracking Management"
         IsATOPosting: Boolean;
         IsBindingOrderToOrder: Boolean;
     begin
+        WhseActivityLineValidateLotTracking(WhseActivLine);
         // Used for carrying the item tracking from the invt. pick/put-away to the parent line.
         WhseActivLine.Reset();
         WhseActivLine.SetSourceFilter(WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.", WhseActivLine."Source Line No.", WhseActivLine."Source Subline No.", true);
@@ -2812,6 +2808,42 @@ codeunit 6500 "Item Tracking Management"
             until TempTrackingSpec.Next() = 0;
 
         RegisterNewItemTrackingLines(TempTrackingSpec, BlockCommit);
+    end;
+
+    local procedure WhseActivityLineValidateLotTracking(var WhseActivLine1: Record "Warehouse Activity Line")
+    begin
+        if WhseActivLine1."Source Document" <> WhseActivLine1."Source Document"::"Sales Order" then
+            exit;
+        WhseActivLine1.Reset();
+        WhseActivLine1.SetSourceFilter(WhseActivLine1."Source Type", WhseActivLine1."Source Subtype", WhseActivLine1."Source No.", WhseActivLine1."Source Line No.", WhseActivLine1."Source Subline No.", true);
+        if WhseActivLine1.FindSet() then
+            repeat
+                if WhseActivLine1.TrackingExists() then
+                    ValidateTrackingLotNos(WhseActivLine1);
+            until WhseActivLine1.Next() = 0;
+    end;
+
+    local procedure ValidateTrackingLotNos(var WhseActivLine1: Record "Warehouse Activity Line")
+    var
+        ReservEntry1: Record "Reservation Entry";
+        ReservEntry2: Record "Reservation Entry";
+    begin
+        ReservEntry1.SetLoadFields("Lot No.");
+        ReservEntry1.SetSourceFilter(WhseActivLine1."Source Type", WhseActivLine1."Source Subtype", WhseActivLine1."Source No.", WhseActivLine1."Source Line No.", true);
+        ReservEntry1.SetFilter("Lot No.", '<>%1', '');
+        if ReservEntry1.IsEmpty() then
+            exit;
+        if ReservEntry1.FindSet() then
+            repeat
+                ReservEntry2.CopyFilters(ReservEntry1);
+                ReservEntry2.SetRange("Lot No.", WhseActivLine1."Lot No.");
+                if not ReservEntry2.FindFirst() then
+                    Error(CannotMatchItemTrackingErr,
+                        WhseActivLine1."Source No.",
+                        WhseActivLine1."Source Line No.",
+                        WhseActivLine1."Item No.",
+                        WhseActivLine1.Description);
+            until ReservEntry1.Next() = 0;
     end;
 
     local procedure CheckItemTrackingBeforeRegisterNewLines(var TempTrackingSpecificationToCheck: Record "Tracking Specification" temporary)
@@ -3805,19 +3837,6 @@ codeunit 6500 "Item Tracking Management"
     begin
     end;
 
-#if not CLEAN26
-    internal procedure RunOnBeforeRetrieveSubcontrItemTracking(ItemJnlLine: Record "Item Journal Line"; var TempHandlingSpecification: Record "Tracking Specification" temporary; var Result: Boolean; var IsHandled: Boolean)
-    begin
-        OnBeforeRetrieveSubcontrItemTracking(ItemJnlLine, TempHandlingSpecification, Result, IsHandled);
-    end;
-
-    [Obsolete('Moved to codeunit Mfg. Item Tracking Mgt.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeRetrieveSubcontrItemTracking(ItemJnlLine: Record "Item Journal Line"; var TempHandlingSpecification: Record "Tracking Specification" temporary; var Result: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSumUpItemTracking(var ReservEntry: Record "Reservation Entry"; var TempHandlingSpecification: Record "Tracking Specification" temporary; var SumPerLine: Boolean; var SumPerTracking: Boolean; var IsHandled: Boolean)
     begin
@@ -4003,32 +4022,6 @@ codeunit 6500 "Item Tracking Management"
     begin
     end;
 
-#if not CLEAN26
-    internal procedure RunOnRetrieveSubcontrItemTrackingOnAfterDeleteReservEntries(var TempHandlingSpecification: Record "Tracking Specification" temporary; var ReservationEntry: Record "Reservation Entry")
-    begin
-        OnRetrieveSubcontrItemTrackingOnAfterDeleteReservEntries(TempHandlingSpecification, ReservationEntry);
-    end;
-
-    [Obsolete('Moved to codeunit Mfg. Item Tracking Mgt.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnRetrieveSubcontrItemTrackingOnAfterDeleteReservEntries(var TempHandlingSpecification: Record "Tracking Specification" temporary; var ReservationEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
-
-#if not CLEAN26
-    internal procedure RunOnRetrieveConsumpItemTrackingOnAfterSetFilters(var ReservationEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line")
-    begin
-        OnRetrieveConsumpItemTrackingOnAfterSetFilters(ReservationEntry, ItemJournalLine);
-    end;
-
-    [Obsolete('Moved to codeunit Mfg. Item Tracking Mgt.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnRetrieveConsumpItemTrackingOnAfterSetFilters(var ReservationEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterSynchronizeItemTracking2(FromReservEntry: Record "Reservation Entry"; ReservEntry2: Record "Reservation Entry")
     begin
@@ -4058,19 +4051,6 @@ codeunit 6500 "Item Tracking Management"
     local procedure OnTempPostedWhseRcptLineSetFilters(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; ItemLedgerEntry: Record "Item Ledger Entry"; WhseItemEntryRelation: Record "Whse. Item Entry Relation")
     begin
     end;
-
-#if not CLEAN26
-    internal procedure RunOnRetrieveSubcontrItemTrackingOnBeforeCheckLastOperation(ProdOrderRoutingLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"; var IsLastOperation: Boolean)
-    begin
-        OnRetrieveSubcontrItemTrackingOnBeforeCheckLastOperation(ProdOrderRoutingLine, IsLastOperation);
-    end;
-
-    [Obsolete('Moved to codeunit Mfg. Item Tracking Mgt.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnRetrieveSubcontrItemTrackingOnBeforeCheckLastOperation(ProdOrderRoutingLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"; var IsLastOperation: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnSplitWhseJnlLineOnAfterCheckWhseItemTrkgSetup(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempWhseSplitTrackingSpec: Record "Tracking Specification" temporary; var WhseSNRequired: Boolean; var WhseLNRequired: Boolean; var TempWhseJnlLine2: Record "Warehouse Journal Line" temporary; var IsHandled: Boolean)

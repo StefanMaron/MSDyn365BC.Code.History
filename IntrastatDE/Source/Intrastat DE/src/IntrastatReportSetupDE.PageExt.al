@@ -14,7 +14,7 @@ pageextension 11031 "Intrastat Report Setup DE" extends "Intrastat Report Setup"
             {
                 ApplicationArea = BasicEU;
                 Caption = 'Default Submission Channel';
-                ToolTip = 'Specifies the submission channel that is suggested on new Intrastat reports. Choose eSTATISTIK.CORE to export the clean format that does not use the Material No., or IDEV to keep the Material No. (Company No.) in the message ID. You can still change the channel on each individual Intrastat report.';
+                ToolTip = 'Specifies the submission channel that is suggested on new Intrastat reports. Choose eSTATISTIK.CORE to export the clean format that does not use the Material No., or IDEV to keep the Material No. (Company No.) in the message ID.';
             }
         }
     }

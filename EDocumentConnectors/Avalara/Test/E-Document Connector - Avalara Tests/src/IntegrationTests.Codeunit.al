@@ -690,25 +690,12 @@ codeunit 148191 "Integration Tests"
     var
         CountryRegion: Record "Country/Region";
     begin
-        if not CountryRegion.Get(CountryCode) then
-            exit;
-
-        if CountryRegion."ISO Code" <> '' then
-            exit;
-
-        case CountryCode of
-            'GB':
-                begin
-                    CountryRegion."ISO Code" := 'GB';
-                    CountryRegion."ISO Numeric Code" := '826';
-                end;
-            else begin
-                // Library-generated codes: use GB defaults as tests use GB VAT numbers
+        if CountryRegion.Get(CountryCode) then
+            if CountryRegion."ISO Code" = '' then begin
                 CountryRegion."ISO Code" := 'GB';
                 CountryRegion."ISO Numeric Code" := '826';
+                CountryRegion.Modify();
             end;
-        end;
-        CountryRegion.Modify();
     end;
 
     local procedure EnsureSetupNumberSeries()

@@ -18,7 +18,7 @@ pageextension 11030 "Intrastat Report DE" extends "Intrastat Report"
                 {
                     ApplicationArea = BasicEU;
                     Caption = 'Submission Channel';
-                    ToolTip = 'Specifies how the Intrastat report is submitted. Choose IDEV to keep the Material No. (Company No.) in the message ID, or eSTATISTIK.CORE to export the clean format that does not use the Material No.';
+                    ToolTip = 'Specifies how the Intrastat report is submitted. To choose the default submission channel, open Intrastat Report Setup.';
                 }
                 field("Test Submission"; Rec."Test Submission")
                 {

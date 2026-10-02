@@ -2674,6 +2674,7 @@ codeunit 134982 "ERM Financial Reports"
             Error(ReportErr, GenJournalLine.FieldCaption("Document No."), GenJournalLine."Document No.");
     end;
 
+
     local procedure UpdateCurOnGeneralLedgerSetup(CurrencyCode: Code[10]) OldAdditionalReportingCurrency: Code[10]
     var
         GeneralLedgerSetup: Record "General Ledger Setup";

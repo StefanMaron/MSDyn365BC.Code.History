@@ -30,7 +30,6 @@ page 743 "VAT Report Setup"
                 field("Modify Submitted Reports"; Rec."Modify Submitted Reports")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if users can modify VAT reports that have been submitted to the tax authorities. If the field is left blank, users must create a corrective or supplementary VAT report instead.';
                 }
                 field("Export Cancellation Lines"; Rec."Export Cancellation Lines")
                 {

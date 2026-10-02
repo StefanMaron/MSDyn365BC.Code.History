@@ -113,4 +113,13 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit Digital Vouchers Tests - NamedType RemovePostedRecordManuallyMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1804761518 - Method 103801313 - NamedType 1751168452" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No incoming document found for %1 on %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Document No., %2 = Posting Date]D;]A;(Namespace=Microsoft.Test.EServices.EDocument)(LookupHint=Codeunit E-Doc. Attachment Tests - Method AssertEDocumentIncomingAttachmentExists - NamedType NoIncomingDocumentTxt)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

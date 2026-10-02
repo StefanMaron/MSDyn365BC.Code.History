@@ -61,7 +61,7 @@ codeunit 148700 "Intrastat Report Test DE"
     var
         EnvelopeId: Text;
     begin
-        // [FEATURE] [eSTATISTIK.CORE]
+        // [FEATURE] [IDEV]
         // [SCENARIO] The IDEV channel prefixes the Material No. into the message ID (backward compatibility).
         // [GIVEN] Company Information with a "Company No." (Material No.) value
         Initialize();
@@ -78,7 +78,7 @@ codeunit 148700 "Intrastat Report Test DE"
     [HandlerFunctions('IntrastatReportGetLinesPageHandler')]
     procedure ExportXMLWithIDEVAndNoMaterialNoFails()
     begin
-        // [FEATURE] [eSTATISTIK.CORE]
+        // [FEATURE] [IDEV]
         // [SCENARIO] The IDEV channel requires a Material No.; exporting without one fails and promotes eSTATISTIK.CORE.
         // [GIVEN] Company Information without a "Company No." (Material No.) value
         Initialize();

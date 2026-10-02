@@ -8,6 +8,7 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.IO.Peppol;
 using Microsoft.Foundation.Company;
+using Microsoft.Peppol.DE;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
@@ -23,22 +24,23 @@ codeunit 13920 "ZUGFeRD Format" implements "E-Document"
 
     var
         EDocPEPPOLBIS30: Codeunit "EDoc PEPPOL BIS 3.0";
-        EDocPEPPOLValidationDE: Codeunit "EDoc PEPPOL Validation DE";
         EDocImportZUGFeRD: Codeunit "Import ZUGFeRD Document";
         EDocumentDEHelper: Codeunit "E-Document DE Helper";
 
     procedure Check(var SourceDocumentHeader: RecordRef; EDocumentService: Record "E-Document Service"; EDocumentProcessingPhase: Enum "E-Document Processing Phase")
     var
         CompanyInformation: Record "Company Information";
+        DEContext: Codeunit "PEPPOL30 DE Context";
     begin
         OnBeforeCheck(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
         CheckCompanyInfoMandatory(CompanyInformation);
+        EDocumentDEHelper.CheckSellerContactMandatory(SourceDocumentHeader);
         CheckBankAccountIBANMandatory(SourceDocumentHeader, CompanyInformation);
         EDocumentDEHelper.CheckBuyerReferenceMandatory(EDocumentService, SourceDocumentHeader);
-        EDocPEPPOLValidationDE.SetSkipVATRegNoCheck(EDocumentDEHelper.HasRoutingNo(SourceDocumentHeader));
-        BindSubscription(EDocPEPPOLValidationDE);
+        DEContext.Start();
+        DEContext.SetSkipCustomerVATRegNoCheck(EDocumentDEHelper.HasRoutingNo(SourceDocumentHeader));
         EDocPEPPOLBIS30.Check(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
-        UnbindSubscription(EDocPEPPOLValidationDE);
+        DEContext.Stop();
         OnAfterCheck(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
     end;
 
@@ -89,6 +91,9 @@ codeunit 13920 "ZUGFeRD Format" implements "E-Document"
     begin
         if Rec."Document Format" <> Rec."Document Format"::ZUGFeRD then
             exit;
+
+        if Rec."Read into Draft Impl." = Rec."Read into Draft Impl."::Unspecified then
+            Rec."Read into Draft Impl." := Rec."Read into Draft Impl."::ZUGFeRD;
 
         EDocServiceSupportedType.SetRange("E-Document Service Code", Rec.Code);
         if not EDocServiceSupportedType.IsEmpty() then
@@ -145,6 +150,12 @@ codeunit 13920 "ZUGFeRD Format" implements "E-Document"
         FileExtension := PDFFileTypeTok;
     end;
 
+    /// <summary>
+    /// Checks the Company Information data that the electronic document requires.
+    /// The E-Mail supplies the seller electronic address (BT-34), which ZUGFeRD requires
+    /// (PEPPOL-EN16931-R020). BT-34 is a party level routing address and is always taken from Company
+    /// Information, never from the salesperson, so it is independent of the seller contact (BG-6).
+    /// </summary>
     local procedure CheckCompanyInfoMandatory(var CompanyInformation: Record "Company Information")
     begin
         CompanyInformation.Get();
@@ -188,11 +199,13 @@ codeunit 13920 "ZUGFeRD Format" implements "E-Document"
     end;
 
 #if not CLEAN29
-    [Obsolete('Buyer Reference enum has been removed. The buyer reference is now resolved from the document and customer fields.', '29.0')]
+#pragma warning disable AA0228
+    [Obsolete('Buyer Reference is resolved automatically via priority chain: Document field > Customer E-Invoice Routing No. > Your Reference.', '29.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBuyerReferenceOnElseCase(var SourceDocumentHeader: RecordRef; EDocumentService: Record "E-Document Service")
     begin
     end;
+#pragma warning restore AA0228
 #endif
 
     [IntegrationEvent(false, false)]

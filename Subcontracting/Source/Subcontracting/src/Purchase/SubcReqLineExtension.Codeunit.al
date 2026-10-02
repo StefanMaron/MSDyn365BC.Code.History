@@ -8,7 +8,7 @@ using Microsoft.Inventory.Requisition;
 
 codeunit 20513 "Subc. Req.Line Extension"
 {
-#if not CLEAN28
+#if not CLEAN29
     var
 #pragma warning disable AL0432
         SubcFeatureFlagHandler: Codeunit "Subc. Feature Flag Handler";
@@ -20,7 +20,7 @@ codeunit 20513 "Subc. Req.Line Extension"
     var
         SubcontractingManagement: Codeunit "Subcontracting Management";
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -34,7 +34,7 @@ codeunit 20513 "Subc. Req.Line Extension"
     var
         SubcontractingManagement: Codeunit "Subcontracting Management";
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -51,7 +51,7 @@ codeunit 20513 "Subc. Req.Line Extension"
     var
         SubcontractingManagement: Codeunit "Subcontracting Management";
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -66,7 +66,7 @@ codeunit 20513 "Subc. Req.Line Extension"
     [EventSubscriber(ObjectType::Table, Database::"Req. Wksh. Template", 'OnAfterValidateEvent', 'Recurring', true, false)]
     local procedure ReqWkshTemplateOnAfterValidateRecurring(var Rec: Record "Req. Wksh. Template")
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
