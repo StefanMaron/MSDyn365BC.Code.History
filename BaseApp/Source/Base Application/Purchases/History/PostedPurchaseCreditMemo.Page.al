@@ -932,6 +932,30 @@ page 140 "Posted Purchase Credit Memo"
                     PostedPurchCrMemoUpdate.RunModal();
                 end;
             }
+            action("Mark As Accepted")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Mark As Accepted';
+                Image = Completed;
+                Enabled = SIIEnabled;
+                Visible = ShowAdvancedActions;
+                ToolTip = 'Mark the document as accepted in SII to correct an incorrect or pending status.';
+
+                trigger OnAction()
+                var
+                    SIIDocUploadState: Record "SII Doc. Upload State";
+                    SIIManagement: Codeunit "SII Management";
+                    FeedbackMessage: Text;
+                begin
+                    if SIIManagement.MarkDocumentAsAccepted(
+                         SIIDocUploadState."Document Source"::"Vendor Ledger",
+                         SIIDocUploadState."Document Type"::"Credit Memo", Rec."No.", FeedbackMessage)
+                    then
+                        CurrPage.Update(false)
+                    else
+                        Message(FeedbackMessage);
+                end;
+            }
         }
         area(Promoted)
         {
@@ -949,6 +973,9 @@ page 140 "Posted Purchase Credit Memo"
                 {
                 }
                 actionref(ShowInvoice_Promoted; ShowInvoice)
+                {
+                }
+                actionref("Mark As Accepted_Promoted"; "Mark As Accepted")
                 {
                 }
             }
@@ -1030,6 +1057,8 @@ page 140 "Posted Purchase Credit Memo"
 
         SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
+        SIIEnabled := SIIManagement.IsSIISetupEnabled();
+        ShowAdvancedActions := SIIManagement.IsShowAdvancedActionsEnabled();
     end;
 
     trigger OnAfterGetRecord()
@@ -1068,6 +1097,8 @@ page 140 "Posted Purchase Credit Memo"
         VATDateEnabled: Boolean;
         OperationDescription: Text[500];
         DocHasMultipleRegimeCode: Boolean;
+        SIIEnabled: Boolean;
+        ShowAdvancedActions: Boolean;
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
 
     local procedure ActivateFields()

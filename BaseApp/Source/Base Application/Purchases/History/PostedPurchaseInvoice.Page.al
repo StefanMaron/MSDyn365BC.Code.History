@@ -1180,6 +1180,30 @@ page 138 "Posted Purchase Invoice"
                     PostedPurchInvoiceUpdate.RunModal();
                 end;
             }
+            action("Mark As Accepted")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Mark As Accepted';
+                Image = Completed;
+                Enabled = SIIEnabled;
+                Visible = ShowAdvancedActions;
+                ToolTip = 'Mark the document as accepted in SII to correct an incorrect or pending status.';
+
+                trigger OnAction()
+                var
+                    SIIDocUploadState: Record "SII Doc. Upload State";
+                    SIIManagement: Codeunit "SII Management";
+                    FeedbackMessage: Text;
+                begin
+                    if SIIManagement.MarkDocumentAsAccepted(
+                         SIIDocUploadState."Document Source"::"Vendor Ledger",
+                         SIIDocUploadState."Document Type"::Invoice, Rec."No.", FeedbackMessage)
+                    then
+                        CurrPage.Update(false)
+                    else
+                        Message(FeedbackMessage);
+                end;
+            }
         }
         area(Promoted)
         {
@@ -1210,6 +1234,9 @@ page 138 "Posted Purchase Invoice"
                     actionref(ShowCreditMemo_Promoted; ShowCreditMemo)
                     {
                     }
+                }
+                actionref("Mark As Accepted_Promoted"; "Mark As Accepted")
+                {
                 }
             }
             group(Category_Category6)
@@ -1290,6 +1317,8 @@ page 138 "Posted Purchase Invoice"
 
         SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
+        SIIEnabled := SIIManagement.IsSIISetupEnabled();
+        ShowAdvancedActions := SIIManagement.IsShowAdvancedActionsEnabled();
     end;
 
     trigger OnAfterGetRecord()
@@ -1329,6 +1358,8 @@ page 138 "Posted Purchase Invoice"
         IsShipToCountyVisible: Boolean;
         OperationDescription: Text[500];
         DocHasMultipleRegimeCode: Boolean;
+        SIIEnabled: Boolean;
+        ShowAdvancedActions: Boolean;
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
         IsRemitToCountyVisible: Boolean;
         VATDateEnabled: Boolean;

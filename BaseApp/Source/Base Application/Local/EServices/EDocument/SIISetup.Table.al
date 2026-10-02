@@ -7,6 +7,7 @@ namespace Microsoft.EServices.EDocument;
 using System.Privacy;
 using System.Security.Encryption;
 using System.Telemetry;
+using System.Utilities;
 
 table 10751 "SII Setup"
 {
@@ -48,24 +49,44 @@ table 10751 "SII Setup"
             Caption = 'InvoicesIssuedEndpointUrl';
             InitValue = 'https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/fe/SiiFactFEV1SOAP';
             NotBlank = true;
+
+            trigger OnValidate()
+            begin
+                ValidateAndAuditEndpointUrlChange(FieldCaption(InvoicesIssuedEndpointUrl), xRec.InvoicesIssuedEndpointUrl, InvoicesIssuedEndpointUrl);
+            end;
         }
         field(6; InvoicesReceivedEndpointUrl; Text[250])
         {
             Caption = 'InvoicesReceivedEndpointUrl';
             InitValue = 'https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/fr/SiiFactFRV1SOAP';
             NotBlank = true;
+
+            trigger OnValidate()
+            begin
+                ValidateAndAuditEndpointUrlChange(FieldCaption(InvoicesReceivedEndpointUrl), xRec.InvoicesReceivedEndpointUrl, InvoicesReceivedEndpointUrl);
+            end;
         }
         field(7; PaymentsIssuedEndpointUrl; Text[250])
         {
             Caption = 'PaymentsIssuedEndpointUrl';
             InitValue = 'https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/fr/SiiFactPAGV1SOAP';
             NotBlank = true;
+
+            trigger OnValidate()
+            begin
+                ValidateAndAuditEndpointUrlChange(FieldCaption(PaymentsIssuedEndpointUrl), xRec.PaymentsIssuedEndpointUrl, PaymentsIssuedEndpointUrl);
+            end;
         }
         field(8; PaymentsReceivedEndpointUrl; Text[250])
         {
             Caption = 'PaymentsReceivedEndpointUrl';
             InitValue = 'https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/fe/SiiFactCOBV1SOAP';
             NotBlank = true;
+
+            trigger OnValidate()
+            begin
+                ValidateAndAuditEndpointUrlChange(FieldCaption(PaymentsReceivedEndpointUrl), xRec.PaymentsReceivedEndpointUrl, PaymentsReceivedEndpointUrl);
+            end;
         }
 #if not CLEANSCHEMA25
         field(9; IntracommunityEndpointUrl; Text[250])
@@ -96,6 +117,11 @@ table 10751 "SII Setup"
             Caption = 'CollectionInCashEndpointUrl';
             InitValue = 'https://www1.agenciatributaria.gob.es/wlpl/SSII-FACT/ws/pm/SiiFactCMV1SOAP';
             NotBlank = true;
+
+            trigger OnValidate()
+            begin
+                ValidateAndAuditEndpointUrlChange(FieldCaption(CollectionInCashEndpointUrl), xRec.CollectionInCashEndpointUrl, CollectionInCashEndpointUrl);
+            end;
         }
         field(20; "Invoice Amount Threshold"; Decimal)
         {
@@ -156,6 +182,11 @@ table 10751 "SII Setup"
 
             trigger OnValidate()
             begin
+                if "Certificate Code" <> xRec."Certificate Code" then
+                    Session.LogSecurityAudit(
+                        SIIFeatureNameTok, SecurityOperationResult::Success,
+                        StrSubstNo(SecurityAuditCertificateCodeChangedTxt, xRec."Certificate Code", "Certificate Code"),
+                        AuditCategory::UserManagement);
                 Validate(Enabled, "Certificate Code" <> '');
             end;
         }
@@ -200,6 +231,12 @@ table 10751 "SII Setup"
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         CannotEnableWithoutCertificateErr: Label 'The setup cannot be enabled without a valid certificate.';
+        InvalidEndpointUrlErr: Label 'The endpoint host %1 is not on the allow-list for this feature.', Comment = '%1 = the rejected host';
+        EndpointUrlRejectedAuditTxt: Label 'A SII endpoint URL was rejected during validation. Host: %1.', Locked = true, Comment = '%1 = the rejected host';
+        EndpointUrlRejectedTelemetryTxt: Label 'A SII endpoint URL was rejected during validation.', Locked = true;
+        UnparsableHostTok: Label '(unparsable host)', Locked = true;
+        EndpointFieldChangedTxt: Label 'SII endpoint field "%1" was changed.', Locked = true, Comment = '%1 - endpoint field caption';
+        SecurityAuditCertificateCodeChangedTxt: Label 'SII Certificate Code was changed from %1 to %2.', Locked = true, Comment = '%1 - old certificate code, %2 - new certificate code';
         SiiTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd', Locked = true;
         SiiLRTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd', Locked = true;
         SIIFeatureNameTok: Label 'SII', Locked = true;
@@ -220,6 +257,79 @@ table 10751 "SII Setup"
         "SuministroInformacion Schema" := SiiTxt;
         "SuministroLR Schema" := SiiLRTxt;
         Modify(true);
+    end;
+
+    procedure ValidateEndpointUrl(Url: Text)
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+        Host: Text;
+    begin
+        if IsAllowedEndpointUrl(Url) then
+            exit;
+
+        Host := GetHostFromUrl(Url);
+        Session.LogSecurityAudit(
+            SIIFeatureNameTok, SecurityOperationResult::Failure,
+            StrSubstNo(EndpointUrlRejectedAuditTxt, Host),
+            AuditCategory::ApplicationManagement);
+        TelemetryDimensions.Add('Category', SIIFeatureNameTok);
+        TelemetryDimensions.Add('Host', Host);
+        Session.LogMessage('0000VCA', EndpointUrlRejectedTelemetryTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
+        Error(InvalidEndpointUrlErr, Host);
+    end;
+
+    procedure IsAllowedEndpointUrl(Url: Text): Boolean
+    var
+        Uri: Codeunit Uri;
+        Host: Text;
+        AllowedHostSuffixes: List of [Text];
+        Suffix: Text;
+    begin
+        if not Uri.IsWellFormedUriString(Url, Enum::UriKind::Absolute) then
+            exit(false);
+        Uri.Init(Url);
+        if LowerCase(Uri.GetScheme()) <> 'https' then
+            exit(false);
+
+        Host := LowerCase(Uri.GetHost());
+        AllowedHostSuffixes.Add('agenciatributaria.gob.es');
+        AllowedHostSuffixes.Add('aeat.es');
+        AllowedHostSuffixes.Add('gobiernodecanarias.org');
+        AllowedHostSuffixes.Add('navarra.es');
+        AllowedHostSuffixes.Add('gipuzkoa.eus');
+        AllowedHostSuffixes.Add('bizkaia.eus');
+        AllowedHostSuffixes.Add('araba.eus');
+        foreach Suffix in AllowedHostSuffixes do
+            if (Host = Suffix) or Host.EndsWith('.' + Suffix) then
+                exit(true);
+        exit(false);
+    end;
+
+    local procedure GetHostFromUrl(Url: Text): Text
+    var
+        Uri: Codeunit Uri;
+        Host: Text;
+    begin
+        if not Uri.IsWellFormedUriString(Url, Enum::UriKind::Absolute) then
+            exit(UnparsableHostTok);
+        Uri.Init(Url);
+        Host := LowerCase(Uri.GetHost());
+        if Host = '' then
+            exit(UnparsableHostTok);
+        exit(Host);
+    end;
+
+    local procedure ValidateAndAuditEndpointUrlChange(EndpointFieldCaption: Text; OldUrl: Text; NewUrl: Text)
+    begin
+        ValidateEndpointUrl(NewUrl);
+
+        if NewUrl = OldUrl then
+            exit;
+
+        Session.LogSecurityAudit(
+            SIIFeatureNameTok, SecurityOperationResult::Success,
+            StrSubstNo(EndpointFieldChangedTxt, EndpointFieldCaption),
+            AuditCategory::ApplicationManagement);
     end;
 
     [IntegrationEvent(false, false)]

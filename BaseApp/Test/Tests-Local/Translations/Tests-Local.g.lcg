@@ -3875,6 +3875,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Corrective Documents - NamedType XPathSalesFacturaExpedidaTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3173997497 - NamedType 2866029134" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This document is already marked as accepted in SII.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Document Processing - NamedType AlreadyMarkedAcceptedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3173997497 - NamedType 470295921" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[A certificate is used in the SII Setup. Do you really want to delete the certificate?]]></Val>
@@ -3918,6 +3927,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Document Processing - NamedType MarkAsNotAcceptedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3173997497 - NamedType 2018139556" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The document has not been transmitted and hence has no status.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Document Processing - NamedType NoSIIStateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3173997497 - NamedType 1880852514" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

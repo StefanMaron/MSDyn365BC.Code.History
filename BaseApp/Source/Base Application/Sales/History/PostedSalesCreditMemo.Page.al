@@ -1103,6 +1103,30 @@ page 134 "Posted Sales Credit Memo"
                     end;
                 }
             }
+            action("Mark As Accepted")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Mark As Accepted';
+                Image = Completed;
+                Enabled = SIIEnabled;
+                Visible = ShowAdvancedActions;
+                ToolTip = 'Mark the document as accepted in SII to correct an incorrect or pending status.';
+
+                trigger OnAction()
+                var
+                    SIIDocUploadState: Record "SII Doc. Upload State";
+                    SIIManagement: Codeunit "SII Management";
+                    FeedbackMessage: Text;
+                begin
+                    if SIIManagement.MarkDocumentAsAccepted(
+                         SIIDocUploadState."Document Source"::"Customer Ledger",
+                         SIIDocUploadState."Document Type"::"Credit Memo", Rec."No.", FeedbackMessage)
+                    then
+                        CurrPage.Update(false)
+                    else
+                        Message(FeedbackMessage);
+                end;
+            }
         }
         area(Promoted)
         {
@@ -1129,6 +1153,9 @@ page 134 "Posted Sales Credit Memo"
                     }
                 }
                 actionref("&Track Package_Promoted"; "&Track Package")
+                {
+                }
+                actionref("Mark As Accepted_Promoted"; "Mark As Accepted")
                 {
                 }
             }
@@ -1220,6 +1247,8 @@ page 134 "Posted Sales Credit Memo"
 
         SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
+        SIIEnabled := SIIManagement.IsSIISetupEnabled();
+        ShowAdvancedActions := SIIManagement.IsShowAdvancedActionsEnabled();
     end;
 
     trigger OnAfterGetRecord()
@@ -1260,6 +1289,8 @@ page 134 "Posted Sales Credit Memo"
         IsShipToCountyVisible: Boolean;
         DocHasMultipleRegimeCode: Boolean;
         OperationDescription: Text[500];
+        SIIEnabled: Boolean;
+        ShowAdvancedActions: Boolean;
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
         VATDateEnabled: Boolean;
 
