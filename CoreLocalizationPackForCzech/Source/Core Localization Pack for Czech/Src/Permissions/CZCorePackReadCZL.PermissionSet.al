@@ -29,6 +29,7 @@
                   tabledata "EET Entry Status Log CZL" = R,
                   tabledata "EET Service Setup CZL" = R,
                   tabledata "Enhanced Currency Buffer CZL" = R,
+                  tabledata "EPO Service Setup CZL" = R,
                   tabledata "Excel Template CZL" = R,
                   tabledata "G/L Account Adjust. Buffer CZL" = R,
                   tabledata "Invt. Movement Template CZL" = R,

@@ -179,6 +179,7 @@ codeunit 11710 "Data Class. Eval. Handler CZL"
         DataClassificationMgt.SetTableFieldsToNormal(Database::"EET Cash Register CZL");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"EET Entry CZL");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"EET Entry Status Log CZL");
+        DataClassificationMgt.SetTableFieldsToNormal(Database::"EPO Service Setup CZL");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Excel Template CZL");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Invt. Movement Template CZL");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Non-Deductible VAT Setup CZL");

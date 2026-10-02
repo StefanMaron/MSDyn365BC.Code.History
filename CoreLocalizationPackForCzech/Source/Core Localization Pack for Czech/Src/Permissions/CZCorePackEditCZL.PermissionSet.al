@@ -29,6 +29,7 @@
                   tabledata "EET Entry Status Log CZL" = IMD,
                   tabledata "EET Service Setup CZL" = IMD,
                   tabledata "Enhanced Currency Buffer CZL" = IMD,
+                  tabledata "EPO Service Setup CZL" = IMD,
                   tabledata "Excel Template CZL" = IMD,
                   tabledata "G/L Account Adjust. Buffer CZL" = IMD,
                   tabledata "Invt. Movement Template CZL" = IMD,
