@@ -979,6 +979,7 @@ codeunit 137415 "SCM Item Variant Attributes"
         ItemAttributeValue: Record "Item Attribute Value";
         ItemVariantAttributeValueMapping: Record "Item Var. Attr. Value Mapping";
     begin
+        // [FEATURE] [AI TEST]
         // [SCENARIO 619522] Cannot rename variant with item attributes: The Item Variant Attribute Value Mapping does not exist.
         Initialize();
 
@@ -1020,6 +1021,7 @@ codeunit 137415 "SCM Item Variant Attributes"
         CopyItemBuffer: Record "Copy Item Buffer";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
+        // [FEATURE] [AI TEST]
         // [SCENARIO 619488] Copy item actions doesn't copy Item Variant Attributes
         Initialize();
 
@@ -1063,6 +1065,7 @@ codeunit 137415 "SCM Item Variant Attributes"
         ItemVariant: Record "Item Variant";
         ItemVariants: TestPage "Item Variants";
     begin
+        // [FEATURE] [AI TEST]
         // [SCENARIO 614482] Verify factbox is empty when opening variants page and clicking on first line.
         Initialize();
 
@@ -1104,6 +1107,7 @@ codeunit 137415 "SCM Item Variant Attributes"
         ItemVariants: TestPage "Item Variants";
         ChangedValue: Text;
     begin
+        // [FEATURE] [AI TEST]
         // [SCENARIO 619461] Verify Missing "Edit" action in the Item Attribute factbox in the Item Variant list
         Initialize();
 

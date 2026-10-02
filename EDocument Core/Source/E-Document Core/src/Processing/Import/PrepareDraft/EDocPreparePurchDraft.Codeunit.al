@@ -8,6 +8,7 @@ using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.AI;
 using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.UOM;
 using Microsoft.Purchases.Document;
@@ -33,11 +34,17 @@ codeunit 6406 "EDoc Prepare Purch. Draft"
         Vendor: Record Vendor;
         PurchaseOrder: Record "Purchase Header";
         EDocVendorAssignmentHistory: Record "E-Doc. Vendor Assign. History";
+
         EDocPurchaseHistMapping: Codeunit "E-Doc. Purchase Hist. Mapping";
         EDocActivityLogSession: Codeunit "E-Doc. Activity Log Session";
         IUnitOfMeasureProvider: Interface IUnitOfMeasureProvider;
         IPurchaseLineProvider: Interface IPurchaseLineProvider;
         IPurchaseOrderProvider: Interface IPurchaseOrderProvider;
+        LineAmount: Decimal;
+        LineVATAmount: Decimal;
+        TotalLineVATAmount: Decimal;
+        VendorAlreadyAssigned: Boolean;
+        VendorFoundByProvider: Boolean;
     begin
         IUnitOfMeasureProvider := EDocImportParameters."Processing Customizations";
         IPurchaseLineProvider := EDocImportParameters."Processing Customizations";
@@ -47,10 +54,12 @@ codeunit 6406 "EDoc Prepare Purch. Draft"
 
         EDocumentPurchaseHeader.GetFromEDocument(EDocument);
         EDocumentPurchaseHeader.TestField("E-Document Entry No.");
-        if EDocumentPurchaseHeader."[BC] Vendor No." = '' then begin
+        VendorAlreadyAssigned := EDocumentPurchaseHeader."[BC] Vendor No." <> '';
+        if not VendorAlreadyAssigned then begin
             Vendor := GetVendor(EDocument, EDocImportParameters."Processing Customizations");
             EDocumentPurchaseHeader."[BC] Vendor No." := Vendor."No.";
         end;
+        VendorFoundByProvider := (not VendorAlreadyAssigned) and (EDocumentPurchaseHeader."[BC] Vendor No." <> '');
 
         PurchaseOrder := IPurchaseOrderProvider.GetPurchaseOrder(EDocumentPurchaseHeader);
         if PurchaseOrder."No." <> '' then begin
@@ -62,6 +71,17 @@ codeunit 6406 "EDoc Prepare Purch. Draft"
         EDocumentPurchaseHeader.Modify();
 
         EDocImpSessionTelemetry.SetBool('Vendor', EDocumentPurchaseHeader."[BC] Vendor No." <> '');
+
+        case true of
+            VendorAlreadyAssigned:
+                EDocImpSessionTelemetry.SetText('Vendor Assignment Source', 'Already Assigned');
+            VendorFoundByProvider:
+                EDocImpSessionTelemetry.SetText('Vendor Assignment Source', 'Provider');
+            EDocumentPurchaseHeader."[BC] Vendor No." <> '':
+                EDocImpSessionTelemetry.SetText('Vendor Assignment Source', 'History');
+            else
+                EDocImpSessionTelemetry.SetText('Vendor Assignment Source', 'None');
+        end;
         if EDocumentPurchaseHeader."[BC] Vendor No." <> '' then begin
 
             EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
@@ -82,10 +102,17 @@ codeunit 6406 "EDoc Prepare Purch. Draft"
 
         Clear(EDocumentPurchaseLine);
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocument."Entry No");
+        TotalLineVATAmount := 0;
         if EDocumentPurchaseLine.FindSet() then
             repeat
+                LineAmount := Round(EDocumentPurchaseLine.Quantity * EDocumentPurchaseLine."Unit Price" - EDocumentPurchaseLine."Total Discount");
+                LineVATAmount := Round(LineAmount * EDocumentPurchaseLine."VAT Rate" / 100);
+                TotalLineVATAmount += LineVATAmount;
                 EDocImpSessionTelemetry.SetLine(EDocumentPurchaseLine.SystemId);
             until EDocumentPurchaseLine.Next() = 0;
+
+        ComputeAndApplyVATAmountDifference(EDocumentPurchaseHeader, TotalLineVATAmount);
+        EDocumentPurchaseHeader.Modify();
 
         LogAllActivitySessionChanges(EDocActivityLogSession);
 
@@ -104,9 +131,21 @@ codeunit 6406 "EDoc Prepare Purch. Draft"
     var
         EDocumentPurchaseDraft: Page "E-Document Purchase Draft";
     begin
+        EnsureDraftHeaderExistsForFailedExtraction(EDocument);
         EDocumentPurchaseDraft.Editable(true);
         EDocumentPurchaseDraft.SetRecord(EDocument);
         EDocumentPurchaseDraft.Run();
+    end;
+
+    internal procedure EnsureDraftHeaderExistsForFailedExtraction(EDocument: Record "E-Document")
+    var
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+    begin
+        EDocument.CalcFields("Import Processing Status");
+        if not ((EDocument."Import Processing Status" = Enum::"Import E-Document Steps"::"Structure received data") and (EDocument.Status = Enum::"E-Document Status"::Error)) then
+            exit;
+
+        EDocumentPurchaseHeader.InsertForEDocument(EDocument);
     end;
 
     procedure CleanUpDraft(EDocument: Record "E-Document")
@@ -129,6 +168,7 @@ codeunit 6406 "EDoc Prepare Purch. Draft"
         Log(EDocActivityLogSession, EDocActivityLogSession.DeferralTok());
         Log(EDocActivityLogSession, EDocActivityLogSession.ItemRefTok());
         Log(EDocActivityLogSession, EDocActivityLogSession.TextToAccountMappingTok());
+        Log(EDocActivityLogSession, EDocActivityLogSession.ItemDescriptionTok());
     end;
 
     local procedure Log(EDocActivityLogSession: Codeunit "E-Doc. Activity Log Session"; ActivityLogName: Text)
@@ -213,7 +253,7 @@ codeunit 6406 "EDoc Prepare Purch. Draft"
     var
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
     begin
-        EDocumentPurchaseLine.SetLoadFields("E-Document Entry No.", "[BC] Purchase Type No.", "[BC] Deferral Code");
+        EDocumentPurchaseLine.SetLoadFields("E-Document Entry No.", "[BC] Purchase Type No.", "[BC] Deferral Code", Description, "Product Code", Quantity, "Unit of Measure", "Unit Price");
         EDocumentPurchaseLine.ReadIsolation(IsolationLevel::ReadCommitted);
 
         EDocumentPurchaseLine.SetRange("E-Document Entry No.", EDocumentEntryNo);
@@ -242,5 +282,65 @@ codeunit 6406 "EDoc Prepare Purch. Draft"
             Commit();
             if Codeunit.Run(Codeunit::"E-Doc. Deferral Matching", EDocumentPurchaseLine) then;
         end;
+    end;
+
+    local procedure ComputeAndApplyVATAmountDifference(EDocumentPurchaseHeader: Record "E-Document Purchase Header"; TotalLineVATAmount: Decimal)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        ActivityLog: Codeunit "Activity Log Builder";
+        VATAmountDiff: Decimal;
+        Reasoning: Text[250];
+        VATDiffAppliedLbl: Label 'Applied VAT amount difference of %1 to reconcile document Total VAT %2 with computed Total Line VAT Amount %3.', Comment = '%1 = VAT difference, %2 = Total VAT, %3 = Total Line VAT Amount';
+        VATDiffSkippedSetupLbl: Label 'VAT amount difference of %1 was not applied because Apply VAT Diff. For Purch. E-Doc. is disabled in Purchases & Payables Setup.', Comment = '%1 = VAT difference';
+        VATDiffSkippedAllowLbl: Label 'VAT amount difference of %1 was not applied because Allow VAT Difference is disabled in Purchases & Payables Setup.', Comment = '%1 = VAT difference';
+        VATDiffSkippedMaxLbl: Label 'VAT amount difference of %1 was not applied because it exceeds the Max. VAT Difference Allowed of %2 in General Ledger Setup.', Comment = '%1 = VAT difference, %2 = Max. VAT Difference Allowed';
+    begin
+        if (EDocumentPurchaseHeader."Total VAT" = 0) or (TotalLineVATAmount = EDocumentPurchaseHeader."Total VAT") then
+            exit;
+
+        VATAmountDiff := EDocumentPurchaseHeader."Total VAT" - TotalLineVATAmount;
+
+        if not PurchasesPayablesSetup.Get() then
+            exit;
+
+        if not PurchasesPayablesSetup."Apply VAT Diff. For Purch EDoc" then begin
+            Reasoning := CopyStr(StrSubstNo(VATDiffSkippedSetupLbl, VATAmountDiff), 1, MaxStrLen(Reasoning));
+            ActivityLog
+                .Init(Database::"E-Document Purchase Header", EDocumentPurchaseHeader.FieldNo("Total VAT"), EDocumentPurchaseHeader.SystemId)
+                .SetExplanation(Reasoning)
+                .SetType(Enum::"Activity Log Type"::"AL")
+                .Log();
+            exit;
+        end;
+
+        if not PurchasesPayablesSetup."Allow VAT Difference" then begin
+            Reasoning := CopyStr(StrSubstNo(VATDiffSkippedAllowLbl, VATAmountDiff), 1, MaxStrLen(Reasoning));
+            ActivityLog
+                .Init(Database::"E-Document Purchase Header", EDocumentPurchaseHeader.FieldNo("Total VAT"), EDocumentPurchaseHeader.SystemId)
+                .SetExplanation(Reasoning)
+                .SetType(Enum::"Activity Log Type"::"AL")
+                .Log();
+            exit;
+        end;
+
+        if not GeneralLedgerSetup.Get() then
+            exit;
+        if Abs(VATAmountDiff) > GeneralLedgerSetup."Max. VAT Difference Allowed" then begin
+            Reasoning := CopyStr(StrSubstNo(VATDiffSkippedMaxLbl, VATAmountDiff, GeneralLedgerSetup."Max. VAT Difference Allowed"), 1, MaxStrLen(Reasoning));
+            ActivityLog
+                .Init(Database::"E-Document Purchase Header", EDocumentPurchaseHeader.FieldNo("Total VAT"), EDocumentPurchaseHeader.SystemId)
+                .SetExplanation(Reasoning)
+                .SetType(Enum::"Activity Log Type"::"AL")
+                .Log();
+            exit;
+        end;
+
+        Reasoning := CopyStr(StrSubstNo(VATDiffAppliedLbl, VATAmountDiff, EDocumentPurchaseHeader."Total VAT", TotalLineVATAmount), 1, MaxStrLen(Reasoning));
+        ActivityLog
+            .Init(Database::"E-Document Purchase Header", EDocumentPurchaseHeader.FieldNo("Total VAT"), EDocumentPurchaseHeader.SystemId)
+            .SetExplanation(Reasoning)
+            .SetType(Enum::"Activity Log Type"::"AL")
+            .Log();
     end;
 }

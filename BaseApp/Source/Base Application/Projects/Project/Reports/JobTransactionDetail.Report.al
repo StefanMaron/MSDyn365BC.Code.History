@@ -12,11 +12,11 @@ using System.Utilities;
 report 1007 "Job - Transaction Detail"
 {
     AdditionalSearchTerms = 'Job - Transaction Detail';
-    DefaultLayout = RDLC;
-    RDLCLayout = './Projects/Project/Reports/JobTransactionDetail.rdlc';
     ApplicationArea = Jobs;
     Caption = 'Project Task - Transaction Detail';
+    ToolTip = 'View all postings with entries for a selected project for a selected period, which have been charged to a certain project. At the end of each project list, the amounts are totaled separately for the Sales and Usage entry types.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -357,6 +357,16 @@ report 1007 "Job - Transaction Detail"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Projects/Project/Reports/JobTransactionDetail.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

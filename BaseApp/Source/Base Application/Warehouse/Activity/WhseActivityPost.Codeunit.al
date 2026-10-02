@@ -11,7 +11,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 #endif
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Projects.Project.Job;
@@ -120,6 +119,8 @@ codeunit 7324 "Whse.-Activity-Post"
         WhseActivHeader.Get(WhseActivLine."Activity Type", WhseActivLine."No.");
         GetLocation(WhseActivHeader."Location Code");
 
+        SuppressCommit := WhseActivHeader.PostInboundTransferInOneStep();
+
         if WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Put-away" then
             WhseRequest.Get(
               WhseRequest.Type::Inbound, WhseActivHeader."Location Code",
@@ -175,8 +176,12 @@ codeunit 7324 "Whse.-Activity-Post"
             OnCodeOnAfterCreatePostedWhseActivDocument(WhseActivHeader);
         end;
 
-        if IsPreview then
+        if IsPreview then begin
+            if WhseActivHeader.PostInboundTransferInOneStep() then
+                if TransHeader.Find() then
+                    TransHeader.PostRelatedInboundTransfer(true);
             GenJnlPostPreview.ThrowError();
+        end;
         // Modify/delete activity header and activity lines
         TempWhseActivLine.DeleteAll();
 
@@ -242,6 +247,10 @@ codeunit 7324 "Whse.-Activity-Post"
         OnAfterPostWhseActivHeader(WhseActivHeader, PurchHeader, SalesHeader, TransHeader);
 #endif
 
+        if WhseActivHeader.PostInboundTransferInOneStep() then
+            if TransHeader.Find() then
+                TransHeader.PostRelatedInboundTransfer(false);
+
         Clear(WhseJnlRegisterLine);
         OnAfterPostWhseActivityCompleted(WhseActivHeader, PurchHeader, SalesHeader, TransHeader, SuppressCommit, IsPreview);
     end;
@@ -273,7 +282,14 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     local procedure CheckWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityHeader, Location, IsHandled);
+        if IsHandled then
+            exit;
+
         WarehouseActivityLine.TestField("Item No.");
         if Location."Bin Mandatory" then begin
             WarehouseActivityLine.TestField("Unit of Measure Code");
@@ -641,26 +657,33 @@ codeunit 7324 "Whse.-Activity-Post"
 
     local procedure UpdateUnhandledTransLine(TransHeaderNo: Code[20])
     var
+        LocalTransHeader: Record "Transfer Header";
         TransLine: Record "Transfer Line";
     begin
         TransLine.SetRange("Document No.", TransHeaderNo);
         TransLine.SetRange("Derived From Line No.", 0);
         TransLine.SetRange("Qty. to Ship", 0);
         TransLine.SetRange("Qty. to Receive", 0);
-        if TransLine.FindSet() then
+        if TransLine.FindSet() then begin
+            LocalTransHeader.Get(TransHeaderNo);
             repeat
                 if TransLine."Qty. in Transit" <> 0 then
                     TransLine.Validate(TransLine."Qty. to Receive", TransLine."Qty. in Transit");
-                if TransLine."Outstanding Quantity" <> 0 then
+                if TransLine."Outstanding Quantity" <> 0 then begin
                     TransLine.Validate(TransLine."Qty. to Ship", TransLine."Outstanding Quantity");
+                    if LocalTransHeader."Direct Transfer" then begin
+                        TransLine."Qty. to Receive" := 0;
+                        TransLine."Qty. to Receive (Base)" := 0;
+                    end;
+                end;
                 OnBeforeUnhandledTransLineModify(TransLine);
                 TransLine.Modify();
             until TransLine.Next() = 0;
+        end;
     end;
 
     local procedure PostSourceDocument(WhseActivHeader: Record "Warehouse Activity Header")
     var
-        InventorySetup: Record "Inventory Setup";
         PurchPost: Codeunit "Purch.-Post";
         SalesPost: Codeunit "Sales-Post";
         TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
@@ -735,8 +758,7 @@ codeunit 7324 "Whse.-Activity-Post"
                                     PostedSourceType := Database::"Transfer Receipt Header";
                                     PostedSourceNo := TransHeader."Last Receipt No.";
                                 end else begin
-                                    InventorySetup.Get();
-                                    InventorySetup.TestField("Direct Transfer Posting", InventorySetup."Direct Transfer Posting"::"Direct Transfer");
+                                    TransHeader.TestField("Direct Transfer Posting", TransHeader."Direct Transfer Posting"::"Direct Transfer");
                                     if HideDialog then
                                         TransferPostTransfer.SetHideValidationDialog(HideDialog);
                                     TransferPostTransfer.SetPreviewMode(IsPreview);
@@ -754,16 +776,22 @@ codeunit 7324 "Whse.-Activity-Post"
                                 TransferPostShip.Run(TransHeader);
                                 PostedSourceType := Database::"Transfer Shipment Header";
                                 PostedSourceNo := TransHeader."Last Shipment No.";
-                            end else begin
-                                InventorySetup.Get();
-                                InventorySetup.TestField("Direct Transfer Posting", InventorySetup."Direct Transfer Posting"::"Direct Transfer");
-                                if HideDialog then
-                                    TransferPostTransfer.SetHideValidationDialog(HideDialog);
-                                TransferPostTransfer.SetPreviewMode(IsPreview);
-                                TransferPostTransfer.Run(TransHeader);
-                                PostedSourceType := Database::"Direct Trans. Header";
-                                PostedSourceNo := TransHeader."Last Shipment No.";
-                            end;
+                            end else
+                                if TransHeader."Direct Transfer Posting" = TransHeader."Direct Transfer Posting"::"Direct Transfer" then begin
+                                    if HideDialog then
+                                        TransferPostTransfer.SetHideValidationDialog(HideDialog);
+                                    TransferPostTransfer.SetPreviewMode(IsPreview);
+                                    TransferPostTransfer.Run(TransHeader);
+                                    PostedSourceType := Database::"Direct Trans. Header";
+                                    PostedSourceNo := TransHeader."Last Shipment No.";
+                                end else begin
+                                    if HideDialog then
+                                        TransferPostShip.SetHideValidationDialog(HideDialog);
+                                    TransferPostShip.SetPreviewMode(IsPreview);
+                                    TransferPostShip.Run(TransHeader);
+                                    PostedSourceType := Database::"Transfer Shipment Header";
+                                    PostedSourceNo := TransHeader."Last Shipment No.";
+                                end;
                         end;
                     end;
 
@@ -1093,6 +1121,7 @@ codeunit 7324 "Whse.-Activity-Post"
     var
         PostedInvtPutAwayLine: Record "Posted Invt. Put-away Line";
         PostedInvtPickLine: Record "Posted Invt. Pick Line";
+        IsHandled: Boolean;
     begin
         if WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Put-away" then begin
             PostedInvtPutAwayLine.Init();
@@ -1105,7 +1134,10 @@ codeunit 7324 "Whse.-Activity-Post"
             PostedInvtPickLine.Init();
             PostedInvtPickLine.TransferFields(WhseActivLine);
             PostedInvtPickLine."No." := PostedInvtPickHeader."No.";
-            PostedInvtPickLine.Validate(Quantity, WhseActivLine."Qty. to Handle");
+            IsHandled := false;
+            OnBeforePostedInvtPickLineValidateQuantity(PostedInvtPickLine, WhseActivLine, IsHandled);
+            if not IsHandled then
+                PostedInvtPickLine.Validate(Quantity, WhseActivLine."Qty. to Handle");
             OnBeforePostedInvtPickLineInsert(PostedInvtPickLine, WhseActivLine);
             PostedInvtPickLine.Insert();
         end;
@@ -1482,6 +1514,11 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitSourceDocument(var WhseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
@@ -1536,6 +1573,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostWhseActivityLine(WhseActivHeader: Record "Warehouse Activity Header"; var WhseActivLine: Record "Warehouse Activity Line"; PostedSourceNo: Code[20]; PostedSourceType: Integer; PostedSourceSubType: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostedInvtPickLineValidateQuantity(var PostedInvtPickLine: Record "Posted Invt. Pick Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 

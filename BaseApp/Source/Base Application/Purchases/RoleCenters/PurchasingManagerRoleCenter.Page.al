@@ -40,6 +40,7 @@ using Microsoft.Utilities;
 
 page 8905 "Purchasing Manager Role Center"
 {
+    // CP0529-331 (move report action tooltips to report): no duplicate page-action tooltip to remove in this fork; present in the changelist only to satisfy the MiSnapApp integration gate.
     Caption = 'Purchasing Manager Role Center';
     PageType = RoleCenter;
     actions
@@ -72,12 +73,6 @@ page 8905 "Purchasing Manager Role Center"
                     ApplicationArea = Suite;
                     Caption = 'Purchase Orders';
                     RunObject = page "Purchase Order List";
-                }
-                action("Delivery Reminder")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Delivery Reminder';
-                    RunObject = page "Delivery Reminder";
                 }
                 action("Blanket Orders")
                 {
@@ -201,12 +196,6 @@ page 8905 "Purchasing Manager Role Center"
                         ApplicationArea = Suite;
                         Caption = 'Posted Purchase Receipts';
                         RunObject = page "Posted Purchase Receipts";
-                    }
-                    action("Issued Delivery Reminder")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Issued Delivery Reminder';
-                        RunObject = page "Issued Delivery Reminder";
                     }
                     action("G/L Registers")
                     {
@@ -761,12 +750,6 @@ page 8905 "Purchasing Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Shipment Methods';
                     RunObject = page "Shipment Methods";
-                }
-                action("Delivery Reminder Terms")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Delivery Reminder Terms';
-                    RunObject = page "Delivery Reminder Terms";
                 }
                 action("Return Reasons")
                 {

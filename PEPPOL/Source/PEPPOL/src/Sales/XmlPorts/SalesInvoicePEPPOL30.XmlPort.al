@@ -1308,6 +1308,12 @@ xmlport 37201 "Sales Invoice - PEPPOL30"
                 {
                     XmlName = 'AllowanceChargeReasonCode';
                     NamespacePrefix = 'cbc';
+
+                    trigger OnBeforePassVariable()
+                    begin
+                        if AllowanceChargeReasonCodePaymentDiscount = '' then
+                            currXMLport.Skip();
+                    end;
                 }
                 textelement(AllowanceChargeReasonPaymentDiscount)
                 {
@@ -1474,7 +1480,7 @@ xmlport 37201 "Sales Invoice - PEPPOL30"
                           TaxCategoryPercent,
                           TaxTotalTaxSchemeID);
 
-                        PEPPOLTaxInfoProvider.GetTaxExemptionReason(TempVATProductPostingGroup, TaxExemptionReason, TaxTotalTaxCategoryID);
+                        PEPPOLTaxInfoProvider.GetTaxExemptionReason(TempVATAmtLine, TempVATProductPostingGroup, TaxExemptionReason, TaxTotalTaxCategoryID);
                     end;
                 }
 
@@ -2247,7 +2253,7 @@ xmlport 37201 "Sales Invoice - PEPPOL30"
         PostedHeaderIterator, PostedLineIterator : Interface "PEPPOL Posted Document Iterator";
         PEPPOL30Format: Enum "PEPPOL 3.0 Format";
         DummyVar: Text;
-        IsFormatSet, IsFormatInitialized : Boolean;
+        IsFormatSet: Boolean;
         GeneratePDF: Boolean;
 
 

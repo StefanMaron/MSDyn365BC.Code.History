@@ -1,9 +1,10 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Reporting;
 
+using Microsoft.Shared.Report;
 using System.Environment;
 using System.Environment.Configuration;
 using System.Reflection;
@@ -18,7 +19,6 @@ page 9652 "Report Layout Selection"
     PageType = List;
     SourceTable = "Report Layout Selection";
     SourceTableTemporary = true;
-    UsageCategory = Administration;
 
     layout
     {
@@ -48,19 +48,16 @@ page 9652 "Report Layout Selection"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the object ID of the report.';
                 }
                 field("Report Name"; Rec."Report Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the name of the report.';
                 }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Layout Type';
-                    ToolTip = 'Specifies the type of the report layout that is currently used on the report.';
 
                     trigger OnValidate()
                     begin
@@ -74,7 +71,6 @@ page 9652 "Report Layout Selection"
                 {
                     ApplicationArea = Basic, Suite;
                     TableRelation = "Custom Report Layout" where("Report ID" = field("Report ID"));
-                    ToolTip = 'Specifies the custom report layout.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -196,6 +192,19 @@ page 9652 "Report Layout Selection"
                     REPORT.RunModal(Rec."Report ID");
                 end;
             }
+            action(ShowLayoutParts)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Show layout parts';
+                Image = ViewDocumentLine;
+                Visible = DocumentReportExperienceEnabled;
+                ToolTip = 'Show the header/footer and theme parts that will actually apply to the selected report in the current company, including where each part is resolved from.';
+
+                trigger OnAction()
+                begin
+                    ShowResolvedLayoutParts();
+                end;
+            }
             action(BulkUpdate)
             {
                 ApplicationArea = Basic, Suite;
@@ -240,6 +249,9 @@ page 9652 "Report Layout Selection"
                 actionref(RunReport_Promoted; RunReport)
                 {
                 }
+                actionref(ShowLayoutParts_Promoted; ShowLayoutParts)
+                {
+                }
 #if not CLEAN28
                 actionref(Customizations_Promoted; Customizations)
                 {
@@ -270,12 +282,16 @@ page 9652 "Report Layout Selection"
     end;
 
     trigger OnOpenPage()
+    var
+        FeatureKeyManagement: Codeunit "Feature Key Management";
     begin
         SelectedCompany := CompanyName;
+        DocumentReportExperienceEnabled := FeatureKeyManagement.IsDocumentReportExperienceEnabled();
     end;
 
     var
         ReportLayoutSelection: Record "Report Layout Selection";
+        LookupHelper: Codeunit "Composite Layout Lookup Helper";
         SelectedCompany: Text[30];
 #if not CLEAN28    
         WrongCompanyErr: Label 'You cannot select a layout that is specific to another company.';
@@ -283,8 +299,12 @@ page 9652 "Report Layout Selection"
         DefaultLbl: Label '(Default)';
         CustomLayoutDescription: Text;
         IsInitialized: Boolean;
+        DocumentReportExperienceEnabled: Boolean;
         CouldNotFindCustomReportLayoutErr: Label 'There is no custom report layout with %1 in the description.', Comment = '%1 Description of custom report layout';
         CouldNotFindBuiltInReportLayoutErr: Label 'There is no built-in report layout with %1 in the description.', Comment = '%1 Description of custom report layout';
+        ShowLayoutPartsMsg: Label 'Header/Footer Part: %1\Theme Part: %2', Comment = '%1 = resolved header/footer part, %2 = resolved theme part';
+        PartWithSourceTxt: Label '%1 (from %2)', Comment = '%1 = part name, %2 = where the part is resolved from';
+        SelectReportFirstErr: Label 'Select a report before using this action.';
 
     procedure UpdateRec()
     begin
@@ -534,6 +554,38 @@ page 9652 "Report Layout Selection"
         TenantReportLayoutSelection."User ID" := EmptyGuid;
         if not TenantReportLayoutSelection.Insert(true) then
             TenantReportLayoutSelection.Modify(true);
+    end;
+
+    local procedure ShowResolvedLayoutParts()
+    var
+        DefaultReportLayoutList: Record "Report Layout List";
+        ReportLayoutsImpl: Codeunit "Report Layouts Impl.";
+        LayoutKey: Text;
+        HeaderDisplay: Text;
+        HeaderSource: Text;
+        ThemeDisplay: Text;
+        ThemeSource: Text;
+    begin
+        if Rec."Report ID" = 0 then
+            Error(SelectReportFirstErr);
+
+        ReportLayoutsImpl.SetSelectedCompany(SelectedCompany);
+        if ReportLayoutsImpl.GetDefaultReportLayoutSelection(Rec."Report ID", DefaultReportLayoutList) then
+            LayoutKey := LookupHelper.CompositeLayoutKey(DefaultReportLayoutList);
+
+        if LayoutKey <> '' then
+            LookupHelper.GetResolvedPartDisplays(Rec."Report ID", LayoutKey, HeaderDisplay, HeaderSource, ThemeDisplay, ThemeSource)
+        else
+            LookupHelper.GetReportLevelPartDisplays(Rec."Report ID", HeaderDisplay, HeaderSource, ThemeDisplay, ThemeSource);
+
+        Message(ShowLayoutPartsMsg, FormatPartDisplay(HeaderDisplay, HeaderSource), FormatPartDisplay(ThemeDisplay, ThemeSource));
+    end;
+
+    local procedure FormatPartDisplay(PartName: Text; Source: Text): Text
+    begin
+        if Source = '' then
+            exit(PartName);
+        exit(StrSubstNo(PartWithSourceTxt, PartName, Source));
     end;
 
     procedure GetSelectedCompanyName(): Text[30]

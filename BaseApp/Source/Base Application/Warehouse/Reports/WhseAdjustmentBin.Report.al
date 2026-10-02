@@ -11,13 +11,13 @@ using System.Utilities;
 
 report 7320 "Whse. Adjustment Bin"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Warehouse/Reports/WhseAdjustmentBin.rdlc';
     AccessByPermission = TableData Bin = R;
     AdditionalSearchTerms = 'synchronize inventory';
     ApplicationArea = Warehouse;
     Caption = 'Warehouse Adjustment Bin';
+    ToolTip = 'Adjust the quantity of an item in a particular bin or bins. For instance, you might find some items in a bin that are not registered in the system, or you might not be able to pick the quantity needed because there are fewer items in a bin than was calculated by the program. The bin is then updated to correspond to the actual quantity in the bin. In addition, it creates a balancing quantity in the adjustment bin, for synchronization with item ledger entries, which you can then post with an item journal.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -253,6 +253,16 @@ report 7320 "Whse. Adjustment Bin"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Warehouse/Reports/WhseAdjustmentBin.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

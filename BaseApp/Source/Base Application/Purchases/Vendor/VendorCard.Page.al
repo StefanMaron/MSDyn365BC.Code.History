@@ -364,6 +364,12 @@ page 26 "Vendor Card"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                 }
+                field("Self-Billing Invoice Nos."; Rec."Self-Billing Invoice Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    Enabled = Rec."Self-Billing Agreement";
+                }
                 field("Price Calculation Method"; Rec."Price Calculation Method")
                 {
                     Visible = ExtendedPriceEnabled;
@@ -527,10 +533,10 @@ page 26 "Vendor Card"
                     ApplicationArea = All;
                     Visible = OverReceiptAllowed;
                 }
-                field("Delivery Reminder Terms"; Rec."Delivery Reminder Terms")
+                field("Receipt on Invoice Policy"; Rec."Receipt on Invoice Policy")
                 {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the delivery reminder terms code for the vendor.';
+                    ApplicationArea = All;
+                    Caption = 'Receipt on Invoice';
                 }
             }
         }
@@ -2058,4 +2064,3 @@ page 26 "Vendor Card"
     begin
     end;
 }
-

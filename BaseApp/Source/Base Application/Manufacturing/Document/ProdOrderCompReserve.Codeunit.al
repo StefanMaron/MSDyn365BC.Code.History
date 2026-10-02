@@ -1115,9 +1115,6 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         SourceRecRef.SetTable(ProdOrderComp);
         ProdOrderComp.SetReservationEntry(CalcReservEntry);
         OnSetProdOrderCompOnBeforeUpdateReservation(CalcReservEntry, ProdOrderComp);
-#if not CLEAN26
-        ReservationManagement.RunOnSetProdOrderCompOnBeforeUpdateReservation(CalcReservEntry, ProdOrderComp);
-#endif
         EntryIsPositive := ProdOrderComp."Remaining Qty. (Base)" > 0;
     end;
 

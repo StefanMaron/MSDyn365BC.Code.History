@@ -120,7 +120,6 @@ page 9007 "Purchasing Agent Role Center"
                 Caption = 'Vendor/&Item Purchases';
                 Image = "Report";
                 RunObject = Report "Vendor/Item Purchases";
-                ToolTip = 'View a list of item entries for each vendor in a selected period.';
             }
             separator(Action28)
             {
@@ -144,7 +143,6 @@ page 9007 "Purchasing Agent Role Center"
                 Caption = 'Inventory - &Availability Plan (Excel)';
                 Image = ItemAvailability;
                 RunObject = Report "Inv. Availability Plan";
-                ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
             }
             action("Inventory &Purchase Orders")
             {
@@ -152,7 +150,6 @@ page 9007 "Purchasing Agent Role Center"
                 Caption = 'Inventory &Purchase Orders';
                 Image = "Report";
                 RunObject = Report "Inventory Purchase Orders";
-                ToolTip = 'View a list of items on order from vendors. The report also shows the expected receipt date and the quantity and amount on back orders. The report can be used, for example, to see when items should be received and whether a reminder of a back order should be issued.';
             }
             action("Inventory - &Vendor Purchases")
             {
@@ -160,7 +157,6 @@ page 9007 "Purchasing Agent Role Center"
                 Caption = 'Inventory - &Vendor Purchases';
                 Image = "Report";
                 RunObject = Report "Inventory - Vendor Purchases";
-                ToolTip = 'View a list of the vendors that your company has purchased items from within a selected period. It shows invoiced quantity, amount and discount. The report can be used to analyze a company''s item purchases.';
             }
             action("Inventory &Cost and Price List")
             {
@@ -168,7 +164,6 @@ page 9007 "Purchasing Agent Role Center"
                 Caption = 'Inventory &Cost and Price List';
                 Image = "Report";
                 RunObject = Report "Inventory Cost and Price List";
-                ToolTip = 'View price information for your items or stockkeeping units, such as direct unit cost, last direct cost, unit price, profit percentage, and profit.';
             }
         }
         area(embedding)
@@ -232,13 +227,6 @@ page 9007 "Purchasing Agent Role Center"
                 Caption = 'Purchase Credit Memos';
                 RunObject = Page "Purchase Credit Memos";
                 ToolTip = 'Create purchase credit memos to mirror sales credit memos that vendors send to you for incorrect or damaged items that you have paid for and then returned to the vendor. If you need more control of the purchase return process, such as warehouse documents for the physical handling, use purchase return orders, in which purchase credit memos are integrated. Purchase credit memos can be created automatically from PDF or image files from your vendors by using the Incoming Documents feature. Note: If you have not yet paid for an erroneous purchase, you can simply cancel the posted purchase invoice to automatically revert the financial transaction.';
-            }
-            action("Delivery Reminders")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Delivery Reminders';
-                RunObject = Page "Delivery Reminder List";
-                ToolTip = 'View the list of ongoing reminders to vendors about late delivery.';
             }
             action("Assembly Orders")
             {
@@ -388,13 +376,6 @@ page 9007 "Purchasing Agent Role Center"
                     RunObject = Page "Posted Purchase Credit Memos";
                     ToolTip = 'Open the list of posted purchase credit memos.';
                 }
-                action("Issued Delivery Reminders")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Issued Delivery Reminders';
-                    RunObject = Page "Issued Delivery Reminders List";
-                    ToolTip = 'View or print the delivery reminder.';
-                }
                 action("Posted Assembly Orders")
                 {
                     ApplicationArea = Assembly;
@@ -441,14 +422,6 @@ page 9007 "Purchasing Agent Role Center"
                 RunObject = Page "Purchase Return Order";
                 RunPageMode = Create;
                 ToolTip = 'Create a new purchase return order to return received items.';
-            }
-            action("Delivery Reminder")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Delivery Reminder';
-                Image = ReceiptReminder;
-                RunObject = Page "Delivery Reminder";
-                ToolTip = 'Create a reminder to a vendor about late delivery.';
             }
         }
         area(processing)
@@ -517,13 +490,6 @@ page 9007 "Purchasing Agent Role Center"
             {
                 Caption = 'Administration';
                 IsHeader = true;
-            }
-            action("Delivery Reminder Terms")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Delivery Reminder Terms';
-                RunObject = Page "Delivery Reminder Terms";
-                ToolTip = 'Set up reminder terms that you select from on vendor cards to define when and how to remind the vendor of late delivery.';
             }
             separator(History)
             {

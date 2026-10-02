@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -37,14 +37,12 @@ page 2673 "Allocation Account List"
                 {
                     ApplicationArea = All;
                     Caption = 'No.';
-                    ToolTip = 'Specifies the allocation account number.';
                 }
 
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     Caption = 'Name';
-                    ToolTip = 'Specifies the allocation account name.';
                 }
 
                 field(AccountType; Rec."Account Type")

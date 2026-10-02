@@ -83,6 +83,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage.OpenEdit();
         // [WHEN] Enter a new Password
         CRMConnectionSetupPage.Password.SetValue('password');
+        CRMConnectionSetupPage.Close();
     end;
 
     [ModalPageHandler]
@@ -290,6 +291,7 @@ codeunit 139160 "CRM Setup Test"
     procedure ConnectionRegistrationMirrorsEnabledCheckbox()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        Any: Codeunit "Any";
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
     begin
         // [FEATURE] [UI]
@@ -305,7 +307,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage."Server Address".SetValue('@@test@@');
         CRMConnectionSetupPage."Authentication Type".SetValue('OAuth 2.0');
         CRMConnectionSetupPage."User Name".SetValue('tester@domain.net');
-        CRMConnectionSetupPage.Password.SetValue('T3sting!');
+        CRMConnectionSetupPage.Password.SetValue(Any.AlphanumericText(20));
         CRMConnectionSetupPage."Is Enabled".SetValue(true);
         // [THEN] Connection is enabled
         Assert.IsTrue(HasTableConnection(TABLECONNECTIONTYPE::CRM, ''), 'HASTABLECONNECTION when enabled');
@@ -323,6 +325,7 @@ codeunit 139160 "CRM Setup Test"
     procedure ServerAddressRequiredToEnable()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        Any: Codeunit "Any";
         DummyPassword: Text;
     begin
         // [FEATURE] [UT]
@@ -330,7 +333,7 @@ codeunit 139160 "CRM Setup Test"
 
         CRMConnectionSetup.Init();
         CRMConnectionSetup."User Name" := 'tester@domain.net';
-        DummyPassword := 'T3sting!';
+        DummyPassword := Any.AlphanumericText(20);
         CRMConnectionSetup.SetPassword(DummyPassword);
         CRMConnectionSetup.Insert();
 
@@ -344,6 +347,7 @@ codeunit 139160 "CRM Setup Test"
     procedure UserNameRequiredToEnable()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        Any: Codeunit "Any";
         DummyPassword: Text;
     begin
         // [FEATURE] [UT]
@@ -351,7 +355,7 @@ codeunit 139160 "CRM Setup Test"
 
         CRMConnectionSetup.Init();
         CRMConnectionSetup."Server Address" := '@@test@@';
-        DummyPassword := 'T3sting!';
+        DummyPassword := Any.AlphanumericText(20);
         CRMConnectionSetup.SetPassword(DummyPassword);
         CRMConnectionSetup.Insert();
 
@@ -365,6 +369,7 @@ codeunit 139160 "CRM Setup Test"
     procedure WorkingConnectionRequiredToEnable()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        Any: Codeunit "Any";
         DummyPassword: Text;
     begin
         // [FEATURE] [UT]
@@ -375,7 +380,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetup.Init();
         CRMConnectionSetup."Server Address" := 'https://nocrmhere.gov';
         CRMConnectionSetup.Validate("User Name", 'tester@domain.net');
-        DummyPassword := 'T3sting!';
+        DummyPassword := Any.AlphanumericText(20);
         CRMConnectionSetup.SetPassword(DummyPassword);
         CRMConnectionSetup.Insert();
 
@@ -618,9 +623,11 @@ codeunit 139160 "CRM Setup Test"
 
         // [THEN] Message "The default setup for Dynamics 365 Sales synchronization has completed successfully." appears
         Assert.ExpectedMessage(StrSubstNo(SetupSuccessfulMsg, CRMProductName.SHORT()), LibraryVariableStorage.DequeueText());
+        CRMConnectionSetup.Close();
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure UrlValidationIsNotCaseSensitive()
@@ -638,6 +645,7 @@ codeunit 139160 "CRM Setup Test"
 
         // [THEN] No confirm dialog pops-up asking to auro-replace the URL with the lowercase version
         // This test succeeds if no confirm dialog shows up to ask user for agreement to replace the URL.
+        CRMConnectionSetup.Close();
     end;
 
     [Test]
@@ -660,6 +668,7 @@ codeunit 139160 "CRM Setup Test"
         // [THEN] A confirmation dialog opens (the handler is exercised simulating the user clicking Yes)
         // [THEN] The URL is prefixed with 'https://'
         Assert.AreEqual('https://company.crm4.dynamics.com', CRMConnectionSetup."Server Address".Value, 'Incorrect URL auto-completion');
+        CRMConnectionSetup.Close();
     end;
 
     [Test]
@@ -716,6 +725,7 @@ codeunit 139160 "CRM Setup Test"
         Assert.IsTrue(JobQueueEntries.Next(), 'Second');
         Assert.IsTrue(JobQueueEntries.Next(), 'Third');
         Assert.IsFalse(JobQueueEntries.Next(), 'Fourth should fail');
+        CRMConnectionSetup.Close();
     end;
 
     [Test]
@@ -745,6 +755,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage.ScheduledSynchJobsActive.DrillDown();
         // [THEN] Message : "all scheduled synchronization jobs are ready or already processing."
         // handled by MessageDequeue
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -773,6 +784,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage.ScheduledSynchJobsActive.DrillDown();
         // [THEN] Message : "There is no job queue started"
         // handled by MessageDequeue
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -803,6 +815,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage.ScheduledSynchJobsActive.DrillDown();
         // [THEN] Message : "An active job queue is available but only 3 of the 4"
         // handled by MessageDequeue
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -855,6 +868,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage."Is CRM Solution Installed".DrillDown();
         // [THEN] The message: "Solution is installed."
         // handled by MessageDequeue
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -879,6 +893,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage."Is CRM Solution Installed".DrillDown();
         // [THEN] The message: "Solution was not detected."
         // handled by MessageDequeue
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -903,6 +918,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage."CRM Version Status".DrillDown();
         // [THEN] Message: 'This version of Dynamics CRM might not work correctly with Dynamics NAV'
         // handled by MessageDequeue
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -927,6 +943,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage."CRM Version Status".DrillDown();
         // [THEN] Message: 'The version of Dynamics CRM is valid.'
         // handled by MessageDequeue
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -973,6 +990,7 @@ codeunit 139160 "CRM Setup Test"
         // handled by ConfirmNo
         // [THEN] "Is S.Order Integration Enabled" is "No"
         CRMConnectionSetupPage."Is S.Order Integration Enabled".AssertEquals(false);
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -998,6 +1016,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage."Test Connection".Invoke();
         // [THEN] Message: "The connection test was successful"
         // handled by MessageDequeue
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -1021,6 +1040,7 @@ codeunit 139160 "CRM Setup Test"
         // handled by ConfirmNo
         // [THEN] No sync is done
         Assert.AreEqual(0, IntegrationSynchJob.Count, 'Expected zero jobs to be created');
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -1042,6 +1062,7 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetupPage.StartInitialSynchAction.Invoke();
         // [THEN] CRMFullSynchReview page is open
         CRMFullSynchReviewPage.Close();
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -1079,6 +1100,7 @@ codeunit 139160 "CRM Setup Test"
         Assert.AreEqual(40, IntegrationSynchJob.Count, 'Expected a job to be created for each mapping and direction');
         CRMConnectionSetup.DeleteAll();
         InitializeCDSConnectionSetup();
+        CRMConnectionSetupTestPage.Close();
     end;
 
     local procedure ResetDefaultCRMSetupConfiguration()
@@ -1212,6 +1234,7 @@ codeunit 139160 "CRM Setup Test"
         // [THEN] Created job queue entries have description with "Dynamics 365 Sales"
         JobQueueEntry.SetFilter(Description, StrSubstNo('*%1*', CRMProductName.SHORT()));
         Assert.RecordIsNotEmpty(JobQueueEntry);
+        CRMConnectionSetup.Close();
     end;
 
     [Test]
@@ -1239,6 +1262,7 @@ codeunit 139160 "CRM Setup Test"
 
         // [THEN] Job queue entry for codeunit "Auto Create Sales Orders" created
         VerifyAutoCreateSalesOrdersJobQueueEntryExists();
+        CRMConnectionSetup.Close();
     end;
 
     [Test]
@@ -1266,6 +1290,7 @@ codeunit 139160 "CRM Setup Test"
 
         // [THEN] Job queue entry for codeunit "Auto Create Sales Orders" does not created
         VerifyAutoCreateSalesOrdersJobQueueEntryDoesNotExist();
+        CRMConnectionSetup.Close();
     end;
 
     [Test]
@@ -1293,6 +1318,7 @@ codeunit 139160 "CRM Setup Test"
 
         // [THEN] Job queue entry for codeunit "Auto Process Sales Quotes" created
         VerifyAutoProcessSalesQuotesJobQueueEntryExists();
+        CRMConnectionSetup.Close();
     end;
 
     [Test]
@@ -1320,6 +1346,7 @@ codeunit 139160 "CRM Setup Test"
 
         // [THEN] Job queue entry for codeunit "Auto Process Sales Quotes" does not created
         VerifyAutoProcessSalesQuotesJobQueueEntryDoesNotExist();
+        CRMConnectionSetup.Close();
     end;
 
 
@@ -1347,6 +1374,7 @@ codeunit 139160 "CRM Setup Test"
 
         // [THEN] "Auto Create Sales Orders" is editable
         Assert.IsTrue(CRMConnectionSetupPage."Auto Create Sales Orders".Editable(), 'Field must be editable.');
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -1380,6 +1408,7 @@ codeunit 139160 "CRM Setup Test"
 
         // [THEN] "Auto Create Sales Orders" is not editable
         Assert.IsFalse(CRMConnectionSetupPage."Auto Create Sales Orders".Editable(), 'Field must be not editable.');
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -1408,6 +1437,7 @@ codeunit 139160 "CRM Setup Test"
 
         // [THEN] Job queue entry created with Object ID to Run = "Auto Create Sales Orders"
         VerifyAutoCreateSalesOrdersJobQueueEntryExists();
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -1439,6 +1469,7 @@ codeunit 139160 "CRM Setup Test"
 
         // [THEN] Job queue entry does not exist with Object ID to Run = "Auto Create Sales Orders"
         VerifyAutoCreateSalesOrdersJobQueueEntryDoesNotExist();
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -1466,6 +1497,7 @@ codeunit 139160 "CRM Setup Test"
 
         // [THEN] Job queue entry created with Object ID to Run = "Auto Process Sales Quotes"
         VerifyAutoProcessSalesQuotesJobQueueEntryExists();
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -1496,6 +1528,7 @@ codeunit 139160 "CRM Setup Test"
 
         // [THEN] Job queue entry does not exist with Object ID to Run = "Auto Process Sales Quotes"
         VerifyAutoProcessSalesQuotesJobQueueEntryDoesNotExist();
+        CRMConnectionSetupPage.Close();
     end;
 
     [Test]
@@ -1522,7 +1555,6 @@ codeunit 139160 "CRM Setup Test"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmYes')]
     [Scope('OnPrem')]
     procedure IntegrationTableMappingNameCannotBeBlank()
     var
@@ -1909,6 +1941,7 @@ codeunit 139160 "CRM Setup Test"
         // [THEN] CRM Connection Setup wizard is opened and Server Address = "SA"
         // Wizard page is opened in CRMAssistedSetupModalHandler
         Assert.ExpectedMessage(CRMConnectionSetupPage."Server Address".Value, LibraryVariableStorage.DequeueText());
+        CRMConnectionSetupPage.Close();
     end;
 
     local procedure Initialize()

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -43,6 +43,7 @@ table 189 "VAT Setup"
         field(2; "Enable Non-Deductible VAT"; Boolean)
         {
             Caption = 'Enable Non-Deductible VAT';
+            ToolTip = 'Specifies if the Non-Deductible VAT feature is enabled.';
 
             trigger OnValidate()
             var
@@ -65,6 +66,7 @@ table 189 "VAT Setup"
         field(3; "Use For Item Cost"; Boolean)
         {
             Caption = 'Use For Item Cost';
+            ToolTip = 'Specifies if the non-deductible VAT must be added to the item cost.';
         }
         /// <summary>
         /// Controls whether non-deductible VAT amounts are included in fixed asset cost calculations.
@@ -72,6 +74,7 @@ table 189 "VAT Setup"
         field(4; "Use For Fixed Asset Cost"; Boolean)
         {
             Caption = 'Use For Fixed Asset Cost';
+            ToolTip = 'Specifies if the non-deductible VAT must be added to the fixed asset cost.';
         }
         /// <summary>
         /// Controls whether non-deductible VAT amounts are included in project cost calculations.
@@ -79,6 +82,7 @@ table 189 "VAT Setup"
         field(5; "Use For Job Cost"; Boolean)
         {
             Caption = 'Use For Project Cost';
+            ToolTip = 'Specifies if the non-deductible VAT must be added to the project cost.';
         }
         /// <summary>
         /// Controls visibility of non-deductible VAT information in transaction line details.
@@ -86,6 +90,7 @@ table 189 "VAT Setup"
         field(10; "Show Non-Ded. VAT In Lines"; Boolean)
         {
             Caption = 'Show Non-Ded. VAT In Lines';
+            ToolTip = 'Specifies if the non-deductible VAT must be shown in document lines pages.';
         }
         /// <summary>
         /// Read-only indicator showing non-deductible VAT feature activation status.
@@ -101,6 +106,7 @@ table 189 "VAT Setup"
         field(12; "Allow VAT Date From"; Date)
         {
             Caption = 'Allow VAT Date From';
+            ToolTip = 'Specifies the earliest date on which VAT posting to the company books is allowed.';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -114,6 +120,7 @@ table 189 "VAT Setup"
         field(13; "Allow VAT Date To"; Date)
         {
             Caption = 'Allow VAT Date To';
+            ToolTip = 'Specifies the last date on which VAT posting to the company books is allowed.';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -154,6 +161,7 @@ table 189 "VAT Setup"
 
     var
         UserSetupManagement: Codeunit "User Setup Management";
+        RecordHasBeenRead: Boolean;
         OneWayWarningMsg: Label 'After you enable this feature, you cannot turn it off again. This is because the feature may include changes to your data and may initiate an upgrade of some database tables as soon as you enable it.\\We strongly recommend that you first enable and test this feature on a sandbox environment that has a copy of production data before doing this on a production environment.\\For detailed information about the impact of enabling this feature, you should choose No and use the Learn more link.\\Are you sure you want to enable this feature?';
         NotPossibleToDisableNonDedVATErr: Label 'It is not possible to disable the Non-Deductible VAT';
         CompleteVATPostingSetupLbl: Label 'Choose Complete to open the VAT Posting Setup page where you can allow certain VAT Posting Setup for Non-Deductible VAT and set Non-Deductible VAT %';
@@ -180,6 +188,17 @@ table 189 "VAT Setup"
     begin
         UserSetupManagement.CheckAllowedVATDatesRange("Allow VAT Date From",
           "Allow VAT Date To", NotificationType, DATABASE::"General Ledger Setup");
+    end;
+
+    /// <summary>
+    /// Ensures the VAT Setup record is read from the database only once per session for performance optimization.
+    /// </summary>
+    procedure GetRecordOnce()
+    begin
+        if RecordHasBeenRead then
+            exit;
+        Get();
+        RecordHasBeenRead := true;
     end;
 }
 

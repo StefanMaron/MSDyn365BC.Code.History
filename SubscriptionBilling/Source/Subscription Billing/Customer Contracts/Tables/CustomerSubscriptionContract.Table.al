@@ -1170,7 +1170,7 @@ table 8052 "Customer Subscription Contract"
         exit(not CustomerContractDeferral.IsEmpty());
     end;
 
-    internal procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
     end;
@@ -2049,7 +2049,7 @@ table 8052 "Customer Subscription Contract"
     end;
 
     /// <summary>
-    /// Creates customer subscription contract line from subscription line which are not already assigned to a customer subscription contract line. 
+    /// Creates customer subscription contract line from subscription line which are not already assigned to a customer subscription contract line.
     /// </summary>
     /// <param name="TempServiceCommitment">Temporary VAR Record "Subscription Line".</param>
     procedure CreateCustomerContractLinesFromServiceCommitments(var TempServiceCommitment: Record "Subscription Line" temporary)
@@ -2093,6 +2093,7 @@ table 8052 "Customer Subscription Contract"
     var
         ServiceObject: Record "Subscription Header";
         CustomerContract: Record "Customer Subscription Contract";
+        SourceCodeSetup: Record "Source Code Setup";
         OldDimSetID: Integer;
         InitHarmonizedBillingFields: Boolean;
     begin
@@ -2112,7 +2113,8 @@ table 8052 "Customer Subscription Contract"
         ServiceCommitment."Subscription Contract No." := CustomerContractLine."Subscription Contract No.";
         ServiceCommitment."Subscription Contract Line No." := CustomerContractLine."Line No.";
 
-        ServiceCommitment.GetCombinedDimensionSetID(ServiceCommitment."Dimension Set ID", CustomerContract."Dimension Set ID");
+        SourceCodeSetup.Get();
+        ServiceCommitment.ApplyContractDimensions(CustomerContract."Dimension Set ID", SourceCodeSetup.Sales, Database::Customer);
         if "Currency Code" <> ServiceCommitment."Currency Code" then begin
             CalculateCurrencyFactor(ServiceCommitment."Subscription Line Start Date", CustomerContract."Currency Code");
             ServiceCommitment.SetCurrencyData(CurrencyFactor, CurrencyFactorDate, CustomerContract."Currency Code");

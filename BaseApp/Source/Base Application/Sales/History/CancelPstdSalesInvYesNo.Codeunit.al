@@ -21,7 +21,8 @@ codeunit 1323 "Cancel PstdSalesInv (Yes/No)"
     end;
 
     var
-        CancelPostedInvoiceQst: Label 'This invoice was posted from a sales order. To cancel it, a sales credit memo will be created and posted. The quantities from the original sales order will be restored, provided the sales order still exists.\ \Do you want to continue?';
+        CancelPostedInvoiceFromOrderQst: Label 'This invoice was posted from a sales order. To cancel it, a sales credit memo will be created and posted. The quantities from the original sales order will be restored, provided the sales order still exists.\ \Do you want to continue?';
+        CancelPostedInvoiceQst: Label 'The posted sales invoice will be canceled, and a sales credit memo will be created and posted.\ \Do you want to continue?';
         OpenPostedCreditMemoQst: Label 'A credit memo was successfully created. Do you want to open the posted credit memo?';
 
     /// <summary>
@@ -36,12 +37,15 @@ codeunit 1323 "Cancel PstdSalesInv (Yes/No)"
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         PageManagement: Codeunit "Page Management";
         IsHandled: Boolean;
+        ConfirmQuestion: Text;
     begin
         IsHandled := false;
         OnCancelInvoiceOnBeforeTestCorrectInvoiceIsAllowed(SalesInvoiceHeader, IsHandled);
         if not IsHandled then
             CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
-        if Confirm(CancelPostedInvoiceQst) then
+        ConfirmQuestion := GetCancelPostedInvoiceQst(SalesInvoiceHeader);
+        OnCancelInvoiceOnBeforeConfirm(SalesInvoiceHeader, ConfirmQuestion);
+        if Confirm(ConfirmQuestion) then
             if CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader) then
                 if Confirm(OpenPostedCreditMemoQst) then begin
                     CancelledDocument.FindSalesCancelledInvoice(SalesInvoiceHeader."No.");
@@ -54,6 +58,18 @@ codeunit 1323 "Cancel PstdSalesInv (Yes/No)"
                 end;
 
         exit(false);
+    end;
+
+    local procedure GetCancelPostedInvoiceQst(SalesInvoiceHeader: Record "Sales Invoice Header"): Text
+    begin
+        if SalesInvoiceHeader."Order No." <> '' then
+            exit(CancelPostedInvoiceFromOrderQst);
+        exit(CancelPostedInvoiceQst);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCancelInvoiceOnBeforeConfirm(var SalesInvoiceHeader: Record "Sales Invoice Header"; var ConfirmQuestion: Text)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

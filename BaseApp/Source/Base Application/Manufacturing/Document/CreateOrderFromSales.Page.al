@@ -68,4 +68,3 @@ page 99000884 "Create Order From Sales"
         OrderType := NewOrderType;
     end;
 }
-

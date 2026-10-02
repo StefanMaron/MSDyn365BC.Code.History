@@ -19,7 +19,6 @@ pageextension 99000780 "Mfg. Finance Manager RC" extends "Finance Manager Role C
                 ApplicationArea = Manufacturing;
                 Caption = 'Update Unit Costs...';
                 RunObject = report "Update Unit Cost";
-                Tooltip = 'Run the Update Unit Costs report.';
             }
         }
         addafter("Status")
@@ -29,7 +28,6 @@ pageextension 99000780 "Mfg. Finance Manager RC" extends "Finance Manager Role C
                 ApplicationArea = Manufacturing;
                 Caption = 'Cost Shares Breakdown';
                 RunObject = report "Cost Shares Breakdown";
-                Tooltip = 'Run the Cost Shares Breakdown report.';
             }
         }
         addafter("Inventory Valuation")
@@ -39,7 +37,6 @@ pageextension 99000780 "Mfg. Finance Manager RC" extends "Finance Manager Role C
                 ApplicationArea = Manufacturing;
                 Caption = 'Production Order - WIP';
                 RunObject = report "Inventory Valuation - WIP";
-                Tooltip = 'Run the Production Order - WIP report.';
             }
         }
     }
