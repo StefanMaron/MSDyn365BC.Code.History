@@ -9,6 +9,7 @@ codeunit 139196 "CDS Connection Setup Test"
     end;
 
     var
+        Any: Codeunit Any;
         Assert: Codeunit Assert;
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
@@ -529,7 +530,7 @@ codeunit 139196 "CDS Connection Setup Test"
         CDSConnectionSetup.DeleteAll();
         CDSConnectionSetup.Init();
         CDSConnectionSetup."User Name" := 'tester@domain.net';
-        DummyPassword := 'T3sting!';
+        DummyPassword := Any.AlphanumericText(20);
         CDSConnectionSetup.SetPassword(DummyPassword);
         CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
         CDSConnectionSetup.Insert();
@@ -552,7 +553,7 @@ codeunit 139196 "CDS Connection Setup Test"
         CDSConnectionSetup.DeleteAll();
         CDSConnectionSetup.Init();
         CDSConnectionSetup."User Name" := 'tester@domain.net';
-        DummyPassword := 'T3sting!';
+        DummyPassword := Any.AlphanumericText(20);
         CDSConnectionSetup.SetPassword(DummyPassword);
         CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::AD;
         CDSConnectionSetup.Insert();
@@ -942,7 +943,7 @@ codeunit 139196 "CDS Connection Setup Test"
         // [GIVEN] Disabled CDS Connection
         InitializeSetup(false);
         CDSConnectionSetup.Get();
-        DummyPassword := 'test';
+        DummyPassword := Any.AlphanumericText(20);
         CDSConnectionSetup.SetPassword(DummyPassword);
         CDSConnectionSetup.Modify();
         // [GIVEN] Open CDS Connection Setup page
@@ -1278,7 +1279,7 @@ codeunit 139196 "CDS Connection Setup Test"
         CDSConnectionSetup.DeleteAll();
         CDSConnectionSetup.Init();
         CDSConnectionSetup."Server Address" := CopyStr(HostName, 1, MaxStrLen(CDSConnectionSetup."Server Address"));
-        DummyPassword := 'T3sting!';
+        DummyPassword := Any.AlphanumericText(20);
         if IsEnabled then
             CDSConnectionSetup.SetPassword(DummyPassword);
         CDSConnectionSetup."Is Enabled" := IsEnabled;
