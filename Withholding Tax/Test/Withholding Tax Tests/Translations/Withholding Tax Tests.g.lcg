@@ -77,6 +77,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Tests.WithholdingTax)(LookupHint=Codeunit ERM Withholding Tax Tests I - NamedType WithoutAppliedIdErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2899581057 - NamedType 3248272062" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[A general journal template with Type Purchases does not exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Tests.WithholdingTax)(LookupHint=Codeunit ERM Withholding Tax Tests II - NamedType GenJnlTemplateNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2899581057 - NamedType 3034591588" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Value must be same.]]></Val>
