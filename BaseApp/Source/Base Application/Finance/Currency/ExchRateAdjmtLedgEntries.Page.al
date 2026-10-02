@@ -73,6 +73,7 @@ page 186 "Exch.Rate Adjmt. Ledg.Entries"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code for the amount on the line.';
+                    DecimalPlaces = 4 : 5;
                 }
                 field("Base Amount"; Rec."Base Amount")
                 {
@@ -94,12 +95,14 @@ page 186 "Exch.Rate Adjmt. Ledg.Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the register number of the entry.';
                     Visible = false;
+                    Caption = 'Register No.';
                 }
                 field("Detailed Ledger Entry No."; Rec."Detailed Ledger Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the detailed customer or vendor ledger entry, related to register ledger entry.';
                     Visible = false;
+                    DecimalPlaces = 0 : 0;
                 }
             }
         }
