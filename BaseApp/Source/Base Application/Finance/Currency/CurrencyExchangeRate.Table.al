@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -19,6 +19,7 @@ table 330 "Currency Exchange Rate"
         field(1; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the code of the currency on this line.';
             Editable = false;
             NotBlank = true;
             TableRelation = Currency;
@@ -33,11 +34,13 @@ table 330 "Currency Exchange Rate"
         field(2; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
+            ToolTip = 'Specifies the date on which the exchange rate on this line comes into effect.';
             NotBlank = true;
         }
         field(3; "Exchange Rate Amount"; Decimal)
         {
             Caption = 'Exchange Rate Amount';
+            ToolTip = 'Specifies the amounts that are used to calculate exchange rates for the currency on this line.';
             DecimalPlaces = 1 : 6;
             MinValue = 0;
             AutoFormatType = 0;
@@ -51,6 +54,7 @@ table 330 "Currency Exchange Rate"
         {
             AccessByPermission = TableData Currency = R;
             Caption = 'Adjustment Exch. Rate Amount';
+            ToolTip = 'Specifies the amounts that are used to calculate exchange rates that will be used by the Adjust Exchange Rates batch job.';
             DecimalPlaces = 1 : 6;
             MinValue = 0;
             AutoFormatType = 0;
@@ -63,6 +67,7 @@ table 330 "Currency Exchange Rate"
         field(5; "Relational Currency Code"; Code[10])
         {
             Caption = 'Relational Currency Code';
+            ToolTip = 'Specifies how you want to set up the two currencies, one of the currencies can be LCY, for which you want to register exchange rates.';
             TableRelation = Currency;
 
             trigger OnValidate()
@@ -76,6 +81,7 @@ table 330 "Currency Exchange Rate"
         {
             AccessByPermission = TableData Currency = R;
             Caption = 'Relational Exch. Rate Amount';
+            ToolTip = 'Specifies the amounts that are used to calculate exchange rates for the foreign currency on this line.';
             DecimalPlaces = 1 : 6;
             MinValue = 0;
             AutoFormatType = 0;
@@ -88,11 +94,13 @@ table 330 "Currency Exchange Rate"
         field(7; "Fix Exchange Rate Amount"; Enum "Fix Exch. Rate Amount Type")
         {
             Caption = 'Fix Exchange Rate Amount';
+            ToolTip = 'Specifies if the currency''s exchange rate can be changed on invoices and journal lines.';
         }
         field(8; "Relational Adjmt Exch Rate Amt"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
             Caption = 'Relational Adjmt Exch Rate Amt';
+            ToolTip = 'Specifies the amounts that are used to calculate exchange rates that will be used by the Adjust Exchange Rates batch job.';
             DecimalPlaces = 1 : 6;
             MinValue = 0;
             AutoFormatType = 0;
@@ -137,7 +145,12 @@ table 330 "Currency Exchange Rate"
 #pragma warning restore AA0074
 
     procedure ExchangeAmtLCYToFCY(Date: Date; CurrencyCode: Code[10]; Amount: Decimal; Factor: Decimal): Decimal
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeExchangeAmtLCYToFCY(Rec, Date, CurrencyCode, Amount, Factor, RelExchangeRateAmt, ExchangeRateAmt, RelCurrencyCode, FixExchangeRateAmt, IsHandled);
+        if IsHandled then
+            exit(Amount);
         if CurrencyCode = '' then
             exit(Amount);
         FindCurrency(Date, CurrencyCode, 1);
@@ -184,7 +197,12 @@ table 330 "Currency Exchange Rate"
     end;
 
     procedure ExchangeAmtFCYToLCY(Date: Date; CurrencyCode: Code[10]; Amount: Decimal; Factor: Decimal): Decimal
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeExchangeAmtFCYToLCY(Rec, Date, CurrencyCode, Amount, Factor, UseAdjmtAmounts, RelExchangeRateAmt, ExchangeRateAmt, RelCurrencyCode, FixExchangeRateAmt, IsHandled);
+        if IsHandled then
+            exit(Amount);
         if CurrencyCode = '' then
             exit(Amount);
         FindCurrency(Date, CurrencyCode, 1);
@@ -253,7 +271,12 @@ table 330 "Currency Exchange Rate"
     end;
 
     procedure ExchangeRate(Date: Date; CurrencyCode: Code[10]): Decimal
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeExchangeRate(Rec, Date, CurrencyCode, CurrencyFactor, UseAdjmtAmounts, RelExchangeRateAmt, ExchangeRateAmt, RelCurrencyCode, IsHandled);
+        if IsHandled then
+            exit(CurrencyFactor);
         if CurrencyCode = '' then
             exit(1);
         FindCurrency(Date, CurrencyCode, 1);
@@ -356,7 +379,11 @@ table 330 "Currency Exchange Rate"
     procedure ExchangeAmtFCYToFCY(Date: Date; FromCurrencyCode: Code[10]; ToCurrencyCode: Code[10]; Amount: Decimal): Decimal
     var
         GLSetup: Record "General Ledger Setup";
+        IsHandled: Boolean;
     begin
+        OnBeforeExchangeAmtFCYToFCY(Rec, Date, FromCurrencyCode, ToCurrencyCode, Amount, CurrencyExchRate3, IsHandled);
+        if IsHandled then
+            exit(Amount);
         if FromCurrencyCode = ToCurrencyCode then
             exit(Amount);
         if ToCurrencyCode = '' then begin
@@ -459,7 +486,12 @@ table 330 "Currency Exchange Rate"
     end;
 
     procedure ApplnExchangeAmtFCYToFCY(Date: Date; FromCurrencyCode: Code[10]; ToCurrencyCode: Code[10]; Amount: Decimal; var ExchRateFound: Boolean): Decimal
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeApplnExchangeAmtFCYToFCY(Rec, Date, FromCurrencyCode, ToCurrencyCode, Amount, ExchRateFound, CurrencyExchRate3, IsHandled);
+        if IsHandled then
+            exit(Amount);
         if FromCurrencyCode = ToCurrencyCode then
             exit(Amount);
         if ToCurrencyCode = '' then begin
@@ -586,7 +618,12 @@ table 330 "Currency Exchange Rate"
     end;
 
     procedure GetLastestExchangeRate(CurrencyCode: Code[10]; var Date: Date; var Amt: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeGetLatestExchangeRate(Rec, CurrencyCode, Date, Amt, IsHandled);
+        if IsHandled then
+            exit;
         Date := 0D;
         Amt := 0;
         SetRange("Currency Code", CurrencyCode);
@@ -608,8 +645,11 @@ table 330 "Currency Exchange Rate"
 
     procedure SetCurrentCurrencyFactor(CurrencyCode: Code[10]; CurrencyFactor: Decimal)
     var
-        RateForTodayExists: Boolean;
+        RateForTodayExists, IsHandled: Boolean;
     begin
+        OnBeforeSetCurrentCurrencyFactor(Rec, CurrencyCode, CurrencyFactor, IsHandled);
+        if IsHandled then
+            exit;
         "Currency Code" := CurrencyCode;
         TestField("Currency Code");
         RateForTodayExists := Get(CurrencyCode, Today);
@@ -653,6 +693,41 @@ table 330 "Currency Exchange Rate"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindCurrency2OnAfterCurrencyExchRate3SetFilters(var CurrencyExchRate3: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; Date: Date; var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExchangeAmtLCYToFCY(var CurrencyExchangeRate: Record "Currency Exchange Rate"; Date: Date; CurrencyCode: Code[10]; var Amount: Decimal; Factor: Decimal; var RelExchangeRateAmt: Decimal; var ExchangeRateAmt: Decimal; var RelCurrencyCode: Code[10]; FixExchangeRateAmt: Enum "Fix Exch. Rate Amount Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExchangeAmtFCYToLCY(var CurrencyExchangeRate: Record "Currency Exchange Rate"; Date: Date; CurrencyCode: Code[10]; var Amount: Decimal; Factor: Decimal; UseAdjmtAmounts: Boolean; var RelExchangeRateAmt: Decimal; var ExchangeRateAmt: Decimal; var RelCurrencyCode: Code[10]; FixExchangeRateAmt: Enum "Fix Exch. Rate Amount Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; Date: Date; CurrencyCode: Code[10]; var CurrencyFactor: Decimal; UseAdjmtAmounts: Boolean; var RelExchangeRateAmt: Decimal; var ExchangeRateAmt: Decimal; var RelCurrencyCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExchangeAmtFCYToFCY(var CurrencyExchangeRate: Record "Currency Exchange Rate"; Date: Date; FromCurrencyCode: Code[10]; ToCurrencyCode: Code[10]; var Amount: Decimal; CurrencyExchRate3: array[3] of Record "Currency Exchange Rate"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplnExchangeAmtFCYToFCY(var CurrencyExchangeRate: Record "Currency Exchange Rate"; Date: Date; FromCurrencyCode: Code[10]; ToCurrencyCode: Code[10]; var Amount: Decimal; var ExchRateFound: Boolean; CurrencyExchRate3: array[3] of Record "Currency Exchange Rate"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetLatestExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; var Date: Date; var Amount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCurrentCurrencyFactor(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; CurrencyFactor: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

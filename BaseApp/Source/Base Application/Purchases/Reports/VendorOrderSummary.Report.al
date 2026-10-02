@@ -11,12 +11,12 @@ using Microsoft.Utilities;
 
 report 307 "Vendor - Order Summary"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Purchases/Reports/VendorOrderSummary.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor - Order Summary';
+    ToolTip = 'View the order detail (the quantity not yet received) for each vendor in three periods of 30 days each, starting from a selected date. There are also columns with orders before and after the three periods and a column with the total order detail for each vendor. The report can be used to analyze a company''s expected purchase volume.';
     UsageCategory = ReportsAndAnalysis;
     WordMergeDataItem = Vendor;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -265,6 +265,16 @@ report 307 "Vendor - Order Summary"
             if PeriodStartDate[1] = 0D then
                 PeriodStartDate[1] := WorkDate();
         end;
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Purchases/Reports/VendorOrderSummary.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
     }
 
     labels

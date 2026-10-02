@@ -245,6 +245,7 @@ codeunit 1501 "Workflow Management"
         WorkflowStep.SetRange("Function Name", FunctionName);
         WorkflowStep.SetRange("Entry Point", true);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::"Event");
+        OnAfterSetFilterWorkflowStep(WorkflowStep);
         if WorkflowStep.FindSet() then
             repeat
                 if Workflow.Get(WorkflowStep."Workflow Code") then
@@ -890,6 +891,11 @@ codeunit 1501 "Workflow Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindWorkflowStepInstanceWithOptionalWorkflowStartOnAfterSetWorkflowStepInstanceLoopFi1ters(RecordRef: RecordRef; var WorkflowStepInstanceLoop: Record "Workflow Step Instance"; FunctionName: Code[128]; StartWorkflow: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilterWorkflowStep(var WorkflowStep: Record "Workflow Step")
     begin
     end;
 }

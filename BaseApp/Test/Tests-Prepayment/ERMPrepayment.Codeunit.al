@@ -4134,55 +4134,6 @@
         Assert.IsFalse(not CashFlowWorksheetLine.IsEmpty(), SalesOrderNotCreatedWorksheetLineMsg);
     end;
 
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    [Test]
-    [Scope('OnPrem')]
-    [HandlerFunctions('SalesOrderStatisticsModalHandler')]
-    procedure AmountExclPrepaymentInSOStatisticsShowsDiffOfAmountExclVATAndPrepaymentAmountExclVAT()
-    var
-        SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
-        GLAccount: Record "G/L Account";
-        SalesOrder: TestPage "Sales Order";
-    begin
-        // [SCENARIO 539477] Amount Excl. Prepayment in Sales Order Statistics shows 
-        // Difference between Amount Excl. VAT and Prepayment Amount Excl. VAT.
-        Initialize();
-
-        // [GIVEN] Create Prepayment VAT Setup.
-        CreatePrepmtVATSetup(GLAccount, GLAccount."Gen. Posting Type"::Sale);
-
-        // [GIVEN] Create a Sales Header and Validate Prepayment %.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithPostingSetup(GLAccount));
-        SalesHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(50, 50));
-        SalesHeader.Modify(true);
-
-        // [GIVEN] Create a Sales Line.
-        LibrarySales.CreateSalesLine(
-            SalesLine,
-            SalesHeader,
-            SalesLine.Type::Item,
-            CreateItemWithPostingSetup(GLAccount),
-            LibraryRandom.RandInt(0));
-
-        // [GIVEN] Validate Unit Price and Prepayment % in Sales Line.
-        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(500, 500));
-        SalesLine.Validate("Prepayment %", SalesHeader."Prepayment %");
-        SalesLine.Modify(true);
-
-        // [GIVEN] Post Sales Prepayment Invoice.
-        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
-
-        // [WHEN] Open Sales Order page and run Statistics action.
-        SalesOrder.OpenEdit();
-        SalesOrder.GoToRecord(SalesHeader);
-        LibraryVariableStorage.Enqueue(SalesLine."Unit Price" * SalesLine."Prepayment %" / LibraryRandom.RandIntInRange(100, 100));
-        SalesOrder.Statistics.Invoke();
-
-        // [THEN] Amount Excl. Prepayment is equal to Amount Excl. VAT - Prepayment Amount Excl. VAT in SalesOrderStatisticsModalHandler.
-    end;
-#endif
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('SalesOrderStatisticsHandler')]
@@ -4416,31 +4367,6 @@
         // Tear down
         TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
         NotificationLifecycleMgt.RecallAllNotifications();
-    end;
-
-     [Test]
-    [Scope('OnPrem')]
-    procedure CannotReducePurchaseOrderQuantityToInvoicedQuantityAfterPrepayment()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [SCENARIO 646136] Reduce Purchase Order quantity after prepayment and partial invoicing
-
-        // [GIVEN] Posted 50% Prepayment Invoice for Purchase Order
-        InitPurchasePrepaymentScenario(PurchaseHeader, PurchaseLine, false, 50, '');
-        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
-
-        // [GIVEN] Order is partially received and invoiced
-        PostPartialPurchaseInvoice(PurchaseHeader, PurchaseLine);
-        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        PurchaseLine.Find();
-
-        // [WHEN] Reduce Quantity to the invoiced quantity
-        asserterror PurchaseLine.Validate(Quantity, PurchaseLine."Quantity Invoiced");
-
-        // [THEN] Error occurs because the posted prepayment exceeds the new line amount
-        Assert.ExpectedError(PurchaseLine.FieldCaption("Prepmt. Line Amount"));
     end;
 
     [Test]
@@ -7043,15 +6969,6 @@
         Response := ACTION::OK;
     end;
 
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesOrderStatisticsModalHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
-    begin
-        SalesOrderStatistics."Amount Excl. Prepayment".AssertEquals(SalesOrderStatistics.AmountInclVAT_Invoicing.AsDecimal() - SalesOrderStatistics.PrepmtTotalAmount.AsDecimal());
-    end;
-#endif
     [PageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")

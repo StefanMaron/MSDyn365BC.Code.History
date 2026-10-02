@@ -554,16 +554,6 @@ codeunit 132201 "Library - Inventory"
         ItemChargeAssignmentPurch.Modify(true);
     end;
 
-#if not CLEAN26
-    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
-    procedure CreateItemJournal(var ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; ItemJournalTemplateType: Enum "Item Journal Template Type"; ProductionOrderNo: Code[20])
-    var
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
-    begin
-        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo, ItemJournalTemplateType, ProductionOrderNo);
-    end;
-#endif
-
     procedure CreateItemJournalTemplate(var ItemJournalTemplate: Record "Item Journal Template")
     begin
         ItemJournalTemplate.Init();
@@ -1381,25 +1371,14 @@ codeunit 132201 "Library - Inventory"
         ItemJournalLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, ItemJournalLine.FieldNo("Line No."));
     end;
 
-#if not CLEAN26
-    [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
-    procedure OutputJnlExplRoute(var ItemJournalLine: Record "Item Journal Line")
-    var
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
-    begin
-        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
-    end;
-#endif
-
     procedure PostDirectTransferOrder(var TransferHeader: Record "Transfer Header")
     var
         TransferOrderPostTransfer: Codeunit "TransferOrder-Post Transfer";
     begin
-        InventorySetup.Get();
-        case InventorySetup."Direct Transfer Posting" of
-            InventorySetup."Direct Transfer Posting"::"Receipt and Shipment":
+        case TransferHeader."Direct Transfer Posting" of
+            TransferHeader."Direct Transfer Posting"::"Shipment and Receipt":
                 PostTransferHeader(TransferHeader, true, true);
-            InventorySetup."Direct Transfer Posting"::"Direct Transfer":
+            TransferHeader."Direct Transfer Posting"::"Direct Transfer":
                 begin
                     TransferOrderPostTransfer.SetHideValidationDialog(true);
                     TransferOrderPostTransfer.Run(TransferHeader);

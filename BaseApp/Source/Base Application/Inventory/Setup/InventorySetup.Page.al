@@ -121,6 +121,10 @@ page 461 "Inventory Setup"
                 {
                     ApplicationArea = Location;
                 }
+                field("Direct Transfer Posting Type"; Rec."Direct Transfer Posting Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
             }
             group(Planning)
             {
@@ -201,11 +205,19 @@ page 461 "Inventory Setup"
                 field("Posted Direct Trans. Nos."; Rec."Posted Direct Trans. Nos.")
                 {
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
+#if not CLEAN29
                 field("Direct Transfer Posting"; Rec."Direct Transfer Posting")
                 {
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if Direct Transfer will be posted as Shipment and Receipt or as single Direct Transfer document. There are different restrictions associated with different modes, for example Directed Transfer document does not support partial posting.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by field "Direct Transfer Posting Enum" of type Enum "Direct Transfer Posting".';
+                    ObsoleteTag = '29.0';
                 }
+#endif
                 field("Inventory Put-away Nos."; Rec."Inventory Put-away Nos.")
                 {
                     ApplicationArea = Warehouse;
@@ -437,7 +449,6 @@ page 461 "Inventory Setup"
                 Ellipsis = true;
                 Image = AdjustEntries;
                 RunObject = Report "Adjust Cost - Item Entries";
-                ToolTip = 'Adjust inventory values in value entries so that you use the correct adjusted cost for updating the general ledger and so that sales and profit statistics are up to date. Run this before setting the Earliest Allowed Valuation Date.';
             }
             action("Units of Measure")
             {

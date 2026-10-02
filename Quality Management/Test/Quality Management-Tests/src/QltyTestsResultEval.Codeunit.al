@@ -208,6 +208,7 @@ codeunit 139963 "Qlty. Tests - Result Eval."
         LibraryAssert.IsTrue(QltyInspectionUtility.CheckIfValueIsInPredefinedList('test(1)', 'Test(1),Test(2)', CaseOption::Insensitive), 'Option special chars case insensitive');
     end;
 
+
     [TryFunction]
     procedure Try_TestValueDateIntentionallyBad()
     var

@@ -3239,14 +3239,6 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     begin
     end;
 
-#if not CLEAN26
-    [Obsolete('Replaced by OnExcludeAvgCostOnValuationDateOnAfterGetItemApplicationTrace event', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetVisitedEntries(var ExcludedValueEntry: Record "Value Entry"; OutbndValueEntry: Record "Value Entry"; var ItemLedgEntryInChain: Record "Item Ledger Entry")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsAvgCostItem(var Item: Record Item; var AvgCostItem: Boolean)
     begin
@@ -3307,14 +3299,6 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     begin
     end;
 
-#if not CLEAN26
-    [Obsolete('Record parameter TempItemLedgerEntry is replaced with dictionary parameter ItemLedgEntryToAdjust', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateItemUnitCost(var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var IsHandled: Boolean; var Item: Record Item; var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemUnitCost2(var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var IsHandled: Boolean; var Item: Record Item; var ItemLedgEntryToAdjust: Dictionary of [Code[20], List of [Integer]])
     begin
@@ -3340,14 +3324,6 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     begin
     end;
 
-#if not CLEAN26
-    [Obsolete('Use OnExcludeAvgCostOnValuationDateOnAfterGetItemApplicationTrace instead.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnExcludeAvgCostOnValuationDateOnAfterSetItemLedgEntryInChainFilters(var ItemLedgerEntryInChain: Record "Item Ledger Entry" temporary)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnForwardAppliedCostOnAfterSetAppliedQty(ItemLedgerEntry: Record "Item Ledger Entry"; var AppliedQty: Decimal)
     begin
@@ -3357,14 +3333,6 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     local procedure OnGetOrigValueEntryOnAfterOrigValueEntryFound(var OrigValueEntry: Record "Value Entry"; ValueEntry: Record "Value Entry")
     begin
     end;
-
-#if not CLEAN26
-    [Obsolete('Replaced by OnIsOutputWithSelfConsumptionOnAfterGetItemApplicationTrace', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnIsOutputWithSelfConsumptionOnAfterSetTempItemLedgEntryFilter(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnIsOutputWithSelfConsumptionOnAfterSetConsumpValueEntryFilters(var ConsumpValueEntry: Record "Value Entry")
@@ -3405,14 +3373,6 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     local procedure OnInvtToAdjustExistOnBeforeCopyItemToItem(var Item: Record Item)
     begin
     end;
-
-#if not CLEAN26
-    [Obsolete('Record parameter Job is replaced with list parameter JobsToAdjust', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateJobItemCost(var Job: Record Job)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunUpdateJobItemCost(var JobsToAdjust: List of [Code[20]])
@@ -3508,14 +3468,6 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
     local procedure OnMakeSingleLevelAdjmtOnAfterLevelExceeded(var Item: Record Item)
     begin
     end;
-
-#if not CLEAN26
-    [Obsolete('Record parameter TempJobToAdjustBuf is replaced with list parameter JobsToAdjust', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnMakeSingleLevelAdjmtOnBeforePostAdjmtBuf(var Item: Record Item; var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var TempInventoryAdjustmentBuffer: Record "Inventory Adjustment Buffer" temporary; var TempRoundingResidualBuffer: Record "Rounding Residual Buffer" temporary; PostingDateForClosedPeriod: Date; Currency: Record Currency; SkipUpdateJobItemCost: Boolean; var TempJobToAdjustBuf: Record Job temporary; ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeSingleLevelAdjmtOnBeforePostAdjmtBuf2(var Item: Record Item; var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var TempInventoryAdjustmentBuffer: Record "Inventory Adjustment Buffer" temporary; var TempRoundingResidualBuffer: Record "Rounding Residual Buffer" temporary; PostingDateForClosedPeriod: Date; Currency: Record Currency; SkipUpdateJobItemCost: Boolean; var JobsToAdjust: List of [Code[20]]; ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var IsHandled: Boolean)

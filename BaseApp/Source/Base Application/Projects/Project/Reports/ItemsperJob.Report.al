@@ -12,11 +12,11 @@ using System.Utilities;
 report 1013 "Items per Job"
 {
     AdditionalSearchTerms = 'Items per Job';
-    DefaultLayout = RDLC;
-    RDLCLayout = './Projects/Project/Reports/ItemsperJob.rdlc';
     ApplicationArea = Jobs;
     Caption = 'Items per Project';
+    ToolTip = 'View which items are used for a specific project.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -143,6 +143,16 @@ report 1013 "Items per Job"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Projects/Project/Reports/ItemsperJob.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

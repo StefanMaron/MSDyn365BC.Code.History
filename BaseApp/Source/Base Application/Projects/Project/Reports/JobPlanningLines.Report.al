@@ -11,11 +11,11 @@ using System.Utilities;
 report 1006 "Job - Planning Lines"
 {
     AdditionalSearchTerms = 'Job - Planning Lines';
-    DefaultLayout = RDLC;
-    RDLCLayout = './Projects/Project/Reports/JobPlanningLines.rdlc';
     ApplicationArea = Jobs;
     Caption = 'Project - Planning Lines';
+    ToolTip = 'View all planning lines for the project. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a project (budget) or you can specify what you actually agreed with your customer that he should pay for the project (billable).';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -298,6 +298,16 @@ report 1006 "Job - Planning Lines"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Projects/Project/Reports/JobPlanningLines.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

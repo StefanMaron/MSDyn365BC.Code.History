@@ -17,6 +17,7 @@ report 115 "Salesperson - Commission"
 {
     ApplicationArea = Suite;
     Caption = 'Salesperson - Commission';
+    ToolTip = 'View a list of invoices for each salesperson for a selected period. The following information is shown for each invoice: Customer number, sales amount, profit amount, and the commission on sales amount and profit amount. The report also shows the adjusted profit and the adjusted profit commission, which are the profit figures that reflect any changes to the original costs of the goods sold.';
     DefaultRenderingLayout = Excel;
     UsageCategory = ReportsAndAnalysis;
 
@@ -447,12 +448,14 @@ report 115 "Salesperson - Commission"
             Caption = 'Salesperson Commission Excel';
             Type = Excel;
             LayoutFile = './Sales/Reports/SalespersonCommission.xlsx';
+            Summary = 'Report layout primarily made for data analysis. Use an Excel editor to modify the layout.';
         }
         layout(Word)
         {
             Caption = 'Salesperson Commission Word';
             Type = Word;
             LayoutFile = './Sales/Reports/SalespersonCommission.docx';
+            Summary = 'Report layout made for print. Use a Word editor to modify the layout.';
         }
 #if not CLEAN27
         layout(RDLC)
@@ -463,8 +466,17 @@ report 115 "Salesperson - Commission"
             ObsoleteState = Pending;
             ObsoleteReason = 'The RDLC layout has been replaced by the Excel and Word layouts and will be removed in a future release.';
             ObsoleteTag = '27.0';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
 #endif
+        layout(WordBody)
+        {
+            Type = Word;
+            Subtype = Body;
+            LayoutFile = './Sales/Reports/SalespersonCommissionBody.docx';
+            Caption = 'Body-only: Salesperson Commission Word';
+            Summary = 'Landscape orientated. Lists each entry for a salesperson with posting date, document, and customer number, followed by sales, profit, and adjusted profit with the matching commission amounts. Includes subtotals and totals, in LCY.';
+        }
     }
 
     labels

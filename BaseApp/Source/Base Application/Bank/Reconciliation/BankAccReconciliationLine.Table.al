@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -439,6 +439,7 @@ table 274 "Bank Acc. Reconciliation Line"
         field(12401; "Sender Account No."; Code[20])
         {
             Caption = 'Sender Account No.';
+            MaskType = Concealed;
 
             trigger OnValidate()
             begin
@@ -516,6 +517,7 @@ table 274 "Bank Acc. Reconciliation Line"
         field(12409; "Recipient Account No."; Code[20])
         {
             Caption = 'Recipient Account No.';
+            MaskType = Concealed;
 
             trigger OnValidate()
             begin

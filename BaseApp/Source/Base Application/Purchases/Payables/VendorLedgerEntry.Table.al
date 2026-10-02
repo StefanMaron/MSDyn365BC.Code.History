@@ -11,6 +11,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Foundation.Attachment;
@@ -102,6 +103,7 @@ table 25 "Vendor Ledger Entry"
             AutoFormatType = 1;
             CalcFormula = sum("Detailed Vendor Ledg. Entry".Amount where("Vendor Ledger Entry No." = field("Entry No."),
                                                                           "Posting Date" = field("Date Filter"),
+                                                                          "Excluded from calculation" = const(false),
                                                                           "Prepmt. Diff. in TA" = const(false)));
             Caption = 'Remaining Amount';
             ToolTip = 'Specifies the amount that remains to be applied to before the entry is totally applied to.';
@@ -126,6 +128,7 @@ table 25 "Vendor Ledger Entry"
             AutoFormatExpression = '';
             CalcFormula = sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" where("Vendor Ledger Entry No." = field("Entry No."),
                                                                                   "Posting Date" = field("Date Filter"),
+                                                                                  "Excluded from calculation" = const(false),
                                                                                   "Prepmt. Diff. in TA" = const(false)));
             Caption = 'Remaining Amt. (LCY)';
             Editable = false;
@@ -348,6 +351,8 @@ table 25 "Vendor Ledger Entry"
         field(53; "Transaction No."; Integer)
         {
             Caption = 'Transaction No.';
+            TableRelation = "G/L Transaction";
+            ToolTip = 'Specifies the transaction number that groups related G/L entries from the same posting.';
         }
         field(54; "Closed by Amount (LCY)"; Decimal)
         {
@@ -584,6 +589,13 @@ table 25 "Vendor Ledger Entry"
         field(90; Prepayment; Boolean)
         {
             Caption = 'Prepayment';
+        }
+        field(95; "G/L Register No."; Integer)
+        {
+            Caption = 'G/L Register No.';
+            Editable = false;
+            TableRelation = "G/L Register";
+            ToolTip = 'Specifies the G/L register number that groups related G/L entries from the same posting.';
         }
         field(170; "Creditor No."; Code[20])
         {
@@ -893,6 +905,10 @@ table 25 "Vendor Ledger Entry"
         {
             IncludedFields = "Accepted Payment Tolerance";
         }
+        // Supports the Payment Reconciliation Journal candidate search (Document Type + Open + date range).
+        key(PmtReconCandidates; "Document Type", Open, "Posting Date")
+        {
+        }
     }
 
     fieldgroups
@@ -908,8 +924,6 @@ table 25 "Vendor Ledger Entry"
     var
 #pragma warning disable AA0470
         MustHaveSameSignErr: Label 'must have the same sign as %1';
-#pragma warning restore AA0470
-#pragma warning disable AA0470
         MustNotBeLargerErr: Label 'must not be larger than %1';
 #pragma warning restore AA0470
 #pragma warning disable AA0074

@@ -5,7 +5,6 @@
 namespace Microsoft.Peppol;
 
 using Microsoft.Foundation.Company;
-using Microsoft.Utilities;
 
 codeunit 37217 "PEPPOL 3.0 Subscribers"
 {
@@ -22,12 +21,5 @@ codeunit 37217 "PEPPOL 3.0 Subscribers"
     end;
 
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Classification Eval. Data", 'OnCreateEvaluationDataOnAfterClassifyTablesToNormal', '', false, false)]
-    local procedure ClassifyDataSensitivity()
-    var
-        DataClassificationEvalData: Codeunit "Data Classification Eval. Data";
-    begin
-        DataClassificationEvalData.SetTableFieldsToNormal(Database::"PEPPOL 3.0 Setup");
-    end;
 
 }

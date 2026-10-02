@@ -15,6 +15,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SpendRequest;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.FixedAssets.Ledger;
@@ -44,6 +45,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                   TableData "Cust. Ledger Entry" = rimd,
                   TableData "Vendor Ledger Entry" = rimd,
                   TableData "G/L Register" = rm,
+                  TableData "G/L Transaction" = rm,
                   TableData "G/L Entry - VAT Entry Link" = rimd,
                   TableData "VAT Entry" = rimd,
                   TableData "Bank Account Ledger Entry" = rimd,
@@ -51,6 +53,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                   TableData "Detailed Cust. Ledg. Entry" = rimd,
                   TableData "Detailed Vendor Ledg. Entry" = rimd,
                   TableData "Employee Ledger Entry" = rimd,
+                  TableData "Spend Request to G/L Link" = rimd,
                   TableData "Detailed Employee Ledger Entry" = ri;
     TableNo = "Gen. Journal Line";
 
@@ -165,9 +168,10 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                 GLEntry2.SetRange("Transaction No.", TempTransactionNoInteger.Number);
             OnReverseOnBeforeReverseGLEntry(ReversalEntry2, GenJnlPostLine, GenJournalLine, TempTransactionNoInteger, GLEntry2, GLRegister);
             ReverseGLEntry(
-              GLEntry2, GenJournalLine, TempCustLedgerEntry,
-              TempVendorLedgerEntry, TempEmployeeLedgerEntry, TempBankAccountLedgerEntry, NextDtldCustLedgEntryEntryNo, NextDtldVendLedgEntryEntryNo,
-              NextDtldEmplLedgEntryNo, FAInsertLedgerEntry, ReversalEntry, TempTaxDiffLedgEntry, ReversalEntry2, GLRegister);
+              GLEntry2, GenJournalLine, GLRegister,
+              TempCustLedgerEntry, TempVendorLedgerEntry, TempEmployeeLedgerEntry, TempBankAccountLedgerEntry,
+              NextDtldCustLedgEntryEntryNo, NextDtldVendLedgEntryEntryNo, NextDtldEmplLedgEntryNo, FAInsertLedgerEntry,
+              ReversalEntry, TempTaxDiffLedgEntry, ReversalEntry2);
         until TempTransactionNoInteger.Next() = 0;
 
         IsHandled := false;
@@ -218,7 +222,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         OnAfterReverse(GLRegister, GLRegister2);
     end;
 
-    local procedure ReverseGLEntry(var GLEntry2: Record "G/L Entry"; var GenJournalLine: Record "Gen. Journal Line"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; var TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary; var TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary; var NextDtldCustLedgEntryEntryNo: Integer; var NextDtldVendLedgEntryEntryNo: Integer; var NextDtldEmplLedgEntryNo: Integer; FAInsertLedgerEntry: Codeunit "FA Insert Ledger Entry"; var ReversalEntry: Record "Reversal Entry"; var TempTaxDiffLedgerEntry: Record "Tax Diff. Ledger Entry" temporary; var ReversalEntry2: Record "Reversal Entry"; GLReg: Record "G/L Register")
+    local procedure ReverseGLEntry(var GLEntry2: Record "G/L Entry"; var GenJournalLine: Record "Gen. Journal Line"; var GLRegister: Record "G/L Register"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; var TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary; var TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary; var NextDtldCustLedgEntryEntryNo: Integer; var NextDtldVendLedgEntryEntryNo: Integer; var NextDtldEmplLedgEntryNo: Integer; FAInsertLedgerEntry: Codeunit "FA Insert Ledger Entry"; var ReversalEntry: Record "Reversal Entry"; var TempTaxDiffLedgerEntry: Record "Tax Diff. Ledger Entry" temporary; var ReversalEntry2: Record "Reversal Entry")
     var
         GLEntry: Record "G/L Entry";
         ReversedGLEntry: Record "G/L Entry";
@@ -256,6 +260,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                 GLEntry."Add.-Currency Credit Amount" := -GLEntry2."Add.-Currency Credit Amount";
                 GLEntry."Entry No." := GenJnlPostLine.GetNextEntryNo();
                 GLEntry."Transaction No." := GenJnlPostLine.GetNextTransactionNo();
+                GLEntry."G/L Register No." := GLRegister."No.";
                 GLEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(GLEntry2."User ID"));
                 GenJournalLine.Correction :=
                   (GLEntry."Debit Amount" < 0) or (GLEntry."Credit Amount" < 0) or
@@ -291,7 +296,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                             GLItemLedgerRelation."G/L Entry No." := GLEntry."Entry No.";
                             GLItemLedgerRelation."Value Entry No." :=
                               VATAllocationPost.InsertItemReverseEntry(ValueEntry."Entry No.", ReversalEntry2);
-                            GLItemLedgerRelation."G/L Register No." := GLReg."No.";
+                            GLItemLedgerRelation."G/L Register No." := GLRegister."No.";
                             GLItemLedgerRelation.Insert();
                         end;
                 end;
@@ -350,6 +355,8 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                             ReverseBankAccLedgEntry(TempBankAccountLedgerEntry, GLEntry."Entry No.", GenJournalLine."Source Code");
                             TempBankAccountLedgerEntry.Delete();
                         end;
+                    SpendRequestLinkedToGLEntry(GLEntry2."Entry No."):
+                        ReverseSpendRequest(GLEntry2."Entry No.", GLEntry."Entry No.");
                     TempTaxDiffLedgerEntry.Find('-'):
                         begin
                             GLSetup.TestField("Enable Russian Tax Accounting");
@@ -708,6 +715,27 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                 GLEntryVATEntryLink.InsertLink(GLEntry."Entry No.", NewVATEntry."Entry No.");
                 GenJnlPostLine.IncrNextVATEntryNo();
             until GLEntryVATEntryLink.Next() = 0;
+    end;
+
+    local procedure ReverseSpendRequest(OldGLEntryNo: Integer; NewGLEntryNo: Integer)
+    var
+        SpendRequestToGLLink: Record "Spend Request To G/L Link";
+    begin
+        SpendRequestToGLLink.ReadIsolation(IsolationLevel::UpdLock);
+        SpendRequestToGLLink.SetRange("G/L Entry No.", OldGLEntryNo);
+        if not SpendRequestToGLLink.FindFirst() then
+            exit;
+        SpendRequestToGLLink."G/L Entry No." := NewGLEntryNo;
+        SpendRequestToGLLink.Amount := -SpendRequestToGLLink.Amount;
+        if SpendRequestToGLLink.Insert() then;
+    end;
+
+    local procedure SpendRequestLinkedToGLEntry(GLEntryNo: Integer): Boolean
+    var
+        SpendRequestToGLLink: Record "Spend Request To G/L Link";
+    begin
+        SpendRequestToGLLink.SetRange("G/L Entry No.", GLEntryNo);
+        exit(not SpendRequestToGLLink.IsEmpty());
     end;
 
     local procedure ApplyCustLedgEntryByReversal(CustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry2: Record "Cust. Ledger Entry"; DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; AppliedEntryNo: Integer; var NextDtldCustLedgEntryEntryNo: Integer)
@@ -1801,4 +1829,3 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     begin
     end;
 }
-

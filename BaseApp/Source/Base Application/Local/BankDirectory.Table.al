@@ -14,6 +14,7 @@ table 12409 "Bank Directory"
         field(2; "Corr. Account No."; Code[20])
         {
             Caption = 'Corr. Account No.';
+            MaskType = Concealed;
         }
         field(3; "Short Name"; Text[40])
         {
