@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -452,11 +452,13 @@ table 5200 Employee
         field(57; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            MaskType = Concealed;
             ToolTip = 'Specifies the number used by the bank for the bank account.';
         }
         field(58; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            MaskType = Concealed;
             ToolTip = 'Specifies the bank account''s international bank account number.';
 
             trigger OnValidate()
@@ -577,7 +579,13 @@ table 5200 Employee
             AutoFormatType = 0;
             Caption = 'Payroll Currency Factor';
         }
-        field(108; "Nationality"; Code[10])
+#if not CLEAN29
+#pragma warning disable AS0086
+#endif
+        field(108; "Nationality"; Code[20])
+#if not CLEAN29
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Nationality';
             ToolTip = 'Specifies the value of the Nationality field.';

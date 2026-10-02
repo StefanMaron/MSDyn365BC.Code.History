@@ -938,16 +938,16 @@ codeunit 139690 "Contract Price Proposal Test"
     begin
     end;
 
-    [StrMenuHandler]
-    procedure StrMenuHandler(Option: Text[1024]; var Choice: Integer; Instruction: Text[1024])
-    begin
-        Choice := LibraryVariableStorage.DequeueInteger();
-    end;
-
     [ConfirmHandler]
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [StrMenuHandler]
+    procedure StrMenuHandler(Option: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := LibraryVariableStorage.DequeueInteger();
     end;
 
     #endregion Handlers

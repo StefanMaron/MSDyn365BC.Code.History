@@ -94,8 +94,7 @@ Cstr(Fields!Status_ServHeaderCaption.Value) + Chr(177) +
 Cstr(Fields!ServiceHeaderOrderDateCaption.Value) + Chr(177) + 
 Cstr(Fields!OrderTime_ServHeaderCaption.Value) + Chr(177) + 
 Cstr(Fields!ContractNoCaption.Value) + Chr(177) + 
-Cstr(Fields!PageCaption.Value) + Chr(177) + 
-Cstr(Fields!CACCaption.Value)
+Cstr(Fields!PageCaption.Value)
 , 1)</Hidden>
                                             </Visibility>
                                             <Style />
@@ -4896,7 +4895,7 @@ Cstr(Fields!CACCaption.Value)
       <Width>18.06cm</Width>
       <Page>
         <PageHeader>
-          <Height>8.59294cm</Height>
+          <Height>7.71982cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -5844,32 +5843,6 @@ Cstr(Fields!CACCaption.Value)
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CashAccountingCriteriaCaption">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(36,1)</Value>
-                      <Style>
-                        <FontStyle>Normal</FontStyle>
-                        <FontSize>9pt</FontSize>
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>222.57954pt</Top>
-              <Height>12.25pt</Height>
-              <Width>9.45cm</Width>
-              <ZIndex>39</ZIndex>
-              <Style>
-                <Border />
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
           </ReportItems>
           <Style />
         </PageHeader>
@@ -6059,11 +6032,11 @@ End Function
         <Field Name="CustAddr1">
           <DataField>CustAddr1</DataField>
         </Field>
-        <Field Name="CompanyAddr8">
-          <DataField>CompanyAddr8</DataField>
-        </Field>
         <Field Name="CompanyAddr7">
           <DataField>CompanyAddr7</DataField>
+        </Field>
+        <Field Name="CompanyAddr8">
+          <DataField>CompanyAddr8</DataField>
         </Field>
         <Field Name="CompanyAddr6">
           <DataField>CompanyAddr6</DataField>
@@ -6136,9 +6109,6 @@ End Function
         </Field>
         <Field Name="Description_ServHeaderCaption">
           <DataField>Description_ServHeaderCaption</DataField>
-        </Field>
-        <Field Name="CACCaption">
-          <DataField>CACCaption</DataField>
         </Field>
         <Field Name="DimText">
           <DataField>DimText</DataField>

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -13,6 +13,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Foundation.Attachment;
@@ -493,7 +494,7 @@ table 21 "Cust. Ledger Entry"
         /// <summary>
         /// Specifies the type of balancing account used in the original transaction, such as G/L Account, Bank Account, or Vendor.
         /// </summary>
-        field(51; "Bal. Account Type"; enum "Gen. Journal Account Type")
+        field(51; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
             ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
@@ -521,6 +522,8 @@ table 21 "Cust. Ledger Entry"
         field(53; "Transaction No."; Integer)
         {
             Caption = 'Transaction No.';
+            TableRelation = "G/L Transaction";
+            ToolTip = 'Specifies the transaction number that groups related G/L entries from the same posting.';
         }
         /// <summary>
         /// Stores the amount in local currency that was applied to close this entry.
@@ -868,6 +871,13 @@ table 21 "Cust. Ledger Entry"
             Editable = false;
             TableRelation = "Payment Terms";
         }
+        field(95; "G/L Register No."; Integer)
+        {
+            Caption = 'G/L Register No.';
+            Editable = false;
+            TableRelation = "G/L Register";
+            ToolTip = 'Specifies the G/L register number that groups related G/L entries from the same posting.';
+        }
         /// <summary>
         /// Specifies the payment reference number used by banks to identify and track the payment.
         /// </summary>
@@ -1073,61 +1083,6 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Promised Pay Date';
             DataClassification = CustomerContent;
             ToolTip = 'Specifies the date on which the customer have promised to pay this invoice.';
-        }
-        field(10700; "Invoice Type"; Enum "SII Sales Invoice Type")
-        {
-            Caption = 'Invoice Type';
-            DataClassification = CustomerContent;
-        }
-        field(10701; "Cr. Memo Type"; Enum "SII Sales Credit Memo Type")
-        {
-            Caption = 'Cr. Memo Type';
-            DataClassification = CustomerContent;
-        }
-        field(10702; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
-        {
-            Caption = 'Special Scheme Code';
-            DataClassification = CustomerContent;
-        }
-        field(10703; "Correction Type"; Option)
-        {
-            Caption = 'Correction Type';
-            DataClassification = CustomerContent;
-            OptionCaption = ' ,Replacement,Difference,Removal';
-            OptionMembers = " ",Replacement,Difference,Removal;
-        }
-        field(10704; "Corrected Invoice No."; Code[20])
-        {
-            Caption = 'Corrected Invoice No.';
-            DataClassification = CustomerContent;
-        }
-        field(10720; "Succeeded Company Name"; Text[250])
-        {
-            Caption = 'Succeeded Company Name';
-        }
-        field(10721; "Succeeded VAT Registration No."; Text[20])
-        {
-            Caption = 'Succeeded VAT Registration No.';
-        }
-        field(10722; "ID Type"; Enum "SII ID Type")
-        {
-            Caption = 'ID Type';
-        }
-        field(10724; "Do Not Send To SII"; Boolean)
-        {
-            Caption = 'Do Not Send To SII';
-        }
-        field(10725; "Issued By Third Party"; Boolean)
-        {
-            Caption = 'Issued By Third Party';
-        }
-        field(10726; "SII First Summary Doc. No."; Blob)
-        {
-            Caption = 'First Summary Doc. No.';
-        }
-        field(10727; "SII Last Summary Doc. No."; Blob)
-        {
-            Caption = 'Last Summary Doc. No.';
         }
         field(10728; "VAT Reporting Date"; Date)
         {
@@ -1347,46 +1302,6 @@ table 21 "Cust. Ledger Entry"
         end;
 
         OnAfterShowPostedDocAttachment(Rec, DocumentFound);
-    end;
-
-    procedure GetSIIFirstSummaryDocNo(): Text
-    var
-        InStreamObj: InStream;
-        SIISummaryDocNoText: Text;
-    begin
-        CalcFields("SII First Summary Doc. No.");
-        "SII First Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
-        InStreamObj.ReadText(SIISummaryDocNoText);
-        exit(SIISummaryDocNoText);
-    end;
-
-    procedure GetSIILastSummaryDocNo(): Text
-    var
-        InStreamObj: InStream;
-        SIISummaryDocNoText: Text;
-    begin
-        CalcFields("SII Last Summary Doc. No.");
-        "SII Last Summary Doc. No.".CreateInStream(InStreamObj, TextEncoding::UTF8);
-        InStreamObj.ReadText(SIISummaryDocNoText);
-        exit(SIISummaryDocNoText);
-    end;
-
-    procedure SetSIIFirstSummaryDocNo(SIISummaryDocNoText: Text)
-    var
-        OutStreamObj: OutStream;
-    begin
-        Clear("SII First Summary Doc. No.");
-        "SII First Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
-        OutStreamObj.WriteText(SIISummaryDocNoText);
-    end;
-
-    procedure SetSIILastSummaryDocNo(SIISummaryDocNoText: Text)
-    var
-        OutStreamObj: OutStream;
-    begin
-        Clear("SII Last Summary Doc. No.");
-        "SII Last Summary Doc. No.".CreateOutStream(OutStreamObj, TextEncoding::UTF8);
-        OutStreamObj.WriteText(SIISummaryDocNoText);
     end;
 
     local procedure OpenDocumentAttachmentDetails("Record": Variant)
@@ -1709,16 +1624,6 @@ table 21 "Cust. Ledger Entry"
         "Payment Terms Code" := GenJnlLine."Payment Terms Code";
         "Bill No." := GenJnlLine."Bill No.";
         "Applies-to Bill No." := GenJnlLine."Applies-to Bill No.";
-        "Invoice Type" := GenJnlLine."Sales Invoice Type";
-        "Cr. Memo Type" := GenJnlLine."Sales Cr. Memo Type";
-        "Special Scheme Code" := GenJnlLine."Sales Special Scheme Code";
-        "Correction Type" := GenJnlLine."Correction Type";
-        "Corrected Invoice No." := GenJnlLine."Corrected Invoice No.";
-        "Succeeded Company Name" := GenJnlLine."Succeeded Company Name";
-        "Succeeded VAT Registration No." := GenJnlLine."Succeeded VAT Registration No.";
-        "ID Type" := GenJnlLine."ID Type";
-        "Issued By Third Party" := GenJnlLine."Issued By Third Party";
-        "Do Not Send To SII" := GenJnlLine."Do Not Send To SII";
         "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
 
         OnAfterCopyCustLedgerEntryFromGenJnlLine(Rec, GenJnlLine);
@@ -2073,5 +1978,6 @@ table 21 "Cust. Ledger Entry"
     local procedure OnBeforeCheckBillSituation(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
+
 }
 

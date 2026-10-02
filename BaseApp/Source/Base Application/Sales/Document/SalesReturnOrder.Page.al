@@ -5,7 +5,6 @@
 namespace Microsoft.Sales.Document;
 
 using Microsoft.CRM.Contact;
-using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -499,57 +498,6 @@ page 6630 "Sales Return Order"
                         CurrPage.SalesLines.PAGE.RedistributeTotalsOnAfterValidate();
                     end;
                 }
-                group("SII Information")
-                {
-                    Caption = 'SII Information';
-                    field(OperationDescription; OperationDescription)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Operation Description';
-                        MultiLine = true;
-                        ToolTip = 'Specifies the Operation Description.';
-
-                        trigger OnValidate()
-                        var
-                            SIIManagement: Codeunit "SII Management";
-                        begin
-                            SIIManagement.SplitOperationDescription(OperationDescription, Rec."Operation Description", Rec."Operation Description 2");
-                            Rec.Validate("Operation Description");
-                            Rec.Validate("Operation Description 2");
-                            Rec.Modify(true);
-                        end;
-                    }
-                    field("Special Scheme Code"; Rec."Special Scheme Code")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the Special Scheme Code.';
-                    }
-                    field("Invoice Type"; Rec."Invoice Type")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the Invoice Type.';
-                    }
-                    field("Correction Type"; Rec."Correction Type")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the Correction Type.';
-                    }
-                    field("ID Type"; Rec."ID Type")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the ID Type.';
-                    }
-                    field("Succeeded Company Name"; Rec."Succeeded Company Name")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the name of the company successor in connection with corporate restructuring.';
-                    }
-                    field("Succeeded VAT Registration No."; Rec."Succeeded VAT Registration No.")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the VAT registration number of the company successor in connection with corporate restructuring.';
-                    }
-                }
             }
             group("Shipping and Billing")
             {
@@ -956,30 +904,6 @@ page 6630 "Sales Return Order"
             {
                 Caption = '&Return Order';
                 Image = Return;
-#if not CLEAN26
-                action(Statistics)
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    Caption = 'Statistics';
-                    Image = Statistics;
-                    ShortCutKey = 'F7';
-                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
-                    ObsoleteReason = 'The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '26.0';
-
-                    trigger OnAction()
-                    var
-                        Handled: Boolean;
-                    begin
-                        OnBeforeStatisticsAction(Rec, Handled);
-                        if Handled then
-                            exit;
-
-                        Rec.OpenSalesOrderStatistics();
-                    end;
-                }
-#endif
                 action(SalesOrderStatistics)
                 {
                     ApplicationArea = Basic, Suite;
@@ -987,11 +911,7 @@ page 6630 "Sales Return Order"
                     Enabled = Rec."No." <> '';
                     Image = Statistics;
                     ShortCutKey = 'F7';
-#if CLEAN26
                     Visible = true;
-#else
-                    Visible = false;
-#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Sales Order Statistics";
                     RunPageOnRec = true;
@@ -1715,18 +1635,9 @@ page 6630 "Sales Return Order"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
-#if not CLEAN26
-                actionref(Statistics_Promoted; Statistics)
-                {
-                    ObsoleteReason = 'The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '26.0';
-                }
-#else
                 actionref(SalesOrderStatistics_Promoted; SalesOrderStatistics)
                 {
                 }
-#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -1761,13 +1672,10 @@ page 6630 "Sales Return Order"
     }
 
     trigger OnAfterGetCurrRecord()
-    var
-        SIIManagement: Codeunit "SII Management";
     begin
         SetControlAppearance();
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(Rec.RecordId());
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(Rec.RecordId());
-        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
         StatusStyleTxt := Rec.GetStatusStyleText();
     end;
 
@@ -1805,7 +1713,6 @@ page 6630 "Sales Return Order"
 
     trigger OnOpenPage()
     var
-        SIIManagement: Codeunit "SII Management";
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         Rec.SetSecurityFilterOnRespCenter();
@@ -1815,8 +1722,6 @@ page 6630 "Sales Return Order"
         SetDocNoVisible();
         if (Rec."No." <> '') and (Rec."Sell-to Customer No." = '') then
             DocumentIsPosted := (not Rec.Get(Rec."Document Type", Rec."No."));
-
-        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
 
         CheckShowBackgrValidationNotification();
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
@@ -1860,7 +1765,6 @@ page 6630 "Sales Return Order"
         CanCancelApprovalForRecord: Boolean;
         DocumentIsPosted: Boolean;
         OpenPostedSalesReturnOrderQst: Label 'The return order is posted as number %1 and moved to the Posted Sales Credit Memos window.\\Do you want to open the posted credit memo?', Comment = '%1 = posted document number';
-        OperationDescription: Text[500];
         IsCustomerOrContactNotEmpty: Boolean;
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
@@ -2044,13 +1948,6 @@ page 6630 "Sales Return Order"
     begin
     end;
 
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
-    begin
-    end;
-#endif
     [IntegrationEvent(true, false)]
     local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; DocumentIsPosted: Boolean; var IsHandled: Boolean)
     begin

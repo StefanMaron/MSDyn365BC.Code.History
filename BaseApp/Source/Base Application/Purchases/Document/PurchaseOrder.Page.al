@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -289,6 +289,11 @@ page 50 "Purchase Order"
                     ShowMandatory = VendorInvoiceNoMandatory;
                     Editable = IsVendorInvoiceEditable;
                 }
+                field("Spend Request No."; Rec."Spend Request No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                }
                 field("Your Reference"; Rec."Your Reference")
                 {
                     ApplicationArea = Basic, Suite;
@@ -545,73 +550,6 @@ page 50 "Purchase Order"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the receipt is posted on the invoice.';
-                }
-                group("SII Information")
-                {
-                    Caption = 'SII Information';
-                    field(OperationDescription; OperationDescription)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Operation Description';
-                        MultiLine = true;
-                        ToolTip = 'Specifies the Operation Description.';
-
-                        trigger OnValidate()
-                        var
-                            SIIManagement: Codeunit "SII Management";
-                        begin
-                            SIIManagement.SplitOperationDescription(OperationDescription, Rec."Operation Description", Rec."Operation Description 2");
-                            Rec.Validate("Operation Description");
-                            Rec.Validate("Operation Description 2");
-                            Rec.Modify(true);
-                        end;
-                    }
-                    group(Control1100010)
-                    {
-                        ShowCaption = false;
-                        Visible = DocHasMultipleRegimeCode;
-                        field(MultipleSchemeCodesControl; MultipleSchemeCodesLbl)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Editable = false;
-                            ShowCaption = false;
-                            Style = StandardAccent;
-                            StyleExpr = true;
-
-                            trigger OnDrillDown()
-                            var
-                                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-                            begin
-                                SIISchemeCodeMgt.PurchDrillDownRegimeCodes(Rec);
-                            end;
-                        }
-                    }
-                    field("Special Scheme Code"; Rec."Special Scheme Code")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Editable = not DocHasMultipleRegimeCode;
-                        ToolTip = 'Specifies the Special Scheme Code.';
-                    }
-                    field("Invoice Type"; Rec."Invoice Type")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the Invoice Type.';
-                    }
-                    field("ID Type"; Rec."ID Type")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the ID Type.';
-                    }
-                    field("Succeeded Company Name"; Rec."Succeeded Company Name")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the name of the company successor in connection with corporate restructuring.';
-                    }
-                    field("Succeeded VAT Registration No."; Rec."Succeeded VAT Registration No.")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the VAT registration number of the company successor in connection with corporate restructuring.';
-                    }
                 }
             }
             group("Shipping and Payment")
@@ -1234,25 +1172,6 @@ page 50 "Purchase Order"
                         CurrPage.SaveRecord();
                     end;
                 }
-#if not CLEAN26
-                action(Statistics)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Statistics';
-                    Image = Statistics;
-                    ShortCutKey = 'F7';
-                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
-                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '26.0';
-
-                    trigger OnAction()
-                    begin
-                        Rec.OpenPurchaseOrderStatistics();
-                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
-                    end;
-                }
-#endif
                 action(PurchaseOrderStatistics)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1260,11 +1179,7 @@ page 50 "Purchase Order"
                     Enabled = Rec."No." <> '';
                     Image = Statistics;
                     ShortCutKey = 'F7';
-#if CLEAN26
                     Visible = true;
-#else
-                    Visible = false;
-#endif                    
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Order Statistics";
                     RunPageOnRec = true;
@@ -1333,21 +1248,6 @@ page 50 "Purchase Order"
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
                         DocumentAttachmentDetails.RunModal();
-                    end;
-                }
-                action(SpecialSchemeCodes)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Special Scheme Codes';
-                    Image = Allocations;
-                    ToolTip = 'View or edit the list of special scheme codes that related to the current document for VAT reporting.';
-
-                    trigger OnAction()
-                    var
-                        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-                    begin
-                        SIISchemeCodeMgt.PurchDrillDownRegimeCodes(Rec);
-                        CurrPage.Update(false);
                     end;
                 }
             }
@@ -2334,18 +2234,9 @@ page 50 "Purchase Order"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
-#if not CLEAN26
-                actionref(Statistics_Promoted; Statistics)
-                {
-                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '26.0';
-                }
-#else                
                 actionref(PurchaseOrderStatistics_Promoted; PurchaseOrderStatistics)
                 {
                 }
-#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -2353,9 +2244,6 @@ page 50 "Purchase Order"
                 {
                 }
                 actionref(Approvals_Promoted; Approvals)
-                {
-                }
-                actionref(SpecialSchemeCodes_Promoted; SpecialSchemeCodes)
                 {
                 }
                 separator(Navigate_Separator)
@@ -2389,15 +2277,11 @@ page 50 "Purchase Order"
     }
 
     trigger OnAfterGetCurrRecord()
-    var
-        SIIManagement: Codeunit "SII Management";
     begin
         SetControlAppearance();
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(Rec.RecordId());
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(Rec.RecordId());
-        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
-        UpdateDocHasRegimeCode();
         StatusStyleTxt := Rec.GetStatusStyleText();
         Rec.GetContactDetails(BuyFromContact, PayToContact);
     end;
@@ -2410,7 +2294,6 @@ page 50 "Purchase Order"
         CalculateCurrentShippingAndPayToOption();
         ShowOverReceiptNotification();
         Rec.GetContactDetails(BuyFromContact, PayToContact);
-        UpdateDocHasRegimeCode();
         CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
         IsVendorInvoiceEditable := not Rec."Self-Billing Invoice";
 
@@ -2535,7 +2418,6 @@ page 50 "Purchase Order"
         ICIncomingInvoiceFromOriginalOrderMsg: Label 'There is an %1 with no. %2 received from intercompany after you sent this order. You can remove this order and post that invoice instead.', Comment = '%1 - either "order", "invoice", or "posted invoice", %2 - a code';
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
-        OperationDescription: Text[500];
         ShowShippingOptionsWithLocation: Boolean;
         IsSaaS: Boolean;
         IsBuyFromCountyVisible: Boolean;
@@ -2546,8 +2428,6 @@ page 50 "Purchase Order"
         IsPaymentMethodCodeVisible: Boolean;
         IsPurchaseLinesEditable: Boolean;
         ShouldSearchForVendByName: Boolean;
-        DocHasMultipleRegimeCode: Boolean;
-        MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
         IsRemitToCountyVisible: Boolean;
         RejectICPurchaseOrderEnabled: Boolean;
         VATDateEnabled: Boolean;
@@ -2561,7 +2441,6 @@ page 50 "Purchase Order"
     local procedure SetOpenPage()
     var
         EnvironmentInfo: Codeunit "Environment Information";
-        SIIManagement: Codeunit "SII Management";
     begin
         SetDocNoVisible();
         IsSaaS := EnvironmentInfo.IsSaaS();
@@ -2571,8 +2450,6 @@ page 50 "Purchase Order"
         if (Rec."No." <> '') and (Rec."Buy-from Vendor No." = '') then
             DocumentIsPosted := (not Rec.Get(Rec."Document Type", Rec."No."));
 
-        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
-        UpdateDocHasRegimeCode();
         Rec.SetRange("Date Filter", 0D, WorkDate());
 
         OnAfterSetOpenPage();
@@ -2875,13 +2752,6 @@ page 50 "Purchase Order"
         OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
     begin
         OverReceiptMgt.ShowOverReceiptNotificationFromOrder(Rec."No.");
-    end;
-
-    local procedure UpdateDocHasRegimeCode()
-    var
-        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-    begin
-        DocHasMultipleRegimeCode := SIISchemeCodeMgt.PurchDocHasRegimeCodes(Rec);
     end;
 
     local procedure FillRemitToFields()

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -12,6 +12,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Foundation.Attachment;
@@ -355,6 +356,8 @@ table 25 "Vendor Ledger Entry"
         field(53; "Transaction No."; Integer)
         {
             Caption = 'Transaction No.';
+            TableRelation = "G/L Transaction";
+            ToolTip = 'Specifies the transaction number that groups related G/L entries from the same posting.';
         }
         field(54; "Closed by Amount (LCY)"; Decimal)
         {
@@ -595,6 +598,13 @@ table 25 "Vendor Ledger Entry"
             Editable = false;
             TableRelation = "Payment Terms";
         }
+        field(95; "G/L Register No."; Integer)
+        {
+            Caption = 'G/L Register No.';
+            Editable = false;
+            TableRelation = "G/L Register";
+            ToolTip = 'Specifies the G/L register number that groups related G/L entries from the same posting.';
+        }
         field(170; "Creditor No."; Code[20])
         {
             Caption = 'Creditor No.';
@@ -760,49 +770,6 @@ table 25 "Vendor Ledger Entry"
             Caption = 'Autodocument No.';
             Editable = false;
         }
-        field(10704; "Invoice Type"; Enum "SII Purch. Invoice Type")
-        {
-            Caption = 'Invoice Type';
-            DataClassification = CustomerContent;
-        }
-        field(10705; "Cr. Memo Type"; Enum "SII Purch. Credit Memo Type")
-        {
-            Caption = 'Cr. Memo Type';
-            DataClassification = CustomerContent;
-        }
-        field(10706; "Special Scheme Code"; Enum "SII Purch. Special Scheme Code")
-        {
-            Caption = 'Special Scheme Code';
-            DataClassification = CustomerContent;
-        }
-        field(10707; "Correction Type"; Option)
-        {
-            Caption = 'Correction Type';
-            DataClassification = CustomerContent;
-            OptionCaption = ' ,Replacement,Difference,Removal';
-            OptionMembers = " ",Replacement,Difference,Removal;
-        }
-        field(10708; "Corrected Invoice No."; Code[20])
-        {
-            Caption = 'Corrected Invoice No.';
-            DataClassification = CustomerContent;
-        }
-        field(10720; "Succeeded Company Name"; Text[250])
-        {
-            Caption = 'Succeeded Company Name';
-        }
-        field(10721; "Succeeded VAT Registration No."; Text[20])
-        {
-            Caption = 'Succeeded VAT Registration No.';
-        }
-        field(10722; "ID Type"; Enum "SII ID Type")
-        {
-            Caption = 'ID Type';
-        }
-        field(10724; "Do Not Send To SII"; Boolean)
-        {
-            Caption = 'Do Not Send To SII';
-        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -888,6 +855,10 @@ table 25 "Vendor Ledger Entry"
         key(Key26; "Applies-to ID")
         {
             IncludedFields = "Accepted Payment Tolerance";
+        }
+        // Supports the Payment Reconciliation Journal candidate search (Document Type + Open + date range).
+        key(PmtReconCandidates; "Document Type", Open, "Posting Date")
+        {
         }
     }
 
@@ -1135,15 +1106,6 @@ table 25 "Vendor Ledger Entry"
         "Payment Terms Code" := GenJnlLine."Payment Terms Code";
         "Bill No." := GenJnlLine."Bill No.";
         "Applies-to Bill No." := GenJnlLine."Applies-to Bill No.";
-        "Invoice Type" := GenJnlLine."Purch. Invoice Type";
-        "Cr. Memo Type" := GenJnlLine."Purch. Cr. Memo Type";
-        "Special Scheme Code" := GenJnlLine."Purch. Special Scheme Code";
-        "Correction Type" := GenJnlLine."Correction Type";
-        "Corrected Invoice No." := GenJnlLine."Corrected Invoice No.";
-        "Succeeded Company Name" := GenJnlLine."Succeeded Company Name";
-        "Succeeded VAT Registration No." := GenJnlLine."Succeeded VAT Registration No.";
-        "ID Type" := GenJnlLine."ID Type";
-        "Do Not Send To SII" := GenJnlLine."Do Not Send To SII";
         if (GenJnlLine."Remit-to Code" <> '') then
             "Remit-to Code" := GenJnlLine."Remit-to Code";
         "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
@@ -1404,5 +1366,6 @@ table 25 "Vendor Ledger Entry"
     local procedure OnBeforeCheckBillSituation(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
+
 }
 

@@ -1,10 +1,9 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.History;
 
-using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
@@ -740,10 +739,6 @@ table 125 "Purch. Cr. Memo Line"
             AutoFormatType = 1;
             Caption = 'EC Difference';
         }
-        field(10709; "Special Scheme Code"; Enum "SII Purch. Special Scheme Code")
-        {
-            Caption = 'Special Scheme Code';
-        }
     }
 
     keys
@@ -985,7 +980,7 @@ table 125 "Purch. Cr. Memo Line"
         PurchaseLine: Record "Purchase Line";
     begin
         if Type = Type::" " then
-            exit(PurchaseLine.FormatType());
+            exit(PurchaseLine.FormatTypeAsText());
 
         exit(Format(Type));
     end;
@@ -1096,7 +1091,7 @@ table 125 "Purch. Cr. Memo Line"
         ItemTrackingDocMgmt: Codeunit "Item Tracking Doc. Management";
     begin
         ItemTrackingDocMgmt.RetrieveEntriesFromPostedInvoice(TempItemLedEntry, RowID1());
-        if TempItemLedEntry.IsEmpty then
+        if TempItemLedEntry.IsEmpty() then
             exit;
 
         TempItemLedEntry.FindFirst();

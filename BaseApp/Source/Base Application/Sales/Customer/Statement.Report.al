@@ -22,9 +22,8 @@ using System.Utilities;
 /// </summary>
 report 116 Statement
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Sales/Customer/Statement.rdlc';
     Caption = 'Statement';
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -803,6 +802,16 @@ report 116 Statement
         end;
     }
 
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Sales/Customer/Statement.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
+    }
+
     labels
     {
     }
@@ -1117,5 +1126,6 @@ report 116 Statement
         end;
         FirstCustomerPrinted := true;
     end;
+
 }
 

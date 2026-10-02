@@ -10,8 +10,6 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Clause;
-using Microsoft.Finance.VAT.Ledger;
-using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.PaymentTerms;
@@ -46,6 +44,9 @@ report 5911 "Service - Invoice"
             column(No_ServiceInvHeader; "No.")
             {
             }
+            column(InvDiscountAmountCaption; InvDiscountAmountCaptionLbl)
+            {
+            }
             column(DisplayAdditionalFeeNote; DisplayAdditionalFeeNote)
             {
             }
@@ -61,7 +62,7 @@ report 5911 "Service - Invoice"
                     column(CompanyInfo1Picture; CompanyInfo1.Picture)
                     {
                     }
-                    column(CompanyInfoPicture; CompanyInfo.Picture)
+                    column(CompanyInfoPicture; CompanyInfo3.Picture)
                     {
                     }
                     column(ReportTitleCopyText; StrSubstNo(DocumentCaption(), CopyText))
@@ -112,7 +113,7 @@ report 5911 "Service - Invoice"
                     column(CompanyInfoBankName; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfoBankAccNo; CompanyBankAccount."Bank Account No.")
+                    column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(BillToCustNo_ServInvHeader; "Service Invoice Header"."Bill-to Customer No.")
@@ -121,7 +122,7 @@ report 5911 "Service - Invoice"
                     column(BillToCustNo_ServInvHeaderCaption; "Service Invoice Header".FieldCaption("Bill-to Customer No."))
                     {
                     }
-                    column(PostDate_ServInvHeader; Format("Service Invoice Header"."Posting Date"))
+                    column(PostingDate_ServInvHeader; Format("Service Invoice Header"."Posting Date"))
                     {
                     }
                     column(VATNoText; VATNoText)
@@ -139,10 +140,13 @@ report 5911 "Service - Invoice"
                     column(SalesPurchPersonName; SalesPurchPerson.Name)
                     {
                     }
+                    column(No1_ServiceInvHeader; "Service Invoice Header"."No.")
+                    {
+                    }
                     column(ReferenceText; ReferenceText)
                     {
                     }
-                    column(YourRef_ServInvHeader; "Service Invoice Header"."Your Reference")
+                    column(YorRef_ServInvHeader; "Service Invoice Header"."Your Reference")
                     {
                     }
                     column(OrderNoText; OrderNoText)
@@ -172,19 +176,19 @@ report 5911 "Service - Invoice"
                     column(DocDate_ServInvHeader; Format("Service Invoice Header"."Document Date", 0, 4))
                     {
                     }
-                    column(PricesIncludVAT1_ServInvHeader; "Service Invoice Header"."Prices Including VAT")
+                    column(PricesInclVAT_ServInvHeader; "Service Invoice Header"."Prices Including VAT")
                     {
                     }
-                    column(PricesIncludVAT1_ServInvHeaderCaption; "Service Invoice Header".FieldCaption("Prices Including VAT"))
-                    {
-                    }
-                    column(PricesIncludVAT_ServInvHeader; Format("Service Invoice Header"."Prices Including VAT"))
+                    column(PricesInclVAT_ServInvHeaderCaption; "Service Invoice Header".FieldCaption("Prices Including VAT"))
                     {
                     }
                     column(PageCaption; StrSubstNo(Text005, ''))
                     {
                     }
                     column(OutputNo; OutputNo)
+                    {
+                    }
+                    column(PricesInclVAT1_ServInvHeader; Format("Service Invoice Header"."Prices Including VAT"))
                     {
                     }
                     column(CompanyInfoPhoneNoCaption; CompanyInfoPhoneNoCaptionLbl)
@@ -205,6 +209,9 @@ report 5911 "Service - Invoice"
                     column(CompanyInfoBankAccountNoCaption; CompanyInfoBankAccountNoCaptionLbl)
                     {
                     }
+                    column(AmountCaption; AmountCaptionLbl)
+                    {
+                    }
                     column(ServiceInvoiceHeaderDueDateCaption; ServiceInvoiceHeaderDueDateCaptionLbl)
                     {
                     }
@@ -212,9 +219,6 @@ report 5911 "Service - Invoice"
                     {
                     }
                     column(ServiceInvoiceHeaderPostingDateCaption; ServiceInvoiceHeaderPostingDateCaptionLbl)
-                    {
-                    }
-                    column(CACCaption; CACCaptionLbl)
                     {
                     }
                     column(CompanyBankBranchNo; CompanyBankAccount."Bank Branch No.")
@@ -230,7 +234,7 @@ report 5911 "Service - Invoice"
                         column(DimText; DimText)
                         {
                         }
-                        column(DimLoop1Number; Number)
+                        column(Number_IntegerLine; Number)
                         {
                         }
                         column(HeaderDimensionsCaption; HeaderDimensionsCaptionLbl)
@@ -255,13 +259,10 @@ report 5911 "Service - Invoice"
                         DataItemLink = "Document No." = field("No.");
                         DataItemLinkReference = "Service Invoice Header";
                         DataItemTableView = sorting("Document No.", "Service Item Line No.");
-                        column(GetCarteraInvoice; GetCarteraInvoice())
-                        {
-                        }
                         column(TypeInt; TypeInt)
                         {
                         }
-                        column(VATBaseDisc_ServInvHeader; "Service Invoice Header"."VAT Base Discount %")
+                        column(BaseDisc_ServInvHeader; "Service Invoice Header"."VAT Base Discount %")
                         {
                         }
                         column(TotalLineAmount; TotalLineAmount)
@@ -276,21 +277,15 @@ report 5911 "Service - Invoice"
                         column(TotalInvDiscAmount; TotalInvDiscAmount)
                         {
                         }
-                        column(LineNo_ServInvLine; "Service Invoice Line"."Line No.")
-                        {
-                        }
-                        column(TotalGivenAmount; TotalGivenAmount)
-                        {
-                        }
-                        column(TypeNO; TypeNO)
+                        column(LineNo_ServInvLine; "Line No.")
                         {
                         }
                         column(LineAmt_ServInvLine; "Line Amount")
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(Desc_ServInvLine; Description)
+                        column(Description_ServInvLine; Description)
                         {
                         }
                         column(No_ServInvLine; "No.")
@@ -299,7 +294,7 @@ report 5911 "Service - Invoice"
                         column(SerialNo_ServiceItem; ServiceItemSerialNo)
                         {
                         }
-                        column(Qty_ServInvLine; Quantity)
+                        column(Quantity_ServInvLine; Quantity)
                         {
                         }
                         column(UOM_ServInvLine; "Unit of Measure")
@@ -311,10 +306,10 @@ report 5911 "Service - Invoice"
                         column(SerialNo_ServiceItemCaption; SerialNoCaptionLbl)
                         {
                         }
-                        column(Desc_ServInvLineCaption; FieldCaption(Description))
+                        column(Description_ServInvLineCaption; FieldCaption(Description))
                         {
                         }
-                        column(Qty_ServInvLineCaption; QuantityCaptionLbl)
+                        column(Quantity_ServInvLineCaption; QuantityCaptionLbl)
                         {
                         }
                         column(UOM_ServInvLineCaption; FieldCaption("Unit of Measure"))
@@ -322,10 +317,10 @@ report 5911 "Service - Invoice"
                         }
                         column(UnitPrice_ServInvLine; "Unit Price")
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 2;
                         }
-                        column(LineDiscount_ServInvLine; "Line Discount %")
+                        column(LineDisc_ServInvLine; "Line Discount %")
                         {
                         }
                         column(VATIdentifier_ServInvLine; "VAT Identifier")
@@ -337,24 +332,27 @@ report 5911 "Service - Invoice"
                         column(PostedShipmentDate; Format(PostedShipmentDate))
                         {
                         }
-                        column(InvDiscountAmt_ServInvLine; -"Inv. Discount Amount")
+                        column(InvDiscountAmount; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(Amt_ServInvLine; Amount)
+                        column(TotalText; TotalText)
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
+                        }
+                        column(Amount_ServInvLine; Amount)
+                        {
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(AmtIncludingVATAmt_ServInvLine; "Amount Including VAT" - Amount)
+                        column(AmtInclVATAmount; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtInclVAT_ServInvLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmtText; TempVATAmountLine.VATAmountText())
@@ -366,13 +364,10 @@ report 5911 "Service - Invoice"
                         column(TotalInclVATText; TotalInclVATText)
                         {
                         }
-                        column(LnAmtInvDiscAmtDiscAmtAmtInVATServInvLine; -("Line Amount" - "Inv. Discount Amount" - "Pmt. Discount Amount" - "Amount Including VAT"))
+                        column(LineAmtInvDiscAmtAmtInclVAT; -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT"))
                         {
                             AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
-                        }
-                        column(DebitPaymentoFactoringCompanyCaption; DebitPaymentoFactoringCompanyCaptionLbl)
-                        {
                         }
                         column(UnitPriceCaption; UnitPriceCaptionLbl)
                         {
@@ -380,31 +375,22 @@ report 5911 "Service - Invoice"
                         column(ServiceInvoiceLineLineDiscountCaption; ServiceInvoiceLineLineDiscountCaptionLbl)
                         {
                         }
-                        column(AmountCaption; AmountCaptionLbl)
-                        {
-                        }
                         column(PostedShipmentDateCaption; PostedShipmentDateCaptionLbl)
-                        {
-                        }
-                        column(InvDiscountAmountCaption; InvDiscountAmountCaptionLbl)
                         {
                         }
                         column(SubtotalCaption; SubtotalCaptionLbl)
                         {
                         }
-                        column(PmtDiscGivenAmountCaption; PmtDiscGivenAmountCaptionLbl)
-                        {
-                        }
-                        column(PaymentDiscountonVATCaption; PaymentDiscountonVATCaptionLbl)
+                        column(LineAmountInvDiscountAmountAmountIncludingVATCaption; LineAmountInvDiscountAmountAmountIncludingVATCaptionLbl)
                         {
                         }
                         dataitem("Service Shipment Buffer"; "Integer")
                         {
                             DataItemTableView = sorting(Number);
-                            column(ServShipmentBufferPostDate; Format(TempServiceShipmentBuffer."Posting Date"))
+                            column(ServShptBufferPostingDate; Format(TempServiceShipmentBuffer."Posting Date"))
                             {
                             }
-                            column(ServiceShipmentBufferQty; TempServiceShipmentBuffer.Quantity)
+                            column(ServShptBufferQuantity; TempServiceShipmentBuffer.Quantity)
                             {
                                 DecimalPlaces = 0 : 5;
                             }
@@ -431,7 +417,7 @@ report 5911 "Service - Invoice"
                         dataitem(DimensionLoop2; "Integer")
                         {
                             DataItemTableView = sorting(Number);
-                            column(DimTextControl82; DimText)
+                            column(DimText1; DimText)
                             {
                             }
                             column(LineDimensionsCaption; LineDimensionsCaptionLbl)
@@ -476,36 +462,25 @@ report 5911 "Service - Invoice"
                             end else
                                 ServiceItemSerialNo := "Service Item Serial No.";
 
-                            if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
-                                TempVATAmountLine.Init();
-                                TempVATAmountLine."VAT Identifier" := "VAT Identifier";
-                                TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
-                                TempVATAmountLine."Tax Group Code" := "Tax Group Code";
-                                TempVATAmountLine."VAT %" := VATPostingSetup."VAT %";
-                                TempVATAmountLine."EC %" := VATPostingSetup."EC %";
-                                TempVATAmountLine."VAT Base" := Amount;
-                                TempVATAmountLine."Amount Including VAT" := "Amount Including VAT";
-                                TempVATAmountLine."Line Amount" := "Line Amount";
-                                TempVATAmountLine."Pmt. Discount Amount" := "Pmt. Discount Amount";
-                                if "Allow Invoice Disc." then
-                                    TempVATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
-                                TempVATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
-                                TempVATAmountLine.SetCurrencyCode("Service Invoice Header"."Currency Code");
-                                TempVATAmountLine."VAT Difference" := "VAT Difference";
-                                TempVATAmountLine."EC Difference" := "EC Difference";
-                                if "Service Invoice Header"."Prices Including VAT" then
-                                    TempVATAmountLine."Prices Including VAT" := true;
-                                TempVATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                                TempVATAmountLine.InsertLine();
+                            TempVATAmountLine.Init();
+                            TempVATAmountLine."VAT Identifier" := "VAT Identifier";
+                            TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
+                            TempVATAmountLine."Tax Group Code" := "Tax Group Code";
+                            TempVATAmountLine."VAT %" := "VAT %";
+                            TempVATAmountLine."VAT Base" := Amount;
+                            TempVATAmountLine."Amount Including VAT" := "Amount Including VAT";
+                            TempVATAmountLine."Line Amount" := "Line Amount";
+                            if "Allow Invoice Disc." then
+                                TempVATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
+                            TempVATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
+                            TempVATAmountLine."VAT Clause Code" := "VAT Clause Code";
+                            TempVATAmountLine.InsertLine();
 
-                                TotalLineAmount += "Line Amount";
-                                TotalAmount += Amount;
-                                TotalAmountInclVAT += "Amount Including VAT";
-                                TotalInvDiscAmount += "Inv. Discount Amount";
-                                TotalGivenAmount += "Pmt. Discount Amount";
-                                TypeNO := TempVATAmountLine."VAT Calculation Type".AsInteger();
-                                TypeInt := Type.AsInteger();
-                            end;
+                            TotalLineAmount += "Line Amount";
+                            TotalAmount += Amount;
+                            TotalAmountInclVAT += "Amount Including VAT";
+                            TotalInvDiscAmount += "Inv. Discount Amount";
+                            TypeInt := Type.AsInteger();
                         end;
 
                         trigger OnPreDataItem()
@@ -522,23 +497,22 @@ report 5911 "Service - Invoice"
                             TotalAmount := 0;
                             TotalAmountInclVAT := 0;
                             TotalInvDiscAmount := 0;
-                            TotalGivenAmount := 0;
                         end;
                     }
                     dataitem(VATCounter; "Integer")
                     {
                         DataItemTableView = sorting(Number);
-                        column(VATAmtLineVATECBase; TempVATAmountLine."VAT Base")
+                        column(VATAmtLineVATBase; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(AmtInclVATAmount; TempVATAmountLine."VAT Amount")
+                        column(VATAmtLineVATAmount; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineLineAmt; TempVATAmountLine."Line Amount")
+                        column(VATAmtLineLineAmount; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
@@ -548,35 +522,25 @@ report 5911 "Service - Invoice"
                             AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineInvDiscAmtPmtDiscAmt; TempVATAmountLine."Invoice Discount Amount" + TempVATAmountLine."Pmt. Discount Amount")
+                        column(VATAmtLineInvDiscAmount; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Service Invoice Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmtLineECAmt; TempVATAmountLine."EC Amount")
-                        {
-                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(VATAmtLineVAT; TempVATAmountLine."VAT %")
+                        column(VATAmountLineVAT; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmtLineVATIdenti; TempVATAmountLine."VAT Identifier")
+                        column(VATAmtLineVATIdentifier; TempVATAmountLine."VAT Identifier")
                         {
-                        }
-                        column(VATAmtLineEC; TempVATAmountLine."EC %")
-                        {
-                            AutoFormatExpression = "Service Invoice Header"."Currency Code";
-                            AutoFormatType = 1;
                         }
                         column(VATAmountLineVATCaption; VATAmountLineVATCaptionLbl)
                         {
                         }
-                        column(VATECBaseCaption; VATECBaseCaptionLbl)
+                        column(VATAmountLineVATBaseControl108Caption; VATAmountLineVATBaseControl108CaptionLbl)
                         {
                         }
-                        column(VATAmountLineVATAmountCaption; VATAmountLineVATAmountCaptionLbl)
+                        column(VATAmountLineVATAmountControl109Caption; VATAmountLineVATAmountControl109CaptionLbl)
                         {
                         }
                         column(VATAmountSpecificationCaption; VATAmountSpecificationCaptionLbl)
@@ -585,33 +549,19 @@ report 5911 "Service - Invoice"
                         column(VATAmountLineVATIdentifierCaption; VATAmountLineVATIdentifierCaptionLbl)
                         {
                         }
-                        column(VATAmountLineInvDiscBaseAmountCaption; VATAmountLineInvDiscBaseAmountCaptionLbl)
+                        column(VATAmountLineInvDiscBaseAmountControl141Caption; VATAmountLineInvDiscBaseAmountControl141CaptionLbl)
                         {
                         }
-                        column(VATAmountLineLineAmountCaption; VATAmountLineLineAmountCaptionLbl)
+                        column(VATAmountLineLineAmountControl140Caption; VATAmountLineLineAmountControl140CaptionLbl)
                         {
                         }
-                        column(InvandPmtDiscountsCaption; InvandPmtDiscountsCaptionLbl)
-                        {
-                        }
-                        column(ECCaption; ECCaptionLbl)
-                        {
-                        }
-                        column(ECAmountCaption; ECAmountCaptionLbl)
-                        {
-                        }
-                        column(VATAmountLineVATECBaseCaption; VATAmountLineVATECBaseCaptionLbl)
+                        column(VATAmountLineVATBaseControl116Caption; VATAmountLineVATBaseControl116CaptionLbl)
                         {
                         }
 
                         trigger OnAfterGetRecord()
                         begin
                             TempVATAmountLine.GetLine(Number);
-
-                            if TempVATAmountLine."VAT Amount" = 0 then
-                                TempVATAmountLine."VAT %" := 0;
-                            if TempVATAmountLine."EC Amount" = 0 then
-                                TempVATAmountLine."EC %" := 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -647,7 +597,7 @@ report 5911 "Service - Invoice"
                         column(VATClauseVATIdentifierCaption; VATAmountLineVATIdentifierCaptionLbl)
                         {
                         }
-                        column(VATClauseVATAmtCaption; VATAmountLineVATAmountCaptionLbl)
+                        column(VATClauseVATAmtCaption; VATAmountLineVATAmountControl109CaptionLbl)
                         {
                         }
 
@@ -668,16 +618,10 @@ report 5911 "Service - Invoice"
                     dataitem(Total; "Integer")
                     {
                         DataItemTableView = sorting(Number) where(Number = const(1));
-                        column(PaymentTermsDesc; PaymentTerms.Description)
-                        {
-                        }
-                        column(PaymentMethodDesc; PaymentMethod.Description)
+                        column(PaymentTermsDescription; PaymentTerms.Description)
                         {
                         }
                         column(PaymentTermsDescriptionCaption; PaymentTermsDescriptionCaptionLbl)
-                        {
-                        }
-                        column(PaymentMethodDescriptionCaption; PaymentMethodDescriptionCaptionLbl)
                         {
                         }
                     }
@@ -793,8 +737,6 @@ report 5911 "Service - Invoice"
                     Clear(Cust);
 
                 GetLineFeeNoteOnReportHist("No.");
-
-                ShowCashAccountingCriteria("Service Invoice Header");
             end;
         }
     }
@@ -848,23 +790,7 @@ report 5911 "Service - Invoice"
         GLSetup.Get();
         CompanyInfo.Get();
         ServiceSetup.Get();
-
-        case ServiceSetup."Logo Position on Documents" of
-            ServiceSetup."Logo Position on Documents"::"No Logo":
-                ;
-            ServiceSetup."Logo Position on Documents"::Left:
-                CompanyInfo.CalcFields(Picture);
-            ServiceSetup."Logo Position on Documents"::Center:
-                begin
-                    CompanyInfo1.Get();
-                    CompanyInfo1.CalcFields(Picture);
-                end;
-            ServiceSetup."Logo Position on Documents"::Right:
-                begin
-                    CompanyInfo2.Get();
-                    CompanyInfo2.CalcFields(Picture);
-                end;
-        end;
+        FormatDocument.SetLogoPosition(ServiceSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
     end;
 
     var
@@ -880,8 +806,6 @@ report 5911 "Service - Invoice"
         RespCenter: Record "Responsibility Center";
         TempServiceShipmentBuffer: Record "Service Shipment Buffer" temporary;
         TempLineFeeNoteOnReportHist: Record "Line Fee Note on Report Hist." temporary;
-        VATPostingSetup: Record "VAT Posting Setup";
-        PaymentMethod: Record "Payment Method";
         LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -917,8 +841,6 @@ report 5911 "Service - Invoice"
         AccNo: Code[20];
         ServiceItemSerialNo: Code[50];
         DisplayAdditionalFeeNote: Boolean;
-        TotalGivenAmount: Decimal;
-        TypeNO: Integer;
 
 #pragma warning disable AA0074
         Text004: Label 'Service - Invoice %1', Comment = '%1 = Document No.';
@@ -937,35 +859,27 @@ report 5911 "Service - Invoice"
         InvoiceNoCaptionLbl: Label 'Invoice No.';
         ServiceInvoiceHeaderPostingDateCaptionLbl: Label 'Posting Date';
         HeaderDimensionsCaptionLbl: Label 'Header Dimensions';
-        DebitPaymentoFactoringCompanyCaptionLbl: Label 'The payment of this invoice, in order to be released from the debt, has to be paid to the Factoring Company.';
         UnitPriceCaptionLbl: Label 'Unit Price';
         ServiceInvoiceLineLineDiscountCaptionLbl: Label 'Disc. %';
         PostedShipmentDateCaptionLbl: Label 'Posted Shipment Date';
-        InvDiscountAmountCaptionLbl: Label 'Invoice Discount Amount';
-        PaymentDiscountonVATCaptionLbl: Label 'Payment Discount on VAT';
         SubtotalCaptionLbl: Label 'Subtotal';
-        PmtDiscGivenAmountCaptionLbl: Label 'Payment Discount Given Amount';
+        LineAmountInvDiscountAmountAmountIncludingVATCaptionLbl: Label 'Payment Discount on VAT';
         ShipmentCaptionLbl: Label 'Shipment';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
 #pragma warning disable AA0074
         VATClausesCap: Label 'VAT Clause';
 #pragma warning restore AA0074
         VATAmountLineVATCaptionLbl: Label 'VAT %';
-        VATECBaseCaptionLbl: Label 'VAT+EC Base';
-        VATAmountLineVATAmountCaptionLbl: Label 'VAT Amount';
+        VATAmountLineVATBaseControl108CaptionLbl: Label 'VAT Base';
+        VATAmountLineVATAmountControl109CaptionLbl: Label 'VAT Amount';
         VATAmountSpecificationCaptionLbl: Label 'VAT Amount Specification';
         VATAmountLineVATIdentifierCaptionLbl: Label 'VAT Identifier';
-        VATAmountLineInvDiscBaseAmountCaptionLbl: Label 'Invoice Discount Base Amount';
-        VATAmountLineLineAmountCaptionLbl: Label 'Line Amount';
-        InvandPmtDiscountsCaptionLbl: Label 'Invoice and Payment Discounts';
-        ECCaptionLbl: Label 'EC %';
-        ECAmountCaptionLbl: Label 'EC Amount';
-        VATAmountLineVATECBaseCaptionLbl: Label 'Total';
+        VATAmountLineInvDiscBaseAmountControl141CaptionLbl: Label 'Inv. Disc. Base Amount';
+        VATAmountLineLineAmountControl140CaptionLbl: Label 'Line Amount';
+        VATAmountLineVATBaseControl116CaptionLbl: Label 'Total';
         PaymentTermsDescriptionCaptionLbl: Label 'Payment Terms';
-        PaymentMethodDescriptionCaptionLbl: Label 'Payment Method';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
-        CACCaptionLbl: Text;
-        CACTxt: Label 'Régimen especial del criterio de caja', Locked = true;
+        InvDiscountAmountCaptionLbl: Label 'Invoice Discount Amount';
         QuantityCaptionLbl: Label 'Qty';
         SerialNoCaptionLbl: Label 'Serial No.';
 
@@ -973,6 +887,7 @@ report 5911 "Service - Invoice"
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
+        CompanyInfo3: Record "Company Information";
 
     procedure FindPostedShipmentDate(): Date
     var
@@ -1159,44 +1074,6 @@ report 5911 "Service - Invoice"
         until DimSetEntry.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
-    procedure GetCarteraInvoice(): Boolean
-    var
-        CustLedgEntry: Record "Cust. Ledger Entry";
-    begin
-        CustLedgEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
-        CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
-        CustLedgEntry.SetRange("Document No.", "Service Invoice Header"."No.");
-        CustLedgEntry.SetRange("Customer No.", "Service Invoice Header"."Bill-to Customer No.");
-        CustLedgEntry.SetRange("Posting Date", "Service Invoice Header"."Posting Date");
-        if CustLedgEntry.FindFirst() then
-            if CustLedgEntry."Document Situation" = CustLedgEntry."Document Situation"::" " then
-                exit(false)
-            else
-                exit(true)
-        else
-            exit(false);
-    end;
-
-    [Scope('OnPrem')]
-    procedure ShowCashAccountingCriteria(ServiceInvoiceHeader: Record "Service Invoice Header"): Text
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        GLSetup.Get();
-        if not GLSetup."Unrealized VAT" then
-            exit;
-        CACCaptionLbl := '';
-        VATEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
-        if VATEntry.FindSet() then
-            repeat
-                if VATEntry."VAT Cash Regime" then
-                    CACCaptionLbl := CACTxt;
-            until (VATEntry.Next() = 0) or (CACCaptionLbl <> '');
-        exit(CACCaptionLbl);
-    end;
-
     local procedure GetLineFeeNoteOnReportHist(SalesInvoiceHeaderNo: Code[20])
     var
         LineFeeNoteOnReportHist: Record "Line Fee Note on Report Hist.";
@@ -1260,7 +1137,6 @@ report 5911 "Service - Invoice"
         FormatDocument.SetTotalLabels(ServiceInvoiceHeader."Currency Code", TotalText, TotalInclVATText, TotalExclVATText);
         FormatDocument.SetSalesPerson(SalesPurchPerson, ServiceInvoiceHeader."Salesperson Code", SalesPersonText);
         FormatDocument.SetPaymentTerms(PaymentTerms, ServiceInvoiceHeader."Payment Terms Code", ServiceInvoiceHeader."Language Code");
-        FormatDocument.SetPaymentMethod(PaymentMethod, ServiceInvoiceHeader."Payment Method Code", ServiceInvoiceHeader."Language Code");
 
         OrderNoText := FormatDocument.SetText(ServiceInvoiceHeader."Order No." <> '', ServiceInvoiceHeader.FieldCaption("Order No."));
         ReferenceText := FormatDocument.SetText(ServiceInvoiceHeader."Your Reference" <> '', ServiceInvoiceHeader.FieldCaption("Your Reference"));

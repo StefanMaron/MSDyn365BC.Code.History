@@ -9,7 +9,6 @@ using Microsoft.Bank.Payment;
 using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Team;
-using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
@@ -17,6 +16,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.SpendRequest;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
@@ -572,6 +572,19 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'Prepayment Order No.';
         }
+        field(146; "Spend Request No."; Code[20])
+        {
+            Caption = 'Spend Request No.';
+            ToolTip = 'Specifies the spend request that this purchase document relates to.';
+            TableRelation = "Spend Request";
+            DataClassification = CustomerContent;
+        }
+        field(147; "Spend Request Close"; Boolean)
+        {
+            Caption = 'Spend Request Close';
+            ToolTip = 'Specifies that the spend request will be closed when the purchase document is posted.';
+            DataClassification = CustomerContent;
+        }
         field(151; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
@@ -717,72 +730,6 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'Autoinvoice No.';
             Editable = false;
-        }
-        field(10706; "SII Status"; Enum "SII Document Status")
-        {
-            CalcFormula = lookup("SII Doc. Upload State".Status where("Document Source" = const("Vendor Ledger"),
-                                                                       "Document Type" = const(Invoice),
-                                                                       "Document No." = field("No.")));
-            Caption = 'SII Status';
-            FieldClass = FlowField;
-
-            trigger OnLookup()
-            var
-                SIIDocUploadState: Record "SII Doc. Upload State";
-                SIIHistory: Record "SII History";
-            begin
-                SIIDocUploadState.SetRange("Document Source", SIIDocUploadState."Document Source"::"Vendor Ledger");
-                SIIDocUploadState.SetRange("Document Type", SIIDocUploadState."Document Type"::Invoice);
-                SIIDocUploadState.SetRange("Document No.", "No.");
-                if SIIDocUploadState.FindFirst() then begin
-                    SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
-                    PAGE.Run(PAGE::"SII History", SIIHistory);
-                end;
-            end;
-        }
-        field(10707; "Invoice Type"; Enum "SII Purch. Invoice Type")
-        {
-            Caption = 'Invoice Type';
-        }
-        field(10708; "Cr. Memo Type"; Enum "SII Purch. Credit Memo Type")
-        {
-            Caption = 'Cr. Memo Type';
-        }
-        field(10709; "Special Scheme Code"; Enum "SII Purch. Special Scheme Code")
-        {
-            Caption = 'Special Scheme Code';
-        }
-        field(10710; "Operation Description"; Text[250])
-        {
-            Caption = 'Operation Description';
-        }
-        field(10712; "Operation Description 2"; Text[250])
-        {
-            Caption = 'Operation Description 2';
-        }
-        field(10720; "Succeeded Company Name"; Text[250])
-        {
-            Caption = 'Succeeded Company Name';
-        }
-        field(10721; "Succeeded VAT Registration No."; Text[20])
-        {
-            Caption = 'Succeeded VAT Registration No.';
-        }
-        field(10722; "ID Type"; Enum "SII ID Type")
-        {
-            Caption = 'ID Type';
-        }
-        field(10723; "Sent to SII"; Boolean)
-        {
-            CalcFormula = exist("SII Doc. Upload State" where("Document Source" = const("Vendor Ledger"),
-                                                               "Document Type" = const(Invoice),
-                                                               "Document No." = field("No.")));
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(10724; "Do Not Send To SII"; Boolean)
-        {
-            Caption = 'Do Not Send To SII';
         }
         field(7000000; "Applies-to Bill No."; Code[20])
         {

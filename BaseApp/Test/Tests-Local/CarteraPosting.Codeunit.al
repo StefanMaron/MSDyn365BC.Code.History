@@ -2055,15 +2055,6 @@ codeunit 147305 "Cartera Posting"
         Customer.Modify(true);
     end;
 
-    local procedure CreateCustomerWithAllowMultiplePostingGroups(var Customer: Record Customer; AllowMultiplePostingGroups: Boolean)
-    begin
-        CreateCustomer(Customer);
-        if not AllowMultiplePostingGroups then
-            exit;
-        Customer.Validate("Allow Multiple Posting Groups", AllowMultiplePostingGroups);
-        Customer.Modify(true);
-    end;
-
     local procedure CreateVendor(var Vendor: Record Vendor)
     var
         PaymentTerms: Record "Payment Terms";
@@ -3679,6 +3670,15 @@ codeunit 147305 "Cartera Posting"
 
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
+    end;
+
+    local procedure CreateCustomerWithAllowMultiplePostingGroups(var Customer: Record Customer; AllowMultiplePostingGroups: Boolean)
+    begin
+        CreateCustomer(Customer);
+        if not AllowMultiplePostingGroups then
+            exit;
+        Customer.Validate("Allow Multiple Posting Groups", AllowMultiplePostingGroups);
+        Customer.Modify(true);
     end;
 
     [ModalPageHandler]

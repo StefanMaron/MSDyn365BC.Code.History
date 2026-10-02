@@ -5,8 +5,6 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
-using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Inventory.Location;
@@ -23,6 +21,7 @@ report 5900 "Service Order"
     DefaultLayout = RDLC;
     RDLCLayout = './Service/Document/ServiceOrder.rdlc';
     Caption = 'Service Order';
+    ToolTip = 'Create a new service order to perform service on a customer''s item.';
     WordMergeDataItem = "Service Header";
 
     dataset
@@ -85,10 +84,10 @@ report 5900 "Service Order"
                     column(CustAddr1; CustAddr[1])
                     {
                     }
-                    column(CompanyAddr8; CompanyAddr[8])
+                    column(CompanyAddr7; CompanyAddr[7])
                     {
                     }
-                    column(CompanyAddr7; CompanyAddr[7])
+                    column(CompanyAddr8; CompanyAddr[8])
                     {
                     }
                     column(CompanyAddr6; CompanyAddr[6])
@@ -161,9 +160,6 @@ report 5900 "Service Order"
                     {
                     }
                     column(Description_ServHeaderCaption; "Service Header".FieldCaption(Description))
-                    {
-                    }
-                    column(CACCaption; CACCaptionLbl)
                     {
                     }
                     dataitem(DimensionLoop1; "Integer")
@@ -584,8 +580,6 @@ report 5900 "Service Order"
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
-                ShowCashAccountingCriteria("Service Header");
-
                 if not IsReportInPreviewMode() and
                    ((CurrReport.UseRequestPage()) and ArchiveDocument or
                    not (CurrReport.UseRequestPage()) and (ServiceSetup."Archive Orders"))
@@ -671,7 +665,6 @@ report 5900 "Service Order"
         DimSetEntry2: Record "Dimension Set Entry";
         LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
-        FormatDocument: Codeunit "Format Document";
         NoOfCopies: Integer;
         NoOfLoops: Integer;
         OutputNo: Integer;
@@ -717,13 +710,12 @@ report 5900 "Service Order"
         TotalCaptionLbl: Label 'Total';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
-        CACCaptionLbl: Text;
-        CACTxt: Label 'R,gimen especial del criterio de caja';
 
     protected var
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
+        FormatDocument: Codeunit "Format Document";
 
     local procedure IsReportInPreviewMode(): Boolean
     var
@@ -747,27 +739,6 @@ report 5900 "Service Order"
         ShowShippingAddr := ServiceHeader."Ship-to Code" <> '';
         if ShowShippingAddr then
             ServiceFormatAddress.ServiceOrderShipto(ShipToAddr, ServiceHeader);
-    end;
-
-    [Scope('OnPrem')]
-    procedure ShowCashAccountingCriteria(ServiceHeader: Record "Service Header"): Text
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        ServiceLine: Record "Service Line";
-        GLSetup: Record "General Ledger Setup";
-    begin
-        GLSetup.Get();
-        if not GLSetup."VAT Cash Regime" then
-            exit;
-        CACCaptionLbl := '';
-        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        if ServiceLine.FindSet() then
-            repeat
-                if VATPostingSetup.Get(ServiceHeader."VAT Bus. Posting Group", ServiceLine."VAT Prod. Posting Group") then
-                    if VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" " then
-                        CACCaptionLbl := CACTxt;
-            until (ServiceLine.Next() = 0) or (CACCaptionLbl <> '');
-        exit(CACCaptionLbl);
     end;
 }
 

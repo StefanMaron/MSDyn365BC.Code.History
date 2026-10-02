@@ -1441,7 +1441,7 @@
         PaymentDate: Date;
         TransactionNo: Integer;
     begin
-        // [SCENARIO 640419] Unapply and revert transaction succeeds after payment with changed currency factor for Cartera bill
+        // [SCENARIO] Unapply and revert transaction succeeds after payment with changed currency factor for Cartera bill
         Initialize();
 
         // [GIVEN] Posted sales invoice with Cartera customer in FCY (creates bill entries)
@@ -1645,8 +1645,7 @@
         CustLedgEntry.Insert();
     end;
 
-    local procedure MockCarteraDoc(Type: Enum "Cartera Document Type"; EntryNo: Integer;
-                                             BGPONo: Code[20])
+    local procedure MockCarteraDoc(Type: Enum "Cartera Document Type"; EntryNo: Integer; BGPONo: Code[20])
     var
         CarteraDoc: Record "Cartera Doc.";
     begin
@@ -1656,8 +1655,7 @@
         CarteraDoc.Insert();
     end;
 
-    local procedure MockPostedCarteraDoc(Type: Enum "Cartera Document Type"; EntryNo: Integer;
-                                                   BGPONo: Code[20])
+    local procedure MockPostedCarteraDoc(Type: Enum "Cartera Document Type"; EntryNo: Integer; BGPONo: Code[20])
     var
         PostedCarteraDoc: Record "Posted Cartera Doc.";
     begin
@@ -2022,9 +2020,7 @@
         GLEntry.TestField(Amount, GLAmount);
     end;
 
-    local procedure VerifyGLEntryCount(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20];
-                                                    GLAccNo: Code[20];
-                                                    ExpectedCount: Integer)
+    local procedure VerifyGLEntryCount(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; GLAccNo: Code[20]; ExpectedCount: Integer)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -2175,10 +2171,7 @@
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure InsertDocModelHandler(var CarteraDocumentsPage: Page "Cartera Documents";
-
-    var
-        Response: Action)
+    procedure InsertDocModelHandler(var CarteraDocumentsPage: Page "Cartera Documents"; var Response: Action)
     var
         CarteraDoc: Record "Cartera Doc.";
         DocumentNo: Variant;

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -21,6 +21,7 @@ using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.SpendRequest;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
@@ -86,6 +87,7 @@ table 38 "Purchase Header"
 
             trigger OnValidate()
             var
+                MatchedOrderLineMgmt: Codeunit "Matched Order Line Mgmt.";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -202,6 +204,8 @@ table 38 "Purchase Header"
                         Rec.Validate("Remit-to Code", '');
                 end else
                     SelectDefaultRemitAddress(Rec);
+
+                MatchedOrderLineMgmt.ApplyVendorsReceiptOnInvoicePolicy(Rec);
             end;
         }
         field(3; "No."; Code[20])
@@ -227,7 +231,6 @@ table 38 "Purchase Header"
 
             trigger OnValidate()
             var
-                SIIManagement: Codeunit "SII Management";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -327,9 +330,6 @@ table 38 "Purchase Header"
                 OnValidatePayToVendorNoOnBeforeRecallModifyAddressNotification(Rec, xRec, Vend);
                 if (xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> "Pay-to Vendor No.") then
                     Rec.RecallModifyAddressNotification(GetModifyPayToVendorAddressNotificationId());
-
-                Validate("ID Type", SIIManagement.GetPurchIDType("Pay-to Vendor No.", "Correction Type", "Corrected Invoice No."));
-                SIIManagement.UpdateSIIInfoInPurchDoc(Rec);
             end;
         }
         field(5; "Pay-to Name"; Text[100])
@@ -1269,8 +1269,6 @@ table 38 "Purchase Header"
                         ShowExternalDocAlreadyExistNotification(VendorLedgerEntry)
                     else
                         RecallExternalDocAlreadyExistsNotification();
-
-                NotifyIfSIIDuplicateExternalDocNo(Rec, Rec."Vendor Invoice No.");
             end;
         }
         field(69; "Vendor Cr. Memo No."; Code[35])
@@ -1293,8 +1291,6 @@ table 38 "Purchase Header"
                         ShowExternalDocAlreadyExistNotification(VendorLedgerEntry)
                     else
                         RecallExternalDocAlreadyExistsNotification();
-
-                NotifyIfSIIDuplicateExternalDocNo(Rec, Rec."Vendor Cr. Memo No.");
             end;
         }
         field(70; "VAT Registration No."; Text[20])
@@ -2237,6 +2233,36 @@ table 38 "Purchase Header"
                 Validate("VAT Base Discount %");
             end;
         }
+        field(146; "Spend Request No."; Code[20])
+        {
+            Caption = 'Spend Request No.';
+            ToolTip = 'Specifies the spend request that this purchase document relates to.';
+            TableRelation = "Spend Request" where(Status = const(Approved), "Document Type" = const(" "));
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            var
+                SpendRequest: Record "Spend Request";
+                DimensionSetIDArr: array[10] of Integer;
+            begin
+                if Rec."Spend Request No." = '' then begin
+                    Rec."Spend Request Close" := false;
+                    exit;
+                end;
+                SpendRequest.ValidateSpendRequest(Rec."Spend Request No.", Rec."Spend Request Close");
+                if SpendRequest."Dimension Set ID" <> 0 then begin
+                    DimensionSetIDArr[1] := Rec."Dimension Set ID";
+                    DimensionSetIDArr[2] := SpendRequest."Dimension Set ID";
+                    Rec."Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
+                end;
+            end;
+        }
+        field(147; "Spend Request Close"; Boolean)
+        {
+            Caption = 'Spend Request Close';
+            ToolTip = 'Specifies that the spend request will be closed when the purchase document is posted.';
+            DataClassification = CustomerContent;
+        }
         field(151; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
@@ -2808,10 +2834,7 @@ table 38 "Purchase Header"
             var
                 MatchedOrderLineMgmt: Codeunit "Matched Order Line Mgmt.";
             begin
-                if "Receipt on Invoice" then
-                    MatchedOrderLineMgmt.CheckReceiptOnInvoiceAllowed(Rec);
-
-                MatchedOrderLineMgmt.RefreshMatchedOrderLineReceipt(Rec);
+                MatchedOrderLineMgmt.ApplyReceiptOnInvoiceToLines(Rec);
             end;
         }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
@@ -2959,55 +2982,6 @@ table 38 "Purchase Header"
         {
             Caption = 'Due Date Modified';
             Editable = false;
-        }
-        field(10707; "Invoice Type"; Enum "SII Purch. Invoice Type")
-        {
-            Caption = 'Invoice Type';
-        }
-        field(10708; "Cr. Memo Type"; Enum "SII Purch. Credit Memo Type")
-        {
-            Caption = 'Cr. Memo Type';
-        }
-        field(10709; "Special Scheme Code"; Enum "SII Purch. Special Scheme Code")
-        {
-            Caption = 'Special Scheme Code';
-
-            trigger OnValidate()
-            var
-                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
-            begin
-                SIISchemeCodeMgt.UpdatePurchaseSpecialSchemeCodeInPurchaseHeader(Rec, xRec);
-            end;
-        }
-        field(10710; "Operation Description"; Text[250])
-        {
-            Caption = 'Operation Description';
-        }
-        field(10711; "Correction Type"; Option)
-        {
-            Caption = 'Correction Type';
-            OptionCaption = ' ,Replacement,Difference,Removal';
-            OptionMembers = " ",Replacement,Difference,Removal;
-        }
-        field(10712; "Operation Description 2"; Text[250])
-        {
-            Caption = 'Operation Description 2';
-        }
-        field(10720; "Succeeded Company Name"; Text[250])
-        {
-            Caption = 'Succeeded Company Name';
-        }
-        field(10721; "Succeeded VAT Registration No."; Text[20])
-        {
-            Caption = 'Succeeded VAT Registration No.';
-        }
-        field(10722; "ID Type"; Enum "SII ID Type")
-        {
-            Caption = 'ID Type';
-        }
-        field(10724; "Do Not Send To SII"; Boolean)
-        {
-            Caption = 'Do Not Send To SII';
         }
         field(7000000; "Applies-to Bill No."; Code[20])
         {
@@ -3308,12 +3282,7 @@ table 38 "Purchase Header"
         WarnDocAmountVatTxt: Label '%1 must not be more than %2.', comment = '%1 - Doc. Amount VAT; %2 - DocAmountVAT';
         CreateVendorQst: Label 'You cannot Release Quote or Make Order unless you specify a vendor on the quote.\\Do you want to create vendor(s) now?';
         SelectVendorTemplateQst: Label 'Do you want to select the vendor template?';
-        SIIDuplicateExtDocNoTxt: Label 'A posted %1 with external document number %2 already exists for vendor %3. Because SII is enabled, the Spanish Tax Authority may reject this document as a duplicate (Factura Duplicada).', Comment = '%1 = Vendor Ledger Entry Document Type; %2 = External Document No.; %3 = Vendor No.';
-        ShowSIIDuplicateVendLedgEntryTxt: Label 'Show the posted document';
         CalledFromWhseDoc: Boolean;
-#if not CLEAN26
-        SkipStatsPrep: Boolean;
-#endif
 
     protected var
         PurchSetup: Record "Purchases & Payables Setup";
@@ -3361,7 +3330,6 @@ table 38 "Purchase Header"
     /// </summary>
     procedure InitRecord()
     var
-        SIIManagement: Codeunit "SII Management";
         IsHandled, SkipInitialization : Boolean;
     begin
         GetPurchSetup();
@@ -3406,7 +3374,6 @@ table 38 "Purchase Header"
         if not IsHandled then
             "Responsibility Center" := UserSetupMgt.GetRespCenter(1, "Responsibility Center");
         GetNextArchiveDocOccurrenceNo();
-        SIIManagement.UpdateSIIInfoInPurchDoc(Rec);
 
         OnAfterInitRecord(Rec);
     end;
@@ -5857,39 +5824,6 @@ table 38 "Purchase Header"
         end;
     end;
 
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    /// <summary>
-    /// Open statistics page for purchase orders.
-    /// </summary>
-    /// <remarks>
-    /// Commit is executed before opening the statistics page.
-    /// </remarks>
-    procedure OpenPurchaseOrderStatistics()
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeOpenPurchaseOrderStatistics(Rec, IsHandled);
-        if IsHandled then
-            exit;
-
-        OpenDocumentStatisticsInternal();
-    end;
-
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    /// <summary>
-    /// Open statistics page for purchase documents.
-    /// </summary>
-    /// <remarks>
-    /// Commit is executed before opening the statistics page.
-    /// </remarks>
-    procedure OpenDocumentStatistics()
-    begin
-        OpenDocumentStatisticsInternal();
-    end;
-#endif
-
     /// <summary>
     /// Prepares the opening document statistics for a purchase document. It checks the user's permissions,
     /// calculates the invoice discount, creates a dimension set for order documents, and commits any changes made.
@@ -5913,55 +5847,6 @@ table 38 "Purchase Header"
         Commit();
     end;
 
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    /// <summary>
-    /// Opens a purchase document statistics page based on the document type.
-    /// After the page is closed, the recalculate invoice discount field is set to false on all purchase document lines.
-    /// </summary>
-    procedure ShowDocumentStatisticsPage()
-    var
-        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
-        StatisticsPageId: Integer;
-    begin
-        StatisticsPageId := GetStatisticsPageID();
-
-        OnGetStatisticsPageID(StatisticsPageId, Rec);
-
-        SkipStatsPrep := true;
-        PAGE.RunModal(StatisticsPageId, Rec);
-        ResetSkipStatisticsPreparationFlag();
-
-        PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
-    end;
-
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    procedure SkipStatisticsPreparation(): Boolean
-    begin
-        exit(SkipStatsPrep)
-    end;
-
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    procedure ResetSkipStatisticsPreparationFlag()
-    begin
-        SkipStatsPrep := false;
-    end;
-
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    local procedure OpenDocumentStatisticsInternal()
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeOpenDocumentStatistics(Rec, IsHandled);
-        if IsHandled then
-            exit;
-
-        PrepareOpeningDocumentStatistics();
-        ShowDocumentStatisticsPage();
-    end;
-#endif
-
     local procedure IsOrderDocument(): Boolean
     begin
         case "Document Type" of
@@ -5974,16 +5859,6 @@ table 38 "Purchase Header"
         exit(false);
     end;
 
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    local procedure GetStatisticsPageID(): Integer
-    begin
-        if IsOrderDocument() then
-            exit(PAGE::"Purchase Order Statistics");
-
-        exit(PAGE::"Purchase Statistics");
-    end;
-#endif
     [IntegrationEvent(true, false)]
     procedure OnCheckPurchasePostRestrictions()
     begin
@@ -8306,82 +8181,6 @@ table 38 "Purchase Header"
         PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
-    local procedure NotifyIfSIIDuplicateExternalDocNo(PurchaseHeader: Record "Purchase Header"; ExternalDocNo: Code[35])
-    var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-        SIIManagement: Codeunit "SII Management";
-    begin
-        // Only relevant when SII is active. The per-user notification toggle is evaluated (and
-        // seeded when missing) inside SendSIIDuplicateExtDocNoNotification, mirroring the standard flow.
-        if ExternalDocNo = '' then
-            exit;
-        if PurchaseHeader."Pay-to Vendor No." = '' then
-            exit;
-        if not SIIManagement.IsSIISetupEnabled() then
-            exit;
-
-        // The standard OnValidate already warns for the SAME document type.
-        // SII adds the cross-type case (Invoice vs. Credit Memo), which shares the same IDFactura for AEAT.
-        if FindPostedDocWithSameExtDocNoDifferentType(PurchaseHeader, ExternalDocNo, VendorLedgerEntry) then
-            SendSIIDuplicateExtDocNoNotification(PurchaseHeader, VendorLedgerEntry);
-    end;
-
-    local procedure FindPostedDocWithSameExtDocNoDifferentType(PurchaseHeader: Record "Purchase Header"; ExternalDocNo: Code[35]; var VendorLedgerEntry: Record "Vendor Ledger Entry"): Boolean
-    var
-        VendorMgt: Codeunit "Vendor Mgt.";
-    begin
-        VendorLedgerEntry.Reset();
-        VendorLedgerEntry.SetCurrentKey("External Document No.");
-        // Reuse the standard filter so 'Same Ext. Doc. No. in Diff. FY' (ES) is honored via OnAfterSetFilterForExternalDocNo.
-        VendorMgt.SetFilterForExternalDocNo(
-            VendorLedgerEntry, GetOppositeGenJnlDocType(PurchaseHeader), ExternalDocNo,
-            PurchaseHeader."Pay-to Vendor No.", PurchaseHeader."Document Date");
-        VendorLedgerEntry.SetRange("Do Not Send To SII", false);
-        exit(VendorLedgerEntry.FindFirst());
-    end;
-
-    local procedure GetOppositeGenJnlDocType(PurchaseHeader: Record "Purchase Header"): Enum "Gen. Journal Document Type"
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // Invoice/Order -> look for posted Credit Memos; Credit Memo/Return Order -> look for posted Invoices.
-        case PurchaseHeader."Document Type" of
-            PurchaseHeader."Document Type"::"Credit Memo",
-            PurchaseHeader."Document Type"::"Return Order":
-                exit(GenJournalLine."Document Type"::Invoice);
-            else
-                exit(GenJournalLine."Document Type"::"Credit Memo");
-        end;
-    end;
-
-    local procedure SendSIIDuplicateExtDocNoNotification(PurchaseHeader: Record "Purchase Header"; VendorLedgerEntry: Record "Vendor Ledger Entry")
-    var
-        MyNotifications: Record "My Notifications";
-        InstructionMgt: Codeunit "Instruction Mgt.";
-        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
-        SIIDuplicateNotification: Notification;
-    begin
-        // Mirror the standard "already exists" notification guard: default-on when not yet seeded,
-        // then create the missing My Notifications record before the final enable check.
-        if not MyNotifications.IsEnabled(PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId()) then
-            exit;
-        InstructionMgt.CreateMissingMyNotificationsWithDefaultState(PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId());
-        if not PurchaseHeader.IsDocAlreadyExistNotificationEnabled() then
-            exit;
-
-        // Reuse the standard notification id + action so it shares one slot and respects the same user toggle.
-        SIIDuplicateNotification.Id := PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId();
-        SIIDuplicateNotification.Message :=
-            StrSubstNo(SIIDuplicateExtDocNoTxt, VendorLedgerEntry."Document Type", VendorLedgerEntry."External Document No.", PurchaseHeader."Pay-to Vendor No.");
-        SIIDuplicateNotification.Scope := NotificationScope::LocalScope;
-        SIIDuplicateNotification.AddAction(ShowSIIDuplicateVendLedgEntryTxt, Codeunit::"Document Notifications", 'ShowVendorLedgerEntry');
-        SIIDuplicateNotification.SetData(PurchaseHeader.FieldName("Document Type"), Format(PurchaseHeader."Document Type"));
-        SIIDuplicateNotification.SetData(PurchaseHeader.FieldName("No."), PurchaseHeader."No.");
-        SIIDuplicateNotification.SetData(VendorLedgerEntry.FieldName("Entry No."), Format(VendorLedgerEntry."Entry No."));
-        NotificationLifecycleMgt.SendNotificationWithAdditionalContext(
-            SIIDuplicateNotification, PurchaseHeader.RecordId(), PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId());
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var PurchaseHeader: Record "Purchase Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
@@ -8867,14 +8666,6 @@ table 38 "Purchase Header"
     begin
     end;
 
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenPurchaseOrderStatistics(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetShipToCodeEmpty(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
@@ -9155,26 +8946,10 @@ table 38 "Purchase Header"
     begin
     end;
 
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenDocumentStatistics(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareOpeningDocumentStatistics(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
-
-#if not CLEAN26
-    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnGetStatisticsPageID(var PageID: Integer; PurchaseHeader: Record "Purchase Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeTestStatusOpen(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; CallingFieldNo: Integer)

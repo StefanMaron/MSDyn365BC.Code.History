@@ -87,7 +87,7 @@ codeunit 5986 "Serv-Amounts Mgt."
                 OnDivideAmountOnAfterGetTempVATAmountLine(ServiceLine, TempVATAmountLine);
                 if ServiceLine."VAT Calculation Type" = ServiceLine."VAT Calculation Type"::"Sales Tax" then begin
                     ServiceLine."VAT %" := TempVATAmountLine."VAT %";
-                    ServiceLine."EC %" := TempVATAmountLine."EC %";
+                    OnDivideAmountOnSetVATPercentFromVATAmountLine(ServiceLine, TempVATAmountLine);
                 end;
                 TempVATAmountLineRemainder := TempVATAmountLine;
                 if not TempVATAmountLineRemainder.Find() then begin
@@ -145,17 +145,14 @@ codeunit 5986 "Serv-Amounts Mgt."
                        (ServiceLine."Line Amount" = 0)
                     then begin
                         TempVATAmountLineRemainder."VAT Amount" := 0;
-                        TempVATAmountLineRemainder."EC Amount" := 0;
+                        OnDivideAmountOnAfterSetVATAmountLineRemainderToZero(TempVATAmountLineRemainder);
                         TempVATAmountLineRemainder."Amount Including VAT" := 0;
                     end else begin
                         TempVATAmountLineRemainder."VAT Amount" +=
                           TempVATAmountLine."VAT Amount" *
                           (ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount") /
                           (TempVATAmountLine.CalcLineAmount() - TempVATAmountLine."Pmt. Discount Amount");
-                        TempVATAmountLineRemainder."EC Amount" +=
-                          TempVATAmountLine."EC Amount" *
-                          (ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount") /
-                          (TempVATAmountLine.CalcLineAmount() - TempVATAmountLine."Pmt. Discount Amount");
+                        OnDivideAmountOnAfterCalcVATAmountLineRemainder(TempVATAmountLineRemainder, TempVATAmountLine, ServiceLine);
                         TempVATAmountLineRemainder."Amount Including VAT" +=
                           TempVATAmountLine."Amount Including VAT" * (ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount") /
                           (TempVATAmountLine.CalcLineAmount() - TempVATAmountLine."Pmt. Discount Amount");
@@ -196,16 +193,13 @@ codeunit 5986 "Serv-Amounts Mgt."
                                   TempVATAmountLine."VAT Amount" *
                                   (ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount") /
                                   (TempVATAmountLine.CalcLineAmount() - TempVATAmountLine."Pmt. Discount Amount");
-                                TempVATAmountLineRemainder."EC Amount" +=
-                                  TempVATAmountLine."EC Amount" *
-                                  (ServiceLine.CalcLineAmount() - ServiceLine."Pmt. Discount Amount") /
-                                  (TempVATAmountLine.CalcLineAmount() - TempVATAmountLine."Pmt. Discount Amount");
+                                OnDivideAmountOnAfterCalcRemainderVATAmount(TempVATAmountLineRemainder, ServiceLine, TempVATAmountLine);
                             end;
-                        if ServiceLine."Line Discount %" <> 100 then
+                        if ServiceLine."Line Discount %" <> 100 then begin
                             ServiceLine."Amount Including VAT" :=
-                              ServiceLine.Amount + Round(TempVATAmountLineRemainder."VAT Amount", Currency."Amount Rounding Precision") +
-                              Round(TempVATAmountLineRemainder."EC Amount", Currency."Amount Rounding Precision")
-                        else
+                              ServiceLine.Amount + Round(TempVATAmountLineRemainder."VAT Amount", Currency."Amount Rounding Precision");
+                            OnDivideAmountOnAfterCalcServiceLineAmountIncludingVAT(ServiceLine, TempVATAmountLineRemainder, Currency);
+                        end else
                             ServiceLine."Amount Including VAT" := 0;
                         TempVATAmountLineRemainder."VAT Amount" :=
                           TempVATAmountLineRemainder."VAT Amount" - ServiceLine."Amount Including VAT" + ServiceLine.Amount;
@@ -549,7 +543,7 @@ codeunit 5986 "Serv-Amounts Mgt."
                     if (ServLine.Amount <> 0) and not RoundingLineInserted() then
                         if TotalServiceLine.Amount = 0 then begin
                             TotalServiceLine."VAT %" := ServLine."VAT %";
-                            TotalServiceLine."EC %" := ServLine."EC %";
+                            OnSumServiceLine2OnAfterSetVATPercentFromServLine(TotalServiceLine, ServLine);
                         end else
                             if TotalServiceLine."VAT %" <> ServLine."VAT %" then
                                 TotalServiceLine."VAT %" := 0;
@@ -741,12 +735,42 @@ codeunit 5986 "Serv-Amounts Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnSumServiceLine2OnAfterSetVATPercentFromServLine(var TotalServiceLine: Record "Service Line"; var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDivideAmountOnSetVATPercentFromVATAmountLine(var ServiceLine: Record "Service Line"; var TempVATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDivideAmountOnBeforeTempVATAmountLineRemainderModify(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; var Currency: Record Currency; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnDivideAmountOnAfterCalcRemainderVATAmount(var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var ServiceLine: Record "Service Line"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDivideAmountOnAfterCalcServiceLineAmountIncludingVAT(var ServiceLine: Record "Service Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var Currency: Record "Currency")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInvoiceRounding(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var TotalServiceLine: Record "Service Line"; UseTempData: Boolean; InvoiceRoundingAmount: Decimal; Currency: Record Currency; var BiggestLineNo: Integer; var LastLineRetrieved: Boolean; var RoundingLineIsInserted: Boolean; var RoundingLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDivideAmountOnAfterSetVATAmountLineRemainderToZero(var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDivideAmountOnAfterCalcVATAmountLineRemainder(var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var TempVATAmountLine: Record "VAT Amount Line" temporary; var ServiceLine: Record "Service Line")
     begin
     end;
 

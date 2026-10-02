@@ -879,7 +879,7 @@ table 5902 "Service Line"
                     Job."No." := Rec."Job No.";
                     if Job.Find('=') then;
                 end;
-
+                
                 if Page.RunModal(0, Job) = Action::LookupOK then
                     Rec.Validate("Job No.", Job."No.");
             end;

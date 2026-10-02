@@ -381,7 +381,6 @@ page 434 Reminder
                     Caption = 'Statement';
                     Image = "Report";
                     RunObject = Report "Customer Statement";
-                    ToolTip = 'View a list of a customer''s transactions for a selected period, for example, to send to the customer at the close of an accounting period. You can choose to have all overdue balances displayed regardless of the period specified, or you can choose to include an aging band.';
                 }
                 action("Customer Detailed Aging")
                 {
@@ -391,7 +390,6 @@ page 434 Reminder
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Customer Detailed Aging";
-                    ToolTip = 'View a detailed list of each customer''s total payments due, divided into three time periods. The report can be used to decide when to issue reminders, to evaluate a customer''s creditworthiness, or to prepare liquidity analyses.';
                 }
                 action("Customer - Order Summary")
                 {
@@ -401,7 +399,6 @@ page 434 Reminder
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Customer - Order Summary";
-                    ToolTip = 'View the order detail (the quantity not yet shipped) for each customer in three periods of 30 days each, starting from a selected date. There are also columns with orders to be shipped before and after the three periods and a column with the total order detail for each customer. The report can be used to analyze a company''s expected sales volume.';
                 }
                 action("Customer - Detail Trial Bal.")
                 {
@@ -411,7 +408,6 @@ page 434 Reminder
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Customer - Detail Trial Bal.";
-                    ToolTip = 'View the balance for customers with balances on a specified date. The report can be used at the close of an accounting period, for example, or for an audit.';
                 }
 #if not CLEAN28
                 action("Aged Accounts Receivable")
@@ -436,7 +432,6 @@ page 434 Reminder
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Customer - Balance to Date";
-                    ToolTip = 'View a list with customers'' payment history up until a certain date. You can use the report to extract your total sales income at the close of an accounting period or fiscal year.';
                 }
                 action("Customer - Trial Balance")
                 {
@@ -444,7 +439,6 @@ page 434 Reminder
                     Caption = 'Customer - Trial Balance';
                     Image = "Report";
                     RunObject = Report "Customer - Trial Balance";
-                    ToolTip = 'View the beginning and ending balance for customers with entries within a specified period. The report can be used to verify that the balance for a customer posting group is equal to the balance on the corresponding general ledger account on a certain date.';
                 }
                 action("Customer - Payment Receipt")
                 {
@@ -454,7 +448,6 @@ page 434 Reminder
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Customer - Payment Receipt";
-                    ToolTip = 'View a document showing which customer ledger entries that a payment has been applied to. This report can be used as a payment receipt that you send to the customer.';
                 }
             }
         }

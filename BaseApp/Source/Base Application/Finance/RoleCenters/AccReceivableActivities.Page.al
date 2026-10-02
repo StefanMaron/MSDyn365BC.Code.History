@@ -1,10 +1,9 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.RoleCenters;
 
-using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Sales.Customer;
@@ -30,19 +29,16 @@ page 9034 "Acc. Receivable Activities"
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Customer Ledger Entries";
-                    ToolTip = 'Specifies the number of sales invoices where the customer is late with payment.';
                 }
                 field("Sales Return Orders - All"; Rec."Sales Return Orders - All")
                 {
                     ApplicationArea = SalesReturnOrder;
                     DrillDownPageID = "Sales Return Order List";
-                    ToolTip = 'Specifies the number of sales return orders that are displayed in the Finance Cue on the Role Center. The documents are filtered by today''s date.';
                 }
                 field("Customers - Blocked"; Rec."Customers - Blocked")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Customer List";
-                    ToolTip = 'Specifies the number of customer that are blocked from further sales.';
                 }
 
                 actions
@@ -71,13 +67,11 @@ page 9034 "Acc. Receivable Activities"
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Sales Order List";
-                    ToolTip = 'Specifies the number of sales orders that are pending approval.';
                 }
                 field("Approved Sales Orders"; Rec."Approved Sales Orders")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Sales Order List";
-                    ToolTip = 'Specifies the number of approved sales orders.';
                 }
             }
             cuegroup(Cartera)
@@ -122,42 +116,12 @@ page 9034 "Acc. Receivable Activities"
                     }
                 }
             }
-            cuegroup(MissingSIIEntries)
-            {
-                Caption = 'Missing SII Entries';
-                field("Missing SII Entries"; Rec."Missing SII Entries")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Missing SII Entries';
-                    DrillDownPageID = "Recreate Missing SII Entries";
-                    ToolTip = 'Specifies that some posted documents were not transferred to SII.';
-
-                    trigger OnDrillDown()
-                    var
-                        SIIRecreateMissingEntries: Codeunit "SII Recreate Missing Entries";
-                    begin
-                        SIIRecreateMissingEntries.ShowRecreateMissingEntriesPage();
-                    end;
-                }
-                field("Days Since Last SII Check"; Rec."Days Since Last SII Check")
-                {
-                    ApplicationArea = Basic, Suite;
-                    DrillDownPageID = "Recreate Missing SII Entries";
-                    Image = Calendar;
-                    ToolTip = 'Specifies the number of days since the last check for missing SII entries.';
-                }
-            }
         }
     }
 
     actions
     {
     }
-
-    trigger OnAfterGetRecord()
-    begin
-        CalculateCueFieldValues();
-    end;
 
     trigger OnOpenPage()
     begin
@@ -168,16 +132,6 @@ page 9034 "Acc. Receivable Activities"
         end;
 
         Rec.SetFilter("Overdue Date Filter", '<%1', WorkDate());
-    end;
-
-    local procedure CalculateCueFieldValues()
-    var
-        SIIRecreateMissingEntries: Codeunit "SII Recreate Missing Entries";
-    begin
-        if Rec.FieldActive("Missing SII Entries") then
-            Rec."Missing SII Entries" := SIIRecreateMissingEntries.GetMissingEntriesCount();
-        if Rec.FieldActive("Days Since Last SII Check") then
-            Rec."Days Since Last SII Check" := SIIRecreateMissingEntries.GetDaysSinceLastCheck();
     end;
 }
 

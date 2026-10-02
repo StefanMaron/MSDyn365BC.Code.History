@@ -289,6 +289,8 @@ table 254 "VAT Entry"
         {
             Caption = 'Transaction No.';
             Editable = false;
+            TableRelation = "G/L Transaction";
+            ToolTip = 'Specifies the transaction number that groups related G/L entries from the same posting.';
         }
         /// <summary>
         /// Unrealized VAT amount when using unrealized VAT functionality for payment-based VAT recognition.
@@ -772,6 +774,13 @@ table 254 "VAT Entry"
                 UpdateNoTaxEntries("VAT Reporting Date");
             end;
         }
+        field(95; "G/L Register No."; Integer)
+        {
+            Caption = 'G/L Register No.';
+            Editable = false;
+            TableRelation = "G/L Register";
+            ToolTip = 'Specifies the G/L register number that groups related G/L entries from the same posting.';
+        }
         /// <summary>
         /// Percentage of VAT that is non-deductible based on business use or regulatory restrictions.
         /// </summary>
@@ -878,18 +887,6 @@ table 254 "VAT Entry"
             Caption = 'No Taxable Type';
             OptionCaption = ' ,Non Taxable Art 7-14 and others,Non Taxable Due To Localization Rules';
             OptionMembers = " ","Non Taxable Art 7-14 and others","Non Taxable Due To Localization Rules";
-        }
-        field(10724; "Do Not Send To SII"; Boolean)
-        {
-            Caption = 'Do Not Send To SII';
-        }
-        field(10725; "Ignore In SII"; Boolean)
-        {
-            Caption = 'Ignore In SII';
-        }
-        field(10726; "One Stop Shop Reporting"; Boolean)
-        {
-            Caption = 'One Stop Shop Reporting';
         }
     }
 
@@ -1187,7 +1184,6 @@ table 254 "VAT Entry"
         "VAT Registration No." := GenJnlLine."VAT Registration No.";
         NonDeductibleVAT.Copy(Rec, GenJnlLine);
         "Generated Autodocument" := GenJnlLine."Generate AutoInvoices";
-        "Do Not Send To SII" := GenJnlLine."Do Not Send To SII";
 
         OnAfterCopyFromGenJnlLine(Rec, GenJnlLine);
     end;

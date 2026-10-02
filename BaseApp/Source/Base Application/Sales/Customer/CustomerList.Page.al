@@ -1300,7 +1300,6 @@ page 22 "Customer List"
                         Caption = 'Statement';
                         Image = "Report";
                         RunObject = Report "Customer Statement";
-                        ToolTip = 'View a list of a customer''s transactions for a selected period, for example, to send to the customer at the close of an accounting period. You can choose to have all overdue balances displayed regardless of the period specified, or you can choose to include an aging band.';
                     }
                     action(BackgroundStatement)
                     {
@@ -1322,7 +1321,6 @@ page 22 "Customer List"
                         Caption = 'Customer - Balance to Date';
                         Image = "Report";
                         RunObject = Report "Customer - Balance to Date";
-                        ToolTip = 'View a list with customers'' payment history up until a certain date. You can use the report to extract your total sales income at the close of an accounting period or fiscal year.';
                     }
                     action(ReportCustomerTrialBalance)
                     {
@@ -1330,7 +1328,6 @@ page 22 "Customer List"
                         Caption = 'Customer - Trial Balance';
                         Image = "Report";
                         RunObject = Report "Customer - Trial Balance";
-                        ToolTip = 'View the beginning and ending balance for customers with entries within a specified period. The report can be used to verify that the balance for a customer posting group is equal to the balance on the corresponding general ledger account on a certain date.';
                     }
                     action(ReportCustomerDetailTrial)
                     {
@@ -1338,7 +1335,6 @@ page 22 "Customer List"
                         Caption = 'Customer - Detail Trial Bal.';
                         Image = "Report";
                         RunObject = Report "Customer - Detail Trial Bal.";
-                        ToolTip = 'View the balance for customers with balances on a specified date. The report can be used at the close of an accounting period, for example, or for an audit.';
                     }
                     action(ReportCustomerSummaryAging)
                     {
@@ -1346,7 +1342,6 @@ page 22 "Customer List"
                         Caption = 'Customer - Summary Aging';
                         Image = "Report";
                         RunObject = Report "Customer - Summary Aging";
-                        ToolTip = 'View, print, or save a summary of each customer''s total payments due, divided into three time periods. The report can be used to decide when to issue reminders, to evaluate a customer''s creditworthiness, or to prepare liquidity analyses.';
                     }
                     action(ReportCustomerDetailedAging)
                     {
@@ -1354,7 +1349,6 @@ page 22 "Customer List"
                         Caption = 'Customer - Detailed Aging';
                         Image = "Report";
                         RunObject = Report "Customer Detailed Aging";
-                        ToolTip = 'View, print, or save a detailed list of each customer''s total payments due, divided into three time periods. The report can be used to decide when to issue reminders, to evaluate a customer''s creditworthiness, or to prepare liquidity analyses.';
                     }
 #if not CLEAN28
                     action(ReportAgedAccountsReceivable)
@@ -1375,7 +1369,6 @@ page 22 "Customer List"
                         Caption = 'Customer - Payment Receipt';
                         Image = "Report";
                         RunObject = Report "Customer - Payment Receipt";
-                        ToolTip = 'View a document showing which customer ledger entries that a payment has been applied to. This report can be used as a payment receipt that you send to the customer.';
                     }
                 }
                 action(Reminder)
@@ -1409,7 +1402,6 @@ page 22 "Customer List"
                     Caption = 'Customer Register';
                     Image = "Report";
                     RunObject = Report "Customer Register";
-                    ToolTip = 'View posted customer ledger entries divided into, and sorted according to, registers. By using a filter, you can select exactly the entries in the registers that you need to see. If you have created many entries and you do not set a filter, the report will print a large amount of information.';
                 }
 #if not CLEAN28
                 action("Customer - Top 10 List")
@@ -1435,7 +1427,6 @@ page 22 "Customer List"
                     Caption = 'Customer - Order Summary';
                     Image = "Report";
                     RunObject = Report "Customer - Order Summary";
-                    ToolTip = 'View the order detail (the quantity not yet shipped) for each customer in three periods of 30 days each, starting from a selected date. There are also columns with orders to be shipped before and after the three periods and a column with the total order detail for each customer. The report can be used to analyze a company''s expected sales volume.';
                 }
                 action("Customer - Order Detail")
                 {
@@ -1443,7 +1434,6 @@ page 22 "Customer List"
                     Caption = 'Customer - Order Detail';
                     Image = "Report";
                     RunObject = Report "Customer - Order Detail";
-                    ToolTip = 'View a list of orders divided by customer. The order amounts are totaled for each customer and for the entire list. The report can be used, for example, to obtain an overview of sales over the short term or to analyze possible shipment problems.';
                 }
 #if not CLEAN28
                 action("Customer - Sales List")
@@ -1477,7 +1467,6 @@ page 22 "Customer List"
                     Caption = 'Customer/Item Sales';
                     Image = "Report";
                     RunObject = Report "Customer/Item Sales";
-                    ToolTip = 'View a list of item sales for each customer during a selected time period. The report contains information on quantity, sales amount, profit, and possible discounts. It can be used, for example, to analyze a company''s customer groups.';
                 }
             }
             action("Customer - Due Payments")

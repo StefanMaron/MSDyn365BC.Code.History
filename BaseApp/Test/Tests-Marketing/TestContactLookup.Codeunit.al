@@ -570,7 +570,7 @@ codeunit 134837 "Test Contact Lookup"
         SalesQuote: TestPage "Sales Quote";
     begin
         // [FEATURE] [Sales Quote]
-        // [SCENARIO 641671] When "Sell-to Customer No." is set in a Sales Quote then on "Sell-to Contact No." look up the contact list is filtered by the customer's contact "Company No." instead of showing all contacts.
+        // [SCENARIO 642199] When "Sell-to Customer No." is set in a Sales Quote then on "Sell-to Contact No." look up the contact list is filtered by the customer's contact "Company No." instead of showing all contacts.
         Initialize();
 
         // [GIVEN] Create Customer with a Contact.
