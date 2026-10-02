@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -13,6 +13,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.SpendRequest;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.FixedAssets.Depreciation;
@@ -416,7 +417,8 @@ table 39 "Purchase Line"
 
                 GetDefaultBin();
                 CheckWMS();
-                MatchedOrderLineMgmt.CheckReceiptOnInvoiceAllowedForLocation("Location Code", GetPurchHeader());
+                if Rec."Receipt on Invoice" and not MatchedOrderLineMgmt.IsReceiptOnInvoiceAllowedForLocation("Location Code") then
+                    Rec.Validate("Receipt on Invoice", false);
 
                 if "Document Type" = "Document Type"::"Return Order" then
                     ValidateReturnReasonCode(FieldNo("Location Code"));
@@ -917,7 +919,8 @@ table 39 "Purchase Line"
                 Amount := Round(Amount, Currency."Amount Rounding Precision");
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
-                    "VAT Calculation Type"::"Reverse Charge VAT":
+                    "VAT Calculation Type"::"Reverse Charge VAT",
+                    "VAT Calculation Type"::"No Taxable VAT":
                         begin
                             "VAT Base Amount" :=
                               Round(Amount * (1 - GetVatBaseDiscountPct(PurchHeader) / 100), Currency."Amount Rounding Precision");
@@ -972,7 +975,8 @@ table 39 "Purchase Line"
                 "Amount Including VAT" := Round("Amount Including VAT", Currency."Amount Rounding Precision");
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
-                    "VAT Calculation Type"::"Reverse Charge VAT":
+                    "VAT Calculation Type"::"Reverse Charge VAT",
+                    "VAT Calculation Type"::"No Taxable VAT":
                         begin
                             Amount :=
                               Round(
@@ -2136,6 +2140,38 @@ table 39 "Purchase Line"
             AutoFormatType = 1;
             Caption = 'Prepmt. Pmt. Discount Amount';
             Editable = false;
+        }
+        field(147; "Spend Request No."; Code[20])
+        {
+            Caption = 'Spend Request No.';
+            ToolTip = 'Specifies the spend request that this purchase document relates to.';
+            TableRelation = "Spend Request" where(Status = const(Approved), "Document Type" = const(" "));
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            var
+                SpendRequest: Record "Spend Request";
+                DimensionSetIDArr: array[10] of Integer;
+            begin
+                if Rec."Spend Request No." = '' then begin
+                    Rec."Spend Request Close" := false;
+                    exit;
+                end;
+
+                SpendRequest.ValidateSpendRequest(Rec."Spend Request No.", Rec."Spend Request Close", Rec."Unit Cost (LCY)" * Quantity);
+
+                if SpendRequest."Dimension Set ID" <> 0 then begin
+                    DimensionSetIDArr[1] := Rec."Dimension Set ID";
+                    DimensionSetIDArr[2] := SpendRequest."Dimension Set ID";
+                    Rec."Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
+                end;
+            end;
+        }
+        field(148; "Spend Request Close"; Boolean)
+        {
+            Caption = 'Spend Request Close';
+            ToolTip = 'Specifies that the spend request will be closed when the purchase document is posted.';
+            DataClassification = CustomerContent;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -3836,6 +3872,24 @@ table 39 "Purchase Line"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(8513; "Receipt on Invoice"; Boolean)
+        {
+            Caption = 'Receipt on Invoice';
+            ToolTip = 'Specifies whether the receipt is posted automatically with the invoice.';
+
+            trigger OnValidate()
+            var
+                MatchedOrderLineMgmt: Codeunit "Matched Order Line Mgmt.";
+            begin
+                if "Receipt on Invoice" then
+                    MatchedOrderLineMgmt.CheckLineReceiptOnInvoiceAllowed(Rec);
+
+                if "Document Type" = "Document Type"::Order then
+                    InitQtyToReceive();
+
+                MatchedOrderLineMgmt.ApplyPurchaseLineReceiptSettingToMatches(Rec);
+            end;
+        }
         field(11303; "Suggested Line"; Boolean)
         {
             Caption = 'Suggested Line';
@@ -4229,7 +4283,7 @@ table 39 "Purchase Line"
         QtyReceiveActionDescriptionLbl: Label 'Corrects %1 value to %2', Comment = '%1 - Qty. to Receive field caption, %2 - Quantity';
         ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
         CannotFindDescErr: Label 'Cannot find %1 with Description %2.\\Make sure to use the correct type.', Comment = '%1 = Type caption %2 = Description';
-        CommentLbl: Label 'Comment';
+        CommentLbl: Label 'Comment', MaxLength = 30;
         LineDiscountPctErr: Label 'The value in the Line Discount % field must be between 0 and 100.';
         PurchasingBlockedErr: Label 'You cannot purchase %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption';
         CannotChangePrepaidServiceChargeErr: Label 'You cannot change the line because it will affect service charges that are already invoiced as part of a prepayment.';
@@ -4466,6 +4520,7 @@ table 39 "Purchase Line"
         "Promised Receipt Date" := PurchHeader."Promised Receipt Date";
         "Inbound Whse. Handling Time" := PurchHeader."Inbound Whse. Handling Time";
         "Order Date" := PurchHeader."Order Date";
+        Rec."Receipt on Invoice" := PurchHeader."Receipt on Invoice";
 
         OnAfterInitHeaderDefaults(Rec, PurchHeader, TempPurchLine);
     end;
@@ -4748,7 +4803,8 @@ table 39 "Purchase Line"
                 Item.TestField("Inventory Posting Group");
                 "Posting Group" := Item."Inventory Posting Group";
             end;
-            MatchedOrderLineMgmt.CheckReceiptOnInvoiceAllowedForItem(Item, GetPurchHeader());
+            if Rec."Receipt on Invoice" and not MatchedOrderLineMgmt.IsReceiptOnInvoiceAllowedForItem(Item) then
+                Rec.Validate("Receipt on Invoice", false);
         end;
 
         OnCopyFromItemOnAfterCheck(Rec, Item, CurrFieldNo);
@@ -5524,7 +5580,17 @@ table 39 "Purchase Line"
 
         CalcPrepaymentToDeduct();
 
+        if "Spend Request No." <> '' then
+            CheckSpendRequestAmount();
+
         OnAfterUpdateAmountsDone(Rec, xRec, CurrFieldNo);
+    end;
+
+    local procedure CheckSpendRequestAmount()
+    var
+        SpendRequest: Record "Spend Request";
+    begin
+        SpendRequest.CheckSpendRequestAmount(Rec."Spend Request No.", Rec."Unit Cost (LCY)" * Quantity);
     end;
 
     local procedure UpdateJobFields()
@@ -5620,7 +5686,9 @@ table 39 "Purchase Line"
             TotalQuantityBase := 0;
             if ("VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax") or
                (("VAT Calculation Type" in
-                 ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"]) and ("VAT %" <> 0))
+                 ["VAT Calculation Type"::"Normal VAT",
+                  "VAT Calculation Type"::"Reverse Charge VAT",
+                  "VAT Calculation Type"::"No Taxable VAT"]) and ("VAT %" <> 0))
             then begin
                 PurchLine2.SetFilter("VAT %", '<>0');
                 if not PurchLine2.IsEmpty() then begin
@@ -5643,7 +5711,8 @@ table 39 "Purchase Line"
             if PurchHeader."Prices Including VAT" then
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
-                    "VAT Calculation Type"::"Reverse Charge VAT":
+                    "VAT Calculation Type"::"Reverse Charge VAT",
+                    "VAT Calculation Type"::"No Taxable VAT":
                         begin
                             Amount :=
                               Round(
@@ -5698,7 +5767,8 @@ table 39 "Purchase Line"
             else
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
-                    "VAT Calculation Type"::"Reverse Charge VAT":
+                    "VAT Calculation Type"::"Reverse Charge VAT",
+                    "VAT Calculation Type"::"No Taxable VAT":
                         begin
                             Amount := Round(CalcLineAmount(), Currency."Amount Rounding Precision");
                             "VAT Base Amount" :=
@@ -6853,6 +6923,25 @@ table 39 "Purchase Line"
     procedure SetSkipTaxCalulation(Skip: Boolean)
     begin
         SkipTaxCalculation := Skip;
+    end;
+
+    /// <summary>
+    /// Sets the global HideValidationDialog flag.
+    /// </summary>
+    /// <param name="NewHideValidationDialog">The new value of the flag.</param>
+    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    begin
+        HideValidationDialog := NewHideValidationDialog;
+        OnAfterSetHideValidationDialog(Rec, NewHideValidationDialog);
+    end;
+
+    /// <summary>
+    /// Gets the global HideValidationDialog flag.
+    /// </summary>
+    /// <returns>The value of the flag.</returns>
+    procedure GetHideValidationDialog(): Boolean
+    begin
+        exit(HideValidationDialog);
     end;
 
     /// <summary>
@@ -9321,12 +9410,36 @@ table 39 "Purchase Line"
     /// If line type is blank, comment label is returned.
     /// </remarks>
     /// <returns>Formated text of the line type.</returns>
-    procedure FormatType() FormattedType: Text[20]
+#if not CLEAN29
+    [Obsolete('Use FormatTypeAsText() instead.', '29.0')]
+    procedure FormatType(): Text[20]
+    begin
+        exit(CopyStr(FormatTypeAsText(), 1, 20));
+    end;
+#endif
+
+    /// <summary>
+    /// Gets the text representation of the line type for the purchase line.
+    /// </summary>
+    /// <remarks>
+    /// Blank line type is represented by the comment label.
+    /// </remarks>
+    /// <returns>The text representation of the line type.</returns>
+    procedure FormatTypeAsText() FormattedType: Text[30]
     var
+#if not CLEAN29
+        LegacyFormattedType: Text[20];
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFormatType(Rec, FormattedType, IsHandled);
+#if not CLEAN29
+        OnBeforeFormatType(Rec, LegacyFormattedType, IsHandled);
+        FormattedType := LegacyFormattedType;
+        if IsHandled then
+            exit(FormattedType);
+#endif
+        OnBeforeFormatTypeAsText(Rec, FormattedType, IsHandled);
         if IsHandled then
             exit(FormattedType);
 
@@ -9399,9 +9512,9 @@ table 39 "Purchase Line"
     var
         OutstandingAmountExclTax: Decimal;
     begin
-          if (Rec.Quantity <> 0) and (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Rcd. Not Invoiced" = 0) and
-              (Rec.Quantity = xRec.Quantity)
-          then
+        if (Rec.Quantity <> 0) and (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Rcd. Not Invoiced" = 0) and
+           (Rec.Quantity = xRec.Quantity)
+        then
             if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then
                 exit;
 
@@ -10762,8 +10875,22 @@ table 39 "Purchase Line"
     begin
     end;
 
+#if not CLEAN29
+    [Obsolete('Use OnBeforeFormatTypeAsText instead.', '29.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatType(PurchaseLine: Record "Purchase Line"; var FormattedType: Text[20]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    /// <summary>
+    /// Raised before the purchase line type is formatted as text.
+    /// </summary>
+    /// <param name="PurchaseLine">The purchase line for which the type is being formatted.</param>
+    /// <param name="FormattedType">The formatted line type.</param>
+    /// <param name="IsHandled">Set to true to skip the default processing.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatTypeAsText(PurchaseLine: Record "Purchase Line"; var FormattedType: Text[30]; var IsHandled: Boolean)
     begin
     end;
 
@@ -11588,6 +11715,7 @@ table 39 "Purchase Line"
     begin
     end;
 
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsInvoiceDocType(var PurchaseLine: Record "Purchase Line"; var Result: Boolean)
     begin
@@ -12332,6 +12460,16 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateGenBusPostingGroupOnBeforeValidateVATBusPostingGroup(var PurchaseLine: Record "Purchase Line"; var ValidateVATBusPostingGroup: Boolean)
+    begin
+    end;
+
+    /// <summary>
+    /// Raised after setting the hide validation dialog flag on the purchase line.
+    /// </summary>
+    /// <param name="PurchaseLine">The purchase line being processed.</param>
+    /// <param name="NewHideValidationDialog">The new hide validation dialog value.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetHideValidationDialog(var PurchaseLine: Record "Purchase Line"; NewHideValidationDialog: Boolean)
     begin
     end;
 }

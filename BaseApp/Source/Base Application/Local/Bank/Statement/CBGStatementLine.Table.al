@@ -2122,12 +2122,12 @@ table 11401 "CBG Statement Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetAccountName(CBGStatementLine: Record "CBG Statement Line"; var AccountName: Text[100])
+    local procedure OnAfterOpenAccountCard(CBGStatementLine: Record "CBG Statement Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOpenAccountCard(CBGStatementLine: Record "CBG Statement Line")
+    local procedure OnAfterGetAccountName(CBGStatementLine: Record "CBG Statement Line"; var AccountName: Text[100])
     begin
     end;
 }

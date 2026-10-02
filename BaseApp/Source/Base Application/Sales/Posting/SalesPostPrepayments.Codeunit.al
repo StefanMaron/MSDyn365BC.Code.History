@@ -2010,6 +2010,7 @@ UpdateDifferenceAmount(SalesHeader, TotalPrepmtInvLineBuffer, TempPrepmtInvLineB
     begin
         if HasInvoiceDiscount and (SalesHeader."Prepayment %" <> 0) then begin
             Currency.Initialize(SalesHeader."Currency Code");
+
             PrepmtAmt := CalcPrepmtAmount(SalesHeader, Currency);
             if TotalPrepmtInvLineBuffer.Amount > PrepmtAmt then begin
                 DifferenceAmt := TotalPrepmtInvLineBuffer.Amount - PrepmtAmt;
@@ -2038,7 +2039,7 @@ UpdateDifferenceAmount(SalesHeader, TotalPrepmtInvLineBuffer, TempPrepmtInvLineB
             until SalesLine.Next() = 0;
         exit(Round(PrepmtAmt, Currency."Amount Rounding Precision"));
     end;
-    
+
     /// <summary>
     /// Raised after applying filters on sales lines for prepayment processing.
     /// </summary>

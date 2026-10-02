@@ -266,4 +266,13 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.SubscriptionBilling)(LookupHint=Codeunit Vendor Deferrals Test - NamedType ReleasedContractDeferralErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";EnumExtension 1463862493 - EnumValue 40542502 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Above Unit Cost Surcharge]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 1432989912)(Namespace=Microsoft.SubscriptionBilling)(LookupHint=EnumExtension Usage Based Pricing Test Ext - EnumValue Test Above Unit Cost Surcharge - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

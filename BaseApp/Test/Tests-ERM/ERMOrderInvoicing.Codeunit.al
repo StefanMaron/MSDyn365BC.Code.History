@@ -796,7 +796,7 @@ codeunit 134372 "ERM Order Invoicing"
         PostedServiceShipmentLines.OpenEdit();
         PostedServiceShipmentLines.Filter.SetFilter("Document No.", ServiceHeader."Last Shipping No.");
         PostedServiceShipmentLines.Filter.SetFilter("No.", GLAccountNo);
-        Assert.IsTrue(PostedServiceShipmentLines."No.".Visible(),PostedServiceShipmentLineErr);
+        Assert.IsTrue(PostedServiceShipmentLines."No.".Visible(), PostedServiceShipmentLineErr);
     end;
 
     local procedure Initialize()
@@ -818,7 +818,6 @@ codeunit 134372 "ERM Order Invoicing"
         ServiceMgtSetup.Get();
         ServiceMgtSetup."Posted Service Invoice Nos." := LibraryERM.CreateNoSeriesCode();
         ServiceMgtSetup.Modify(true);
-	SetCheckDocTotalAmounts(false);
 
         isInitialized := true;
         Commit();
@@ -826,15 +825,6 @@ codeunit 134372 "ERM Order Invoicing"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Order Invoicing");
     end;
 
-    local procedure SetCheckDocTotalAmounts(CheckTotals: Boolean)
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-    begin
-        PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Check Doc. Total Amounts", CheckTotals);
-        PurchasesPayablesSetup.Modify(true);
-    end;
-    
     local procedure CreatePurchCrMemoGetReturnShpmtLines(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; ReturnShipmentNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";

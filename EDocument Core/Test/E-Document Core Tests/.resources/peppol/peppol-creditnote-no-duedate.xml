@@ -148,7 +148,7 @@
         <cbc:ChargeTotalAmount currencyID="EUR">25</cbc:ChargeTotalAmount>
         <cbc:PayableAmount currencyID="EUR">1656.25</cbc:PayableAmount>
     </cac:LegalMonetaryTotal>
-
+    
 <cac:CreditNoteLine>
         <cbc:ID>1</cbc:ID>
     <cbc:CreditedQuantity unitCode="DAY">7</cbc:CreditedQuantity>

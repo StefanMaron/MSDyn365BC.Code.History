@@ -927,7 +927,7 @@ codeunit 550 "VAT Rate Change Conversion"
                                             PurchaseLine.Find();
                                             IsModified := false;
                                             if PurchaseHeader."Prices Including VAT" and VATRateChangeSetup."Perform Conversion" and
-                                                (PurchaseLine."VAT %" <> PurchaseLineOld."VAT %") then
+                                               (PurchaseLine."VAT %" <> PurchaseLineOld."VAT %") then
                                                 if UpdateUnitPriceInclVAT(PurchaseLine.Type) then begin
                                                     RecRef.SetTable(PurchaseLine);
                                                     RoundingPrecision := GetRoundingPrecision(PurchaseHeader."Currency Code");

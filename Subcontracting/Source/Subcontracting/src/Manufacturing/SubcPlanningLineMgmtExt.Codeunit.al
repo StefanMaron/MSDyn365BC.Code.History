@@ -14,7 +14,7 @@ using Microsoft.Manufacturing.Routing;
 
 codeunit 20518 "Subc. Planning Line Mgmt Ext."
 {
-#if not CLEAN28
+#if not CLEAN29
     var
 #pragma warning disable AL0432
         SubcFeatureFlagHandler: Codeunit "Subc. Feature Flag Handler";
@@ -31,7 +31,7 @@ codeunit 20518 "Subc. Planning Line Mgmt Ext."
     var
         SubcPriceManagement: Codeunit "Subc. Price Management";
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -43,7 +43,7 @@ codeunit 20518 "Subc. Planning Line Mgmt Ext."
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mfg. Planning Line Management", OnCreatePlanningComponentFromProdBOMOnBeforeGetPlanningParameters, '', false, false)]
     local procedure TransferComponentSupplyMethod_OnCreatePlanningComponentFromProdBOMOnBeforeGetPlanningParameters(var PlanningComponent: Record "Planning Component"; ProductionBOMLine: Record "Production BOM Line")
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -52,24 +52,22 @@ codeunit 20518 "Subc. Planning Line Mgmt Ext."
         PlanningComponent."Component Supply Method" := ProductionBOMLine."Component Supply Method";
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mfg. Planning Line Management", OnTransferBOMOnBeforeUpdatePlanningComp, '', false, false)]
-    local procedure IgnorePurchaseComponentsFromSubcontracting_OnTransferBOMOnBeforeUpdatePlanningComp(var ProductionBOMLine: Record "Production BOM Line"; var UpdateCondition: Boolean; var IsHandled: Boolean; var ReqQty: Decimal)
+    [EventSubscriber(ObjectType::Table, Database::"Planning Component", OnAfterFilterLinesWithItemToPlan, '', false, false)]
+    local procedure PlanningComponent_OnAfterFilterLinesWithItemToPlan(var PlanningComponent: Record "Planning Component"; var Item: Record Item)
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
             exit;
-#endif
-        // Vendor-Supplied components must still be transferred as planning components so they appear
-        // in the Planning Worksheet component list (required for consumption registration).
-        // Exclusion from planning demand is handled by ProdOrderComponent_OnAfterFilterLinesWithItemToPlan.
+#endif        
+        PlanningComponent.SetFilter("Component Supply Method", '<>%1', "Component Supply Method"::"Vendor-Supplied");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Component", OnAfterFilterLinesWithItemToPlan, '', false, false)]
     local procedure ProdOrderComponent_OnAfterFilterLinesWithItemToPlan(var ProdOrderComponent: Record "Prod. Order Component"; var Item: Record Item; IncludeFirmPlanned: Boolean)
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432
@@ -81,7 +79,7 @@ codeunit 20518 "Subc. Planning Line Mgmt Ext."
     [EventSubscriber(ObjectType::Table, Database::"Transfer Line", OnAfterFilterLinesWithItemToPlan, '', false, false)]
     local procedure TransferLine_OnAfterFilterLinesWithItemToPlan(var Sender: Record "Transfer Line"; var Item: Record Item; IsReceipt: Boolean; IsSupplyForPlanning: Boolean; var TransferLine: Record "Transfer Line")
     begin
-#if not CLEAN28
+#if not CLEAN29
 #pragma warning disable AL0432
         if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
 #pragma warning restore AL0432

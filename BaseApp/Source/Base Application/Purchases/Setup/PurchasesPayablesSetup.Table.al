@@ -213,7 +213,7 @@ table 312 "Purchases & Payables Setup"
         field(35; "Default Posting Date"; Enum "Default Posting Date")
         {
             Caption = 'Default Posting Date';
-            ToolTip = 'Specifies which date must be used as the default posting date on purchase documents. If you select Work Date, the Posting Date field will be populated with the work date at the time of creating a new purchase document. If you select No Date, the Posting Date field will be empty by default and you must manually enter a posting date before posting.';
+            ToolTip = 'Specifies the default posting date for purchase documents that you create manually. If you select Work Date, the Posting Date is set to the current work date when you create a document. If you select No Date, the Posting Date is left blank and must be entered before posting. Does not apply to purchase documents created from e-documents.';
         }
         field(36; "Default Qty. to Receive"; Option)
         {
@@ -545,11 +545,13 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Posting Date Check on Posting';
             ToolTip = 'Specifies if you want to see a warning when you post a purchase document with a posting date that is different from the Work Date.';
         }
+#pragma warning disable AS0005
         field(11320; "Check Doc. Total Amounts"; Boolean)
         {
             Caption = 'Check Doc. Total Amounts';
             ToolTip = 'Specifies if you want the Doc. Amount Incl. VAT field in Purchase Invoice and Purchase Credit Memo to be compared to the sum of the VAT amounts fields in the purchase lines. If the amounts are not the same, you will be notified when posting the document. The totals will always be checked for invoices received from e-documents.';
         }
+#pragma warning restore AS0005
     }
 
     keys

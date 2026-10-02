@@ -1166,15 +1166,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test SEPA PAIN 008.001.02 - NamedType WrongSymbolFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1895493354 - NamedType 672891634" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Cancelled]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test SEPA PAIN 008.001.08 - NamedType CancelTok)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1895493354 - NamedType 1707647923" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The Valid To date must be after the Valid From date.]]></Val>
@@ -1202,13 +1193,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test SEPA PAIN 008.001.08 - NamedType ForeignCurrencyErrorTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1895493354 - NamedType 803741109" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1895493354 - NamedType 2138591613" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[EndToEndId]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test SEPA PAIN 008.001.08 - NamedType IdentificationElementName)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test SEPA PAIN 008.001.08 - NamedType IdentificationElementNameTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1895493354 - NamedType 3305750957" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1245,24 +1236,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test SEPA PAIN 008.001.08 - NamedType PartnerTypeMismatchErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1895493354 - NamedType 2440261675" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 payment line appears in the exported file!]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test SEPA PAIN 008.001.08 - NamedType PaymentLineErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1895493354 - NamedType 3826474065" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Rejected]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test SEPA PAIN 008.001.08 - NamedType RejectTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1895493354 - NamedType 4252704064" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

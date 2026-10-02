@@ -388,7 +388,7 @@ codeunit 8063 "Sales Documents"
             end;
     end;
 
-    #if not CLEAN28
+#if not CLEAN28
     [Obsolete('Use OnAfterPostItemJnlLine event subscriber to create Subscription Headers during item journal posting', '29.0')]
     procedure CreateServiceObjectFromSales(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesShptLine: Record "Sales Shipment Line")
     var
@@ -417,7 +417,7 @@ codeunit 8063 "Sales Documents"
                             CreateServiceObjectFromSalesLine(SalesHeader, SalesLine, '', 0, 0);
         end;
     end;
-    #endif
+#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnPostUpdateOrderLineOnSetDefaultQtyBlank, '', false, false)]
     local procedure UpdateQuantitiesOnPostUpdateOrderLineOnSetDefaultQtyBlank(var TempSalesLine: Record "Sales Line" temporary)
@@ -616,6 +616,7 @@ codeunit 8063 "Sales Documents"
                     else
                         SubscriptionLine.Validate("Subscription Line Start Date", CalcDate(SalesSubscriptionLine."Sub. Line Start Formula", SalesLine."Shipment Date"));
                 SubscriptionLine.CopyFromSalesServiceCommitment(SalesSubscriptionLine);
+                SubscriptionLine.EnsureCalculationBaseAmountExcludesVAT(SalesLine, SalesHeader);
                 if SalesSubscriptionLine.Discount then
                     SubscriptionLine.Validate("Calculation Base Amount", SubscriptionLine."Calculation Base Amount" * -1);
 
@@ -846,6 +847,19 @@ codeunit 8063 "Sales Documents"
         OnAfterSalesLineShouldSkipInvoicing(SalesLine, SkipTemporaryCheck, Result);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Find Record Management", OnAfterGetRecRefAndFieldsNoByType, '', false, false)]
+    local procedure FindSubscriptionOnAfterGetRecRefAndFieldsNoByType(RecRef: RecordRef; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; var SearchFieldNo: array[4] of Integer)
+    var
+        SubscriptionHeader: Record "Subscription Header";
+    begin
+        if Type <> Enum::"Sales Line Type"::"Service Object".AsInteger() then
+            exit;
+        RecRef.Open(Database::"Subscription Header");
+        SearchFieldNo[1] := SubscriptionHeader.FieldNo("No.");
+        SearchFieldNo[2] := SubscriptionHeader.FieldNo(Description);
+        SearchFieldNo[3] := 0;
+    end;
+
     local procedure ShowNegativeQuantityMessageIfNeeded(Quantity: Decimal)
     begin
         if Quantity < 0 then
@@ -873,19 +887,6 @@ codeunit 8063 "Sales Documents"
     local procedure ResetVariablesOnAfterPostSalesDoc()
     begin
         ResetGlobalVariables();
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Find Record Management", OnAfterGetRecRefAndFieldsNoByType, '', false, false)]
-    local procedure FindSubscriptionOnAfterGetRecRefAndFieldsNoByType(RecRef: RecordRef; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; var SearchFieldNo: array[4] of Integer)
-    var
-        SubscriptionHeader: Record "Subscription Header";
-    begin
-        if Type <> Enum::"Sales Line Type"::"Service Object".AsInteger() then
-            exit;
-        RecRef.Open(Database::"Subscription Header");
-        SearchFieldNo[1] := SubscriptionHeader.FieldNo("No.");
-        SearchFieldNo[2] := SubscriptionHeader.FieldNo(Description);
-        SearchFieldNo[3] := 0;
     end;
 
     [IntegrationEvent(false, false)]

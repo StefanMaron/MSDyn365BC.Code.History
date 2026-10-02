@@ -1682,7 +1682,7 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerEnqueueQuestion')]
+    [HandlerFunctions('ConfirmHandlerEnqueueQuestion,RequestPageHandler')]
     procedure AcceptSalesInvoiceFromICInboxMoreThanOnceConfirmYes()
     var
         HandledICInboxTrans: Record "Handled IC Inbox Trans.";
@@ -1735,7 +1735,7 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerEnqueueQuestion')]
+    [HandlerFunctions('ConfirmHandlerEnqueueQuestion,RequestPageHandler')]
     procedure AcceptSalesInvoiceFromICInboxMoreThanOnceConfirmNo()
     var
         HandledICInboxTrans: Record "Handled IC Inbox Trans.";
@@ -2242,6 +2242,7 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     [Test]
+    [HandlerFunctions('RequestPageHandler')]
     procedure SendRejectedICTransactionWhenAutoAcceptTransactionIsSet()
     var
         ICOutboxTransaction: Record "IC Outbox Transaction";
@@ -2692,6 +2693,7 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     [Test]
+    [HandlerFunctions('RequestPageHandler')]
     procedure ICNavigateFromIncomingSalesOrderLine()
     var
         ICInboxSalesHeader: Record "IC Inbox Sales Header";
@@ -2796,6 +2798,7 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     [Test]
+    [HandlerFunctions('RequestPageHandler')]
     procedure ICNavigateFromIncomingPurchaseOrderLine()
     var
         ICInboxTransaction: Record "IC Inbox Transaction";
@@ -2837,6 +2840,7 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     [Test]
+    [HandlerFunctions('RequestPageHandler')]
     procedure ICNavigateFromPurchaseInvoiceLine()
     var
         ICInboxTransaction: Record "IC Inbox Transaction";
@@ -2909,7 +2913,7 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
+    [HandlerFunctions('ConfirmHandlerYes,RequestPageHandler')]
     procedure RejectICSalesOrder()
     var
         Customer: Record Customer;
@@ -2967,7 +2971,7 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
+    [HandlerFunctions('ConfirmHandlerYes,RequestPageHandler')]
     procedure RejectICPurchaseOrder()
     var
         ICInboxTransaction: Record "IC Inbox Transaction";
@@ -3017,7 +3021,7 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
+    [HandlerFunctions('ConfirmHandlerYes,RequestPageHandler')]
     procedure RejectICSalesInvoice()
     var
         Customer: Record Customer;
@@ -3073,7 +3077,7 @@ codeunit 134154 "ERM Intercompany III"
 
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
+    [HandlerFunctions('ConfirmHandlerYes,RequestPageHandler')]
     procedure RejectICPurchaseInvoice()
     var
         ICInboxTransaction: Record "IC Inbox Transaction";
@@ -3188,6 +3192,7 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     [Test]
+    [HandlerFunctions('RequestPageHandler')]
     procedure VerifySalesOrderIsCreatedFromICInboxForLineDiscountOver50AndPricesIncludingVATinICPurchaseOrder()
     var
         Customer: Record Customer;
@@ -3606,7 +3611,6 @@ codeunit 134154 "ERM Intercompany III"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Intercompany III");
-        DisableCheckDocTotalAmounts();
         if not ICSetup.Get() then begin
             ICSetup.Init();
             ICSetup.Insert();
@@ -3622,7 +3626,6 @@ codeunit 134154 "ERM Intercompany III"
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(Database::"IC Setup");
-        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(Database::"Inventory Setup");
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Intercompany III");
@@ -3890,15 +3893,6 @@ codeunit 134154 "ERM Intercompany III"
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::Item, ItemNo, LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateUnitPriceOnSalesLine(SalesLine, LibraryRandom.RandDecInRange(100, 200, 2));
-    end;
-
-    local procedure DisableCheckDocTotalAmounts()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-    begin
-        PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Check Doc. Total Amounts", false);
-        PurchasesPayablesSetup.Modify(true);
     end;
 
     local procedure FindLastSalesInvoiceHeaderNo(OrderNo: Code[20]): Code[20]
@@ -4767,6 +4761,13 @@ codeunit 134154 "ERM Intercompany III"
     begin
         Reply := LibraryVariableStorage.DequeueBoolean();
         LibraryVariableStorage.Enqueue(Question);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RequestPageHandler(var RequestPage: TestRequestPage "Complete IC Inbox Action")
+    begin
+        RequestPage.OK().Invoke();
     end;
 
     [ModalPageHandler]

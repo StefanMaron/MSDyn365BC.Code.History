@@ -364,7 +364,6 @@ codeunit 132213 "Library - Small Business"
 
     procedure PostPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"): Code[20]
     begin
-        UpdatePurchHeaderDocTotal(PurchaseHeader);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
     end;
 

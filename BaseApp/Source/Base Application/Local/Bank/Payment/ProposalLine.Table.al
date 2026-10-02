@@ -309,6 +309,7 @@ table 11000000 "Proposal Line"
         {
             CalcFormula = lookup("Bank Account"."Bank Account No." where("No." = field("Our Bank No.")));
             Caption = 'Our Bank Account No.';
+            MaskType = Concealed;
             Editable = false;
             FieldClass = FlowField;
         }

@@ -15,7 +15,6 @@ codeunit 134361 "No Acc. Periods: Posting"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryService: Codeunit "Library - Service";
-        LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryCosting: Codeunit "Library - Costing";
@@ -431,18 +430,11 @@ codeunit 134361 "No Acc. Periods: Posting"
         // [GIVEN] Create Purchase Invoice with Currency Code and Deferral Codeand Direct Unit cost as 4435.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendor(Vendor));
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
-        PurchaseHeader.CalcFields("Amount Including VAT", Amount);
-        PurchaseHeader.Validate("Doc. Amount Incl. VAT", PurchaseHeader."Amount Including VAT");
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
         PurchaseLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
         PurchaseLine.Validate("Direct Unit Cost", 4435);
         PurchaseLine.Modify(true);
-
-        // [GIVEN] Validating of field Doc. Amount Incl. VAT with Amount Including VAT.
-        PurchaseHeader.CalcFields("Amount Including VAT");
-        PurchaseHeader.Validate("Doc. Amount Incl. VAT", PurchaseHeader."Amount Including VAT");
-        PurchaseHeader.Modify(true);
 
         // [WHEN] Post Purchase Invoice with Deferral.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -593,7 +585,6 @@ codeunit 134361 "No Acc. Periods: Posting"
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         PurchaseLine.Modify(true);
         PurchaseHeader.CalcFields(Amount);
-        LibrarySmallBusiness.UpdatePurchHeaderDocTotal(PurchaseHeader);
     end;
 
     local procedure RunCalculateDepreciation(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; EndingDate: Date)

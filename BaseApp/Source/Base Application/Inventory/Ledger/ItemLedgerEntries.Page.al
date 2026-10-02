@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -596,6 +596,34 @@ page 38 "Item Ledger Entries"
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
+        }
+    }
+
+    analysisviews
+    {
+        analysisview("Inventory on hand")
+        {
+            Caption = 'Inventory on hand';
+            DefinitionFile = './Inventory/Ledger/Inventory on hand.analysis.json';
+            ToolTip = 'Get an overview of items that are available in your inventory.';
+        }
+        analysisview("Inventory throughput")
+        {
+            Caption = 'Inventory throughput';
+            DefinitionFile = './Inventory/Ledger/Inventory throughput.analysis.json';
+            ToolTip = 'Get an overview of purchases and sales in your inventory by month.';
+        }
+        analysisview("Inventory movements")
+        {
+            Caption = 'Inventory movements';
+            DefinitionFile = './Inventory/Ledger/Inventory movements.analysis.json';
+            ToolTip = 'Get an overview of how goods in your inventory move between locations.';
+        }
+        analysisview("Returned items by return reason")
+        {
+            Caption = 'Returned items by return reason';
+            DefinitionFile = './Inventory/Ledger/Returned items by return reason.analysis.json';
+            ToolTip = 'Get an overview of goods that customers return, categorised by the return reason. Use this for analysis for quality control.';
         }
     }
 

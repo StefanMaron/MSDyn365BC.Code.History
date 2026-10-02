@@ -203,6 +203,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Invoices Test - Method UnitTestExportWithoutSettingEnabled - NamedType PostedInvoiceSyncNotSetErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 127707647 - NamedType 1260927232" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[maximum of 3 product options]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify.Test)(LookupHint=Codeunit Shpfy Item Attr As Option Test - NamedType ExpMaxOptionsErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 127707647 - NamedType 562056659" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[More than expected API calls to Shopify detected.]]></Val>

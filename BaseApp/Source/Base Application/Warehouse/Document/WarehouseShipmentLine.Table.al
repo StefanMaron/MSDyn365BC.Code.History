@@ -11,7 +11,6 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.Document;
@@ -845,28 +844,12 @@ table 7321 "Warehouse Shipment Line"
                 FieldError(Quantity, StrSubstNo(Text002, FieldCaption("Qty. Outstanding")));
     end;
 
-#if not CLEAN26
-    [Obsolete('Replaced by procedure GetShipmentLineStatus', '26.0')]
-    procedure CalcStatusShptLine(): Integer
-    begin
-        exit(GetShipmentLineStatus().AsInteger());
-    end;
-#endif
-
     procedure GetShipmentLineStatus(): Enum "Warehouse Shipment Status"
     var
         NewStatus: Enum "Warehouse Shipment Status";
-#if not CLEAN26
-        NewStatusInt: Integer;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN26
-        OnBeforeCalcStatusShptLine(Rec, NewStatusInt, IsHandled);
-        if IsHandled then
-            exit("Warehouse Shipment Status".FromInteger(NewStatusInt));
-#endif
         OnBeforeGetShipmentLineStatus(Rec, NewStatus, IsHandled);
         if IsHandled then
             exit(NewStatus);
@@ -1247,21 +1230,18 @@ table 7321 "Warehouse Shipment Line"
 
     internal procedure CheckDirectTransfer(DirectTransfer: Boolean; DoCheck: Boolean): Boolean
     var
-        InventorySetup: Record "Inventory Setup";
         TransferHeader: Record "Transfer Header";
     begin
         if "Source Type" <> Database::"Transfer Line" then
             exit(false);
 
-        InventorySetup.Get();
-        if InventorySetup."Direct Transfer Posting" = InventorySetup."Direct Transfer Posting"::"Direct Transfer" then begin
-            TransferHeader.SetLoadFields("Direct Transfer");
-            TransferHeader.Get(Rec."Source No.");
-            if DoCheck then
-                TransferHeader.TestField("Direct Transfer", DirectTransfer)
-            else
-                exit(TransferHeader."Direct Transfer");
-        end;
+        TransferHeader.SetLoadFields("Direct Transfer", "Direct Transfer Posting");
+        if TransferHeader.Get(Rec."Source No.") then
+            if TransferHeader."Direct Transfer Posting" = TransferHeader."Direct Transfer Posting"::"Direct Transfer" then
+                if DoCheck then
+                    TransferHeader.TestField("Direct Transfer", DirectTransfer)
+                else
+                    exit(TransferHeader."Direct Transfer");
     end;
 
     [IntegrationEvent(false, false)]
@@ -1308,14 +1288,6 @@ table 7321 "Warehouse Shipment Line"
     local procedure OnBeforeAutofillQtyToHandle(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var HideValidationDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN26
-    [Obsolete('Replaced by event OnBeforeGetShipmentLineStatus', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcStatusShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var NewStatus: Integer; var IsHandled: Boolean);
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetShipmentLineStatus(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var NewStatus: Enum "Warehouse Shipment Status"; var IsHandled: Boolean);

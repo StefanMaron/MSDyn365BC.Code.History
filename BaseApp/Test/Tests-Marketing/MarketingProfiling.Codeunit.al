@@ -539,7 +539,6 @@ codeunit 136206 "Marketing Profiling"
 
     local procedure Initialize()
     var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Profiling");
@@ -551,10 +550,6 @@ codeunit 136206 "Marketing Profiling"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-
-        PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Check Doc. Total Amounts" := false;
-        PurchasesPayablesSetup.Modify(true);
 
         isInitialized := true;
         Commit();
