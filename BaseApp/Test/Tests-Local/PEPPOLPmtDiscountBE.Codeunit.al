@@ -4,7 +4,7 @@ codeunit 144221 "PEPPOL Pmt. Discount BE"
     // ----------------------------------------------------------------------------------
     // Test Function Name                                                          TFS ID
     // ----------------------------------------------------------------------------------
-    // PaymentDiscountNotDeductedFromTaxAmountsForBESalesInvoice                    644611
+    // BESalesInvoiceEscompteCompensation                                          643204
 
     Subtype = Test;
     TestPermissions = Disabled;
@@ -17,45 +17,62 @@ codeunit 144221 "PEPPOL Pmt. Discount BE"
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryXMLRead: Codeunit "Library - XML Read";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
+        InvoiceNamespaceTxt: Label 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2', Locked = true;
+        EscompteExemptionReasonTxt: Label 'Conditional early-payment discount, not part of the taxable amount';
 
     [Test]
     [Scope('OnPrem')]
-    procedure PaymentDiscountNotDeductedFromTaxAmountsForBESalesInvoice()
+    procedure BESalesInvoiceEscompteCompensation()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CustomerNo: Code[20];
         PaymentTermsCode: Code[10];
         XMLFilePath: Text;
     begin
-        // [SCENARIO 644611] For the Belgian PEPPOL format the taxable amount is calculated on the full amount,
-        // i.e. the payment discount is NOT deducted from the VAT-taxable base, so the XML matches the invoice printout.
+        // [SCENARIO 643204] The Belgian escompte keeps VAT on the discounted base, but the conditional payment discount must not reduce the amount payable.
         Initialize();
 
         // [GIVEN] Payment Terms with a 3% payment discount
         PaymentTermsCode := CreatePaymentTermsWithDiscount(3);
         // [GIVEN] A customer that uses those payment terms
         CustomerNo := CreateCustomerWithAddressAndGLN();
-        // [GIVEN] A posted sales invoice for 1 x 111.20 EUR with 21% VAT and the 3% payment discount terms
+        // [GIVEN] A posted sales invoice for 1 x 111.20 with 21% VAT and the 3% payment discount terms; the escompte
+        // is active so VAT is charged on the discounted base 107.86 (VAT 22.65, total 133.85).
         PostSalesInvoiceWithPmtDiscount(SalesInvoiceHeader, CustomerNo, PaymentTermsCode, 111.2, 21);
 
         // [WHEN] The posted invoice is exported to PEPPOL BIS 3.0 using the Belgian sales format
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice());
-        LibraryXMLRead.Initialize(XMLFilePath);
+        InitXPathXMLReaderForInvoice(XMLFilePath);
 
-        // [THEN] The taxable/monetary totals are calculated on the full amount (111.20 / 134.55),
-        // and NOT reduced by the payment discount (which would give 107.86 / 131.21 and fail BR-S-08).
-        LibraryXMLRead.VerifyNodeValueInSubtree('cac:LegalMonetaryTotal', 'cbc:LineExtensionAmount', 111.2);
-        LibraryXMLRead.VerifyNodeValueInSubtree('cac:LegalMonetaryTotal', 'cbc:TaxExclusiveAmount', 111.2);
-        LibraryXMLRead.VerifyNodeValueInSubtree('cac:LegalMonetaryTotal', 'cbc:TaxInclusiveAmount', 134.55);
-        LibraryXMLRead.VerifyNodeValueInSubtree('cac:LegalMonetaryTotal', 'cbc:PayableAmount', 134.55);
-        // [THEN] The tax subtotal taxable amount equals the full amount and no payment-discount allowance is emitted
-        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxSubtotal', 'cbc:TaxableAmount', 111.2);
-        LibraryXMLRead.VerifyNodeAbsence('cac:AllowanceCharge');
+        // [THEN] Two VAT breakdowns: Standard 107.86 / 22.65 and the compensating Exempt 3.34 / 0.00 (with a reason)
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//cac:TaxTotal/cac:TaxSubtotal', 2);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:TaxTotal/cbc:TaxAmount', '22.65');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:TaxSubtotal[cac:TaxCategory/cbc:ID=''S'']/cbc:TaxableAmount', '107.86');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:TaxSubtotal[cac:TaxCategory/cbc:ID=''S'']/cbc:TaxAmount', '22.65');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:TaxSubtotal[cac:TaxCategory/cbc:ID=''E'']/cbc:TaxableAmount', '3.34');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:TaxSubtotal[cac:TaxCategory/cbc:ID=''E'']/cbc:TaxAmount', '0.00');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:TaxSubtotal[cac:TaxCategory/cbc:ID=''E'']/cac:TaxCategory/cbc:TaxExemptionReason', EscompteExemptionReasonTxt);
+
+        // [THEN] Two document-level AllowanceCharges: the Standard payment-discount allowance and the Exempt compensating charge
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//cac:AllowanceCharge', 2);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:AllowanceCharge[cbc:ChargeIndicator=''false'']/cbc:Amount', '3.34');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:AllowanceCharge[cbc:ChargeIndicator=''true'']/cbc:Amount', '3.34');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:AllowanceCharge[cbc:ChargeIndicator=''true'']/cac:TaxCategory/cbc:ID', 'E');
+        // [THEN] The compensating charge carries only a text reason - no (empty) reason code element is emitted
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//cac:AllowanceCharge[cbc:ChargeIndicator=''true'']/cbc:AllowanceChargeReasonCode', 0);
+
+        // [THEN] The amount payable stays whole: LineExtension/TaxExclusive 111.20, Allowance & Charge 3.34, total 133.85
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:LegalMonetaryTotal/cbc:LineExtensionAmount', '111.2');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:LegalMonetaryTotal/cbc:TaxExclusiveAmount', '111.2');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:LegalMonetaryTotal/cbc:AllowanceTotalAmount', '3.34');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:LegalMonetaryTotal/cbc:ChargeTotalAmount', '3.34');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount', '133.85');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//cac:LegalMonetaryTotal/cbc:PayableAmount', '133.85');
     end;
 
     local procedure Initialize()
@@ -66,7 +83,7 @@ codeunit 144221 "PEPPOL Pmt. Discount BE"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"PEPPOL Pmt. Discount BE");
 
         if IsInitialized then begin
-            EnableAdjustForPaymentDiscount();
+            EnableBEPaymentDiscountVAT();
             exit;
         end;
 
@@ -88,7 +105,7 @@ codeunit 144221 "PEPPOL Pmt. Discount BE"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateLocalData();
 
-        EnableAdjustForPaymentDiscount();
+        EnableBEPaymentDiscountVAT();
 
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -97,13 +114,24 @@ codeunit 144221 "PEPPOL Pmt. Discount BE"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"PEPPOL Pmt. Discount BE");
     end;
 
-    local procedure EnableAdjustForPaymentDiscount()
+    local procedure EnableBEPaymentDiscountVAT()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
+        // Belgian escompte: VAT is charged on the discounted base.
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Adjust for Payment Disc." := true;
-        GeneralLedgerSetup.Modify();
+        GeneralLedgerSetup.Validate("Adjust for Payment Disc.", false);
+        GeneralLedgerSetup.Validate("Pmt. Disc. Excl. VAT", true);
+        GeneralLedgerSetup.Validate("VAT Tolerance %", 3);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
+    local procedure InitXPathXMLReaderForInvoice(XMLFilePath: Text)
+    begin
+        LibraryXPathXMLReader.Initialize(XMLFilePath, InvoiceNamespaceTxt);
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cac', 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cbc', 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2');
     end;
 
     local procedure CreatePaymentTermsWithDiscount(DiscountPct: Decimal): Code[10]
@@ -160,7 +188,6 @@ codeunit 144221 "PEPPOL Pmt. Discount BE"
         VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.Validate("VAT %", VATPct);
         VATPostingSetup.Validate("Tax Category", 'S');
-        VATPostingSetup."Adjust for Payment Discount" := true;
         VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
         exit(VATProductPostingGroup.Code);

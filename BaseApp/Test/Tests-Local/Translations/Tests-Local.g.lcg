@@ -806,6 +806,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payment Discount - NamedType WrongFieldValueErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2812351533 - NamedType 3788532749" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Conditional early-payment discount, not part of the taxable amount]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit PEPPOL Pmt. Discount BE - NamedType EscompteExemptionReasonTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 49323770 - NamedType 65310996" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Journal Template Name must have a value]]></Val>

@@ -169,6 +169,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         PreviewMode: Boolean;
         GLEntryInconsistent: Boolean;
         MultiplePostingGroups: Boolean;
+        MultiPostingGrpAggregateOnApplyingPG: Boolean;
         SourceCodeSetupRead: Boolean;
         IsGLRegInserted: Boolean;
         IgnoreJournalTemplNameMandatoryCheck: Boolean;
@@ -1040,30 +1041,36 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     local procedure CreateReverseChargeVATGLEntries(GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; VATPostingParameters: Record "VAT Posting Parameters")
     var
+        FullVATAmountSrcCurr: Decimal;
         LastNextEntryNo: Integer;
     begin
+        if GenJnlLine."System-Created Entry" and (GenJnlLine."Source Currency Code" <> GLSetup."LCY Code") then
+            FullVATAmountSrcCurr := GenJnlLine."Source Curr. VAT Amount"
+        else
+            FullVATAmountSrcCurr := CalcAmountSrcCurr(GenJnlLine, VATPostingParameters."Full VAT Amount");
+
         if not NonDeductibleVAT.IsNonDeductibleVATEnabled() then begin
             OnInsertVATOnBeforeCreateGLEntryForReverseChargeVATToPurchAcc(
                 GenJnlLine, VATPostingSetup, VATPostingParameters."Unrealized VAT", VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
             CreateGLEntry(
                 GenJnlLine, VATPostingSetup.GetPurchAccount(VATPostingParameters."Unrealized VAT"), VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true,
-                CalcAmountSrcCurr(GenJnlLine, VATPostingParameters."Full VAT Amount"));
+                FullVATAmountSrcCurr);
             OnInsertVATOnBeforeCreateGLEntryForReverseChargeVATToRevChargeAcc(
                 GenJnlLine, VATPostingSetup, VATPostingParameters."Unrealized VAT", VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
             CreateGLEntry(
                 GenJnlLine, VATPostingSetup.GetRevChargeAccount(VATPostingParameters."Unrealized VAT"),
                 -VATPostingParameters."Full VAT Amount" - GenJnlLine."Non Ded. VAT Amount", -VATPostingParameters."Full VAT Amount ACY" - GenJnlLine."Non Ded. Source Curr. VAT Amt.", true,
-                CalcAmountSrcCurr(GenJnlLine, -VATPostingParameters."Full VAT Amount" - GenJnlLine."Non Ded. VAT Amount"));
+                -FullVATAmountSrcCurr - GenJnlLine."Non Ded. Source Curr. VAT Amt.");
             exit;
         end;
 
         if VATPostingParameters."Unrealized VAT" then begin
             CreateGLEntry(
                 GenJnlLine, VATPostingSetup.GetPurchAccount(VATPostingParameters."Unrealized VAT"), VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true,
-                CalcAmountSrcCurr(GenJnlLine, VATPostingParameters."Full VAT Amount"));
+                FullVATAmountSrcCurr);
             CreateGLEntry(
                 GenJnlLine, VATPostingSetup.GetRevChargeAccount(VATPostingParameters."Unrealized VAT"), -VATPostingParameters."Full VAT Amount", -VATPostingParameters."Full VAT Amount ACY", true,
-                CalcAmountSrcCurr(GenJnlLine, -VATPostingParameters."Full VAT Amount"));
+                -FullVATAmountSrcCurr);
             exit;
         end;
         if VATPostingParameters."Non-Deductible VAT %" <> 100 then begin
@@ -5073,6 +5080,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
         MultiplePostingGroups := CheckVendMultiplePostingGroups(DetailedCVLedgEntryBuffer);
 
+        MultiPostingGrpAggregateOnApplyingPG := false;
+        if MultiplePostingGroups then
+            MultiPostingGrpAggregateOnApplyingPG :=
+                GetVendorPayablesAccount2(DetailedCVLedgEntryBuffer, GenJournalLine, VendPostingGr) = GetVendorPayablesAccount(GenJournalLine, VendPostingGr);
+
         DetailedCVLedgEntryBuffer.Reset();
         OnAfterSetDtldVendLedgEntryNoOffset(DetailedCVLedgEntryBuffer, DtldVendLedgEntryNoOffset);
         if DetailedCVLedgEntryBuffer.FindSet() then begin
@@ -5440,7 +5452,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                     AccNo3 := GetCustomerReceivablesAccount(GenJournalLine, CustomerPostingGroup);
                                 end;
                             GenJournalLine."Account Type"::Vendor:
-                                begin
+                                if MultiPostingGrpAggregateOnApplyingPG then begin
                                     GetVendorPostingGroup(GenJournalLine, VendorPostingGroup);
                                     AccNo2 := GetVendDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer);
                                     AccNo3 := GetVendorPayablesAccount(GenJournalLine, VendorPostingGroup);
@@ -5452,8 +5464,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                     AccNo3 := GetEmployeePayablesAccount(GenJournalLine, EmployeePostingGroup);
                                 end;
                         end;
-                        CreateGLEntryGainLoss(GenJournalLine, AccNo2, DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
-                        CreateGLEntryGainLoss(GenJournalLine, AccNo3, -DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+                        if AccNo2 <> AccNo3 then begin
+                            CreateGLEntryGainLoss(GenJournalLine, AccNo2, DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+                            CreateGLEntryGainLoss(GenJournalLine, AccNo3, -DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+                        end;
                     end;
 
                     if not Unapply then
