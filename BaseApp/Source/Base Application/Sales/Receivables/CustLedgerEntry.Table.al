@@ -1414,6 +1414,32 @@ table 21 "Cust. Ledger Entry"
             InvoicePartAmount := BaseInvoicePartAmount;
     end;
 
+    internal procedure GetCreditMemoPartAmountByVAT(CreditMemoDocumentNo: Code[20]; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; SettledAmount: Decimal) CreditMemoPartAmount: Decimal
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        CreditMemoAmount: Decimal;
+    begin
+        SalesCrMemoLine.SetRange("Document No.", CreditMemoDocumentNo);
+        SalesCrMemoLine.SetLoadFields("Amount Including VAT", "VAT Bus. Posting Group", "VAT Prod. Posting Group");
+        if SalesCrMemoLine.FindSet() then
+            repeat
+                CreditMemoAmount += SalesCrMemoLine."Amount Including VAT";
+                if (SalesCrMemoLine."VAT Bus. Posting Group" = VATBusPostingGroup) and
+                   (SalesCrMemoLine."VAT Prod. Posting Group" = VATProdPostingGroup)
+                then
+                    CreditMemoPartAmount += SalesCrMemoLine."Amount Including VAT";
+            until SalesCrMemoLine.Next() = 0
+        else
+            exit(SettledAmount);
+
+        if CreditMemoAmount = 0 then
+            exit(SettledAmount);
+
+        CreditMemoPartAmount := CreditMemoPartAmount * Abs(SettledAmount) / Abs(CreditMemoAmount);
+        if SettledAmount < 0 then
+            CreditMemoPartAmount := -CreditMemoPartAmount;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyCustLedgerEntryFromGenJnlLine(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
