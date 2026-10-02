@@ -102,6 +102,12 @@ report 5802 "Inventory Valuation - WIP"
                 ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
                 ObsoleteTag = '28.0';
             }
+            column(ExpensedWIPCaption; ExpensedWIPCaptionLbl)
+            {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'RDLC Only layout column. To be removed along with the RDLC layout.';
+                ObsoleteTag = '28.0';
+            }
             column(ValueOfMatConsumpCaption; ValueOfMatConsumpCaptionLbl)
             {
                 ObsoleteState = Pending;
@@ -177,9 +183,14 @@ report 5802 "Inventory Valuation - WIP"
                 column(LastWIP; TotalLastWIP)
                 {
                 }
+                column(ExpensedWIP; TotalExpensedWIP)
+                {
+                    AutoFormatType = 1;
+                }
                 trigger OnAfterGetRecord()
                 var
                     IsHandled: Boolean;
+                    FinishedDate: Date;
                 begin
                     CountRecord := CountRecord + 1;
                     LastOutput := 0;
@@ -270,6 +281,13 @@ report 5802 "Inventory Valuation - WIP"
                         NcValueOfCostPstdToGL := NcValueOfCostPstdToGL + ValueOfCostPstdToGL;
                         ValueOfCostPstdToGL := 0;
 
+                        if ValueEntryIsForNoOutputFinishedLine("Value Entry") then begin
+                            OrderExpensedEndingWIP := OrderExpensedEndingWIP + ValueOfWIP + ValueOfMatConsump + ValueOfCap + ValueOfOutput;
+                            OrderExpensedOpeningWIP := OrderExpensedOpeningWIP + ValueOfWIP;
+                            OrderExpensedConsump := OrderExpensedConsump + ValueOfMatConsump;
+                            OrderExpensedCap := OrderExpensedCap + ValueOfCap;
+                        end;
+
                         if CountRecord = LengthRecord then begin
                             ValueEntryOnPostDataItem();
                             ValueOfCostPstdToGL := NcValueOfCostPstdToGL;
@@ -315,7 +333,29 @@ report 5802 "Inventory Valuation - WIP"
                     AtLastDateSum += AtLastDate;
                     ValueEntryCostPostedToGLSum += ValueOfCostPstdToGL;
 
-                    if (CountRecord <> LengthRecord) or (SkipZeroLines and ((TotalAtLastDate = 0) and (TotalValueOfCostPstdToGL = 0))) then
+                    if (CountRecord = LengthRecord) and OrderHasNoOutputFinishedLine("Production Order") then begin
+                        FinishedDate := "Production Order"."Finished Date";
+                        if (EndDate = 0D) or (FinishedDate <= EndDate) then begin
+                            if FinishedDate >= StartDate then begin
+                                TotalExpensedWIP := TotalExpensedWIP + OrderExpensedEndingWIP;
+                                ExpensedWIPSum := ExpensedWIPSum + OrderExpensedEndingWIP;
+
+                                ValueOfMatConsumptionSum := ValueOfMatConsumptionSum - OrderExpensedConsump;
+                                TotalValueOfMatConsump := TotalValueOfMatConsump - OrderExpensedConsump;
+
+                                ValueOfCapSum := ValueOfCapSum - OrderExpensedCap;
+                                TotalValueOfCap := TotalValueOfCap - OrderExpensedCap;
+                            end else begin
+                                LastWipSum := LastWipSum - OrderExpensedOpeningWIP;
+                                TotalLastWIP := TotalLastWIP - OrderExpensedOpeningWIP;
+                            end;
+
+                            AtLastDateSum := AtLastDateSum - OrderExpensedEndingWIP;
+                            TotalAtLastDate := TotalAtLastDate - OrderExpensedEndingWIP;
+                        end;
+                    end;
+
+                    if (CountRecord <> LengthRecord) or (SkipZeroLines and ((TotalAtLastDate = 0) and (TotalExpensedWIP = 0) and (TotalValueOfCostPstdToGL = 0))) then
                         CurrReport.Skip();
                 end;
 
@@ -334,6 +374,11 @@ report 5802 "Inventory Valuation - WIP"
                     TotalLastOutput := 0;
                     TotalAtLastDate := 0;
                     TotalLastWIP := 0;
+                    TotalExpensedWIP := 0;
+                    OrderExpensedEndingWIP := 0;
+                    OrderExpensedOpeningWIP := 0;
+                    OrderExpensedConsump := 0;
+                    OrderExpensedCap := 0;
 
                     SetRange("Order Type", "Order Type"::Production);
                     SetRange("Order No.", "Production Order"."No.");
@@ -375,6 +420,9 @@ report 5802 "Inventory Valuation - WIP"
             {
             }
             column(AtLastDateSum; AtLastDateSum)
+            {
+            }
+            column(ExpensedWIPSum; ExpensedWIPSum)
             {
             }
             column(ValueEntryCostPostedToGLSum; ValueEntryCostPostedToGLSum)
@@ -507,6 +555,7 @@ report 5802 "Inventory Valuation - WIP"
         OutputLbl = 'Output';
         AsOfEndDateLbl = 'As of End Date';
         CostPostedToGLLbl = 'Cost Posted to G/L';
+        ExpensedWIPLbl = 'Expensed WIP';
         // About the report labels
         AboutTheReportLbl = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
         EnvironmentLbl = 'Environment';
@@ -566,6 +615,11 @@ report 5802 "Inventory Valuation - WIP"
         TotalLastOutput: Decimal;
         TotalAtLastDate: Decimal;
         TotalLastWIP: Decimal;
+        TotalExpensedWIP: Decimal;
+        OrderExpensedEndingWIP: Decimal;
+        OrderExpensedOpeningWIP: Decimal;
+        OrderExpensedConsump: Decimal;
+        OrderExpensedCap: Decimal;
         SkipZeroLines: Boolean;
         ReportHasData: Boolean;
         StartDateHeading: Text;
@@ -576,6 +630,7 @@ report 5802 "Inventory Valuation - WIP"
         ValueOfCapCaptionLbl: Label 'Capacity ';
         ValueOfOutputCaptionLbl: Label 'Output ';
         ValueEntryCostPostedtoGLCaptionLbl: Label 'Cost Posted to G/L';
+        ExpensedWIPCaptionLbl: Label 'Expensed WIP';
         ValueOfMatConsumpCaptionLbl: Label 'Consumption ';
         ProductionOrderNoCaptionLbl: Label 'No.';
         ProdOrderStatusCaptionLbl: Label 'Status';
@@ -590,6 +645,7 @@ report 5802 "Inventory Valuation - WIP"
         ValueOfCapSum: Decimal;
         ValueOfOutputSum: Decimal;
         AtLastDateSum: Decimal;
+        ExpensedWIPSum: Decimal;
         ValueEntryCostPostedToGLSum: Decimal;
 
 
@@ -630,6 +686,31 @@ report 5802 "Inventory Valuation - WIP"
             exit(false);
 
         exit(not ValueEntryExist("Production Order", StartDate, 99991231D));
+    end;
+
+    local procedure OrderHasNoOutputFinishedLine(var ProductionOrder: Record "Production Order"): Boolean
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        if ProductionOrder.Status <> ProductionOrder.Status::Finished then
+            exit(false);
+
+        ProdOrderLine.SetLoadFields("Finished Qty. (Base)");
+        ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Finished);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Finished Qty. (Base)", 0);
+        exit(not ProdOrderLine.IsEmpty());
+    end;
+
+    local procedure ValueEntryIsForNoOutputFinishedLine(ValueEntry: Record "Value Entry"): Boolean
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.SetLoadFields("Finished Qty. (Base)");
+        if not ProdOrderLine.Get(ProdOrderLine.Status::Finished, ValueEntry."Order No.", ValueEntry."Order Line No.") then
+            exit(false);
+
+        exit(ProdOrderLine."Finished Qty. (Base)" = 0);
     end;
 
     procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date)
