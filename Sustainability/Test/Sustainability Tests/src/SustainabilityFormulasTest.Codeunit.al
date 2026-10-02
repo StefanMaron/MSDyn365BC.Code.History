@@ -2082,6 +2082,7 @@ codeunit 148216 "Sustainability Formulas Test"
             PurchaseOrder.PurchLines."Custom Amount".Editable(), PurchaseOrder.PurchLines."Installation Multiplier".Editable(),
             PurchaseOrder.PurchLines."Time Factor".Editable());
         Assert.IsTrue(PurchaseOrder.PurchLines."Unit for Sust. Formulas".Editable(), 'Unit for Sust. Formulas must remain editable.');
+        Assert.AreEqual(1, PurchaseOrder.PurchLines."Installation Multiplier".AsDecimal(), 'Installation Multiplier must retain its default value.');
     end;
 
     local procedure AssertFormulaInputEditability(ExpectedFuelElectricityEditable: Boolean; ExpectedDistanceEditable: Boolean; ExpectedCustomAmountEditable: Boolean; ExpectedInstallationMultiplierEditable: Boolean; ExpectedTimeFactorEditable: Boolean; ActualFuelElectricityEditable: Boolean; ActualDistanceEditable: Boolean; ActualCustomAmountEditable: Boolean; ActualInstallationMultiplierEditable: Boolean; ActualTimeFactorEditable: Boolean)

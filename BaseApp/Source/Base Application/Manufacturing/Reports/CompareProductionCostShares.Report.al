@@ -12,6 +12,7 @@ report 99000794 "Compare Production Cost Shares"
 {
     ApplicationArea = Manufacturing;
     Caption = 'Compare Production Cost Shares';
+    ToolTip = 'View a comparison of components for two items. The printout compares the components, their unit cost, cost share and cost per component.';
     UsageCategory = ReportsAndAnalysis;
     DefaultRenderingLayout = CompareProductionCostSharesExcel;
 
@@ -159,6 +160,7 @@ report 99000794 "Compare Production Cost Shares"
             Caption = 'Compare Production Cost Shares Excel';
             Type = Excel;
             LayoutFile = './Manufacturing/Reports/CompareProductionCostShares.xlsx';
+            Summary = 'Report layout primarily made for data analysis. Use an Excel editor to modify the layout.';
         }
     }
 

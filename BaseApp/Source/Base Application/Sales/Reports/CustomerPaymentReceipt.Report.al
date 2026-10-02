@@ -18,10 +18,10 @@ using System.Utilities;
 
 report 211 "Customer - Payment Receipt"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Sales/Reports/CustomerPaymentReceipt.rdlc';
     Caption = 'Customer - Payment Receipt';
+    ToolTip = 'View a document showing which customer ledger entries that a payment has been applied to. This report can be used as a payment receipt that you send to the customer.';
     WordMergeDataItem = "Cust. Ledger Entry";
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -359,6 +359,16 @@ report 211 "Customer - Payment Receipt"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Sales/Reports/CustomerPaymentReceipt.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

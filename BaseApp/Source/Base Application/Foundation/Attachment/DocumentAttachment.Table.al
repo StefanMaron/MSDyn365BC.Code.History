@@ -42,10 +42,12 @@ table 1173 "Document Attachment"
         field(4; "Attached Date"; DateTime)
         {
             Caption = 'Attached Date';
+            ToolTip = 'Specifies the date when the document was attached.';
         }
         field(5; "File Name"; Text[250])
         {
             Caption = 'Attachment';
+            ToolTip = 'Specifies the filename of the attachment.';
             NotBlank = true;
 
             trigger OnValidate()
@@ -64,15 +66,17 @@ table 1173 "Document Attachment"
         field(6; "File Type"; Enum "Document Attachment File Type")
         {
             Caption = 'File Type';
+            ToolTip = 'Specifies the type of document that the attachment is.';
         }
         field(7; "File Extension"; Text[30])
         {
             Caption = 'File Extension';
+            ToolTip = 'Specifies the file extension of the attachment.';
 
             trigger OnValidate()
             begin
                 case LowerCase("File Extension") of
-                    'jpg', 'jpeg', 'bmp', 'png', 'tiff', 'tif', 'gif':
+                    'jpg', 'jpeg', 'bmp', 'png', 'tiff', 'tif', 'gif', 'svg', 'webp', 'avif', 'ico':
                         "File Type" := "File Type"::Image;
                     'pdf':
                         "File Type" := "File Type"::PDF;
@@ -106,12 +110,14 @@ table 1173 "Document Attachment"
             CalcFormula = lookup(User."User Name" where("User Security ID" = field("Attached By"),
                                                          "License Type" = const("Full User")));
             Caption = 'User';
+            ToolTip = 'Specifies the user who attached the document.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(11; "Document Flow Purchase"; Boolean)
         {
             Caption = 'Flow to Purch. Trx';
+            ToolTip = 'Specifies if the attachment must flow to transactions.';
 
             trigger OnValidate()
             var
@@ -129,6 +135,7 @@ table 1173 "Document Attachment"
         field(12; "Document Flow Sales"; Boolean)
         {
             Caption = 'Flow to Sales Trx';
+            ToolTip = 'Specifies if the attachment must flow to transactions.';
 
             trigger OnValidate()
             var
@@ -159,6 +166,7 @@ table 1173 "Document Attachment"
         field(20; "Document Flow Service"; Boolean)
         {
             Caption = 'Flow to Service Trx';
+            ToolTip = 'Specifies if the attachment must flow to transactions.';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -177,6 +185,7 @@ table 1173 "Document Attachment"
         field(21; "Document Flow Production"; Boolean)
         {
             Caption = 'Flow to Production Trx';
+            ToolTip = 'Specifies if the attachment must flow to transactions.';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -292,16 +301,20 @@ table 1173 "Document Attachment"
     end;
 
     procedure SupportedByFileViewer(): Boolean
+    var
+        DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
     begin
         case Rec."File Type" of
             Rec."File Type"::PDF:
                 exit(true);
+            Rec."File Type"::Image:
+                exit(true);
             Rec."File Type"::" ":
                 begin
                     if Rec."File Extension" <> '' then
-                        exit(LowerCase(Rec."File Extension") = 'pdf');
+                        exit(DocumentAttachmentMgmt.IsSupportedByFileViewerExtension(Rec."File Extension", true));
 
-                    exit(Lowercase(Rec."File Name").EndsWith('pdf'))
+                    exit(DocumentAttachmentMgmt.IsSupportedByFileViewerFileName(Rec."File Name", true));
                 end;
             else
                 exit(false);
