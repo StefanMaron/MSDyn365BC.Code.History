@@ -157,7 +157,7 @@ codeunit 10826 "Generate File FEC"
 
         GLEntry.SetLoadFields(
             "Transaction No.", "Source Type", "Source No.", "Source Code", "G/L Account No.", "G/L Account Name",
-             "Posting Date", "Document No.", "Document Date", Description, Amount, "Debit Amount", "Credit Amount",
+            "Posting Date", "Document No.", "Document Date", Description, Amount, "Debit Amount", "Credit Amount",
             "Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
 
         GLEntry.SetRange("Posting Date", StartingDate, EndingDate);
@@ -241,7 +241,6 @@ codeunit 10826 "Generate File FEC"
                     end;
 
             end;
-
         if PartyNo = '' then
             SetPartyForPaymentDiscount(GLEntry, PartyNo, PartyName);
 
@@ -764,7 +763,8 @@ codeunit 10826 "Generate File FEC"
         CachePostingGroupPmtDiscountAccounts(GLEntry."Source Type", PostingGroupCode, PostingGroupScope);
         CacheGenPostingSetupPmtDiscountAccounts(GLEntry."Source Type", GLEntry."Gen. Bus. Posting Group", GLEntry."Gen. Prod. Posting Group", GenPostingSetupScope);
 
-        exit(IsScopedPmtDiscountAccount(PostingGroupScope, GLEntry."G/L Account No.") or
+        exit(
+            IsScopedPmtDiscountAccount(PostingGroupScope, GLEntry."G/L Account No.") or
             IsScopedPmtDiscountAccount(GenPostingSetupScope, GLEntry."G/L Account No."));
     end;
 
@@ -805,7 +805,8 @@ codeunit 10826 "Generate File FEC"
             exit;
         ProcessedPmtDiscountScopes.Add(ScopeKey, true);
 
-        GeneralPostingSetup.SetLoadFields("Sales Pmt. Disc. Debit Acc.", "Sales Pmt. Disc. Credit Acc.",
+        GeneralPostingSetup.SetLoadFields(
+            "Sales Pmt. Disc. Debit Acc.", "Sales Pmt. Disc. Credit Acc.",
             "Purch. Pmt. Disc. Debit Acc.", "Purch. Pmt. Disc. Credit Acc.");
         if not GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup) then
             exit;

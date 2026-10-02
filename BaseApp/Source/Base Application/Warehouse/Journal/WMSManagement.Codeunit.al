@@ -265,7 +265,17 @@ codeunit 7302 "WMS Management"
                       WarehouseJournalLine."Location Code", WarehouseJournalLine."From Bin Code",
                       WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Unit of Measure Code");
                     BinContent.CheckDecreaseBinContent(WarehouseJournalLine."Qty. (Absolute)", WarehouseJournalLine."Qty. (Absolute, Base)", DecreaseQtyBase);
-                end;
+                end else
+                    if (WarehouseJournalLine."From Bin Code" <> '') and
+                       (WarehouseJournalLine."From Bin Code" <> Location."Adjustment Bin Code") and
+                       Location."Bin Mandatory" and (not Location."Directed Put-away and Pick")
+                    then
+                        if BinContent.Get(
+                             WarehouseJournalLine."Location Code", WarehouseJournalLine."From Bin Code",
+                             WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Unit of Measure Code")
+                        then
+                            if BinContent."Block Movement" in [BinContent."Block Movement"::Outbound, BinContent."Block Movement"::All] then
+                                BinContent.FieldError("Block Movement");
             SourceJnl::OutputJnl, SourceJnl::ConsumpJnl:
                 if (WarehouseJournalLine."From Bin Code" <> '') and
                    Location."Directed Put-away and Pick"
@@ -1755,7 +1765,7 @@ codeunit 7302 "WMS Management"
     begin
         WarehouseActivityLine.SetRange(WarehouseActivityLine."Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Pick");
         WarehouseActivityLine.SetSourceFilter(
-            Database::"Job Planning Line", "Job Planning Line Status"::Order.AsInteger(), JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.", false);
+                    Database::"Job Planning Line", "Job Planning Line Status"::Order.AsInteger(), JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.", false);
         WarehouseActivityLine.SetRange(WarehouseActivityLine."Assemble to Order", true);
         WarehouseActivityLine.SetTrackingFilterIfNotEmpty();
     end;

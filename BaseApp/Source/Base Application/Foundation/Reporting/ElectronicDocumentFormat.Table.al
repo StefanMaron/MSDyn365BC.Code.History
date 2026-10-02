@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -7,10 +7,14 @@ namespace Microsoft.Foundation.Reporting;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
+#if not CLEAN29
 using Microsoft.Sales.Peppol;
+#endif
 using System.IO;
 using System.Reflection;
+#if not CLEAN29
 using System.Telemetry;
+#endif
 using System.Utilities;
 
 table 61 "Electronic Document Format"
@@ -24,23 +28,28 @@ table 61 "Electronic Document Format"
         field(1; "Code"; Code[20])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies a code to identify the electronic document format in the system.';
             NotBlank = true;
         }
         field(2; Usage; Enum "Electronic Document Format Usage")
         {
             Caption = 'Usage';
+            ToolTip = 'Specifies if the electronic document format is used for sales invoices or sales credit memos.';
         }
         field(4; Description; Text[250])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the electronic document format.';
         }
         field(5; "Codeunit ID"; Integer)
         {
             BlankZero = true;
             Caption = 'Codeunit ID';
+            ToolTip = 'Specifies which codeunit is used to manage electronic document sending for this document sending method.';
             NotBlank = true;
             TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Codeunit));
 
+#if not CLEAN29
             trigger OnValidate()
             var
                 PEPPOLManagement: Codeunit "PEPPOL Management";
@@ -51,12 +60,14 @@ table 61 "Electronic Document Format"
                     FeatureTelemetry.LogUptake('0000KOR', PEPPOLManagement.GetPeppolTelemetryTok(), Enum::"Feature Uptake Status"::"Set up");
                 end;
             end;
+#endif
         }
         field(6; "Codeunit Caption"; Text[250])
         {
             CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
                                                                            "Object ID" = field("Codeunit ID")));
             Caption = 'Codeunit Caption';
+            ToolTip = 'Specifies the name of the codeunit.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -64,6 +75,7 @@ table 61 "Electronic Document Format"
         {
             BlankZero = true;
             Caption = 'Delivery Codeunit ID';
+            ToolTip = 'Specifies which delivery codeunit is used to manage electronic document sending for this document sending method.';
             TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Codeunit));
         }
         field(8; "Delivery Codeunit Caption"; Text[250])
@@ -71,6 +83,7 @@ table 61 "Electronic Document Format"
             CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
                                                                            "Object ID" = field("Delivery Codeunit ID")));
             Caption = 'Delivery Codeunit Caption';
+            ToolTip = 'Specifies the name of the delivery codeunit.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -406,6 +419,7 @@ table 61 "Electronic Document Format"
         ElectronicDocumentFormat.Insert();
     end;
 
+#if not CLEAN29
     local procedure ShouldLogUptake() Result: Boolean
     begin
         if "Codeunit ID" in [
@@ -415,6 +429,7 @@ table 61 "Electronic Document Format"
 
         OnAfterShouldLogUptake(Rec, Result);
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
@@ -470,10 +485,13 @@ table 61 "Electronic Document Format"
     begin
     end;
 
+#if not CLEAN29
+    [Obsolete('Peppol functionality is replaced by PEPPOL App. This event will be removed in future versions.', '29.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterShouldLogUptake(var ElectronicDocumentFormat: Record "Electronic Document Format"; var Result: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnSendElectronicallyOnAfterRecordExportBufferFileGenerated(var RecordExportBuffer: Record "Record Export Buffer"; RecRef: RecordRef)

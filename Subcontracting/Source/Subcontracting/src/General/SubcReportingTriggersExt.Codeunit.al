@@ -17,18 +17,7 @@ codeunit 20512 "Subc. Reporting Triggers Ext"
         SubcontractorPrice: Record "Subcontractor Price";
         WorkCenter: Record "Work Center";
         SubcPriceManagement: Codeunit "Subc. Price Management";
-#if not CLEAN28
-#pragma warning disable AL0432
-        SubcFeatureFlagHandler: Codeunit "Subc. Feature Flag Handler";
-#pragma warning restore AL0432
-#endif
     begin
-#if not CLEAN28
-#pragma warning disable AL0432
-        if not SubcFeatureFlagHandler.IsSubcontractingEnabled() then
-#pragma warning restore AL0432
-            exit;
-#endif
         if RoutingLine.Type <> RoutingLine.Type::"Work Center" then
             exit;
 

@@ -6324,6 +6324,7 @@ codeunit 136201 "Marketing Contacts"
         PurchaseQuote: TestPage "Purchase Quote";
         PurchaseQuote2: TestPage "Purchase Quote";
     begin
+        // [FEATURE] [AI TEST]
         // [SCENARIO 615201] Creating customer from contact should not block vendor template selection in subsequent purchase quotes.
         Initialize();
 

@@ -47,6 +47,7 @@ table 422 "IC Bank Account"
         field(4; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            MaskType = Concealed;
         }
         /// <summary>
         /// Indicates whether the intercompany bank account is blocked from use in transactions.
@@ -69,6 +70,7 @@ table 422 "IC Bank Account"
         field(7; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            MaskType = Concealed;
 
             trigger OnValidate()
             var

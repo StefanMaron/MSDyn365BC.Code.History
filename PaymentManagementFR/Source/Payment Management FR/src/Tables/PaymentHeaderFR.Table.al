@@ -319,6 +319,7 @@ table 10835 "Payment Header FR"
         field(19; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            MaskType = Concealed;
 
             trigger OnValidate()
             begin
@@ -441,6 +442,7 @@ table 10835 "Payment Header FR"
         field(50; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            MaskType = Concealed;
 
             trigger OnValidate()
             var

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -276,6 +276,7 @@ table 10837 "Payment Line FR"
         field(27; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            MaskType = Concealed;
 
             trigger OnValidate()
             begin
@@ -431,6 +432,7 @@ table 10837 "Payment Line FR"
         field(55; IBAN; Code[50])
         {
             Caption = 'IBAN', Locked = true;
+            MaskType = Concealed;
 
             trigger OnValidate()
             var

@@ -16,7 +16,7 @@ page 2682 "Data Search Result Records"
     InherentEntitlements = X;
     InherentPermissions = X;
     AnalysisModeEnabled = false;
-
+    
     layout
     {
         area(content)
@@ -396,9 +396,9 @@ page 2682 "Data Search Result Records"
 
     local procedure DrillDown()
     var
-        DataSearchResult: Record "Data Search Result";
+        TempDataSearchResult: Record "Data Search Result";
     begin
-        DataSearchResult.ShowPage(SourceRecRef);
+        TempDataSearchResult.ShowPage(SourceRecRef);
     end;
 
     local procedure AdjustColumnOffset(Delta: Integer)

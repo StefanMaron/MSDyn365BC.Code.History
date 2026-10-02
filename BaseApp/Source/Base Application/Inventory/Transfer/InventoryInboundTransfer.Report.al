@@ -9,11 +9,11 @@ using Microsoft.Inventory.Location;
 
 report 5702 "Inventory - Inbound Transfer"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Transfer/InventoryInboundTransfer.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Inventory - Inbound Transfer';
+    ToolTip = 'View which items are currently on inbound transfer orders.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -92,6 +92,16 @@ report 5702 "Inventory - Inbound Transfer"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Inventory/Transfer/InventoryInboundTransfer.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

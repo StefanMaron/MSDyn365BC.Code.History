@@ -69,7 +69,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
         Text003: Label 'Checking lines...';
         Text004: Label 'This receipt has already been invoiced. Undo Receipt can be applied only to posted, but not invoiced receipts.';
 #pragma warning restore AA0074
-        NoLinesForCorrectionErr: Label 'There is no lines with quantity to process.';
+        NoLinesToReverseErr: Label 'No lines with a quantity available for reversal were found among the selected lines. Select a line with a quantity that has not already been reversed, and try again.';
         AlreadyReversedErr: Label 'This receipt has already been reversed.';
         AmbiguousDropShipmentLinkErr: Label 'The posted sales shipment line for drop shipment line %1 in posted purchase receipt %2 cannot be identified, because sales order %3 has more than one matching posted shipment line. Undo the shipment from the posted sales shipment instead.', Comment = '%1 - Purch. Rcpt. Line No., %2 - Purch. Rcpt. Header No., %3 - Sales Order No.';
 
@@ -173,7 +173,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
         PurchRcptLine.SetRange(Correction, false);
         OnCheckPurchRcptLinesAfterPurchRcptLineSetFilters(PurchRcptLine);
         if PurchRcptLine.IsEmpty() then
-            Error(NoLinesForCorrectionErr);
+            Error(NoLinesToReverseErr);
 
         PurchRcptLine.FindFirst();
         repeat

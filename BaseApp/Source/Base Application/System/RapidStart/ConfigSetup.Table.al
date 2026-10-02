@@ -88,6 +88,7 @@ table 8627 "Config. Setup"
         {
             AccessByPermission = TableData "Bank Account" = R;
             Caption = 'Bank Account No.';
+            MaskType = Concealed;
         }
         field(15; "Payment Routing No."; Text[20])
         {
@@ -205,6 +206,7 @@ table 8627 "Config. Setup"
         field(38; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            MaskType = Concealed;
 
             trigger OnValidate()
             var
