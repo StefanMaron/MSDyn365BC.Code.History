@@ -22,6 +22,7 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -3777,6 +3778,49 @@ codeunit 137088 "SCM Order Planning - III"
         Assert.AreEqual(200, ReqLine.Quantity, RequisitionLineQuantityMismatchErr);
     end;
 
+    [Test]
+    procedure CreatePurchaseOrderFromDropShipmentSalesOrderWithLotTracking()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Purchasing: Record Purchasing;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReservationEntry: Record "Reservation Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LotNo: Code[50];
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 647806] Create a purchase order from a drop shipment sales order with lot tracking.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        Quantity := LibraryRandom.RandInt(10);
+
+        // [GIVEN] A lot-tracked item with a vendor and a drop shipment sales order line with item tracking.
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryPurchase.CreateDropShipmentPurchasingCode(Purchasing);
+        CreateSalesOrderWithPurchasingCode(SalesHeader, SalesLine, Item."No.", Purchasing.Code);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate(Quantity, Quantity);
+        SalesLine.Modify(true);
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', LotNo, Quantity);
+
+        // [WHEN] Create a purchase order from the sales order.
+        CreatePurchaseOrderFromSalesOrder(SalesHeader."No.", true);
+
+        // [THEN] The purchase order is created with the lot tracking from the sales line.
+        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item."No.");
+        ReservationEntry.SetSourceFilter(
+            Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", true);
+        ReservationEntry.SetSourceFilter('', 0);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        Assert.RecordIsNotEmpty(ReservationEntry);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4676,9 +4720,9 @@ codeunit 137088 "SCM Order Planning - III"
         RequisitionLine.CalcSums(Quantity);
 
         Assert.RecordCount(RequisitionLine, ExpectedRecordCount);
-            Assert.AreEqual(ExpectedRequisitionQuantity, RequisitionLine.Quantity, RequisitionLineQuantityMismatchErr);
+        Assert.AreEqual(ExpectedRequisitionQuantity, RequisitionLine.Quantity, RequisitionLineQuantityMismatchErr);
     end;
-    
+
     local procedure VerifyMinTotalQuantityInRequisitionLine(ItemNoFilter: Text; LocationCode: Code[10]; MinExpectedQuantity: Decimal)
     var
         RequisitionLine: Record "Requisition Line";
@@ -4692,7 +4736,7 @@ codeunit 137088 "SCM Order Planning - III"
           RequisitionLine.Quantity >= MinExpectedQuantity,
                     StrSubstNo(MinTotalQuantityMismatchErr, MinExpectedQuantity, RequisitionLine.Quantity));
     end;
-    
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders"; var Response: Action)
