@@ -11,11 +11,11 @@ using System.Utilities;
 
 report 5801 "Invt. Valuation - Cost Spec."
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Reports/InvtValuationCostSpec.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Invt. Valuation - Cost Spec.';
+    ToolTip = 'View an overview of the current inventory value of selected items and specifies the cost of these items as of the date specified in the Valuation Date field. The report includes all costs, both those posted as invoiced and those posted as expected. For each of the items that you specify when setting up the report, the printed report shows quantity on stock, the cost per unit and the total amount. For each of these columns, the report specifies the cost as the various value entry types.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -198,6 +198,16 @@ report 5801 "Invt. Valuation - Cost Spec."
             if ValuationDate = 0D then
                 ValuationDate := WorkDate();
         end;
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Inventory/Reports/InvtValuationCostSpec.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
     }
 
     labels

@@ -1036,7 +1036,7 @@ table 125 "Purch. Cr. Memo Line"
         PurchaseLine: Record "Purchase Line";
     begin
         if Type = Type::" " then
-            exit(PurchaseLine.FormatType());
+            exit(PurchaseLine.FormatTypeAsText());
 
         exit(Format(Type));
     end;
@@ -1147,7 +1147,7 @@ table 125 "Purch. Cr. Memo Line"
         ItemTrackingDocMgmt: Codeunit "Item Tracking Doc. Management";
     begin
         ItemTrackingDocMgmt.RetrieveEntriesFromPostedInvoice(TempItemLedEntry, RowID1());
-        if TempItemLedEntry.IsEmpty then
+        if TempItemLedEntry.IsEmpty() then
             exit;
 
         TempItemLedEntry.FindFirst();

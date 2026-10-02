@@ -9,11 +9,11 @@ using Microsoft.Foundation.Address;
 
 report 5056 "Contact - Labels"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './CRM/Reports/ContactLabels.rdlc';
     ApplicationArea = RelationshipMgmt;
     Caption = 'Contact Labels';
+    ToolTip = 'View mailing labels with names and addresses of your contacts. For example, you can use the report to review contact information before you send sales and marketing campaign letters.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -235,6 +235,16 @@ report 5056 "Contact - Labels"
         trigger OnOpenPage()
         begin
         end;
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './CRM/Reports/ContactLabels.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
     }
 
     labels

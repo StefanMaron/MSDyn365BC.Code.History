@@ -18,7 +18,7 @@ codeunit 132202 "Library - Manufacturing"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         Assert: Codeunit Assert;
         BOMItemLineNo: Integer;
-#if not CLEAN28
+#if not CLEAN29
         BatchName: Label 'DEFAULT', Comment = 'Default Batch';
 #endif
         OutputConsumpMismatchTxt: Label 'Output Cost in Prod. Order %1, line %2 does not match Consumption.';
@@ -154,7 +154,7 @@ codeunit 132202 "Library - Manufacturing"
         CalculatePlanPlanWksh.UseRequestPage(false);
         CalculatePlanPlanWksh.RunModal();
     end;
-#if not CLEAN28
+#if not CLEAN29
     [Obsolete('Will be replaced by the Subcontracting Test App', '29.0')]
     procedure CalculateSubcontractOrder(var WorkCenter: Record "Work Center")
     var
@@ -185,7 +185,7 @@ codeunit 132202 "Library - Manufacturing"
         CalculateWorkCenterCalendarReport.UseRequestPage(false);
         CalculateWorkCenterCalendarReport.RunModal();
     end;
-#if not CLEAN28
+#if not CLEAN29
     [Obsolete('Will be replaced by the Subcontracting Test App', '29.0')]
     procedure CalculateSubcontractOrderWithProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     var
@@ -317,14 +317,6 @@ codeunit 132202 "Library - Manufacturing"
         CreateProductionOrder(ProductionOrder, ProdOrderStatus, SourceType, SourceNo, Quantity);
         RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
-
-#if not CLEAN26
-    [Obsolete('Moved to LibraryInventory', '26.0')]
-    procedure CreateBOMComponent(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Enum "BOM Component Type"; No: Code[20]; QuantityPer: Decimal; UnitOfMeasureCode: Code[10])
-    begin
-        LibraryInventory.CreateBOMComponent(BOMComponent, ParentItemNo, Type, No, QuantityPer, UnitOfMeasureCode);
-    end;
-#endif
 
     procedure CreateCalendarAbsenceEntry(var CalendarAbsenceEntry: Record "Calendar Absence Entry"; CapacityType: Enum "Capacity Type"; No: Code[20]; Date: Date; StartingTime: Time; EndingTime: Time; Capacity: Decimal)
     begin
@@ -1070,7 +1062,7 @@ codeunit 132202 "Library - Manufacturing"
         RollUpStandardCost.UseRequestPage(false);
         RollUpStandardCost.RunModal();
     end;
-#if not CLEAN28
+#if not CLEAN29
     local procedure RequisitionLineForSubcontractOrder(var RequisitionLine: Record "Requisition Line")
     var
         ReqJnlManagement: Codeunit ReqJnlManagement;
@@ -1266,7 +1258,7 @@ codeunit 132202 "Library - Manufacturing"
         ProdOrderComponent.Modify(true);
     end;
 
-#if not CLEAN28
+#if not CLEAN29
     [IntegrationEvent(false, false)]
     [Obsolete('This event is obsoleted since it is moving to Subontracting App', '29.0')]
     local procedure OnBeforeOpenJournal(var RequisitionLine: Record "Requisition Line"; var Handled: Boolean)

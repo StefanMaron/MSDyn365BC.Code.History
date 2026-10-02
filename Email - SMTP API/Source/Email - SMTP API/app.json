@@ -5,7 +5,7 @@
   "brief": "This app enables sending emails through the SMTP protocol.",
   "logo": "ExtensionLogo.png",
   "description": "This app enables sending emails through the SMTP protocol.",
-  "version": "$(app_currentVersion)",
+  "version": "29.0.54011.55407",
   "privacyStatement": "https://go.microsoft.com/fwlink/?linkid=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://go.microsoft.com/fwlink/?linkid=2186415",
@@ -15,7 +15,7 @@
       "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
       "publisher": "Microsoft",
       "name": "System Application",
-      "version": "$(app_minimumVersion)"
+      "version": "29.0.0.0"
     }
   ],
   "internalsVisibleTo": [
@@ -36,7 +36,7 @@
     }
   ],
   "screenshots": [],
-  "platform": "$(app_platformVersion)",
+  "platform": "29.0.0.0",
   "idRanges": [
     {
       "from": 4611,

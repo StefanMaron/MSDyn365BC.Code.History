@@ -72,10 +72,6 @@ table 83 "Item Journal Line"
 
             trigger OnValidate()
             var
-#if not CLEAN26
-                DummyMachineCenter: Record Microsoft.Manufacturing.MachineCenter."Machine Center";
-                DummyWorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center";
-#endif
                 SkipInventoryValueZeroCheck: Boolean;
             begin
                 if "Item No." <> xRec."Item No." then begin
@@ -166,9 +162,6 @@ table 83 "Item Journal Line"
                         end;
                 end;
                 OnValidateItemNoOnSetCostAndPrice(Rec, UnitCost);
-#if not CLEAN26
-                OnValidateItemNoOnAfterCalcUnitAmount(Rec, DummyWorkCenter, DummyMachineCenter);
-#endif
 
                 case "Entry Type" of
                     "Entry Type"::Purchase:
@@ -3737,7 +3730,7 @@ table 83 "Item Journal Line"
             Item.TestField(Type, Item.Type::Inventory);
     end;
 
-    local procedure IsEntryTypeConsumption() Result: Boolean
+    procedure IsEntryTypeConsumption() Result: Boolean
     begin
         OnAfterIsEntryTypeConsumption(Rec, Result);
     end;
@@ -3747,12 +3740,12 @@ table 83 "Item Journal Line"
         OnAfterIsEntryTypeOutput(Rec, Result);
     end;
 
-    local procedure IsEntryTypeProduction() Result: Boolean
+    procedure IsEntryTypeProduction() Result: Boolean
     begin
         OnAfterIsEntryTypeProduction(Rec, Result);
     end;
 
-    local procedure IsOrderTypeAsmOrProd() Result: Boolean
+    procedure IsOrderTypeAsmOrProd() Result: Boolean
     begin
         OnAfterIsOrderTypeAsmOrProd(Rec, Result);
     end;
@@ -4751,14 +4744,6 @@ table 83 "Item Journal Line"
     begin
     end;
 
-#if not CLEAN26
-    [Obsolete('Replaced by event OnValidateOrderNoOnAfterCopyFromAssemblyHeader in codeunit Asm. Item Journal Mgt.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateOrderNoOnAfterProcessOrderTypeAssembly(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
-    begin
-    end;
-#endif
-
     /// <summary>
     /// Event triggered when the "Order Type" is recognized as an unhandled case during the validation of the "Order No." field.
     /// This event allows developers to extend the logic for unhandled "Order Type" cases during the validation of the "Order No." field.
@@ -4908,14 +4893,6 @@ table 83 "Item Journal Line"
     local procedure OnValidateItemNoOnAfterCalcUnitCost(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
     begin
     end;
-
-#if not CLEAN26
-    [Obsolete('Replaced by event OnValidateItemNoOnSetCostAndPrice', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateItemNoOnAfterCalcUnitAmount(var ItemJournalLine: Record "Item Journal Line"; WorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center"; MachineCenter: Record Microsoft.Manufacturing.MachineCenter."Machine Center")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnSetCostAndPrice(var ItemJournalLine: Record "Item Journal Line"; UnitCost: Decimal)

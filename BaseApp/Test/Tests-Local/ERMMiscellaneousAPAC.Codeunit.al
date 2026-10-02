@@ -3031,4 +3031,3 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         SalesStatistics.OK().Invoke();
     end;
 }
-

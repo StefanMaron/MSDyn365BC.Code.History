@@ -9,11 +9,11 @@ using Microsoft.Warehouse.Structure;
 
 report 7319 "Warehouse Bin List"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Warehouse/Reports/WarehouseBinList.rdlc';
     ApplicationArea = Warehouse;
     Caption = 'Warehouse Bin List';
+    ToolTip = 'Get an overview of warehouse bins, their setup, and the quantity of items within the bins.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -178,6 +178,16 @@ report 7319 "Warehouse Bin List"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Warehouse/Reports/WarehouseBinList.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

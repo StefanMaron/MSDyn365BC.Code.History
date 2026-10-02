@@ -9,11 +9,11 @@ using System.Utilities;
 
 report 1107 "Resource - Cost Breakdown"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Projects/Resources/Reports/ResourceCostBreakdown.rdlc';
     ApplicationArea = Jobs;
     Caption = 'Resource - Cost Breakdown';
+    ToolTip = 'View the direct unit costs and the total direct costs for each resource. Only usage postings are considered in this report. Resource usage can be posted in the resource journal or the project journal.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -129,6 +129,16 @@ report 1107 "Resource - Cost Breakdown"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Projects/Resources/Reports/ResourceCostBreakdown.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

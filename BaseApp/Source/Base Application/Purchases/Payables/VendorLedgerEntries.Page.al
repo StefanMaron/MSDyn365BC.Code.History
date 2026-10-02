@@ -320,6 +320,16 @@ page 29 "Vendor Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                 }
+                field("G/L Register No."; Rec."G/L Register No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                }
+                field("Transaction No."; Rec."Transaction No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                }
                 field("Exported to Payment File"; Rec."Exported to Payment File")
                 {
                     ApplicationArea = Basic, Suite;
@@ -557,6 +567,23 @@ page 29 "Vendor Ledger Entries"
                         ReversePaymentRec.ErrorIfEntryIsNotReversable(Rec);
                         ReversalEntry.ReverseTransaction(Rec."Transaction No.");
                         Clear(CalcRunningVendBalance);
+                    end;
+                }
+                action(SendVendorRemittanceAdvice)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Send Remittance Advice';
+                    Image = SendToMultiple;
+                    ToolTip = 'Send the remittance advice before posting a payment journal or after posting a payment. The advice contains vendor invoice numbers, which helps vendors to perform reconciliations.';
+
+                    trigger OnAction()
+                    var
+                        VendorLedgerEntry: Record "Vendor Ledger Entry";
+                    begin
+                        VendorLedgerEntry := Rec;
+                        CurrPage.SetSelectionFilter(VendorLedgerEntry);
+                        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
+                        SendVendorRecords(VendorLedgerEntry);
                     end;
                 }
                 group(IncomingDocument)
@@ -865,4 +892,3 @@ page 29 "Vendor Ledger Entries"
         ChangeLogEntry.SetRange("Primary Key Field 1 Value", Format(Rec."Entry No.", 0, 9));
     end;
 }
-

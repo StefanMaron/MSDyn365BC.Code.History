@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -110,7 +110,6 @@ page 108 "Financial Reports"
                 field(DimPerspective; Rec.DimPerspective)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the dimension perspective to be used for the financial report.';
 
                     trigger OnValidate()
                     begin
@@ -319,6 +318,14 @@ page 108 "Financial Reports"
                         Page.Run(Page::"Financial Report Category", FinancialReportCategory);
                 end;
             }
+            action(Packages)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Packages';
+                Image = ItemInvoice;
+                RunObject = page "Financial Report Packages";
+                ToolTip = 'View or edit Financial Report Packages. Financial Report Packages combines multiple Financial Reports into a single PDF, which can be exported or emailed on a regular basis.';
+            }
         }
         area(navigation)
         {
@@ -396,6 +403,7 @@ page 108 "Financial Reports"
         {
             actionref(ViewFinancialReport_Promoted; ViewFinancialReport) { }
             actionref(Print_Promoted; Print) { }
+            actionref(Packages_Promoted; Packages) { }
 
             group(Category_Edit)
             {
