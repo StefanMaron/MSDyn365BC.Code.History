@@ -915,6 +915,35 @@ codeunit 139500 "MS - PayPal Standard Tests"
     end;
 
     [Test]
+    procedure TestWebhookNotificationWithSpecialCharactersInSubscriptionIDDoesNotThrowFilterError();
+    var
+        WebhookNotification: Record "Webhook Notification";
+        OutStream: OutStream;
+        SubscriptionIDWithSpecialChars: Text;
+    begin
+        // [FEATURE][AI test 0.3]
+        // [SCENARIO 642015] Inserting a webhook notification from another service (e.g. Shopify) whose Subscription ID
+        // contains filter special characters must not throw a filter exception when the PayPal insert subscriber
+        // searches the Webhook Subscription table for a matching subscription.
+        Initialize();
+
+        // [GIVEN] A Subscription ID that contains characters that are special in a filter expression.
+        SubscriptionIDWithSpecialChars := 'Test&(Sub|scription)<ID>*..@=%1';
+
+        // [WHEN] A webhook notification with such a Subscription ID is inserted (this fires the PayPal insert subscriber).
+        WebhookNotification.Init();
+        WebhookNotification.Validate(ID, CreateGuid());
+        WebhookNotification.Validate(
+          "Subscription ID", CopyStr(SubscriptionIDWithSpecialChars, 1, MaxStrLen(WebhookNotification."Subscription ID")));
+        WebhookNotification.Notification.CreateOutStream(OutStream);
+        OutStream.WriteText('{}');
+
+        // [THEN] The insert succeeds without a filter exception and no PayPal payment is processed.
+        WebhookNotification.Insert();
+        VerifyNoPaymentEvent();
+    end;
+
+    [Test]
     [HandlerFunctions('JobTransferToSalesInvoiceRequestPageHandler,MessageHandlerNew')]
     procedure VerifyPaymentServiceSetIDInSalesInvoiceCreatedFromJobPlanningLines();
     var
@@ -1316,7 +1345,7 @@ codeunit 139500 "MS - PayPal Standard Tests"
 
     local procedure VerifyPaymentServiceIsShownOnServiceConnectionsPage(MSPayPalStandardAccount: Record "MS - PayPal Standard Account");
     var
-        ServiceConnection: Record "Service Connection";
+        TempServiceConnection: Record "Service Connection";
         ServiceConnections: TestPage "Service Connections";
     begin
         ServiceConnections.OPENEDIT();
@@ -1328,11 +1357,11 @@ codeunit 139500 "MS - PayPal Standard Tests"
 
         IF MSPayPalStandardAccount.Enabled THEN
             Assert.AreEqual(
-              FORMAT(ServiceConnection.Status::Enabled), ServiceConnections.Status.VALUE(),
+              FORMAT(TempServiceConnection.Status::Enabled), ServiceConnections.Status.VALUE(),
               'Status was not set correctly on Service Connections page')
         ELSE
             Assert.AreEqual(
-              FORMAT(ServiceConnection.Status::Disabled), ServiceConnections.Status.VALUE(),
+              FORMAT(TempServiceConnection.Status::Disabled), ServiceConnections.Status.VALUE(),
               'Status was not set correctly on Service Connections page');
     end;
 

@@ -15,11 +15,11 @@ using System.Utilities;
 
 report 7150 "Item Dimensions - Detail"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Reports/ItemDimensionsDetail.rdlc';
     ApplicationArea = Dimensions;
     Caption = 'Item Dimensions - Detail';
+    ToolTip = 'Run the Item Dimensions - Detail report.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -499,6 +499,16 @@ report 7150 "Item Dimensions - Detail"
         begin
             UpdateColumnDim();
         end;
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Inventory/Reports/ItemDimensionsDetail.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
     }
 
     labels

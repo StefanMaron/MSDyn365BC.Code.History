@@ -938,7 +938,6 @@ page 291 "Req. Worksheet"
                 Caption = 'Inventory - Availability Plan (Excel)';
                 Image = ItemAvailability;
                 RunObject = Report "Inv. Availability Plan";
-                ToolTip = 'View a list of the quantity of each item in customer, purchase, and transfer orders and the quantity available in inventory. The list is divided into columns that cover six periods with starting and ending dates as well as the periods before and after those periods. The list is useful when you are planning your inventory purchases.';
             }
             action("Inventory Order Details")
             {
@@ -948,7 +947,6 @@ page 291 "Req. Worksheet"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Inventory Order Details";
-                ToolTip = 'View a list of the orders that have not yet been shipped or received and the items in the orders. It shows the order number, customer''s name, shipment date, order quantity, quantity on back order, outstanding quantity and unit price, as well as possible discount percentage and amount. The quantity on back order and outstanding quantity and amount are totaled for each item. The list can be used to find out whether there are currently shipment problems or any can be expected.';
             }
             action("Inventory Purchase Orders")
             {
@@ -1173,10 +1171,8 @@ page 291 "Req. Worksheet"
             SetControlAppearanceFromWkshBatch();
             exit;
         end;
-
         if GetCurrentJnlBatchName() then
             exit;
-
         OnBeforeTemplateSelection(Rec, CurrentJnlBatchName);
         ReqJnlManagement.WkshTemplateSelection(
             PAGE::"Req. Worksheet", false, Enum::"Req. Worksheet Template Type"::"Req.", Rec, JnlSelected);
@@ -1257,9 +1253,9 @@ page 291 "Req. Worksheet"
         RequisitionWkshName.SetApprovalStateForWkshBatch(RequisitionWkshName, Rec, OpenApprovalEntriesExistForCurrUser, OpenApprovalEntriesOnWkshBatchExist, CanCancelApprovalForWkshBatch, CanRequestFlowApprovalForWkshBatch, CanCancelFlowApprovalForWkshBatch, ApprovalEntriesExistSentByCurrentUser, EnabledWkshBatchWorkflowsExist);
     end;
 
-     local procedure GetCurrentJnlBatchName(): boolean
+    local procedure GetCurrentJnlBatchName(): boolean
     begin
-        if (Rec."Journal Batch Name" = '') or (Rec."Worksheet Template Name" = '') then
+       if (Rec."Journal Batch Name" = '') or (Rec."Worksheet Template Name" = '') then
             exit(false);
 
         CurrentJnlBatchName := Rec."Journal Batch Name";

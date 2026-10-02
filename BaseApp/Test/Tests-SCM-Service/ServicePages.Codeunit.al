@@ -6,7 +6,6 @@ namespace Microsoft.Service.Test;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Team;
-using Microsoft.Finance.SalesTax;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Item;
@@ -47,17 +46,24 @@ codeunit 136150 "Service Pages"
         ChangeCurrencyConfirmQst: Label 'If you change %1, the existing service lines will be deleted and the program will create new service lines based on the new information on the header.\Do you want to change the %1?';
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,ServiceShipmentReportHandler,ServiceInvoiceSalesTaxReportHandler')]
+    [HandlerFunctions('StrMenuHandler,ServiceShipmentReportHandler,ServiceInvoiceReportHandler')]
     [Scope('OnPrem')]
     procedure ServiceOrderPostAndPrint()
     var
         ServiceHeader: Record "Service Header";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
         ServiceOrder: TestPage "Service Order";
     begin
         // [FEATURE] [Print] [Post] [Order]
         // [SCENARIO 268383] Stan does not see confirmation to close service order card page when document fully shiped and invoiced with printing documents
         Initialize();
+
+        // Reset standard report selection
+        if not ReportSelectionMgt.ReportSelectionsExist("Report Selection Usage"::"SM.Invoice", Report::"Service - Invoice") then
+            ReportSelectionMgt.UpdateReportSelection("Report Selection Usage"::"SM.Invoice", '1', Report::"Service - Invoice");
+        if not ReportSelectionMgt.ReportSelectionsExist("Report Selection Usage"::"SM.Shipment", Report::"Service - Shipment") then
+            ReportSelectionMgt.UpdateReportSelection("Report Selection Usage"::"SM.Shipment", '1', Report::"Service - Shipment");
 
         LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::Order);
 
@@ -72,17 +78,22 @@ codeunit 136150 "Service Pages"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerWithValidation,ServiceInvoiceSalesTaxReportHandler')]
+    [HandlerFunctions('ConfirmHandlerWithValidation,ServiceInvoiceReportHandler')]
     [Scope('OnPrem')]
     procedure ServiceInvoicePostAndPrint()
     var
         ServiceHeader: Record "Service Header";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
         ServiceInvoice: TestPage "Service Invoices";
     begin
         // [FEATURE] [Print] [Post] [Invoice]
         // [SCENARIO 268383] Stan does not see confirmation to close Service Invoices card page when document fully invoiced with printing documents
         Initialize();
+
+        // Reset standard report selection
+        if not ReportSelectionMgt.ReportSelectionsExist("Report Selection Usage"::"SM.Invoice", Report::"Service - Invoice") then
+            ReportSelectionMgt.UpdateReportSelection("Report Selection Usage"::"SM.Invoice", '1', Report::"Service - Invoice");
 
         LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::Invoice);
 
@@ -98,17 +109,22 @@ codeunit 136150 "Service Pages"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerWithValidation,ServiceCreditMemoSalesTaxReportHandler')]
+    [HandlerFunctions('ConfirmHandlerWithValidation,ServiceCreditMemoReportHandler')]
     [Scope('OnPrem')]
     procedure ServiceCreditMemoPostAndPrint()
     var
         ServiceHeader: Record "Service Header";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
         ServiceCreditMemo: TestPage "Service Credit Memo";
     begin
         // [FEATURE] [Print] [Post] [Credit Memo]
         // [SCENARIO 268383] Stan does not see confirmation to close service credit memo card page when document fully invoiced with printing documents
         Initialize();
+
+        // Reset standard report selection
+        if not ReportSelectionMgt.ReportSelectionsExist("Report Selection Usage"::"SM.Credit Memo", Report::"Service - Credit Memo") then
+            ReportSelectionMgt.UpdateReportSelection("Report Selection Usage"::"SM.Credit Memo", '1', Report::"Service - Credit Memo");
 
         LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
 
@@ -1177,13 +1193,13 @@ codeunit 136150 "Service Pages"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure ServiceInvoiceSalesTaxReportHandler(var ServiceInvoiceSalesTax: Report "Service Invoice-Sales Tax")
+    procedure ServiceInvoiceReportHandler(var ServiceInvoice: Report "Service - Invoice")
     begin
     end;
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure ServiceCreditMemoSalesTaxReportHandler(var ServiceCreditMemoSalesTax: Report "Service Credit Memo-Sales Tax")
+    procedure ServiceCreditMemoReportHandler(var ServiceCreditMemo: Report "Service - Credit Memo")
     begin
     end;
 

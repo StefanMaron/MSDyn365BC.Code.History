@@ -28,12 +28,14 @@ codeunit 6999 "Outlook Add-In Services"
         // Please note UrlHelper cannot be used here as it does not provide right URL on-prem
         RetrieveEmailMeUriTxt: Label 'https://graph.microsoft.com/v1.0/me/messages/%1', Locked = true;
         RetrieveEmailAttachmentsUriTxt: Label 'https://graph.microsoft.com/v1.0/me/messages/%1/attachments', Locked = true;
-        FailedToRetrieveEmailBodyErr: Label 'Failed to retrieve message body.';
-        FailedToRetrieveEmailAttachmentsErr: Label 'Failed to retrieve email attachments.';
-        FailedToReadResponseContentErr: Label 'Failed to read the response content.';
-        ConnectionErr: Label 'Could not establish the connection to the remote service for reading email. Try again later.';
+        FailedToRetrieveEmailBodyErr: Label 'Could not retrieve the email. Please try again later.';
+        FailedToRetrieveEmailAttachmentsErr: Label 'Could not retrieve the email attachments. Please try again later.';
+        FailedToReadResponseContentErr: Label 'Something went wrong while reading the email. Please try again later.';
+        ConnectionErr: Label 'Could not connect to the email service. Please check your connection and try again later.';
         TelemetryRetrievingMyEmailTxt: Label 'Retrieving my email.', Locked = true;
         TelemetryRetrievingMyEmailAttachmentsTxt: Label 'Retrieving email attachments.', Locked = true;
+        UnexpectedResponseFormatErr: Label 'Something went wrong while reading the email. Please try again later.';
+        TelemetryUnexpectedResponseFormatTxt: Label 'Unexpected response format: expected property ''%1'' was not found.', Locked = true;
 
     /// <summary>
     /// Enables getting email and attachments for Outlook Add-In.
@@ -65,12 +67,12 @@ codeunit 6999 "Outlook Add-In Services"
         AttachmentContextText: Text;
     begin
         MessageJson := GetMessage(ItemID, AccessToken);
-        MessageJson.Get('subject', SubjectToken);
-        MessageJson.Get('webLink', WebLinkToken);
-        MessageJson.Get('hasAttachments', hasAttachmentsToken);
-        MessageJson.Get('body', JToken);
+        GetRequiredJsonToken(MessageJson, 'subject', SubjectToken);
+        GetRequiredJsonToken(MessageJson, 'webLink', WebLinkToken);
+        GetRequiredJsonToken(MessageJson, 'hasAttachments', hasAttachmentsToken);
+        GetRequiredJsonToken(MessageJson, 'body', JToken);
         BodyJson := JToken.AsObject();
-        BodyJson.Get('content', JToken);
+        GetRequiredJsonToken(BodyJson, 'content', JToken);
         BodyContextText := JToken.AsValue().AsText();
         Clear(TempBlob);
         TempBlob.CreateOutStream(ContentOutStream, TextEncoding::UTF8);
@@ -92,7 +94,7 @@ codeunit 6999 "Outlook Add-In Services"
             exit;
 
         AttachmentJson := GetAttachments(ItemID, AccessToken);
-        AttachmentJson.Get('value', Jtoken);
+        GetRequiredJsonToken(AttachmentJson, 'value', Jtoken);
         AttachmentsArray := Jtoken.AsArray();
         foreach CurrentAttachment in AttachmentsArray do begin
             AttachmentObject := CurrentAttachment.AsObject();
@@ -103,19 +105,19 @@ codeunit 6999 "Outlook Add-In Services"
             TempExchangeObject.Validate(InitiatedAction, Action);
             TempExchangeObject.Validate(RecId, RecRef.RecordId());
 
-            AttachmentObject.Get('id', Jtoken);
+            GetRequiredJsonToken(AttachmentObject, 'id', Jtoken);
             TempExchangeObject.Validate("Item ID", Jtoken.AsValue().AsText());
 
-            AttachmentObject.Get('name', Jtoken);
+            GetRequiredJsonToken(AttachmentObject, 'name', Jtoken);
             TempExchangeObject.Validate(Name, Jtoken.AsValue().AsText());
 
-            AttachmentObject.Get('contentType', Jtoken);
+            GetRequiredJsonToken(AttachmentObject, 'contentType', Jtoken);
             TempExchangeObject.Validate("Content Type", Jtoken.AsValue().AsText());
 
-            AttachmentObject.Get('isInline', Jtoken);
+            GetRequiredJsonToken(AttachmentObject, 'isInline', Jtoken);
             TempExchangeObject.Validate(IsInline, Jtoken.AsValue().AsBoolean());
 
-            AttachmentObject.Get('contentBytes', Jtoken);
+            GetRequiredJsonToken(AttachmentObject, 'contentBytes', Jtoken);
             AttachmentContextText := Jtoken.AsValue().AsText();
             Clear(TempBlob);
             TempBlob.CreateOutStream(ContentOutStream);
@@ -140,9 +142,9 @@ codeunit 6999 "Outlook Add-In Services"
         JToken: JsonToken;
     begin
         ResponseJson := GetMessage(ExternalMessageId, AccessToken);
-        ResponseJson.Get('body', JToken);
+        GetRequiredJsonToken(ResponseJson, 'body', JToken);
         BodyJson := JToken.AsObject();
-        BodyJson.Get('content', JToken);
+        GetRequiredJsonToken(BodyJson, 'content', JToken);
         exit(JToken.AsValue().AsText());
     end;
 
@@ -158,7 +160,7 @@ codeunit 6999 "Outlook Add-In Services"
         JToken: JsonToken;
     begin
         ResponseJson := GetMessage(ExternalMessageId, AccessToken);
-        ResponseJson.Get('hasAttachments', JToken);
+        GetRequiredJsonToken(ResponseJson, 'hasAttachments', JToken);
         exit(JToken.AsValue().AsBoolean());
     end;
 
@@ -205,8 +207,10 @@ codeunit 6999 "Outlook Add-In Services"
         MailHttpRequestMessage.GetHeaders(MailRequestHeaders);
         MailRequestHeaders.Add('Prefer', 'outlook.body-content-type="text"');
         SendRequest(MailHttpRequestMessage, MailHttpResponseMessage);
-        if MailHttpResponseMessage.HttpStatusCode <> 200 then
+        if MailHttpResponseMessage.HttpStatusCode <> 200 then begin
             Session.LogMessage('0000QGX', FailedToRetrieveEmailBodyErr, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OutlookCategoryLbl);
+            Error(FailedToRetrieveEmailBodyErr);
+        end;
         if not MailHttpResponseMessage.Content.ReadAs(ResponseJsonText) then
             Error(FailedToReadResponseContentErr);
         if not ResponseJson.ReadFrom(ResponseJsonText) then
@@ -237,12 +241,22 @@ codeunit 6999 "Outlook Add-In Services"
         MailHttpRequestMessage.GetHeaders(MailRequestHeaders);
         MailRequestHeaders.Add('Prefer', 'outlook.body-content-type="text"');
         SendRequest(MailHttpRequestMessage, MailHttpResponseMessage);
-        if MailHttpResponseMessage.HttpStatusCode <> 200 then
+        if MailHttpResponseMessage.HttpStatusCode <> 200 then begin
             Session.LogMessage('0000QGZ', FailedToRetrieveEmailAttachmentsErr, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OutlookCategoryLbl);
+            Error(FailedToRetrieveEmailAttachmentsErr);
+        end;
         if not MailHttpResponseMessage.Content.ReadAs(ResponseJsonText) then
             Error(FailedToReadResponseContentErr);
         if not ResponseJson.ReadFrom(ResponseJsonText) then
             Error(FailedToReadResponseContentErr);
         exit(ResponseJson);
+    end;
+
+    local procedure GetRequiredJsonToken(JsonObj: JsonObject; PropertyName: Text; var JToken: JsonToken)
+    begin
+        if not JsonObj.Get(PropertyName, JToken) then begin
+            Session.LogMessage('0000TCS', StrSubstNo(TelemetryUnexpectedResponseFormatTxt, PropertyName), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OutlookCategoryLbl);
+            Error(UnexpectedResponseFormatErr);
+        end;
     end;
 }

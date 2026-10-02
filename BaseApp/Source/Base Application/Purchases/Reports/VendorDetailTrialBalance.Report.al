@@ -11,11 +11,11 @@ using System.Utilities;
 
 report 304 "Vendor - Detail Trial Balance"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Purchases/Reports/VendorDetailTrialBalance.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor - Detail Trial Balance';
+    ToolTip = 'View the balance for vendors with balances on a specified date, for example, at the close of an accounting period or for an audit.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -371,6 +371,16 @@ report 304 "Vendor - Detail Trial Balance"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Purchases/Reports/VendorDetailTrialBalance.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

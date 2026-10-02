@@ -24,6 +24,7 @@ report 1316 "Standard Statement"
 {
     Caption = 'Customer Statement';
     DefaultRenderingLayout = "StandardStatement.docx";
+    WordMergeDataItem = Customer;
 
     dataset
     {
@@ -242,7 +243,7 @@ report 1316 "Standard Statement"
                         }
                         dataitem(DtldCustLedgEntries; "Detailed Cust. Ledg. Entry")
                         {
-                            DataItemTableView = sorting("Customer No.", "Posting Date", "Entry Type", "Currency Code");
+                            DataItemTableView = sorting("Customer No.", "Posting Date", "Entry Type", "Currency Code") where("Excluded from calculation" = const(false));
                             column(PostDate_DtldCustLedgEntries; Format("Posting Date"))
                             {
                             }
@@ -585,7 +586,7 @@ report 1316 "Standard Statement"
                             if ("Posting Date" > EndDate) and ("Due Date" >= EndDate) then
                                 CurrReport.Skip();
                             if DateChoice = DateChoice::"Due Date" then
-                                if "Due Date" > EndDate then
+                                if "Due Date" >= EndDate then
                                     CurrReport.Skip();
                             CustLedgEntry := AgingCustLedgEntry;
                             CustLedgEntry.SetRange("Date Filter", 0D, EndDate);
@@ -877,7 +878,7 @@ report 1316 "Standard Statement"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Include Aging Band';
-                            ToolTip = 'Specifies if you want an aging band to be included in the document. If you select the check box, then you must also fill the Aging Band Period Length and Aging Band by fields.';
+                            ToolTip = 'Specifies if you want an aging band to be included in the document. If you place a check mark here, you must also fill in the Aging Band Period Length and Aging Band by fields.';
                         }
                         field(AgingBandPeriodLengt; PeriodLength)
                         {

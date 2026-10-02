@@ -59,6 +59,7 @@
         NamespaceCFD4Txt: Label 'http://www.sat.gob.mx/cfd/4';
         SchemaLocationCFD4Txt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd';
         CertificateNotExistErr: Label 'The Isolated Certificate does not exist. Identification fields and values: Code=''%1''', Comment = '%1 - Isolated Certificate code';
+        DateAssertionLbl: Label '%1. Expected: %2, Actual: %3 (difference: %4 days, tolerance: +/-1 day for timezone shifts)', Comment = '%1 = Error message, %2 = Expected date, %3 = Actual date, %4 = Days difference', Locked = true;
         CancelOption: Option ,CancelRequest,GetResponse,MarkAsCanceled,ResetCancelRequest;
 
     [Test]
@@ -7384,7 +7385,7 @@
 
     [Test]
     [HandlerFunctions('StrMenuHandler')]
-    procedure PaymentStampDatesNearStampDateWhenPostingIsToday()
+    procedure PaymentStampDatesMatchWhenPostingDateIsToday()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -9108,9 +9109,8 @@
 
     local procedure AssertDateWithinOneDayTolerance(ExpectedDate: Date; ActualDateText: Text; ErrorMessage: Text)
     var
-        ActualDate: Date;
         DaysDiff: Integer;
-        DateAssertionLbl: Label '%1. Expected: %2, Actual: %3 (difference: %4 days, tolerance: +/-1 day for timezone shifts)', Comment = '%1 = Error message, %2 = Expected date, %3 = Actual date, %4 = Days difference', Locked = true;
+        ActualDate: Date;
     begin
         ActualDate := ParseISODate(CopyStr(ActualDateText, 1, 10));
         DaysDiff := ActualDate - ExpectedDate;

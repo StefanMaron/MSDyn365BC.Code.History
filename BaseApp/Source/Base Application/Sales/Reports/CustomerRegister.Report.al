@@ -18,12 +18,12 @@ using System.Reflection;
 /// </summary>
 report 10046 "Customer Register"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Sales/Reports/CustomerRegister.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Customer Register';
+    ToolTip = 'View posted customer ledger entries divided into, and sorted according to, registers. By using a filter, you can select exactly the entries in the registers that you need to see. If you have created many entries and you do not set a filter, the report will print a large amount of information.';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -222,6 +222,16 @@ report 10046 "Customer Register"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Sales/Reports/CustomerRegister.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

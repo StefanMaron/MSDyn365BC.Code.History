@@ -20,6 +20,7 @@ page 20404 "Qlty. Inspection Template List"
     Editable = false;
     PageType = List;
     SourceTable = "Qlty. Inspection Template Hdr.";
+    AccessByPermission = tabledata "Qlty. Inspection Template Hdr." = R;
     UsageCategory = Lists;
     ApplicationArea = QualityManagement;
     AdditionalSearchTerms = 'Standard operating procedures';
@@ -94,6 +95,8 @@ page 20404 "Qlty. Inspection Template List"
                 Image = Copy;
                 Caption = 'Copy Template';
                 ToolTip = 'Copy an existing template.';
+                AboutTitle = 'Copy inspection templates';
+                AboutText = 'Copy an existing template and adjust it to your needs. This helps you define what to inspect and how, while keeping inspections consistent across documents.';
                 Promoted = true;
                 PromotedCategory = Process;
                 Scope = Repeater;
