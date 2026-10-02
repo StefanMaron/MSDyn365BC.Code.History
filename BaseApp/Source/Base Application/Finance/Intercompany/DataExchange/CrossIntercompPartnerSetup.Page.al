@@ -8,6 +8,10 @@ using Microsoft.Intercompany.Partner;
 using Microsoft.Intercompany.Setup;
 using System.Environment;
 
+/// <summary>
+/// Wizard page for setting up cross-environment intercompany partner connections.
+/// Guides users through API configuration, authentication setup, and partner validation for multi-environment scenarios.
+/// </summary>
 page 561 "CrossIntercomp. Partner Setup"
 {
     Caption = 'IC Partner Cross-Environment Setup';
@@ -116,6 +120,8 @@ page 561 "CrossIntercomp. Partner Setup"
 
                         trigger OnValidate()
                         begin
+                            if (PartnerSaaSConnectionUrl <> '') and not ValidateDynamicsUrl(PartnerSaaSConnectionUrl) then
+                                Error(UntrustedConnectionUrlErr);
                             NextEnabled := CheckIfSaaSConnectionDetailsAreFilled();
                         end;
                     }
@@ -200,6 +206,8 @@ page 561 "CrossIntercomp. Partner Setup"
                         ExtendedDatatype = URL;
                         Caption = 'Redirect URL';
                         ToolTip = 'Specifies the OAuth 2.0 redirect URL of the Microsoft Entra authentication application. In most scenarios this will be: https://businesscentral.dynamics.com/OAuthLanding.htm .';
+                        // The connector always uses the environment's default redirect URL, so this field is hidden to avoid promising configurable behavior.
+                        Visible = false;
                         trigger OnValidate()
                         begin
                             NextEnabled := CheckIfSaaSConnectionDetailsAreFilled();
@@ -343,6 +351,7 @@ page 561 "CrossIntercomp. Partner Setup"
         NotSetUpQst: Label 'The setup for the connection to the intercompany partner''s environment isn''t complete. If you leave this guide, your settings will be deleted.\\Are you sure you want to exit?';
         LearnMoreTok: Label 'Privacy and Cookies';
         PrivacyLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=521839';
+        UntrustedConnectionUrlErr: Label 'The connection URL must be a trusted Business Central API URL.';
 
 
     local procedure LoadSaaSDataForCurrentCompany()
@@ -462,14 +471,29 @@ page 561 "CrossIntercomp. Partner Setup"
         FinishEnabled := true;
     end;
 
+    /// <summary>
+    /// Validates whether all required SaaS connection details are properly configured for API connectivity.
+    /// Checks partner connection URL, company ID, OAuth credentials, and token endpoint configuration.
+    /// </summary>
+    /// <returns>True if all SaaS connection details are filled and valid, false otherwise</returns>
     procedure CheckIfSaaSConnectionDetailsAreFilled(): Boolean
     var
         PartnerConnectionDetailsAreFilled: Boolean;
         OAuth2ClientIDDetailsAreFilled: Boolean;
     begin
-        PartnerConnectionDetailsAreFilled := (PartnerSaaSConnectionUrl <> '') and (not IsNullGuid(PartnerSaaSCompanyId)) and (Rec.Code <> '') and (PartnerSaaSCompanyName <> '');
+        PartnerConnectionDetailsAreFilled := (PartnerSaaSConnectionUrl <> '') and (not IsNullGuid(PartnerSaaSCompanyId)) and (Rec.Code <> '') and (PartnerSaaSCompanyName <> '') and ValidateDynamicsUrl(PartnerSaaSConnectionUrl);
         OAuth2ClientIDDetailsAreFilled := (not IsNullGuid(OAuth2ClientID)) and (OAuth2ClientSecret <> '') and (OAuth2TokenEndpoint <> '');
         exit(PartnerConnectionDetailsAreFilled and OAuth2ClientIDDetailsAreFilled);
+    end;
+
+    internal procedure ValidateDynamicsUrl(Url: Text): Boolean
+    var
+        CrossIntercompanyConnector: Codeunit "CrossIntercompany Connector";
+    begin
+        if Url = '' then
+            exit(true);
+
+        exit(CrossIntercompanyConnector.IsDestinationUrlTrusted(Url));
     end;
     #endregion
 }
