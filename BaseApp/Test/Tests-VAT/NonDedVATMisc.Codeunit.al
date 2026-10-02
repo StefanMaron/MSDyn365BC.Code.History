@@ -1538,10 +1538,21 @@ codeunit 134284 "Non Ded. VAT Misc."
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATCalculationType);
         DeductiblePercent := GetDeductibleVATPctFromVATPostingSetup(VATPostingSetup);
+        VATPostingSetup.Validate("VAT Identifier", CreateVATIdentifier());
         LibraryERM.CreateGLAccount(GLAccount);
         AssignNonDeductibleVATAccount(VATPostingSetup, GLAccount."No.");
         AssignDeductibleVATPct(VATPostingSetup, LibraryRandom.RandInt(99));
         VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateVATIdentifier(): Code[20]
+    var
+        VATIdentifier: Record "VAT Identifier";
+    begin
+        VATIdentifier.Init();
+        VATIdentifier.Validate(Code, LibraryUtility.GenerateRandomCode(VATIdentifier.FieldNo(Code), Database::"VAT Identifier"));
+        VATIdentifier.Insert(true);
+        exit(VATIdentifier.Code);
     end;
 
     local procedure CreateNonDeductibleVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; NonDeductibleGLAccount: Code[20]; DeductiblePct: Decimal)
@@ -1629,6 +1640,7 @@ codeunit 134284 "Non Ded. VAT Misc."
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATCalcType);
         DeductiblePercent := GetDeductibleVATPctFromVATPostingSetup(VATPostingSetup);
         NonDeductGLAccountNo := VATPostingSetup."Non-Ded. Purchase VAT Account";
+        VATPostingSetup.Validate("VAT Identifier", CreateVATIdentifier());
         AssignNonDeductibleVATAccount(VATPostingSetup, '');
         AssignDeductibleVATPct(VATPostingSetup, 0);
         VATPostingSetup.Modify(true);
