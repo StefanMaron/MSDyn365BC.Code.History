@@ -223,24 +223,10 @@ page 99000761 "Machine Center List"
                 Caption = 'Calculate Machine Center Calendar';
                 Image = CalcWorkCenterCalendar;
                 RunObject = Report "Calc. Machine Center Calendar";
-                ToolTip = 'Create new calendar entries for the machine center to define the available daily capacity.';
             }
         }
         area(reporting)
         {
-#if not CLEAN26
-            action("Machine Center List")
-            {
-                ApplicationArea = Manufacturing;
-                Caption = 'Machine Center List';
-                Image = "Report";
-                RunObject = Report "Machine Center List";
-                ToolTip = 'View the list of machine centers.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This report has been replaced by the page Machine Center List and will be removed in a future release.';
-                ObsoleteTag = '26.0';
-            }
-#endif
 #if not CLEAN27
             action("Machine Center Load")
             {
@@ -273,7 +259,6 @@ page 99000761 "Machine Center List"
                 Caption = 'Work/Machine Center Load';
                 Image = "Report";
                 RunObject = Report "Work/Machine Center Load";
-                ToolTip = 'Get an overview of availability at the work center and machine center, such as the capacity, the allocated quantity, availability after order, and the load in percent.';
             }
         }
         area(Promoted)
@@ -301,14 +286,6 @@ page 99000761 "Machine Center List"
             group(Category_Report)
             {
                 Caption = 'Reports';
-#if not CLEAN26
-                actionref("Machine Center List_Promoted"; "Machine Center List")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This report has been replaced by the page Machine Center List and will be removed in a future release.';
-                    ObsoleteTag = '26.0';
-                }
-#endif
 #if not CLEAN27
                 actionref("Machine Center Load_Promoted"; "Machine Center Load")
                 {

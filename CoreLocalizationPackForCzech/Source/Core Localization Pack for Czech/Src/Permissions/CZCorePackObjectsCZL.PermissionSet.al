@@ -37,7 +37,7 @@ permissionset 11732 "CZ Core Pack - Objects CZL"
                   codeunit "EET Text Sign. Provider CZL" = X,
                   codeunit "EET Xml Sign. Provider CZL" = X,
                   codeunit "Employee Handler CZL" = X,
-                  codeunit "EPO API Submission CZL" = X,
+                  codeunit "EPO API Mgt. CZL" = X,
                   codeunit "Exch. Rate Adjmt. Mgt. CZL" = X,
                   codeunit "FA Jnl. Check Line Handler CZL" = X,
                   codeunit "FA Recl. Jnl. Line Handler CZL" = X,
@@ -137,11 +137,6 @@ permissionset 11732 "CZ Core Pack - Objects CZL"
                   codeunit "VAT Statement DPHDP3 CZL" = X,
                   codeunit "VAT Statement DPHDP3v3 CZL" = X,
                   codeunit "VAT Statement Line Handler CZL" = X,
-#if not CLEAN26
-#pragma warning disable AL0432
-                  codeunit "VAT Stmt. Template Handler CZL" = X,
-#pragma warning restore AL0432
-#endif
                   codeunit "VAT Stmt XML Export Helper CZL" = X,
                   codeunit "VAT Stmt XML Export Runner CZL" = X,
                   codeunit "Vendor Bank Acc. Handler CZL" = X,
@@ -151,6 +146,8 @@ permissionset 11732 "CZ Core Pack - Objects CZL"
                   codeunit "Whse. Worksht.Line Handler CZL" = X,
                   codeunit "Workflow Response Handling CZL" = X,
                   codeunit "Purch. Inv. Header - Edit CZL" = X,
+                  codeunit "VAT LCY Correction Mgt. CZL" = X,
+                  codeunit "VAT Statement Calc. Events CZL" = X,
                   page "Accountant CZ Role Center CZL" = X,
                   page "Acc. Sched.page.Drill-Down CZL" = X,
                   page "Acc. Sched. Res. Hdr. List CZL" = X,
@@ -178,6 +175,7 @@ permissionset 11732 "CZ Core Pack - Objects CZL"
                   page "EET Entry Status Log Prev. CZL" = X,
                   page "EET Service Setup CZL" = X,
                   page "EET Simple Registration CZL" = X,
+                  page "EPO Service Setup CZL" = X,
                   page "Excel Templates CZL" = X,
                   page "File Mapping CZL" = X,
                   page "Get Document No. and Date CZL" = X,
@@ -329,6 +327,7 @@ permissionset 11732 "CZ Core Pack - Objects CZL"
                   table "EET Entry Status Log CZL" = X,
                   table "EET Service Setup CZL" = X,
                   table "Enhanced Currency Buffer CZL" = X,
+                  table "EPO Service Setup CZL" = X,
                   table "Excel Template CZL" = X,
                   table "G/L Account Adjust. Buffer CZL" = X,
                   table "Invt. Movement Template CZL" = X,
@@ -348,6 +347,7 @@ permissionset 11732 "CZ Core Pack - Objects CZL"
                   table "VAT Ctrl. Report Line CZL" = X,
                   table "VAT Ctrl. Report Section CZL" = X,
                   table "VAT LCY Correction Buffer CZL" = X,
+                  table "VAT LCY Corr. Document CZL" = X,
 #if not CLEAN28
 #pragma warning disable AL0432
                   table "VAT Period CZL" = X,

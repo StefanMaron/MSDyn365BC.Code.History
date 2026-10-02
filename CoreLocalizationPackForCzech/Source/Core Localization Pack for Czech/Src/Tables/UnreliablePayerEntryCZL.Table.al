@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -67,6 +67,7 @@ table 11753 "Unreliable Payer Entry CZL"
         field(60; "Full Bank Account No."; Code[50])
         {
             Caption = 'Full Bank Account No.';
+            MaskType = Concealed;
             DataClassification = CustomerContent;
         }
         field(61; "Bank Account No. Type"; Option)

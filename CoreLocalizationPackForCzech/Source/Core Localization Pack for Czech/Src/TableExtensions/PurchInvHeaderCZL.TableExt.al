@@ -218,6 +218,13 @@ tableextension 11730 "Purch. Inv. Header CZL" extends "Purch. Inv. Header"
         exit((Rec."Currency Code" <> '') and ((Rec."Amount Including VAT" - Rec."Amount") <> 0));
     end;
 
+    procedure GetTransactionNoCZL(): Integer
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        exit(VendorLedgerEntry.GetTransactionNoCZL("Vendor Ledger Entry No."));
+    end;
+
     procedure UpdateBankInfoCZL(BankAccountCode: Code[20]; BankAccountNo: Text[30]; BankBranchNo: Text[20]; BankName: Text[100]; TransitNo: Text[20]; IBANCode: Code[50]; SWIFTCode: Code[20])
     begin
         "Bank Account Code CZL" := BankAccountCode;

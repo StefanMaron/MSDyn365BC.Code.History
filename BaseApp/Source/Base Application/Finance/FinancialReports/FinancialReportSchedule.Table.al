@@ -54,7 +54,7 @@ table 8360 "Financial Report Schedule"
         field(7; "Send Email"; Boolean)
         {
             Caption = 'Send Email';
-            ToolTip = 'Specifies if the exported Excel or PDF file will be sent to users via email. You can specify who will receive the email in Financial Report Recipients.';
+            ToolTip = 'Specifies if the exported Excel or PDF file will be sent to the recipients via email. You can specify who will receive the email in Financial Report Recipients.';
 
             trigger OnValidate()
             begin
@@ -263,6 +263,7 @@ table 8360 "Financial Report Schedule"
         end;
         AccountSchedule.SetFinancialReportName("Financial Report Name");
         AccountSchedule.SetDateFilterDisabled(true);
+        AccountSchedule.SetRunForExport();
         NewReportParameters := AccountSchedule.RunRequestPage(ReportParameters);
         if (NewReportParameters <> '') and (ReportParameters <> NewReportParameters) then begin
             AccountSchedule.GetFilters(AccScheduleLine);

@@ -42,7 +42,12 @@ tableextension 31078 "Gen. Journal Line CZF" extends "Gen. Journal Line"
            ("Posting Group" = '') or
            ("Reason Code" = '')
         then begin
-            RecallFAExtPostGroupNotification();
+            if (xRec."Account Type" = "Account Type"::"Fixed Asset") and
+               (xRec."FA Posting Type" = "FA Posting Type"::Disposal) and
+               (xRec."Posting Group" <> '') and
+               (xRec."Reason Code" <> '')
+            then
+                RecallFAExtPostGroupNotification();
             exit;
         end;
 

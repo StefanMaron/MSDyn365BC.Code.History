@@ -657,6 +657,7 @@ table 31257 "Payment Order Line CZB"
         field(40; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            MaskType = Concealed;
             DataClassification = CustomerContent;
 
             trigger OnValidate()

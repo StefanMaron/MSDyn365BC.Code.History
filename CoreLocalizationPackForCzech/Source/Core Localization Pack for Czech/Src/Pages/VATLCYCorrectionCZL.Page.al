@@ -4,13 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Calculation;
 
-using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
-using Microsoft.Purchases.History;
-using Microsoft.Purchases.Payables;
-using Microsoft.Sales.History;
-using Microsoft.Sales.Receivables;
 
 page 31025 "VAT LCY Correction CZL"
 {
@@ -274,7 +269,10 @@ page 31025 "VAT LCY Correction CZL"
     trigger OnOpenPage()
     begin
         SourceCodeSetup.Get();
-        GetDocumentVATEntries();
+        if VATLCYCorrectionMgtCZL.GetVATLCYCorrectionBuffer(SourceDocument, Rec) then begin
+            DocumentNo := Rec."Document No.";
+            PostingDate := Rec."Posting Date";
+        end;
         CalcTotals();
     end;
 
@@ -291,116 +289,21 @@ page 31025 "VAT LCY Correction CZL"
 
     var
         SourceCodeSetup: Record "Source Code Setup";
+        VATLCYCorrectionMgtCZL: Codeunit "VAT LCY Correction Mgt. CZL";
+        SourceDocument: Variant;
         DocumentNo: Code[20];
         PostingDate: Date;
-        DimensionSetID: Integer;
-        TransactionNo: Integer;
         CorrectedVATAmountEditable: Boolean;
         TotalVATBase: Decimal;
         TotalVATAmount: Decimal;
         TotalCorrectedVATAmount: Decimal;
         TotalVATCorrectionAmount: Decimal;
         NameStyleExpr: Text;
-        NotAllowedCorrectErr: Label 'VAT correction in LCY is not allowed on the %1 %2', Comment = '%1 = tablecaption, %2 = document no.';
 
     procedure InitGlobals(Variant: Variant)
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        PurchInvHeader: Record "Purch. Inv. Header";
-        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-        DocRecordRef: RecordRef;
-        IsHandled: Boolean;
     begin
-        SetDocumentGlobals('', 0D, 0, 0);
-        DocRecordRef.GetTable(Variant);
-        case DocRecordRef.Number of
-            Database::"Purch. Inv. Header":
-                begin
-                    DocRecordRef.SetTable(PurchInvHeader);
-                    if not PurchInvHeader.IsVATLCYCorrectionAllowedCZL() then
-                        Error(NotAllowedCorrectErr, PurchInvHeader.TableCaption(), PurchInvHeader."No.");
-                    SetDocumentGlobals(PurchInvHeader."No.",
-                        PurchInvHeader."Posting Date",
-                        VendorLedgerEntry.GetTransactionNoCZL(PurchInvHeader."Vendor Ledger Entry No."),
-                        PurchInvHeader."Dimension Set ID");
-                end;
-            Database::"Purch. Cr. Memo Hdr.":
-                begin
-                    DocRecordRef.SetTable(PurchCrMemoHdr);
-                    if not PurchCrMemoHdr.IsVATLCYCorrectionAllowedCZL() then
-                        Error(NotAllowedCorrectErr, PurchCrMemoHdr.TableCaption(), PurchCrMemoHdr."No.");
-                    SetDocumentGlobals(PurchCrMemoHdr."No.",
-                        PurchCrMemoHdr."Posting Date",
-                        VendorLedgerEntry.GetTransactionNoCZL(PurchCrMemoHdr."Vendor Ledger Entry No."),
-                        PurchCrMemoHdr."Dimension Set ID");
-                end;
-            Database::"Sales Invoice Header":
-                begin
-                    DocRecordRef.SetTable(SalesInvoiceHeader);
-                    if not SalesInvoiceHeader.IsVATLCYCorrectionAllowedCZL() then
-                        Error(NotAllowedCorrectErr, SalesInvoiceHeader.TableCaption(), SalesInvoiceHeader."No.");
-                    SetDocumentGlobals(SalesInvoiceHeader."No.",
-                        SalesInvoiceHeader."Posting Date",
-                        CustLedgerEntry.GetTransactionNoCZL(SalesInvoiceHeader."Cust. Ledger Entry No."),
-                        SalesInvoiceHeader."Dimension Set ID");
-                end;
-            Database::"Sales Cr.Memo Header":
-                begin
-                    DocRecordRef.SetTable(SalesCrMemoHeader);
-                    if not SalesCrMemoHeader.IsVATLCYCorrectionAllowedCZL() then
-                        Error(NotAllowedCorrectErr, SalesCrMemoHeader.TableCaption(), SalesCrMemoHeader."No.");
-                    SetDocumentGlobals(SalesCrMemoHeader."No.",
-                        SalesCrMemoHeader."Posting Date",
-                        CustLedgerEntry.GetTransactionNoCZL(SalesCrMemoHeader."Cust. Ledger Entry No."),
-                        SalesCrMemoHeader."Dimension Set ID");
-                end;
-            else begin
-                IsHandled := false;
-                OnInitGlobals(DocRecordRef, DocumentNo, PostingDate, TransactionNo, IsHandled);
-            end;
-        end;
-    end;
-
-    local procedure SetDocumentGlobals(NewDocumentNo: Code[20]; NewPostingDate: Date; NewTransactionNo: Integer; NewDimensionSetID: Integer)
-    begin
-        DocumentNo := NewDocumentNo;
-        PostingDate := NewPostingDate;
-        TransactionNo := NewTransactionNo;
-        DimensionSetID := NewDimensionSetID;
-    end;
-
-    local procedure GetDocumentVATEntries()
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        if TransactionNo = 0 then
-            Error('');
-        VATEntry.Reset();
-        VATEntry.SetCurrentKey("Transaction No.");
-        VATEntry.SetRange("Transaction No.", TransactionNo);
-        if VATEntry.FindSet() then
-            repeat
-                Rec.InsertFromVATEntry(VATEntry);
-                Rec."Dimension Set ID" := DimensionSetID;
-                Rec.Modify();
-            until VATEntry.Next() = 0;
-
-        VATEntry.Reset();
-        VATEntry.SetCurrentKey("Document No.", "Posting Date");
-        VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.SetRange("Posting Date", PostingDate);
-        VATEntry.SetRange("Source Code", SourceCodeSetup."VAT LCY Correction CZL");
-        if VATEntry.FindSet() then
-            repeat
-                Rec.InsertFromVATEntry(VATEntry);
-                Rec."Dimension Set ID" := DimensionSetID;
-                Rec.Modify();
-            until VATEntry.Next() = 0;
-
-        OnAfterGetDocumentVATEntries(Rec, DocumentNo, PostingDate, TransactionNo, DimensionSetID);
+        SourceDocument := Variant;
+        VATLCYCorrectionMgtCZL.CheckSourceDocument(SourceDocument);
     end;
 
     local procedure CheckMaxVATDifferenceAllowed()
@@ -434,14 +337,31 @@ page 31025 "VAT LCY Correction CZL"
     begin
         VATLCYCorrPostYesNoCZL.Preview(Rec);
     end;
+#if not CLEAN29
+    internal procedure RaiseOnInitGlobals(DocRecordRef: RecordRef; var NewDocumentNo: Code[20]; var NewPostingDate: Date; var NewTransactionNo: Integer; var IsHandled: Boolean)
+    begin
+#pragma warning disable AL0432
+        OnInitGlobals(DocRecordRef, NewDocumentNo, NewPostingDate, NewTransactionNo, IsHandled);
+#pragma warning restore AL0432
+    end;
 
+    internal procedure RaiseOnAfterGetDocumentVATEntries(var VATLCYCorrectionBufferCZL: Record "VAT LCY Correction Buffer CZL" temporary; DocumentNo: Code[20]; PostingDate: Date; TransactionNo: Integer; DimensionSetID: Integer)
+    begin
+#pragma warning disable AL0432
+        OnAfterGetDocumentVATEntries(VATLCYCorrectionBufferCZL, DocumentNo, PostingDate, TransactionNo, DimensionSetID);
+#pragma warning restore AL0432
+    end;
+
+    [Obsolete('This event will be removed in future versions. Please use OnCheckSourceDocumentElse and OnAfterGetVATLCYCorrectionBuffer events from codeunit 11769 "VAT LCY Correction Mgt. CZL" instead.', '29.0')]
     [IntegrationEvent(false, false)]
     local procedure OnInitGlobals(DocRecordRef: RecordRef; var NewDocumentNo: Code[20]; var NewPostingDate: Date; var NewTransactionNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    [Obsolete('This event will be removed in future versions. Please use OnCheckSourceDocumentElse and OnAfterGetVATLCYCorrectionBuffer events from codeunit 11769 "VAT LCY Correction Mgt. CZL" instead.', '29.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetDocumentVATEntries(var VATLCYCorrectionBufferCZL: Record "VAT LCY Correction Buffer CZL" temporary; DocumentNo: Code[20]; PostingDate: Date; TransactionNo: Integer; DimensionSetID: Integer)
     begin
     end;
+#endif
 }

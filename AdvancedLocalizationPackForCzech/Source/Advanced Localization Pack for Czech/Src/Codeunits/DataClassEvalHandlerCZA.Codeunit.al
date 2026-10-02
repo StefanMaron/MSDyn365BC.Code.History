@@ -3,14 +3,8 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
-#if not CLEAN26
-using Microsoft.Assembly.Document;
-#endif
 #if not CLEAN27
 using Microsoft.Assembly.History;
-#endif
-#if not CLEAN26
-using Microsoft.Assembly.Setup;
 #endif
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Ledger;
@@ -36,15 +30,12 @@ codeunit 31252 "Data Class. Eval. Handler CZA"
     procedure ApplyEvaluationClassificationsForPrivacy()
     var
         Company: Record Company;
-#if not CLEAN26
-        AssemblyHeader: Record "Assembly Header";
-        AssemblyLine: Record "Assembly Line";
-        AssemblySetup: Record "Assembly Setup";
-#endif
         CopyItemBuffer: Record "Copy Item Buffer";
         CapacityLedgerEntry: Record "Capacity Ledger Entry";
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
+#if not CLEAN29
         DefaultDimension: Record "Default Dimension";
+#endif
         DirectTransHeader: Record "Direct Trans. Header";
         DirectTransLine: Record "Direct Trans. Line";
         GLEntry: Record "G/L Entry";
@@ -71,22 +62,20 @@ codeunit 31252 "Data Class. Eval. Handler CZA"
         Company.Get(CompanyName());
         if not Company."Evaluation Company" then
             exit;
+        DataClassificationMgt.SetTableFieldsToNormal(Database::"Auto. Create Default Dim. CZA");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Detailed G/L Entry CZA");
-#if not CLEAN26
-#pragma warning disable AL0432
-        DataClassificationMgt.SetFieldToNormal(Database::"Assembly Header", AssemblyHeader.FieldNo("Gen. Bus. Posting Group CZA"));
-        DataClassificationMgt.SetFieldToNormal(Database::"Assembly Line", AssemblyLine.FieldNo("Gen. Bus. Posting Group CZA"));
-        DataClassificationMgt.SetFieldToNormal(Database::"Assembly Setup", AssemblySetup.FieldNo("Default Gen.Bus.Post. Grp. CZA"));
-#pragma warning restore AL0432
-#endif
         DataClassificationMgt.SetFieldToNormal(Database::"Capacity Ledger Entry", CapacityLedgerEntry.FieldNo("User ID CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Copy Item Buffer", CopyItemBuffer.FieldNo("Auto Create Dimension CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Data Exch. Field Mapping", DataExchFieldMapping.FieldNo("Date Formula CZA"));
+#if not CLEAN29
+#pragma warning disable AL0432
         DataClassificationMgt.SetFieldToNormal(Database::"Default Dimension", DefaultDimension.FieldNo("Automatic Create CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Default Dimension", DefaultDimension.FieldNo("Dim. Description Field ID CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Default Dimension", DefaultDimension.FieldNo("Dim. Description Format CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Default Dimension", DefaultDimension.FieldNo("Dim. Description Update CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Default Dimension", DefaultDimension.FieldNo("Auto. Create Value Posting CZA"));
+#pragma warning restore AL0432
+#endif
         DataClassificationMgt.SetFieldToNormal(Database::"Direct Trans. Header", DirectTransHeader.FieldNo("Gen. Bus. Posting Group CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Direct Trans. Line", DirectTransLine.FieldNo("Gen. Bus. Posting Group CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"G/L Entry", GLEntry.FieldNo("Closed at Date CZA"));
@@ -108,11 +97,6 @@ codeunit 31252 "Data Class. Eval. Handler CZA"
         DataClassificationMgt.SetFieldToNormal(Database::"Item Ledger Entry", ItemLedgerEntry.FieldNo("Reason Code CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Item Ledger Entry", ItemLedgerEntry.FieldNo("Currency Code CZA"));
         DataClassificationMgt.SetFieldToNormal(Database::"Item Ledger Entry", ItemLedgerEntry.FieldNo("Currency Factor CZA"));
-#if not CLEAN26
-#pragma warning disable AL0432
-        DataClassificationMgt.SetFieldToNormal(Database::"Manufacturing Setup", ManufacturingSetup.FieldNo("Default Gen.Bus.Post. Grp. CZA"));
-#pragma warning restore AL0432
-#endif
         DataClassificationMgt.SetFieldToNormal(Database::"Manufacturing Setup", ManufacturingSetup.FieldNo("Exact Cost Rev.Mand. Cons. CZA"));
 #if not CLEAN27
 #pragma warning disable AL0432

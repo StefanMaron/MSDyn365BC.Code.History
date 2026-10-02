@@ -207,6 +207,17 @@ table 11727 "VAT LCY Correction Buffer CZL"
         Insert(true);
     end;
 
+    internal procedure FindCorrectionEntries(): Boolean
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+
+        Reset();
+        SetRange("Source Code", SourceCodeSetup."VAT LCY Correction CZL");
+        exit(FindSet());
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertFromVATEntry(var VATLCYCorrectionBufferCZL: Record "VAT LCY Correction Buffer CZL"; VATEntry: Record "VAT Entry")
     begin

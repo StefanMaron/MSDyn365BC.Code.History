@@ -38,37 +38,37 @@ report 31017 "Purchase - Advance VAT Doc.CZZ"
             column(CompanyAddr1; CompanyAddr[1])
             {
                 ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by CompanyAddress1 column in Purch. Adv. Letter Header Header dataitem to ensure address translation matches document language.';
+                ObsoleteReason = 'Replaced by CompanyAddress1 column in Purch. Adv. Letter Header dataitem to ensure address translation matches document language.';
                 ObsoleteTag = '29.0';
             }
             column(CompanyAddr2; CompanyAddr[2])
             {
                 ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by CompanyAddress2 column in Purch. Adv. Letter Header Header dataitem to ensure address translation matches document language.';
+                ObsoleteReason = 'Replaced by CompanyAddress2 column in Purch. Adv. Letter Header dataitem to ensure address translation matches document language.';
                 ObsoleteTag = '29.0';
             }
             column(CompanyAddr3; CompanyAddr[3])
             {
                 ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by CompanyAddress3 column in Purch. Adv. Letter Header Header dataitem to ensure address translation matches document language.';
+                ObsoleteReason = 'Replaced by CompanyAddress3 column in Purch. Adv. Letter Header dataitem to ensure address translation matches document language.';
                 ObsoleteTag = '29.0';
             }
             column(CompanyAddr4; CompanyAddr[4])
             {
                 ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by CompanyAddress4 column in Purch. Adv. Letter Header Header dataitem to ensure address translation matches document language.';
+                ObsoleteReason = 'Replaced by CompanyAddress4 column in Purch. Adv. Letter Header dataitem to ensure address translation matches document language.';
                 ObsoleteTag = '29.0';
             }
             column(CompanyAddr5; CompanyAddr[5])
             {
                 ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by CompanyAddress5 column in Purch. Adv. Letter Header Header dataitem to ensure address translation matches document language.';
+                ObsoleteReason = 'Replaced by CompanyAddress5 column in Purch. Adv. Letter Header dataitem to ensure address translation matches document language.';
                 ObsoleteTag = '29.0';
             }
             column(CompanyAddr6; CompanyAddr[6])
             {
                 ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by CompanyAddress6 column in Purch. Adv. Letter Header Header dataitem to ensure address translation matches document language.';
+                ObsoleteReason = 'Replaced by CompanyAddress6 column in Purch. Adv. Letter Header dataitem to ensure address translation matches document language.';
                 ObsoleteTag = '29.0';
             }
 #endif

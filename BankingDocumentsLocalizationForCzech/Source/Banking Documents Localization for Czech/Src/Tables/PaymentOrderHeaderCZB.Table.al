@@ -285,6 +285,7 @@ table 31256 "Payment Order Header CZB"
         field(90; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            MaskType = Concealed;
             DataClassification = CustomerContent;
 
             trigger OnValidate()

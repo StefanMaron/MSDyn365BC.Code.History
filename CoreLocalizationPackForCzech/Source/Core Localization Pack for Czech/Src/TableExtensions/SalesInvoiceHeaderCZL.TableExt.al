@@ -10,6 +10,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Company;
+using Microsoft.Sales.Receivables;
 
 tableextension 11726 "Sales Invoice Header CZL" extends "Sales Invoice Header"
 {
@@ -207,6 +208,13 @@ tableextension 11726 "Sales Invoice Header CZL" extends "Sales Invoice Header"
     begin
         Rec.CalcFields("Amount Including VAT", "Amount");
         exit((Rec."Currency Code" <> '') and ((Rec."Amount Including VAT" - Rec."Amount") <> 0));
+    end;
+
+    procedure GetTransactionNoCZL(): Integer
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        exit(CustLedgerEntry.GetTransactionNoCZL("Cust. Ledger Entry No."));
     end;
 
     procedure UpdateBankInfoCZL(BankAccountCode: Code[20]; BankAccountNo: Text[30]; BankBranchNo: Text[20]; BankName: Text[100]; TransitNo: Text[20]; IBANCode: Code[50]; SWIFTCode: Code[20])

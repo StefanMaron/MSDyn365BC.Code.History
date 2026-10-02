@@ -14,13 +14,13 @@ using Microsoft.Utilities;
 
 report 109 "Customer - Summary Aging Simp."
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Sales/Reports/CustomerSummaryAgingSimp.rdlc';
     AdditionalSearchTerms = 'customer balance simplify,payment due simplify';
     ApplicationArea = Suite;
     Caption = 'Customer - Summary Aging Simp.';
+    ToolTip = 'View, print, or save a summary of each customer''s total payments due, divided into three time periods. The report can be used to decide when to issue reminders, to evaluate a customer''s creditworthiness, or to prepare liquidity analyses.';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -207,6 +207,16 @@ report 109 "Customer - Summary Aging Simp."
             if StartDate = 0D then
                 StartDate := WorkDate();
         end;
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Sales/Reports/CustomerSummaryAgingSimp.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
     }
 
     labels

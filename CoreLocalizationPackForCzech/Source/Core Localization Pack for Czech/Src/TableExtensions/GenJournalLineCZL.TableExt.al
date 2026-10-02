@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -140,6 +140,7 @@ tableextension 11723 "Gen. Journal Line CZL" extends "Gen. Journal Line"
         field(11721; "Bank Account No. CZL"; Text[30])
         {
             Caption = 'Bank Account No.';
+            MaskType = Concealed;
             Editable = false;
             DataClassification = CustomerContent;
         }
@@ -152,6 +153,7 @@ tableextension 11723 "Gen. Journal Line CZL" extends "Gen. Journal Line"
         field(11725; "IBAN CZL"; Code[50])
         {
             Caption = 'IBAN';
+            MaskType = Concealed;
             Editable = false;
             DataClassification = CustomerContent;
         }

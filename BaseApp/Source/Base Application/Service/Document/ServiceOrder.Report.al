@@ -21,6 +21,7 @@ report 5900 "Service Order"
     DefaultLayout = RDLC;
     RDLCLayout = './Service/Document/ServiceOrder.rdlc';
     Caption = 'Service Order';
+    ToolTip = 'Create a new service order to perform service on a customer''s item.';
     WordMergeDataItem = "Service Header";
 
     dataset
@@ -664,7 +665,6 @@ report 5900 "Service Order"
         DimSetEntry2: Record "Dimension Set Entry";
         LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
-        FormatDocument: Codeunit "Format Document";
         NoOfCopies: Integer;
         NoOfLoops: Integer;
         OutputNo: Integer;
@@ -715,6 +715,7 @@ report 5900 "Service Order"
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
+        FormatDocument: Codeunit "Format Document";
 
     local procedure IsReportInPreviewMode(): Boolean
     var

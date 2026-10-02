@@ -5,6 +5,60 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 189484938 - Method 666764121 - NamedType 418085013" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Go ahead and discard?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Comments Attachment Test - Method ConfirmHandlerFalse - NamedType GoAheadLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 189484938 - Method 2967854681 - NamedType 588331644" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Discard email]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Comments Attachment Test - Method KeepDraftOrDiscardStrMenuHandler - NamedType DiscardLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 189484938 - Method 2475737378 - NamedType 3739086090" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Current setup comment 1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Comments Attachment Test - Method StandardTaskCommentsTransferToRoutingLineOnValidation - NamedType CurrentSetupComment1Lbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 189484938 - Method 2475737378 - NamedType 385159463" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Current setup comment 2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Comments Attachment Test - Method StandardTaskCommentsTransferToRoutingLineOnValidation - NamedType CurrentSetupComment2Lbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 189484938 - Method 2475737378 - NamedType 2626029224" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Current setup detail 1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Comments Attachment Test - Method StandardTaskCommentsTransferToRoutingLineOnValidation - NamedType CurrentSetupDetail1Lbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 189484938 - Method 2475737378 - NamedType 542635849" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Current setup detail 2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Comments Attachment Test - Method StandardTaskCommentsTransferToRoutingLineOnValidation - NamedType CurrentSetupDetail2Lbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3431657116 - NamedType 2009612427" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Serial number %1 from the first receipt must have its own value entry.]]></Val>
@@ -50,6 +104,24 @@
       <Cmt Name="Dev"><![CDATA[%1 = Purchase Order No., %2 = Routing Reference No.]D;]A;(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting Test - NamedType PurchOrderRoutingErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1455081095 - NamedType 4248998739" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Action %1 does not exist on page %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = action name, %2 = page number]D;]A;(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType ActionNotExistMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1455081095 - NamedType 2051214373" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Action %1 does not run page %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = action name, %2 = target page number]D;]A;(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType ActionTargetUnexpectedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1455081095 - NamedType 2966984276" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Control %1 does not exist.]]></Val>
@@ -57,6 +129,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = field caption]D;]A;(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType ControlNotExistMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1455081095 - NamedType 3734997858" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The %1 control on page %2 should be initially hidden.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = field caption, %2 = page number]D;]A;(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType ControlShouldBeHiddenErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1455081095 - NamedType 2879024368" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -95,6 +176,51 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType ILEPurchActionsNotEnabledErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1455081095 - NamedType 3910712954" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Vendor %1 has no subcontracting location. This location is used to track components and work-in-process (WIP) items at the subcontractor. Choose a Subcontracting Location Code on the vendor before using this work center for subcontracting.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Vendor No.]D;]A;(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType MissingSubcontractingLocationMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1455081095 - NamedType 1334344967" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The subcontractor location notification ID is unexpected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType NotificationIdErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1455081095 - NamedType 529376445" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The subcontractor location notification message is unexpected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType NotificationMessageErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1455081095 - NamedType 1198382778" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The subcontractor location notification interactions occurred in an unexpected order.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType NotificationOrderErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1455081095 - NamedType 2214829808" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The vendor in the subcontractor location notification is unexpected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType NotificationVendorErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1455081095 - NamedType 449400345" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Transfer WIP Item should not be enabled for a Machine Center routing line.]]></Val>
@@ -111,6 +237,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType RoutingLineTransferWIPNotEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1455081095 - NamedType 984350027" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Subcontracting setup is not complete. Are you sure you want to exit?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType SetupNotCompletedQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1455081095 - NamedType 1260317749" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -149,6 +284,33 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType SubcontractingActionsVisibleErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1455081095 - NamedType 2528913565" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unsupported control %1 exists on page %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = control name, %2 = page number]D;]A;(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType UnsupportedControlExistsMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1455081095 - NamedType 793005682" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unsupported field %1 exists on table %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = field name, %2 = table number]D;]A;(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType UnsupportedFieldExistsMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1455081095 - NamedType 359576768" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Vendor Card opened for an unexpected vendor.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. Subcontracting UI Test - NamedType VendorCardNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2096062747 - NamedType 4016254163" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[SN%1]]></Val>
@@ -156,6 +318,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = number]D;]A;(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. TransOrd. Reserv. Test - NamedType SerialNoTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1806187075 - NamedType 1061170154" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Transfer WIP Item should not be enabled for a Machine Center prod. order routing line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=Codeunit Subc. WIP Trans. Create Test - NamedType ProdOrderRoutingTransferWIPEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";PageExtension 1579564117 - Action 3507500799 - Property 1295455071" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Deletes the current attachment for automated testing.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 219593816)(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=PageExtension Subc. Doc Attach Test Ext. - Action DeleteAttachmentForTest - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";PageExtension 1579564117 - Action 3507500799 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Delete attachment for test]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 219593816)(Namespace=Microsoft.Manufacturing.Subcontracting.Test)(LookupHint=PageExtension Subc. Doc Attach Test Ext. - Action DeleteAttachmentForTest - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

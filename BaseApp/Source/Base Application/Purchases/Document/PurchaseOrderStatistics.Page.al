@@ -550,13 +550,7 @@ page 403 "Purchase Order Statistics"
 
     trigger OnOpenPage()
     begin
-#if not CLEAN26
-        if not Rec.SkipStatisticsPreparation() then
-            Rec.PrepareOpeningDocumentStatistics();
-        Rec.ResetSkipStatisticsPreparationFlag();
-#else
         Rec.PrepareOpeningDocumentStatistics();
-#endif
         PurchSetup.Get();
         AllowInvDisc :=
           not (PurchSetup."Calc. Inv. Discount" and VendInvDiscRecExists(Rec."Invoice Disc. Code"));
@@ -942,7 +936,7 @@ page 403 "Purchase Order Statistics"
         exit(Round(Numerator / Denominator * 10000, 1));
     end;
 
-    local procedure VATLinesDrillDown(var VATLinesToDrillDown: Record "VAT Amount Line"; ThisTabAllowsVATEditing: Boolean)
+    procedure VATLinesDrillDown(var VATLinesToDrillDown: Record "VAT Amount Line"; ThisTabAllowsVATEditing: Boolean)
     begin
         Clear(VATLinesForm);
         VATLinesForm.SetTempVATAmountLine(VATLinesToDrillDown);

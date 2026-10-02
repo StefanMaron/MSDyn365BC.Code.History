@@ -554,6 +554,7 @@ table 31008 "Purch. Adv. Letter Header CZZ"
         field(56; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            MaskType = Concealed;
             DataClassification = CustomerContent;
             Editable = false;
         }
@@ -589,6 +590,7 @@ table 31008 "Purch. Adv. Letter Header CZZ"
         field(61; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            MaskType = Concealed;
             DataClassification = CustomerContent;
 
             trigger OnValidate()

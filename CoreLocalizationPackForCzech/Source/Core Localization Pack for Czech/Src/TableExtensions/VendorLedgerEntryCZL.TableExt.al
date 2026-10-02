@@ -112,6 +112,7 @@ tableextension 11721 "Vendor Ledger Entry CZL" extends "Vendor Ledger Entry"
 
     procedure GetTransactionNoCZL(EntryNo: Integer): Integer
     begin
+        Rec.SetLoadFields("Transaction No.");
         Rec.Get(EntryNo);
         exit(Rec."Transaction No.");
     end;

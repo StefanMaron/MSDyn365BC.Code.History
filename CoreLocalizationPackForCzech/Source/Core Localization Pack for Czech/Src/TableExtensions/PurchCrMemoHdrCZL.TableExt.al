@@ -8,6 +8,7 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Setup;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Purchases.Payables;
 
 tableextension 11731 "Purch. Cr. Memo Hdr. CZL" extends "Purch. Cr. Memo Hdr."
 {
@@ -192,5 +193,12 @@ tableextension 11731 "Purch. Cr. Memo Hdr. CZL" extends "Purch. Cr. Memo Hdr."
     begin
         Rec.CalcFields("Amount Including VAT", "Amount");
         exit((Rec."Currency Code" <> '') and ((Rec."Amount Including VAT" - Rec."Amount") <> 0));
+    end;
+
+    procedure GetTransactionNoCZL(): Integer
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        exit(VendorLedgerEntry.GetTransactionNoCZL("Vendor Ledger Entry No."));
     end;
 }

@@ -112,6 +112,7 @@ tableextension 11720 "Cust. Ledger Entry CZL" extends "Cust. Ledger Entry"
 
     procedure GetTransactionNoCZL(EntryNo: Integer): Integer
     begin
+        Rec.SetLoadFields("Transaction No.");
         Rec.Get(EntryNo);
         exit(Rec."Transaction No.");
     end;

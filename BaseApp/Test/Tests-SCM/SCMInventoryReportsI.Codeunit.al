@@ -1587,7 +1587,7 @@ codeunit 137301 "SCM Inventory Reports - I"
     begin
         LibraryManufacturing.CreateItemManufacturing(
           Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(100, 2), Item."Reordering Policy",
-          Item."Flushing Method", '', '');
+          Item."Flushing Method"::"Pick + Manual", '', '');
     end;
 
     local procedure CreateStockKeepingUnit(ItemNo: Code[20]; SKUCreationMethod: Enum "SKU Creation Method")

@@ -125,10 +125,12 @@ codeunit 5215 "Create Sustainability Account"
         SustainabilityAccountMgt.IndentChartOfSustainabilityAccounts(true);
     end;
 
+#if not CLEAN29
+    [Obsolete('Unused function.', '29.0')]
     procedure UtilitiesExpensePowerPlant(): Code[20]
     begin
     end;
-    
+#endif
     procedure GasEmissions(): Code[20]
     begin
         exit('10000');

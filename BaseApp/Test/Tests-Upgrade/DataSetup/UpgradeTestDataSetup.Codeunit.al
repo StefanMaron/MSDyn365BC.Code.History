@@ -34,7 +34,7 @@ codeunit 132802 "Upgrade Test Data Setup"
     begin
         TableMapping.Add(9999, Database::"UPG - Upgrade Tag")
     end;
-
+    
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Test Data Setup Mgt.", 'OnSetupDataPerCompany', '', false, false)]
     local procedure SetupLegacyWhseActivityLineForJobSource()
     var

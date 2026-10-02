@@ -12,19 +12,19 @@ using Microsoft.Finance.VAT.Setup;
 
 codeunit 31011 "VAT Entry Handler CZZ"
 {
-    [EventSubscriber(ObjectType::Table, Database::"VAT Entry", 'OnAfterCopyFromGenJnlLine', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"VAT Entry", OnAfterCopyFromGenJnlLine, '', false, false)]
     local procedure VATEntryOnAfterCopyFromGenJnlLine(var VATEntry: Record "VAT Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
         VATEntry."Advance Letter No. CZZ" := GenJournalLine."Adv. Letter No. (Entry) CZZ";
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"VAT Entry", 'OnAfterGetIsAdvanceEntryCZL', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"VAT Entry", OnAfterGetIsAdvanceEntryCZL, '', false, false)]
     local procedure IsAdvanceOnAfterGetIsAdvanceEntryCZL(VATEntry: Record "VAT Entry"; var AdvanceEntry: Boolean)
     begin
         AdvanceEntry := AdvanceEntry or (VATEntry."Advance Letter No. CZZ" <> '');
     end;
 
-    [EventSubscriber(ObjectType::Report, Report::"Calc. and Post VAT Settl. CZL", 'OnBeforeGetVATAccountNo', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Calc. and Post VAT Settl. CZL", OnBeforeGetVATAccountNo, '', false, false)]
     local procedure GetVATAccountNo(VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; var VATAccountNo: Code[20]; var IsHandled: Boolean)
     begin
         if VATEntry."Advance Letter No. CZZ" = '' then
@@ -45,28 +45,28 @@ codeunit 31011 "VAT Entry Handler CZZ"
         IsHandled := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"VAT Amount Line", 'OnInsertLineOnBeforeModify', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"VAT Amount Line", OnInsertLineOnBeforeModify, '', false, false)]
     local procedure UpdateLCYAmountsOnInsertLineOnBeforeModify(var VATAmountLine: Record "VAT Amount Line"; FromVATAmountLine: Record "VAT Amount Line")
     begin
         VATAmountLine."VAT Base (LCY) CZL" += FromVATAmountLine."VAT Base (LCY) CZL";
         VATAmountLine."VAT Amount (LCY) CZL" += FromVATAmountLine."VAT Amount (LCY) CZL";
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"VAT LCY Correction CZL", OnAfterGetDocumentVATEntries, '', false, false)]
-    local procedure FindVATEntriesOfPurchAdvLettersOnAfterGetDocumentVATEntries(var VATLCYCorrectionBufferCZL: Record "VAT LCY Correction Buffer CZL" temporary; DocumentNo: Code[20]; PostingDate: Date; DimensionSetID: Integer)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"VAT LCY Correction Mgt. CZL", OnAfterGetVATLCYCorrectionBuffer, '', false, false)]
+    local procedure FindVATEntriesOfPurchAdvLettersOnAfterGetVATLCYCorrectionBuffer(TempVATLCYCorrDocumentCZL: Record "VAT LCY Corr. Document CZL"; var VATLCYCorrectionBufferCZL: Record "VAT LCY Correction Buffer CZL" temporary)
     var
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.Reset();
         VATEntry.SetCurrentKey("Document No.", "Posting Date");
-        VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.SetRange("Posting Date", PostingDate);
+        VATEntry.SetRange("Document No.", TempVATLCYCorrDocumentCZL."Document No.");
+        VATEntry.SetRange("Posting Date", TempVATLCYCorrDocumentCZL."Posting Date");
         VATEntry.SetFilter("Advance Letter No. CZZ", '<>%1', '');
         if VATEntry.FindSet() then
             repeat
                 if not VATLCYCorrectionBufferCZL.Get(VATEntry."Entry No.") then begin
                     VATLCYCorrectionBufferCZL.InsertFromVATEntry(VATEntry);
-                    VATLCYCorrectionBufferCZL."Dimension Set ID" := DimensionSetID;
+                    VATLCYCorrectionBufferCZL."Dimension Set ID" := TempVATLCYCorrDocumentCZL."Dimension Set ID";
                     VATLCYCorrectionBufferCZL.Modify();
                 end;
             until VATEntry.Next() = 0;

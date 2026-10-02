@@ -7,7 +7,7 @@
   </OwnedComments>
   <Item ItemId=";Codeunit 361072392 - NamedType 1249951949" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Something@Url.com]]></Val>
+      <Val><![CDATA[test-smtp-server-host]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

@@ -369,24 +369,6 @@ page 9305 "Sales Order List"
                         Rec.ShowDocDim();
                     end;
                 }
-#if not CLEAN26
-                action(Statistics)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Statistics';
-                    Image = Statistics;
-                    ShortCutKey = 'F7';
-                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
-                    ObsoleteReason = 'The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '26.0';
-
-                    trigger OnAction()
-                    begin
-                        Rec.OpenSalesOrderStatistics();
-                    end;
-                }
-#endif
                 action(SalesOrderStatistics)
                 {
                     ApplicationArea = Basic, Suite;
@@ -394,11 +376,7 @@ page 9305 "Sales Order List"
                     Enabled = Rec."No." <> '';
                     Image = Statistics;
                     ShortCutKey = 'F7';
-#if CLEAN26
                     Visible = true;
-#else
-                    Visible = false;
-#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Sales Order Statistics";
                     RunPageOnRec = true;
@@ -753,7 +731,6 @@ page 9305 "Sales Order List"
                     Caption = 'Delete Invoiced Sales Orders';
                     Image = Delete;
                     RunObject = Report "Delete Invoiced Sales Orders";
-                    ToolTip = 'Delete orders that were not automatically deleted after completion. For example, when several sales orders were completed by a single invoice.';
                 }
             }
             group("Request Approval")
@@ -1121,18 +1098,9 @@ page 9305 "Sales Order List"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
-#if not CLEAN26
-                actionref(Statistics_Promoted; Statistics)
-                {
-                    ObsoleteReason = 'The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '26.0';
-                }
-#else
                 actionref(SalesOrderStatistics_Promoted; SalesOrderStatistics)
                 {
                 }
-#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -1201,6 +1169,16 @@ page 9305 "Sales Order List"
         {
             Caption = 'Released';
             Filters = where("Document Type" = const(Order), Status = const(Released));
+        }
+    }
+
+    analysisviews
+    {
+        analysisview("Expected sales volume")
+        {
+            Caption = 'Expected sales volume';
+            DefinitionFile = './Sales/Document/Expected sales volume.analysis.json';
+            ToolTip = 'Analyse your expected sales volume.';
         }
     }
 

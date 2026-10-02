@@ -9,6 +9,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
+using Microsoft.Sales.Receivables;
 
 tableextension 11727 "Sales Cr.Memo Header CZL" extends "Sales Cr.Memo Header"
 {
@@ -194,4 +195,12 @@ tableextension 11727 "Sales Cr.Memo Header CZL" extends "Sales Cr.Memo Header"
         Rec.CalcFields("Amount Including VAT", "Amount");
         exit((Rec."Currency Code" <> '') and ((Rec."Amount Including VAT" - Rec."Amount") <> 0));
     end;
+
+    procedure GetTransactionNoCZL(): Integer
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        exit(CustLedgerEntry.GetTransactionNoCZL("Cust. Ledger Entry No."));
+    end;
+
 }
