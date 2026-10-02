@@ -14,6 +14,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit APAC ERM Prepayments - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3279414893 - NamedType 3059316166" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Additional-Currency Amount is expected to be calculated from the Amount of the same VAT entry.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AU Feature Bugs - NamedType ACYAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3279414893 - NamedType 2961909301" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Additional-Currency Base is expected to be calculated from the Base of the same VAT entry.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AU Feature Bugs - NamedType ACYBaseErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3279414893 - NamedType 979907681" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount must be zero.]]></Val>
@@ -23,6 +41,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AU Feature Bugs - NamedType AmountMustBeZeroMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3279414893 - NamedType 2918748951" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The two VAT entries are expected to have different Base amounts.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AU Feature Bugs - NamedType DifferentBaseErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3279414893 - NamedType 2190644657" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected VAT entry with Base %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = VAT Entry Base]D;]A;(LookupHint=Codeunit AU Feature Bugs - NamedType UnexpectedVATEntryErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3279414893 - NamedType 600702795" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Two VAT entries (main line and discount line) are expected for the posted invoice.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit AU Feature Bugs - NamedType VATEntryCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3279414893 - NamedType 2422404830" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[WHT amount should match with %1]]></Val>
@@ -30,6 +75,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Expected Amount]D;]A;(LookupHint=Codeunit AU Feature Bugs - NamedType WHTAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3279414893 - Method 451762752 - NamedType 785730154" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The two VAT entries are expected to have the different Additional-Currency Base: %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Additional Currency Base]D;]A;(LookupHint=Codeunit AU Feature Bugs - Method VerifyACYCalculatedPerVATEntry - NamedType DifferentACYBaseErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2378213771 - NamedType 1817428561" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
