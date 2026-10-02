@@ -10,10 +10,10 @@ using System.Utilities;
 
 report 5705 "Transfer Receipt"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Transfer/TransferReceipt.rdlc';
     Caption = 'Transfer Receipt';
+    ToolTip = 'View the list of posted inbound transfers to the location.';
     WordMergeDataItem = "Transfer Receipt Header";
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -301,6 +301,16 @@ report 5705 "Transfer Receipt"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Inventory/Transfer/TransferReceipt.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

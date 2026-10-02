@@ -19,12 +19,12 @@ using System.Utilities;
 
 report 7054 "Res. Price List"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Pricing/Reports/ResPriceList.rdlc';
     ApplicationArea = Jobs;
     Caption = 'Resource Price List';
+    ToolTip = 'Specifies a list of unit prices for the selected resources. By default, a unit price is based on the price in the Resource Prices window. If there is no valid alternative price, then the unit price from the resource card is used. The report can be used by the company''s salespeople or sent to customers.';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -345,6 +345,16 @@ report 7054 "Res. Price List"
         begin
             ValidateMethod();
         end;
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Pricing/Reports/ResPriceList.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
     }
 
     labels

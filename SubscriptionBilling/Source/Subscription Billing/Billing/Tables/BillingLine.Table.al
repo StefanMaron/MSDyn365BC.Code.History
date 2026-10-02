@@ -292,7 +292,8 @@ table 8061 "Billing Line"
     var
         ServiceCommitment: Record "Subscription Line";
     begin
-        GetServiceCommitment(ServiceCommitment);
+        if not GetServiceCommitment(ServiceCommitment) then
+            exit;
 
         OnBeforeUpdateNextBillingDateInResetSubscriptionLineNextBillingDate(ServiceCommitment);
         if ("Document Type" = "Document Type"::"Credit Memo") and ("Correction Document Type" <> "Rec. Billing Document Type"::None) then
@@ -469,6 +470,11 @@ table 8061 "Billing Line"
         Rec.SetRange("Subscription Contract Line No.", ContractLineNo);
     end;
 
+    internal procedure FilterBillingLineOnServiceCommitment(ServiceCommitmentEntryNo: Integer)
+    begin
+        Rec.SetRange("Subscription Line Entry No.", ServiceCommitmentEntryNo);
+    end;
+
     local procedure RecalculateCustomerContractHarmonizedBillingFields()
     var
         CustomerContract: Record "Customer Subscription Contract";
@@ -514,9 +520,9 @@ table 8061 "Billing Line"
     begin
     end;
 
-    internal procedure GetServiceCommitment(var ServiceCommitment: Record "Subscription Line")
+    internal procedure GetServiceCommitment(var ServiceCommitment: Record "Subscription Line"): Boolean
     begin
-        ServiceCommitment.Get("Subscription Line Entry No.");
+        exit(ServiceCommitment.Get("Subscription Line Entry No."));
     end;
 
     local procedure UpdateNextBillingDateFromUsageDataMetadata(var ServiceCommitment: Record "Subscription Line")

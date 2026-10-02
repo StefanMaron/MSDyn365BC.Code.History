@@ -71,7 +71,6 @@ page 9013 "Machine Operator Role Center"
                 Caption = '&Capacity Task List';
                 Image = "Report";
                 RunObject = Report "Capacity Task List";
-                ToolTip = 'View the production orders that are waiting to be processed at the work centers and machine centers. Printouts are made for the capacity of the work center or machine center). The report includes information such as starting and ending time, date per production order and input quantity.';
             }
             action("Prod. Order - &Job Card")
             {
@@ -79,7 +78,6 @@ page 9013 "Machine Operator Role Center"
                 Caption = 'Prod. Order - &Job Card';
                 Image = "Report";
                 RunObject = Report "Prod. Order - Job Card";
-                ToolTip = 'View a list of the work in progress of a production order. Output, Scrapped Quantity and Production Lead Time are shown or printed depending on the operation.';
             }
         }
         area(embedding)
@@ -264,7 +262,6 @@ page 9013 "Machine Operator Role Center"
                 Caption = 'Register Absence - &Machine Center';
                 Image = CalendarMachine;
                 RunObject = Report "Reg. Abs. (from Machine Ctr.)";
-                ToolTip = 'Register planned absences at a machine center. The planned absence can be registered for both human and machine resources. You can register changes in the available resources in the Registered Absence table. When the batch job has been completed, you can see the result in the Registered Absences window.';
             }
             action("Register Absence - &Work Center")
             {
@@ -272,7 +269,6 @@ page 9013 "Machine Operator Role Center"
                 Caption = 'Register Absence - &Work Center';
                 Image = CalendarWorkcenter;
                 RunObject = Report "Reg. Abs. (from Work Center)";
-                ToolTip = 'Register planned absences at a machine center. The planned absence can be registered for both human and machine resources. You can register changes in the available resources in the Registered Absence table. When the batch job has been completed, you can see the result in the Registered Absences window.';
             }
         }
     }

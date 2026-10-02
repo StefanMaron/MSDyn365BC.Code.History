@@ -46,6 +46,7 @@ using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Setup;
 using Microsoft.Service.Setup;
 using Microsoft.Warehouse.Setup;
+using System.DataAdministration;
 using System.Email;
 using System.Environment.Configuration;
 using System.Security.AccessControl;
@@ -147,6 +148,10 @@ codeunit 1876 "Business Setup Subscribers"
         ResponsibilityCentersShortTitleTxt: Label 'Responsibility centers';
         ResponsibilityCentersDescriptionTxt: Label 'Set up additional company locations, such as sales offices or warehouses.';
         ResponsibilityCentersKeywordsTxt: Label 'Location, Distributed, Office';
+        RetentionPolicyTitleTxt: Label 'Set up retention policies';
+        RetentionPolicyShortTitleTxt: Label 'Retention policies';
+        RetentionPolicyDescriptionTxt: Label 'Set up retention policies for log tables to automatically delete expired records.';
+        RetentionPolicyKeywordsTxt: Label 'Retention, Delete, Cleanup, Log';
         OnlineMapSetupTitleTxt: Label 'Set up default online map';
         OnlineMapSetupShortTitleTxt: Label 'Online map setup';
         OnlineMapSetupDescriptionTxt: Label 'Specify the map to use when you choose the Online Map action on a customer or contact card, for example.';
@@ -452,6 +457,9 @@ codeunit 1876 "Business Setup Subscribers"
 
             Sender.InsertManualSetup(UsersTitleTxt, UsersShortTitleTxt, UsersDescriptionTxt, 10, ObjectType::Page,
               Page::Users, ManualSetupCategory::System, UsersKeywordsTxt);
+            
+            Sender.InsertManualSetup(RetentionPolicyTitleTxt, RetentionPolicyShortTitleTxt, RetentionPolicyDescriptionTxt, 5, ObjectType::Page,
+              Page::"Retention Policy Setup List", ManualSetupCategory::System, RetentionPolicyKeywordsTxt);
         end;
 
         // Jobs

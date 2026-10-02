@@ -24,9 +24,9 @@ codeunit 134284 "Non Ded. VAT Misc."
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IncorrectGLEntryAmtErr: Label 'Incorect amount in G/L Entry.';
         InCorrectProjLedgEntryAmtErr: Label 'Incorrect amount in Project Ledger Entry';
+        IsInitialized: Boolean;
         FALedgerEntryAmtErr: Label 'FA Ledger Entry amount should be equal to GL Entry amount';
         DeferralAccountNetsToZeroErr: Label 'Deferral account must net to zero with 100% non-deductible VAT';
-        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -1086,7 +1086,6 @@ codeunit 134284 "Non Ded. VAT Misc."
         InvoiceNo: Code[20];
         VATAmount: Decimal;
         VATCalculationType: Enum "Tax Calculation Type";
-
     begin
         // [SCENARIO 562366] Posting a Purchase Invoice with Non-deductible VAT amount incorrectly posts to the depreciation expense account instead of the fixed asset cost account in the British version.
         Initialize();

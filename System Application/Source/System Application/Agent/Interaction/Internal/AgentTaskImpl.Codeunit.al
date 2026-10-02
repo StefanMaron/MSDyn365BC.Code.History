@@ -5,6 +5,7 @@
 
 namespace System.Agents;
 
+using System.Agents.TaskPane;
 using System.Agents.Troubleshooting;
 using System.Environment;
 using System.Integration;
@@ -14,6 +15,14 @@ codeunit 4300 "Agent Task Impl."
     Access = Internal;
     InherentEntitlements = X;
     InherentPermissions = X;
+
+    procedure GetStepsDoneCount(AgentTaskID: BigInteger): Integer
+    var
+        AgentTask: Record "Agent Task";
+    begin
+        AgentTask.Get(AgentTaskID);
+        exit(GetStepsDoneCount(AgentTask));
+    end;
 
     procedure GetStepsDoneCount(var AgentTask: Record "Agent Task"): Integer
     var
@@ -35,12 +44,33 @@ codeunit 4300 "Agent Task Impl."
         exit(ContentText);
     end;
 
+    procedure ShowTaskLogEntries(AgentTaskID: BigInteger)
+    var
+        AgentTask: Record "Agent Task";
+    begin
+        AgentTask.Get(AgentTaskID);
+        ShowTaskLogEntries(AgentTask);
+    end;
+
     procedure ShowTaskLogEntries(var AgentTask: Record "Agent Task")
     var
         AgentTaskLogEntry: Record "Agent Task Log Entry";
     begin
         AgentTaskLogEntry.SetRange("Task ID", AgentTask.ID);
         Page.Run(Page::"Agent Task Log Entry List", AgentTaskLogEntry);
+    end;
+
+    procedure ShowTask(var AgentTask: Record "Agent Task")
+    var
+        TaskPane: Codeunit "Task Pane";
+    begin
+        // Route archived agents' tasks to the task log entries card, which keeps it reachable for auditing.
+        if AgentTask."Agent Substate" = AgentTask."Agent Substate"::Archived then begin
+            ShowTaskLogEntries(AgentTask);
+            exit;
+        end;
+
+        TaskPane.ShowTask(AgentTask);
     end;
 
     procedure CreateTask(AgentUserSecurityID: Guid; TaskTitle: Text[150]; ExternalID: Text[2048]; BillingContext: Enum "Agent Task Billing Context"; ModelId: Code[30]; var NewAgentTask: Record "Agent Task")
@@ -217,6 +247,22 @@ codeunit 4300 "Agent Task Impl."
         exit((AgentTask.Status = AgentTask.Status::"Stopped by User") or (AgentTask.Status = AgentTask.Status::"Stopped by System"));
     end;
 
+    procedure ArchiveTask(AgentTaskID: BigInteger; UserConfirm: Boolean)
+    var
+        AgentTask: Record "Agent Task";
+    begin
+        AgentTask.Get(AgentTaskID);
+        if AgentTask.Archived = true then
+            exit; // Task is already archived.
+
+        if UserConfirm then
+            if not Confirm(AreYouSureThatYouWantToArchiveTheTaskQst) then
+                exit;
+
+        AgentTask.Archived := true;
+        AgentTask.Modify(true);
+    end;
+
     internal procedure TryGetAgentRecordFromTaskId(TaskId: Integer; var Agent: Record Agent): Boolean
     var
         AgentTask: Record "Agent Task";
@@ -245,7 +291,6 @@ codeunit 4300 "Agent Task Impl."
         exit(AgentTaskRecord."Model Name");
     end;
 
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", GetAgentTaskMessagePageId, '', true, true)]
     local procedure OnGetAgentTaskMessagePageId(var PageId: Integer)
     begin
@@ -255,7 +300,7 @@ codeunit 4300 "Agent Task Impl."
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", GetPageSummary, '', true, true)]
     local procedure OnGetGetPageSummary(PageId: Integer; Bookmark: Text; var Summary: Text)
     var
-        PageSummaryParameters: Record "Page Summary Parameters";
+        TempPageSummaryParameters: Record "Page Summary Parameters";
         PageSummaryProvider: Codeunit "Page Summary Provider";
     begin
         if PageId = 0 then begin
@@ -263,16 +308,17 @@ codeunit 4300 "Agent Task Impl."
             exit;
         end;
 
-        PageSummaryParameters."Page ID" := PageId;
+        TempPageSummaryParameters."Page ID" := PageId;
 #pragma warning disable AA0139
-        PageSummaryParameters.Bookmark := Bookmark;
+        TempPageSummaryParameters.Bookmark := Bookmark;
 #pragma warning restore AA0139
-        PageSummaryParameters."Include Binary Data" := false;
-        Summary := PageSummaryProvider.GetPageSummary(PageSummaryParameters);
+        TempPageSummaryParameters."Include Binary Data" := false;
+        Summary := PageSummaryProvider.GetPageSummary(TempPageSummaryParameters);
     end;
 
     var
         MessageTextMustBeProvidedErr: Label 'You must provide a message text.';
         AreYouSureThatYouWantToRestartTheTaskQst: Label 'Are you sure that you want to restart the task?';
         AreYouSureThatYouWantToStopTheTaskQst: Label 'Are you sure that you want to stop the task?';
+        AreYouSureThatYouWantToArchiveTheTaskQst: Label 'Are you sure that you want to archive the task?';
 }
