@@ -4,10 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Reporting;
 
+using Microsoft.Foundation.Company;
 using System.Device;
 using System.Environment;
 using System.Environment.Configuration;
 using System.Reflection;
+using System.Text;
 using System.Utilities;
 
 codeunit 44 ReportManagement
@@ -237,33 +239,6 @@ codeunit 44 ReportManagement
         end;
     end;
 
-#if not CLEAN26
-    [Obsolete('Replaced by platform Word merge', '26.0')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'ApplicationReportMergeStrategy', '', false, false)]
-    local procedure ApplicationReportMergeStrategy(ObjectId: Integer; LayoutCode: Text; var InApplication: boolean)
-    var
-        IsHandled: Boolean;
-    begin
-        if InApplication = true then // Handled in another subscriber
-            exit;
-        IsHandled := false;
-        OnApplicationReportMergeStrategy(ObjectId, LayoutCode, InApplication, IsHandled);
-    end;
-#endif
-
-#if not CLEAN26
-    [Obsolete('Replaced by platform Word merge', '24.0')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'WordDocumentMergerAppMode', '', false, false)]
-    local procedure WordDocumentMergerAppMode(ObjectId: Integer; LayoutCode: Text; var InApplication: boolean)
-    var
-        IsHandled: Boolean;
-    begin
-        if InApplication = true then // Handled in another subscriber
-            exit;
-        IsHandled := false;
-        OnWordDocumentMergerAppMode(ObjectId, LayoutCode, InApplication, IsHandled);
-    end;
-#endif
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'SelectReportLayoutUI', '', false, false)]
     local procedure SelectReportLayoutUI(ObjectID: Integer; var LayoutName: Text; var LayoutAppID: Guid; var Success: Boolean)
     var
@@ -289,6 +264,70 @@ codeunit 44 ReportManagement
             exit;
 
         OnGetFilename(ReportID, Caption, ObjectPayload, FileExtension, ReportRecordRef, Filename, Success);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'GetCompanyMetadata', '', false, false)]
+    local procedure GetCompanyMetadataSubscriber(ReportId: Integer; var CompanyMetadata: JsonObject)
+    begin
+        this.GetCompanyMetadata(CompanyMetadata);
+    end;
+
+    /// <summary>
+    /// Populates the shared CompanyMetadata payload from Company Information for the report layouts'
+    /// company block. Empty-safe: with no Company Information record the fields are emitted blank
+    /// rather than erroring. Public so it can be invoked/verified directly; extension and
+    /// localization fields are added by subscribing to the platform GetCompanyMetadata event
+    /// directly (the payload is additive), so no BaseApp OnAfter event is exposed here.
+    /// </summary>
+    /// <param name="CompanyMetadata">The JSON object to merge the company payload into; existing keys with the same names are overwritten.</param>
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Company Information", 'r')]
+    procedure GetCompanyMetadata(var CompanyMetadata: JsonObject)
+    var
+        CompanyInfo: Record "Company Information";
+        CompanyMetadataBuilder: Codeunit "Company Metadata Builder";
+    begin
+        if not CompanyInfo.Get() then
+            CompanyInfo.Init();
+
+        // Display name and logo are not plain Company Information fields (a session display name and
+        // a Base64-encoded BLOB), so they are set here; the rest of the block is mapped by the builder.
+        CompanyMetadataBuilder.SetDisplayName(this.GetCompanyDisplayName());
+        CompanyMetadataBuilder.SetLogo(this.GetLogoBase64(CompanyInfo));
+        CompanyMetadataBuilder.PopulateFromCompanyInformation(CompanyInfo);
+
+        CompanyMetadataBuilder.WriteTo(CompanyMetadata);
+    end;
+
+    /// <summary>
+    /// Company display name, mirroring how the platform builds ReportRequest/CompanyDisplayName
+    /// (ReportRequestXmlRuntime): the tenant Company record's display name
+    /// (CompanyProperty.DisplayName() -> session.Company.CompanyDisplayName), falling back to the
+    /// company name when the display name is blank. NOT Company Information."Name 2".
+    /// </summary>
+    local procedure GetCompanyDisplayName(): Text
+    var
+        DisplayName: Text;
+    begin
+        DisplayName := CompanyProperty.DisplayName();
+        if DisplayName = '' then
+            DisplayName := CompanyName();
+        exit(DisplayName);
+    end;
+
+    local procedure GetLogoBase64(var CompanyInfo: Record "Company Information"): Text
+    var
+        Base64Convert: Codeunit "Base64 Convert";
+        InStr: InStream;
+    begin
+        // Use the Ok return: CalcFields on a BLOB re-reads the row and raises a runtime error when
+        // the record does not exist (the CompanyInfo.Init() path), which would break the empty-safe
+        // contract of GetCompanyMetadata.
+        if not CompanyInfo.CalcFields(Picture) then
+            exit('');
+        if not CompanyInfo.Picture.HasValue() then
+            exit('');
+        CompanyInfo.Picture.CreateInStream(InStr);
+        exit(Base64Convert.ToBase64(InStr));
     end;
 
     [IntegrationEvent(false, false)]
@@ -386,38 +425,6 @@ codeunit 44 ReportManagement
     local procedure OnFetchReportLayoutByCode(ObjectId: Integer; LayoutCode: Text; var TargetStream: OutStream; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN26
-    /// <summary>
-    /// Select between platform or application report rendering. 
-    /// If this trigger return InApplication = true, then run the report and layout in a custom report render using the OnCustomDocumentMergerEx event.
-    /// </summary>
-    /// <param name="ObjectId">The object id.</param>
-    /// <param name="LayoutCode">The report layout code if an application override has been set for the current run.</param>
-    /// <param name="InApplication">True if the applicaction should render the report.</param>
-    /// <param name="IsHandled">Will be set to true if the subscriber handled the action.</param>
-    [Obsolete('Replaced by customer render and layouts must be declared as custom types.', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnApplicationReportMergeStrategy(ObjectId: Integer; LayoutCode: Text; var InApplication: boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    /// <summary>
-    /// Select between platform or application report rendering for Word reports only. 
-    /// If this trigger return InApplication = true, then run the report and layout in the legacy OnMergeDocumentReport event.
-    /// </summary>
-    /// <param name="ObjectId">The object id.</param>
-    /// <param name="LayoutCode">The report layout code if an application override has been set for the current run.</param>
-    /// <param name="InApplication">True if the applicaction should render the report.</param>
-    /// <param name="IsHandled">Will be set to true if the subscriber handled the action.</param>
-    /// <remarks>This event is for backward compatibility only and will be depricated.</remarks>
-
-    [Obsolete('Replaced by platform Word merge with version 24', '26.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnWordDocumentMergerAppMode(ObjectId: Integer; LayoutCode: Text; var InApplication: boolean; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnGetFilename(ReportID: Integer; Caption: Text[250]; ObjectPayload: JsonObject; FileExtension: Text[30]; ReportRecordRef: RecordRef; var Filename: Text; var Success: Boolean)

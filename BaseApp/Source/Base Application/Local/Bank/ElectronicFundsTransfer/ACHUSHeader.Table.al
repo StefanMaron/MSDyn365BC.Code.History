@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -27,6 +27,7 @@ table 10300 "ACH US Header"
         field(3; "Bank Account Number"; Text[30])
         {
             Caption = 'Bank Account Number';
+            MaskType = Concealed;
             Description = 'Checkbook Electronic Funds Transfer Master EFT Bank Identification Number';
         }
         field(4; "File Creation Date"; Date)

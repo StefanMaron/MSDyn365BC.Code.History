@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -31,6 +31,7 @@ table 10301 "ACH US Detail"
         field(4; "Payee Bank Account Number"; Text[30])
         {
             Caption = 'Payee Bank Account Number';
+            MaskType = Concealed;
             Description = 'Address Electronic Funds Transfer Master EFT Bank Account';
         }
         field(5; "Payment Amount"; Decimal)

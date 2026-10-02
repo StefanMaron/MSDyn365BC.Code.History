@@ -12,6 +12,7 @@ using Microsoft.CostAccounting.Ledger;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.SpendRequest;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.FixedAssets.Insurance;
 using Microsoft.FixedAssets.Ledger;
@@ -271,7 +272,6 @@ page 344 Navigate
                 field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                     Visible = false;
                 }
                 field("Table ID"; Rec."Table ID")
@@ -284,7 +284,6 @@ page 344 Navigate
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Related Entries';
-                    ToolTip = 'Specifies the name of the table where the Navigate facility has found entries with the selected document number and/or posting date.';
 
                     trigger OnDrillDown()
                     begin
@@ -296,7 +295,6 @@ page 344 Navigate
                     ApplicationArea = Basic, Suite;
                     Caption = 'No. of Entries';
                     DrillDown = true;
-                    ToolTip = 'Specifies the number of documents that the Navigate facility has found in the table with the selected entries.';
 
                     trigger OnDrillDown()
                     begin
@@ -366,7 +364,7 @@ page 344 Navigate
                 action(Find)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Fi&nd';
+                    Caption = 'Find';
                     Image = Find;
                     ToolTip = 'Apply a filter to search on this page.';
 
@@ -578,6 +576,8 @@ page 344 Navigate
         [SecurityFiltering(SecurityFilter::Filtered)]
         PostedGenJournalLine: Record "Posted Gen. Journal Line";
         [SecurityFiltering(SecurityFilter::Filtered)]
+        SpendRequestToGLLink: Record "Spend Request to G/L Link";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         PostedInvtRcptHeader: Record "Invt. Receipt Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         PostedInvtShptHeader: Record "Invt. Shipment Header";
@@ -640,6 +640,7 @@ page 344 Navigate
         SalesReturnOrderTxt: Label 'Sales Return Order';
         SalesCreditMemoTxt: Label 'Sales Credit Memo';
         PostedGenJournalLineTxt: Label 'Posted Gen. Journal Line';
+        SpendRequestTxt: Label 'Spend Request';
 
     protected var
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -881,6 +882,7 @@ page 344 Navigate
         FindCapEntries();
         FindCostEntries();
         FindPostedGenJournalLine();
+        FindSpendRequests();
 
         OnAfterFindLedgerEntries(Rec, DocNoFilter, PostingDateFilter);
     end;
@@ -1699,6 +1701,8 @@ page 344 Navigate
                     PAGE.Run(0, PstdPhysInvtOrderHdr);
                 Database::"Posted Gen. Journal Line":
                     Page.Run(0, PostedGenJournalLine);
+                Database::"Spend Request to G/L Link":
+                    Page.Run(0, SpendRequestToGLLink);
                 Database::"Invt. Receipt Header":
                     if Rec."No. of Records" = 1 then
                         PAGE.Run(PAGE::"Posted Invt. Receipt", PostedInvtRcptHeader)
@@ -2228,6 +2232,20 @@ page 344 Navigate
             if ExtDocNo <> '' then
                 PostedGenJournalLine.SetFilter("External Document No.", ExtDocNo);
             Rec.InsertIntoDocEntry(Database::"Posted Gen. Journal Line", PostedGenJournalLineTxt, PostedGenJournalLine.Count);
+        end;
+    end;
+
+    local procedure FindSpendRequests()
+    begin
+        if SpendRequestToGLLink.ReadPermission() then begin
+            SpendRequestToGLLink.Reset();
+            if DocNoFilter <> '' then
+                SpendRequestToGLLink.SetFilter("Document No.", DocNoFilter);
+            if PostingDateFilter <> '' then
+                SpendRequestToGLLink.SetFilter("Posting Date", PostingDateFilter);
+            if ExtDocNo <> '' then
+                SpendRequestToGLLink.SetFilter("Spend Request No.", ExtDocNo);
+            Rec.InsertIntoDocEntry(Database::"Spend Request to G/L Link", SpendRequestTxt, SpendRequestToGLLink.Count);
         end;
     end;
 

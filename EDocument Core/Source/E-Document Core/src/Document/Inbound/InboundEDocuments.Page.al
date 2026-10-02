@@ -94,13 +94,18 @@ page 6105 "Inbound E-Documents"
 
                     trigger OnDrillDown()
                     var
-                        Task: Record "Agent Task";
+                        AgentTaskCU: Codeunit "Agent Task";
                         TaskPane: Codeunit "Task Pane";
                     begin
                         if AgentTask.ID = 0 then
                             exit;
-                        Task.Get(AgentTask.ID);
-                        TaskPane.ShowTask(Task);
+
+                        // An archived agent is not resolvable in the task pane, so its tasks are shown
+                        // as log entries instead, which keeps them reachable for auditing.
+                        if AgentTask."Agent Substate" = AgentTask."Agent Substate"::Archived then
+                            AgentTaskCU.OpenAgentTaskLogEntries(AgentTask.ID)
+                        else
+                            TaskPane.ShowTask(AgentTask.ID);
                     end;
                 }
 #if not CLEAN28
@@ -283,12 +288,12 @@ page 6105 "Inbound E-Documents"
 
                 trigger OnAction()
                 var
-                    EDocImportParameters: Record "E-Doc. Import Parameters";
+                    TempEDocImportParameters: Record "E-Doc. Import Parameters";
                     EDocImport: Codeunit "E-Doc. Import";
                     EDocumentErrorHelper: Codeunit "E-Document Error Helper";
                 begin
-                    EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Read into Draft";
-                    EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+                    TempEDocImportParameters."Step to Run" := "Import E-Document Steps"::"Read into Draft";
+                    EDocImport.ProcessIncomingEDocument(Rec, TempEDocImportParameters);
                     EDocumentErrorHelper.ThrowIfHasErrors(Rec);
                 end;
             }
@@ -302,14 +307,14 @@ page 6105 "Inbound E-Documents"
 
                 trigger OnAction()
                 var
-                    EDocImportParameters: Record "E-Doc. Import Parameters";
+                    TempEDocImportParameters: Record "E-Doc. Import Parameters";
                     EDocImport: Codeunit "E-Doc. Import";
                     EDocumentErrorHelper: Codeunit "E-Document Error Helper";
                     ImportEDocumentProcess: Codeunit "Import E-Document Process";
                 begin
-                    EDocImportParameters := Rec.GetEDocumentService().GetDefaultImportParameters();
-                    EDocImportParameters."Desired E-Document Status" := EDocImportParameters."Desired E-Document Status"::"Draft Ready";
-                    EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+                    TempEDocImportParameters := Rec.GetEDocumentService().GetDefaultImportParameters();
+                    TempEDocImportParameters."Desired E-Document Status" := TempEDocImportParameters."Desired E-Document Status"::"Draft Ready";
+                    EDocImport.ProcessIncomingEDocument(Rec, TempEDocImportParameters);
                     EDocumentErrorHelper.ThrowIfHasErrors(Rec);
                     if ImportEDocumentProcess.IsEDocumentInStateGE(Rec, Enum::"Import E-Doc. Proc. Status"::"Ready for draft") then
                         EDocumentHelper.OpenDraftPage(Rec)
@@ -325,7 +330,7 @@ page 6105 "Inbound E-Documents"
 
                 trigger OnAction()
                 var
-                    EDocImportParameters: Record "E-Doc. Import Parameters";
+                    TempEDocImportParameters: Record "E-Doc. Import Parameters";
                     EDocImport: Codeunit "E-Doc. Import";
                     EDocumentErrorHelper: Codeunit "E-Document Error Helper";
                     ImportEDocumentProcess: Codeunit "Import E-Document Process";
@@ -333,8 +338,8 @@ page 6105 "Inbound E-Documents"
                     if ImportEDocumentProcess.IsEDocumentInStateGE(Rec, Enum::"Import E-Doc. Proc. Status"::"Ready for draft") then
                         EDocumentHelper.OpenDraftPage(Rec)
                     else begin
-                        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
-                        EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+                        TempEDocImportParameters."Step to Run" := "Import E-Document Steps"::"Prepare draft";
+                        EDocImport.ProcessIncomingEDocument(Rec, TempEDocImportParameters);
                         EDocumentErrorHelper.ThrowIfHasErrors(Rec);
                     end;
                 end;

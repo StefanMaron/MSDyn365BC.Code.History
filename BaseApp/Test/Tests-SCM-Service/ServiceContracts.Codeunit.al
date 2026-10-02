@@ -3670,6 +3670,7 @@ codeunit 136102 "Service Contracts"
         LastInvoiceDate2: Date;
         InvoiceNo: Code[20];
     begin
+        // [FEATURE] [AI TEST]
         // [SCENARIO 619191] When deleting a posted service invoice with multiple service contracts,
         // all service contract invoice details should be reverted, not just the first one.
 
@@ -3783,9 +3784,11 @@ codeunit 136102 "Service Contracts"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         InitializeServiceContractTemplates();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         isInitialized := true;
         Commit();

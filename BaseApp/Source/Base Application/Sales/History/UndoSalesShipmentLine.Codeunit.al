@@ -89,7 +89,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         Text059: Label '%1 %2 %3', Comment = '%1 = SalesShipmentLine."Document No.". %2 = SalesShipmentLine.FIELDCAPTION("Line No."). %3 = SalesShipmentLine."Line No.". This is used in a progress window.';
 #pragma warning restore AA0074
         AlreadyReversedErr: Label 'This shipment has already been reversed.';
-        NoLinesToReverseErr: Label 'There are no lines with quantity to reverse.';
+        NoLinesToReverseErr: Label 'No lines with a quantity available for reversal were found among the selected lines. Select a line with a quantity that has not already been reversed, and try again.';
         InvoiceCancelledQst: Label 'The quantity to undo might differ from the original shipment because the invoice was cancelled. Do you want to proceed with the undo?';
 
     /// <summary>
@@ -128,6 +128,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         OnCodeOnAfterSalesShptLineSetFilters(SalesShipmentLine, UndoSalesShptLineParams."Hide Dialog");
         if SalesShipmentLine.IsEmpty() then
             Error(NoLinesToReverseErr);
+
         SalesShipmentLine.FindFirst();
         repeat
             if not UndoSalesShptLineParams."Hide Dialog" then
@@ -171,7 +172,7 @@ codeunit 5815 "Undo Sales Shipment Line"
             if PostedWhseShptLineFound then
                 WhseUndoQuantity.UndoPostedWhseShptLine(PostedWhseShipmentLine);
 
-            TempWarehouseJournalLine.SetRange("Source Line No.", SalesShipmentLine."Line No.");
+            TempWarehouseJournalLine.SetRange("Source Line No.", SalesShipmentLine."Order Line No.");
             WhseUndoQuantity.PostTempWhseJnlLineCache(TempWarehouseJournalLine, WhseJnlRegisterLine);
 
             UndoPostATO(SalesShipmentLine, WhseJnlRegisterLine);
@@ -249,7 +250,6 @@ codeunit 5815 "Undo Sales Shipment Line"
         ItemApplicationEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ItemApplicationEntry.SetRange("Inbound Item Entry No.", ItemLedgerEntry."Applies-to Entry");
         ItemApplicationEntry.SetRange("Outbound Item Entry No.", ItemLedgerEntry."Entry No.");
-
         OnUnApplyDropShipmentOnBeforeFindItemApplicationEntry(ItemApplicationEntry, ItemLedgerEntry);
         if ItemApplicationEntry.FindFirst() then
             ItemJnlPostLine.UnApplyDropShipment(ItemApplicationEntry, RelevantUndoShipmentLedgerEntryNo);

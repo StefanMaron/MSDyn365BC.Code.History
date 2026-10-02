@@ -58,11 +58,11 @@
                     <cbc:ID>VAT</cbc:ID>
                 </cac:TaxScheme>
             </cac:PartyTaxScheme>
-
+          
             <cac:PartyLegalEntity>
                 <cbc:RegistrationName>SupplierOfficialName Ltd</cbc:RegistrationName>
                 <cbc:CompanyID>GB983294</cbc:CompanyID>
-                <cbc:CompanyLegalForm>AdditionalLegalInformation</cbc:CompanyLegalForm>
+                <cbc:CompanyLegalForm>AdditionalLegalInformation</cbc:CompanyLegalForm>   
             </cac:PartyLegalEntity>
 
         </cac:Party>
@@ -83,7 +83,7 @@
                 <cbc:CityName>Stockholm</cbc:CityName>
                 <cbc:PostalZone>456 34</cbc:PostalZone>
                 <cbc:CountrySubentity>Södermalm</cbc:CountrySubentity>
-
+  
                 <cac:Country>
                     <cbc:IdentificationCode>SE</cbc:IdentificationCode>
                 </cac:Country>
@@ -235,7 +235,7 @@
         <cac:Item>
             <cbc:Description>Description of item</cbc:Description>
             <cbc:Name>item name</cbc:Name>
-
+        
             <cac:SellersItemIdentification>
                 <cbc:ID>97iugug876</cbc:ID>
             </cac:SellersItemIdentification>
@@ -252,7 +252,7 @@
                     <cbc:ID>VAT</cbc:ID>
                 </cac:TaxScheme>
             </cac:ClassifiedTaxCategory>
-
+     
         </cac:Item>
 
         <cac:Price>
@@ -336,7 +336,7 @@
             <cbc:AllowanceChargeReason>Discount</cbc:AllowanceChargeReason>
             <cbc:Amount currencyID="EUR">101</cbc:Amount>
         </cac:AllowanceCharge>
-
+ 
         <cac:Item>
             <cbc:Description>Description of item</cbc:Description>
             <cbc:Name>item name</cbc:Name>
@@ -364,5 +364,7 @@
             <cbc:PriceAmount currencyID="EUR">100</cbc:PriceAmount>
         </cac:Price>
 
-    </cac:InvoiceLine>
+    </cac:InvoiceLine>    
 </Invoice>
+
+

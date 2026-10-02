@@ -27,7 +27,6 @@ using System.Utilities;
 
 table 6101 "E-Document Purchase Line"
 {
-    Access = Internal;
     DataClassification = CustomerContent;
     ReplicateData = false;
     InherentEntitlements = RIMDX;
@@ -346,7 +345,7 @@ table 6101 "E-Document Purchase Line"
         EDocPOMatching.RemoveAllMatchesForEDocumentLine(Rec);
     end;
 
-    internal procedure GetNextLineNo(EDocumentEntryNo: Integer): Integer
+    procedure GetNextLineNo(EDocumentEntryNo: Integer): Integer
     var
         EDocumentPurchaseLine: Record "E-Document Purchase Line";
     begin

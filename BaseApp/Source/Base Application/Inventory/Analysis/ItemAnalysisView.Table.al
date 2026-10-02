@@ -203,7 +203,7 @@ table 7152 "Item Analysis View"
             trigger OnValidate()
             begin
                 TestField(Blocked, false);
-                if Dim.CheckIfDimUsed("Dimension 1 Code", 20, '', Code, "Analysis Area".AsInteger()) then
+                if Dim.CheckIfDimUsed("Dimension 1 Code", Enum::"Dim Type Checked".FromInteger(20), '', Code, "Analysis Area".AsInteger()) then
                     Error(Text000, Dim.GetCheckDimErr());
                 ModifyDim(FieldCaption("Dimension 1 Code"), "Dimension 1 Code", xRec."Dimension 1 Code");
                 Modify();
@@ -218,7 +218,7 @@ table 7152 "Item Analysis View"
             trigger OnValidate()
             begin
                 TestField(Blocked, false);
-                if Dim.CheckIfDimUsed("Dimension 2 Code", 21, '', Code, "Analysis Area".AsInteger()) then
+                if Dim.CheckIfDimUsed("Dimension 2 Code", Enum::"Dim Type Checked".FromInteger(21), '', Code, "Analysis Area".AsInteger()) then
                     Error(Text000, Dim.GetCheckDimErr());
                 ModifyDim(FieldCaption("Dimension 2 Code"), "Dimension 2 Code", xRec."Dimension 2 Code");
                 Modify();
@@ -233,7 +233,7 @@ table 7152 "Item Analysis View"
             trigger OnValidate()
             begin
                 TestField(Blocked, false);
-                if Dim.CheckIfDimUsed("Dimension 3 Code", 22, '', Code, "Analysis Area".AsInteger()) then
+                if Dim.CheckIfDimUsed("Dimension 3 Code", Enum::"Dim Type Checked".FromInteger(22), '', Code, "Analysis Area".AsInteger()) then
                     Error(Text000, Dim.GetCheckDimErr());
                 ModifyDim(FieldCaption("Dimension 3 Code"), "Dimension 3 Code", xRec."Dimension 3 Code");
                 Modify();

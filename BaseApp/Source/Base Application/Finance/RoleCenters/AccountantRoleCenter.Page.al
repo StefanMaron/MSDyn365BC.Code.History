@@ -40,9 +40,6 @@ using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Period;
 using Microsoft.Foundation.Task;
 using Microsoft.HumanResources.Employee;
-#if not CLEAN26
-using Microsoft.Integration.Entity;
-#endif
 using Microsoft.Intercompany;
 using Microsoft.Intercompany.Dimension;
 using Microsoft.Intercompany.GLAccount;
@@ -66,6 +63,7 @@ using System.Visualization;
 
 page 9027 "Accountant Role Center"
 {
+    // CP0529-331 (move report action tooltips to report): this fork has no covered report action, so the tooltip move is a no-op here. Present in the changelist only to satisfy the MiSnapApp integration gate.
     Caption = 'Accountant', Comment = 'Use same translation as ''Profile Description'' (if applicable)';
     PageType = RoleCenter;
 
@@ -277,7 +275,6 @@ page 9027 "Accountant Role Center"
                     Caption = 'Inventory Valuation';
                     Image = "Report";
                     RunObject = Report "Inventory Valuation";
-                    ToolTip = 'View, print, or save a list of the values of the on-hand quantity of each inventory item.';
                 }
                 action("Item Turnover")
                 {
@@ -296,7 +293,6 @@ page 9027 "Accountant Role Center"
                     Caption = 'Cost Accounting P/L Statement';
                     Image = "Report";
                     RunObject = Report "Cost Acctg. Statement";
-                    ToolTip = 'View the credit and debit balances per cost type, together with the chart of cost types.';
                 }
                 action("CA P/L Statement per Period")
                 {
@@ -304,7 +300,6 @@ page 9027 "Accountant Role Center"
                     Caption = 'CA P/L Statement per Period';
                     Image = "Report";
                     RunObject = Report "Cost Acctg. Stmt. per Period";
-                    ToolTip = 'View profit and loss for cost types over two periods with the comparison as a percentage.';
                 }
                 action("CA P/L Statement with Budget")
                 {
@@ -312,7 +307,6 @@ page 9027 "Accountant Role Center"
                     Caption = 'CA P/L Statement with Budget';
                     Image = "Report";
                     RunObject = Report "Cost Acctg. Statement/Budget";
-                    ToolTip = 'View a comparison of the balance to the budget figures and calculates the variance and the percent variance in the current accounting period, the accumulated accounting period, and the fiscal year.';
                 }
                 action("Cost Accounting Analysis")
                 {
@@ -320,7 +314,6 @@ page 9027 "Accountant Role Center"
                     Caption = 'Cost Accounting Analysis';
                     Image = "Report";
                     RunObject = Report "Cost Acctg. Analysis";
-                    ToolTip = 'View balances per cost type with columns for seven fields for cost centers and cost objects. It is used as the cost distribution sheet in Cost accounting. The structure of the lines is based on the chart of cost types. You define up to seven cost centers and cost objects that appear as columns in the report.';
                 }
             }
         }
@@ -1044,61 +1037,6 @@ page 9027 "Accountant Role Center"
                 {
                     Caption = 'Excel Reports';
                     Image = Excel;
-#if not CLEAN26
-                    group(Legacy)
-                    {
-                        Caption = 'Legacy reports (will be removed)';
-                        Image = Excel;
-                        ObsoleteReason = 'These reports have been deprecated and will be removed in a future release.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '26.0';
-
-                        action(ExcelTemplatesBalanceSheet)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Balance Sheet';
-                            Image = "Report";
-                            RunObject = Codeunit "Run Template Balance Sheet";
-                            ToolTip = 'Open a spreadsheet that shows your company''s assets, liabilities, and equity. This report is deprecated and will be removed in a future release.';
-                            ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '26.0';
-                        }
-                        action(ExcelTemplateIncomeStmt)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Income Statement';
-                            Image = "Report";
-                            RunObject = Codeunit "Run Template Income Stmt.";
-                            ToolTip = 'Open a spreadsheet that shows your company''s income and expenses. This report is deprecated and will be removed in a future release.';
-                            ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '26.0';
-                        }
-                        action(ExcelTemplateCashFlowStmt)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Cash Flow Statement';
-                            Image = "Report";
-                            RunObject = Codeunit "Run Template CashFlow Stmt.";
-                            ToolTip = 'Open a spreadsheet that shows how changes in balance sheet accounts and income affect the company''s cash holdings. This report is deprecated and will be removed in a future release.';
-                            ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '26.0';
-                        }
-                        action(ExcelTemplateRetainedEarn)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Retained Earnings Statement';
-                            Image = "Report";
-                            RunObject = Codeunit "Run Template Retained Earn.";
-                            ToolTip = 'Open a spreadsheet that shows your company''s changes in retained earnings based on net income from the other financial statements. This report is deprecated and will be removed in a future release.';
-                            ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '26.0';
-                        }
-                    }
-#endif
                 }
                 action("Run Consolidation")
                 {

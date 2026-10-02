@@ -796,7 +796,7 @@ codeunit 10056 "Process Transmission IRIS"
         FormDocLine: Record "IRS 1099 Form Doc. Line";
         TempFormDocLine: Record "IRS 1099 Form Doc. Line" temporary;
         TempVendFormBoxBuffer: Record "IRS 1099 Vend. Form Box Buffer" temporary;
-        CalcParameters: Record "IRS 1099 Calc. Params";
+        TempCalcParameters: Record "IRS 1099 Calc. Params";
         IRSFormsFacade: Codeunit "IRS Forms Facade";
         IRS1099FormDocImpl: Codeunit "IRS 1099 Form Docs Impl.";
         LineNo: Integer;
@@ -804,8 +804,8 @@ codeunit 10056 "Process Transmission IRIS"
         TempFormDocLineToUpdate.Reset();
         TempFormDocLineToUpdate.DeleteAll();
 
-        CalcParameters."Period No." := PeriodNo;
-        IRSFormsFacade.GetVendorFormBoxAmount(TempVendFormBoxBuffer, CalcParameters);
+        TempCalcParameters."Period No." := PeriodNo;
+        IRSFormsFacade.GetVendorFormBoxAmount(TempVendFormBoxBuffer, TempCalcParameters);
 
         FormDocLine.SetRange("Period No.", PeriodNo);
         if FormDocLine.FindSet() then

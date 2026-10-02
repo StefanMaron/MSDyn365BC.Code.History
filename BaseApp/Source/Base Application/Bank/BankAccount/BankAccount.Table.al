@@ -170,6 +170,7 @@ table 270 "Bank Account"
         field(13; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            MaskType = Concealed;
             ToolTip = 'Specifies the number used by the bank for the bank account.';
 
             trigger OnValidate()
@@ -767,6 +768,7 @@ table 270 "Bank Account"
         field(110; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            MaskType = Concealed;
             ToolTip = 'Specifies the bank account''s international bank account number.';
 
             trigger OnValidate()
