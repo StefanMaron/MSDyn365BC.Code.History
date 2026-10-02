@@ -40,6 +40,12 @@ page 99000766 Routing
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Manufacturing;
+
+                    trigger OnValidate()
+                    begin
+                        UpdateRoutingLineParallelFieldsVisibility();
+                        CurrPage.Update(false);
+                    end;
                 }
                 field(Status; Rec.Status)
                 {
@@ -214,7 +220,6 @@ page 99000766 Routing
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Routing Sheet";
-                ToolTip = 'View basic information for routings, such as send-ahead quantity, setup time, run time and time unit. This report shows you the operations to be performed in this routing, the work or machine centers to be used, the personnel, the tools, and the description of each operation.';
             }
         }
         area(Promoted)
@@ -242,6 +247,7 @@ page 99000766 Routing
     trigger OnAfterGetRecord()
     begin
         RefreshActiveVersionCode();
+        UpdateRoutingLineParallelFieldsVisibility();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -281,6 +287,11 @@ page 99000766 Routing
     local procedure LastDateModifiedOnAfterValidate()
     begin
         CurrPage.Update();
+    end;
+
+    local procedure UpdateRoutingLineParallelFieldsVisibility()
+    begin
+        CurrPage.RoutingLine.Page.SetParallelFieldsVisible(Rec.Type = Rec.Type::Parallel);
     end;
 
     local procedure RefreshActiveVersionCode()

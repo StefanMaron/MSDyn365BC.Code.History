@@ -13,9 +13,9 @@ using System.Utilities;
 
 report 5811 "Calc. Inventory Value - Test"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Inventory/Reports/CalcInventoryValueTest.rdlc';
     Caption = 'Calc. Inventory Value - Test';
+    ToolTip = 'View a test report so that you can find and correct any errors before you perform the actual posting of the journal or document.';
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -209,6 +209,16 @@ report 5811 "Calc. Inventory Value - Test"
 
             ValidateCalcLevel();
         end;
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Inventory/Reports/CalcInventoryValueTest.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
+        }
     }
 
     labels

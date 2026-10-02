@@ -26,6 +26,7 @@ codeunit 139601 "Shpfy Create Product Test"
         LibraryRandom: Codeunit "Library - Random";
         ShpfyInitializeTest: Codeunit "Shpfy Initialize Test";
         ExportIsInitialized: Boolean;
+        PriceUpdateHttpCallCount: Integer;
 
     [Test]
     procedure UnitTestCreateTempProductFromItem()
@@ -2966,6 +2967,122 @@ codeunit 139601 "Shpfy Create Product Test"
     end;
 
     [Test]
+    procedure UnitTestCreateTempProductSetsHSCodeAndCountryOfOrigin()
+    var
+        Item: Record Item;
+        TempShopifyProduct: Record "Shpfy Product" temporary;
+        Shop: Record "Shpfy Shop";
+        TempShopifyVariant: Record "Shpfy Variant" temporary;
+        TempTag: Record "Shpfy Tag" temporary;
+        CreateProduct: Codeunit "Shpfy Create Product";
+        InitializeTest: Codeunit "Shpfy Initialize Test";
+        ProductInitTest: Codeunit "Shpfy Product Init Test";
+    begin
+        // [SCENARIO] Creating a temp product from an Item with Tariff No. and Country/Region of Origin Code
+        // should populate those fields on the Shopify variant.
+
+        // [GIVEN] A shop with HS/Country sync enabled
+        Shop := InitializeTest.CreateShop();
+        Shop."SKU Mapping" := "Shpfy SKU Mapping"::" ";
+        Shop."Sync HS Code and Country" := true;
+        Shop.Modify();
+        CreateProduct.SetShop(Shop);
+
+        // [GIVEN] An item with Tariff No. and Country/Region of Origin Code
+        Item := ProductInitTest.CreateItem(Shop."Item Templ. Code", Any.DecimalInRange(10, 100, 2), Any.DecimalInRange(100, 1000, 2));
+        Item."Tariff No." := '6402.99.0000';
+        Item."Country/Region of Origin Code" := 'US';
+        Item.Modify();
+        Item.SetRecFilter();
+
+        // [WHEN] CreateTempProduct is called
+        CreateProduct.CreateTempProduct(Item, TempShopifyProduct, TempShopifyVariant, TempTag);
+
+        // [THEN] The variant has Tariff No. populated
+        LibraryAssert.AreEqual('6402.99.0000', TempShopifyVariant."Tariff No.", 'TempShopifyVariant."Tariff No." should match Item."Tariff No."');
+
+        // [THEN] The variant has Country/Region of Origin Code populated
+        LibraryAssert.AreEqual('US', TempShopifyVariant."Country/Region of Origin Code", 'TempShopifyVariant."Country/Region of Origin Code" should match Item."Country/Region of Origin Code"');
+    end;
+
+    [Test]
+    procedure UnitTestCreateTempProductEmptyHSCodeAndCountryOfOrigin()
+    var
+        Item: Record Item;
+        TempShopifyProduct: Record "Shpfy Product" temporary;
+        Shop: Record "Shpfy Shop";
+        TempShopifyVariant: Record "Shpfy Variant" temporary;
+        TempTag: Record "Shpfy Tag" temporary;
+        CreateProduct: Codeunit "Shpfy Create Product";
+        InitializeTest: Codeunit "Shpfy Initialize Test";
+        ProductInitTest: Codeunit "Shpfy Product Init Test";
+    begin
+        // [SCENARIO] Creating a temp product from an Item without Tariff No. and Country/Region of Origin Code
+        // should leave those fields empty on the Shopify variant.
+
+        // [GIVEN] A shop with HS/Country sync enabled
+        Shop := InitializeTest.CreateShop();
+        Shop."SKU Mapping" := "Shpfy SKU Mapping"::" ";
+        Shop."Sync HS Code and Country" := true;
+        Shop.Modify();
+        CreateProduct.SetShop(Shop);
+
+        // [GIVEN] An item without Tariff No. and Country/Region of Origin Code
+        Item := ProductInitTest.CreateItem(Shop."Item Templ. Code", Any.DecimalInRange(10, 100, 2), Any.DecimalInRange(100, 1000, 2));
+        Item.SetRecFilter();
+
+        // [WHEN] CreateTempProduct is called
+        CreateProduct.CreateTempProduct(Item, TempShopifyProduct, TempShopifyVariant, TempTag);
+
+        // [THEN] The variant has empty Tariff No.
+        LibraryAssert.AreEqual('', TempShopifyVariant."Tariff No.", 'TempShopifyVariant."Tariff No." should be empty');
+
+        // [THEN] The variant has empty Country/Region of Origin Code
+        LibraryAssert.AreEqual('', TempShopifyVariant."Country/Region of Origin Code", 'TempShopifyVariant."Country/Region of Origin Code" should be empty');
+    end;
+
+    [Test]
+    procedure UnitTestCreateTempProductWithVariantsSetsHSCodeAndCountryOfOrigin()
+    var
+        Item: Record Item;
+        TempShopifyProduct: Record "Shpfy Product" temporary;
+        Shop: Record "Shpfy Shop";
+        TempShopifyVariant: Record "Shpfy Variant" temporary;
+        TempTag: Record "Shpfy Tag" temporary;
+        CreateProduct: Codeunit "Shpfy Create Product";
+        InitializeTest: Codeunit "Shpfy Initialize Test";
+        ProductInitTest: Codeunit "Shpfy Product Init Test";
+    begin
+        // [SCENARIO] Creating a temp product with variants from an Item with Tariff No. and Country/Region of Origin Code
+        // should populate both fields on all variant records.
+
+        // [GIVEN] A shop with HS/Country sync enabled
+        Shop := InitializeTest.CreateShop();
+        Shop."SKU Mapping" := "Shpfy SKU Mapping"::" ";
+        Shop."Sync HS Code and Country" := true;
+        Shop.Modify();
+        CreateProduct.SetShop(Shop);
+
+        // [GIVEN] An item with variants and Tariff No.
+        Item := ProductInitTest.CreateItem(Shop."Item Templ. Code", Any.DecimalInRange(10, 100, 2), Any.DecimalInRange(100, 1000, 2), true);
+        Item."Tariff No." := '8471.30.0100';
+        Item."Country/Region of Origin Code" := 'DE';
+        Item.Modify();
+        Item.SetRecFilter();
+
+        // [WHEN] CreateTempProduct is called
+        CreateProduct.CreateTempProduct(Item, TempShopifyProduct, TempShopifyVariant, TempTag);
+
+        // [THEN] All variants have Tariff No. and Country of Origin populated
+        TempShopifyVariant.Reset();
+        if TempShopifyVariant.FindSet() then
+            repeat
+                LibraryAssert.AreEqual('8471.30.0100', TempShopifyVariant."Tariff No.", 'Each variant should have Tariff No.');
+                LibraryAssert.AreEqual('DE', TempShopifyVariant."Country/Region of Origin Code", 'Each variant should have Country/Region of Origin Code');
+            until TempShopifyVariant.Next() = 0;
+    end;
+
+    [Test]
     [HandlerFunctions('ProductExportChildItemVariantHttpHandler')]
     procedure UnitTestProductExportDoesNotCreateVariantsForChildItemVariants()
     var
@@ -3031,32 +3148,87 @@ codeunit 139601 "Shpfy Create Product Test"
         exit(false);
     end;
 
+    [Test]
+    [HandlerFunctions('ProductPriceSyncHttpHandler')]
+    procedure UnitTestPriceUpdateBelowThresholdUsesIndividualSyncNotBulk()
+    var
+        Item: Record Item;
+        ShopifyProduct: Record "Shpfy Product";
+        ShopifyVariant: Record "Shpfy Variant";
+        BulkOperation: Record "Shpfy Bulk Operation";
+        ProductExport: Codeunit "Shpfy Product Export";
+        ProductInitTest: Codeunit "Shpfy Product Init Test";
+        NullGuid: Guid;
+        Index: Integer;
+        ChangedVariantCount: Integer;
+    begin
+        // [SCENARIO 640288] When the number of changed prices is below the bulk-operation threshold,
+        // [SCENARIO] the connector updates prices with individual synchronous mutations instead of a bulk operation.
+        InitializeProductExport();
+        ExportShop."UoM as Variant" := false;
+        ExportShop.Modify();
+        PriceUpdateHttpCallCount := 0;
+
+        // [GIVEN] No pre-existing Shopify products/variants for the shop, so only the ones created below are exported.
+        ShopifyVariant.SetRange("Shop Code", ExportShop.Code);
+        ShopifyVariant.DeleteAll(false);
+        ShopifyProduct.SetRange("Shop Code", ExportShop.Code);
+        ShopifyProduct.DeleteAll(false);
+
+        // [GIVEN] A few Shopify products mapped to BC items whose prices differ from Shopify (all will change).
+        ChangedVariantCount := 3;
+        for Index := 1 to ChangedVariantCount do begin
+            Item := ProductInitTest.CreateItem(ExportShop."Item Templ. Code", Any.DecimalInRange(10, 100, 2), Any.DecimalInRange(100, 500, 2), false);
+            ShopifyProduct := CreateShopifyProductForExport(Item.SystemId);
+            CreateMappedShopifyVariantForExport(ShopifyProduct.Id, Item.SystemId, NullGuid);
+        end;
+
+        // [WHEN] The price-only product export runs for the shop.
+        ProductExport.SetShop(ExportShop);
+        ProductExport.SetOnlyUpdatePriceOn();
+        ExportShop.SetRange(Code, ExportShop.Code);
+        ProductExport.Run(ExportShop);
+        ExportShop.SetRange(Code);
+
+        // [THEN] Each changed variant was updated with its own synchronous mutation.
+        LibraryAssert.AreEqual(ChangedVariantCount, PriceUpdateHttpCallCount, 'Each changed variant should be updated with an individual synchronous mutation.');
+
+        // [THEN] No bulk operation was created, because the number of changed prices is below the threshold.
+        BulkOperation.SetRange("Shop Code", ExportShop.Code);
+        LibraryAssert.IsTrue(BulkOperation.IsEmpty(), 'No bulk operation should be created when the number of changed prices is below the threshold.');
+    end;
+
+    [HttpClientHandler]
+    internal procedure ProductPriceSyncHttpHandler(Request: TestHttpRequestMessage; var Response: TestHttpResponseMessage): Boolean
+    var
+        ProductVariantsBulkUpdateResponseTok: Label 'Products/ProductVariantsBulkUpdateResponse.txt', Locked = true;
+    begin
+        if not ShpfyInitializeTest.VerifyRequestUrl(Request.Path, ExportShop."Shopify URL") then
+            exit(true);
+        PriceUpdateHttpCallCount += 1;
+        Response.Content.WriteFrom(NavApp.GetResourceAsText(ProductVariantsBulkUpdateResponseTok, TextEncoding::UTF8));
+        exit(false);
+    end;
+
     local procedure InitializeProductExport()
     var
-        CommunicationMgt: Codeunit "Shpfy Communication Mgt.";
         AccessToken: SecretText;
     begin
         Any.SetDefaultSeed();
         OutboundHttpRequests.Clear();
+        if ExportIsInitialized then
+            exit;
 
-        if not ExportIsInitialized then begin
-            ExportShop := ShpfyInitializeTest.CreateShop();
-            ExportShop."Can Update Shopify Products" := true;
-            ExportShop."Product Metafields To Shopify" := false;
-            ExportShop.Modify();
-            Commit();
+        ExportShop := ShpfyInitializeTest.CreateShop();
+        ExportShop."Can Update Shopify Products" := true;
+        ExportShop."Product Metafields To Shopify" := false;
+        ExportShop.Modify();
+        Commit();
 
-            AccessToken := LibraryRandom.RandText(20);
-            ShpfyInitializeTest.RegisterAccessTokenForShop(ExportShop.GetStoreName(), AccessToken);
+        AccessToken := LibraryRandom.RandText(20);
+        ShpfyInitializeTest.RegisterAccessTokenForShop(ExportShop.GetStoreName(), AccessToken);
 
-            ExportIsInitialized := true;
-        end;
-
-        // CreateShop() sets IsTestInProgress = true on the singleton CommunicationMgt,
-        // which redirects HTTP calls through event mocking instead of HttpClient.Send().
-        // Disable that so [HttpClientHandler] can intercept the requests instead.
-        // This must run after CreateShop(), otherwise CreateShop() re-enables the flag.
-        CommunicationMgt.SetTestInProgress(false);
+        ExportIsInitialized := true;
     end;
 
     local procedure RegExpectedOutboundHttpRequestsForProductExport()

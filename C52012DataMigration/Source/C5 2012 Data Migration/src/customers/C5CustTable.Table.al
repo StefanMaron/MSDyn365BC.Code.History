@@ -135,6 +135,7 @@ table 1860 "C5 CustTable"
         field(29; GiroNumber; Text[20])
         {
             Caption = 'FIK/Giro';
+            MaskType = Concealed;
         }
         field(30; VatNumber; Text[25])
         {

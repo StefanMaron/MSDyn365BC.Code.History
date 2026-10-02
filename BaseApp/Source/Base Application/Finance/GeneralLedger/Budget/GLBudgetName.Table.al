@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -30,6 +30,7 @@ table 95 "G/L Budget Name"
         field(1; Name; Code[10])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies the name of the general ledger budget.';
             NotBlank = true;
         }
         /// <summary>
@@ -38,6 +39,7 @@ table 95 "G/L Budget Name"
         field(2; Description; Text[80])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the general ledger budget name.';
         }
         /// <summary>
         /// Indicates whether the budget is blocked from further modifications or new entry creation.
@@ -45,6 +47,7 @@ table 95 "G/L Budget Name"
         field(3; Blocked; Boolean)
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
         }
         /// <summary>
         /// First custom dimension code that can be used for budget-specific analysis beyond global dimensions.
@@ -52,12 +55,13 @@ table 95 "G/L Budget Name"
         field(4; "Budget Dimension 1 Code"; Code[20])
         {
             Caption = 'Budget Dimension 1 Code';
+            ToolTip = 'Specifies a code for a budget dimension. You can specify four additional dimensions on each budget that you create.';
             TableRelation = Dimension;
 
             trigger OnValidate()
             begin
                 if "Budget Dimension 1 Code" <> xRec."Budget Dimension 1 Code" then
-                    if Dim.CheckIfDimUsed("Budget Dimension 1 Code", 9, Name, '', 0) then
+                    if Dim.CheckIfDimUsed("Budget Dimension 1 Code", Enum::"Dim Type Checked".FromInteger(9), Name, '', 0) then
                         Error(Text000, Dim.GetCheckDimErr());
             end;
         }
@@ -67,12 +71,13 @@ table 95 "G/L Budget Name"
         field(5; "Budget Dimension 2 Code"; Code[20])
         {
             Caption = 'Budget Dimension 2 Code';
+            ToolTip = 'Specifies a code for a budget dimension. You can specify four additional dimensions on each budget that you create.';
             TableRelation = Dimension;
 
             trigger OnValidate()
             begin
                 if "Budget Dimension 2 Code" <> xRec."Budget Dimension 2 Code" then
-                    if Dim.CheckIfDimUsed("Budget Dimension 2 Code", 10, Name, '', 0) then
+                    if Dim.CheckIfDimUsed("Budget Dimension 2 Code", Enum::"Dim Type Checked".FromInteger(10), Name, '', 0) then
                         Error(Text000, Dim.GetCheckDimErr());
             end;
         }
@@ -82,12 +87,13 @@ table 95 "G/L Budget Name"
         field(6; "Budget Dimension 3 Code"; Code[20])
         {
             Caption = 'Budget Dimension 3 Code';
+            ToolTip = 'Specifies a code for a budget dimension. You can specify four additional dimensions on each budget that you create.';
             TableRelation = Dimension;
 
             trigger OnValidate()
             begin
                 if "Budget Dimension 3 Code" <> xRec."Budget Dimension 3 Code" then
-                    if Dim.CheckIfDimUsed("Budget Dimension 3 Code", 11, Name, '', 0) then
+                    if Dim.CheckIfDimUsed("Budget Dimension 3 Code", Enum::"Dim Type Checked".FromInteger(11), Name, '', 0) then
                         Error(Text000, Dim.GetCheckDimErr());
             end;
         }
@@ -97,12 +103,13 @@ table 95 "G/L Budget Name"
         field(7; "Budget Dimension 4 Code"; Code[20])
         {
             Caption = 'Budget Dimension 4 Code';
+            ToolTip = 'Specifies a code for a budget dimension. You can specify four additional dimensions on each budget that you create.';
             TableRelation = Dimension;
 
             trigger OnValidate()
             begin
                 if "Budget Dimension 4 Code" <> xRec."Budget Dimension 4 Code" then
-                    if Dim.CheckIfDimUsed("Budget Dimension 4 Code", 12, Name, '', 0) then
+                    if Dim.CheckIfDimUsed("Budget Dimension 4 Code", Enum::"Dim Type Checked".FromInteger(12), Name, '', 0) then
                         Error(Text000, Dim.GetCheckDimErr());
             end;
         }

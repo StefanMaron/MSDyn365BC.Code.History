@@ -10,11 +10,11 @@ using Microsoft.Inventory.Tracking;
 
 report 409 "Purchase Reservation Avail."
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Purchases/Document/PurchaseReservationAvail.rdlc';
     ApplicationArea = Reservation;
     Caption = 'Purchase Reservation Avail.';
+    ToolTip = 'Print, view, or save a list of the availability of items for shipment on purchase documents, for example credit memos.';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -303,6 +303,16 @@ report 409 "Purchase Reservation Avail."
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Purchases/Document/PurchaseReservationAvail.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

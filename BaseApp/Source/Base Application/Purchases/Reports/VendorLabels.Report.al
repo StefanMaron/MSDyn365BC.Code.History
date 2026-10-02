@@ -9,12 +9,12 @@ using Microsoft.Purchases.Vendor;
 
 report 310 "Vendor - Labels"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Purchases/Reports/VendorLabels.rdlc';
     ApplicationArea = Suite;
     Caption = 'Vendor - Labels';
+    ToolTip = 'View mailing labels with the vendors'' names and addresses.';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
+    DefaultRenderingLayout = RDLCLayout;
 
     dataset
     {
@@ -162,6 +162,16 @@ report 310 "Vendor - Labels"
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Purchases/Reports/VendorLabels.rdlc';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
     }
 

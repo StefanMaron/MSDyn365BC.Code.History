@@ -145,6 +145,7 @@ table 1861 "C5 VendTable"
         field(31; GiroNumber; Text[20])
         {
             Caption = 'FIK/Giro';
+            MaskType = Concealed;
         }
         field(32; OurAccount; Text[15])
         {

@@ -12,6 +12,7 @@ report 99000757 "Where-Used (Top Level)"
 {
     ApplicationArea = Manufacturing;
     Caption = 'Where-Used (Top Level)';
+    ToolTip = 'View where and in what quantities the item is used in the product structure. The report only shows information for the top-level item. For example, if item "A" is used to produce item "B", and item "B" is used to produce item "C", the report will show item B if you run this report for item A. If you run this report for item B, then item C will be shown as where-used.';
     UsageCategory = ReportsAndAnalysis;
     DefaultRenderingLayout = WhereUsedTopLevelExcel;
 
@@ -165,6 +166,7 @@ report 99000757 "Where-Used (Top Level)"
             Caption = 'Where-Used (Top Level) Excel';
             LayoutFile = './Manufacturing/Reports/WhereUsedTopLevel.xlsx';
             Type = Excel;
+            Summary = 'Report layout primarily made for data analysis. Use an Excel editor to modify the layout.';
         }
 #if not CLEAN27
         layout(WhereUsedTopLevelRDLC)
@@ -175,6 +177,7 @@ report 99000757 "Where-Used (Top Level)"
             ObsoleteState = Pending;
             ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
             ObsoleteTag = '27.0';
+            Summary = 'Report layout made in the legacy RDLC format. Use an RDLC editor to modify the layout.';
         }
 #endif
     }

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -11,6 +11,6 @@ tableextension 13621 PaymentBuffer extends "Payment Buffer"
 {
     fields
     {
-        field(13651; GiroAccNo; Code[8]) { Caption = 'Giro Acc No.'; }
+        field(13651; GiroAccNo; Code[8]) { Caption = 'Giro Acc No.'; MaskType = Concealed; }
     }
 }

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,6 +17,7 @@ tableextension 13615 GeneralJournalLine extends "Gen. Journal Line"
         field(13651; GiroAccNo; Code[8])
         {
             Caption = 'Giro Acc No.';
+            MaskType = Concealed;
             trigger OnValidate();
             begin
                 IF NOT IsForExportToPaymentFile() THEN

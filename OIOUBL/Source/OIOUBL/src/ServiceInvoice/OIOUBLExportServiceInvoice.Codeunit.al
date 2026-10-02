@@ -10,7 +10,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Reporting;
-using Microsoft.Sales.Peppol;
+using Microsoft.Peppol;
 using Microsoft.Service.History;
 using Microsoft.Service.Setup;
 using System.IO;
@@ -151,8 +151,8 @@ codeunit 13643 "OIOUBL-Export Service Invoice"
         DeliveryAddress: Record "Standard Address";
         BillToAddress: Record "Standard Address";
         CustomerContact: Record Contact;
-        TaxGroupBuffer: Record "OIOUBL-Tax Group Buffer";
-        PEPPOLManagement: Codeunit "PEPPOL Management";
+        TempTaxGroupBuffer: Record "OIOUBL-Tax Group Buffer";
+        PEPPOL30: Codeunit "PEPPOL30";
         XMLCurrNode: XmlElement;
         XMLdocOut: XmlDocument;
         CurrencyCode: Code[10];
@@ -284,8 +284,8 @@ codeunit 13643 "OIOUBL-Export Service Invoice"
 
 
         // Invoice->AllowanceCharge / TaxTotal (per tax-category group)
-        TaxGroupBuffer.Reset();
-        TaxGroupBuffer.DeleteAll();
+        TempTaxGroupBuffer.Reset();
+        TempTaxGroupBuffer.DeleteAll();
         ServInvLine2.RESET();
         ServInvLine2.COPY(ServInvLine);
         ServInvLine2.SETFILTER(
@@ -296,12 +296,12 @@ codeunit 13643 "OIOUBL-Export Service Invoice"
         if ServInvLine2.FindSet() then
             repeat
                 ExcludeVAT(ServInvLine2, ServiceInvoiceHeader."Prices Including VAT");
-                OIOUBLXMLGenerator.AddLineToTaxGroups(TaxGroupBuffer, ServInvLine2);
+                OIOUBLXMLGenerator.AddLineToTaxGroups(TempTaxGroupBuffer, ServInvLine2);
             until ServInvLine2.Next() = 0;
 
-        OIOUBLXMLGenerator.InsertInvoiceDiscountAllowanceCharges(XMLCurrNode, TaxGroupBuffer, CurrencyCode);
+        OIOUBLXMLGenerator.InsertInvoiceDiscountAllowanceCharges(XMLCurrNode, TempTaxGroupBuffer, CurrencyCode);
 
-        OIOUBLXMLGenerator.InsertGroupedInvoiceTaxTotal(XMLCurrNode, TaxGroupBuffer, CurrencyCode);
+        OIOUBLXMLGenerator.InsertGroupedInvoiceTaxTotal(XMLCurrNode, TempTaxGroupBuffer, CurrencyCode);
 
         // Invoice->LegalMonetaryTotal
         LineAmount := 0;
@@ -324,7 +324,7 @@ codeunit 13643 "OIOUBL-Export Service Invoice"
             ServInvLine.TESTFIELD(Description);
 
             if (ServInvLine.Type = ServInvLine.Type::"G/L Account") and (ServInvLine."Unit of Measure Code" = '') then
-                UnitOfMeasureCode := PEPPOLManagement.GetUoMforPieceINUNECERec20ListID()
+                UnitOfMeasureCode := PEPPOL30.GetUoMforPieceINUNECERec20ListID()
             else
                 UnitOfMeasureCode := ServInvLine."Unit of Measure Code";
 

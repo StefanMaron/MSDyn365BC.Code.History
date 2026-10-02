@@ -493,100 +493,100 @@ codeunit 13648 "OIOUBL-Common Logic"
     /// <summary>
     /// Accumulate one Sales Invoice line into the per-(TaxCategory, VAT %) tax groups.
     /// </summary>
-    /// <param name="TaxGroupBuffer">Buffer where the tax group information is being accumulated</param>
+    /// <param name="TempTaxGroupBuffer">Buffer where the tax group information is being accumulated</param>
     /// <param name="SalesInvoiceLine">Line being accumulated</param>
-    procedure AddLineToTaxGroups(var TaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; SalesInvoiceLine: Record "Sales Invoice Line");
+    procedure AddLineToTaxGroups(var TempTaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; SalesInvoiceLine: Record "Sales Invoice Line");
     begin
         AddLineToTaxGroups(
-          TaxGroupBuffer, SalesInvoiceLine."VAT Calculation Type", SalesInvoiceLine."VAT %",
+          TempTaxGroupBuffer, SalesInvoiceLine."VAT Calculation Type", SalesInvoiceLine."VAT %",
           SalesInvoiceLine.Amount, SalesInvoiceLine."Amount Including VAT", SalesInvoiceLine."Inv. Discount Amount");
     end;
 
     /// <summary>
     /// Accumulate one Sales Credit Memo line into the per-(TaxCategory, VAT %) tax groups.
     /// </summary>
-    /// <param name="TaxGroupBuffer">Buffer where the tax group information is being accumulated</param>
+    /// <param name="TempTaxGroupBuffer">Buffer where the tax group information is being accumulated</param>
     /// <param name="SalesCrMemoLine">Line being accumulated</param>
-    procedure AddLineToTaxGroups(var TaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; SalesCrMemoLine: Record "Sales Cr.Memo Line");
+    procedure AddLineToTaxGroups(var TempTaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; SalesCrMemoLine: Record "Sales Cr.Memo Line");
     begin
         AddLineToTaxGroups(
-          TaxGroupBuffer, SalesCrMemoLine."VAT Calculation Type", SalesCrMemoLine."VAT %",
+          TempTaxGroupBuffer, SalesCrMemoLine."VAT Calculation Type", SalesCrMemoLine."VAT %",
           SalesCrMemoLine.Amount, SalesCrMemoLine."Amount Including VAT", SalesCrMemoLine."Inv. Discount Amount");
     end;
 
     /// <summary>
     /// Accumulate one Service Invoice line into the per-(TaxCategory, VAT %) tax groups.
     /// </summary>
-    /// <param name="TaxGroupBuffer">Buffer where the tax group information is being accumulated</param>
+    /// <param name="TempTaxGroupBuffer">Buffer where the tax group information is being accumulated</param>
     /// <param name="ServiceInvoiceLine">Line being accumulated</param>
-    procedure AddLineToTaxGroups(var TaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; ServiceInvoiceLine: Record "Service Invoice Line");
+    procedure AddLineToTaxGroups(var TempTaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; ServiceInvoiceLine: Record "Service Invoice Line");
     begin
         AddLineToTaxGroups(
-          TaxGroupBuffer, ServiceInvoiceLine."VAT Calculation Type", ServiceInvoiceLine."VAT %",
+          TempTaxGroupBuffer, ServiceInvoiceLine."VAT Calculation Type", ServiceInvoiceLine."VAT %",
           ServiceInvoiceLine.Amount, ServiceInvoiceLine."Amount Including VAT", ServiceInvoiceLine."Inv. Discount Amount");
     end;
 
     /// <summary>
     /// Accumulate one Service Credit Memo line into the per-(TaxCategory, VAT %) tax groups.
     /// </summary>
-    /// <param name="TaxGroupBuffer">Buffer where the tax group information is being accumulated</param>
+    /// <param name="TempTaxGroupBuffer">Buffer where the tax group information is being accumulated</param>
     /// <param name="ServiceCrMemoLine">Line being accumulated</param>
-    procedure AddLineToTaxGroups(var TaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; ServiceCrMemoLine: Record "Service Cr.Memo Line");
+    procedure AddLineToTaxGroups(var TempTaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; ServiceCrMemoLine: Record "Service Cr.Memo Line");
     begin
         AddLineToTaxGroups(
-          TaxGroupBuffer, ServiceCrMemoLine."VAT Calculation Type", ServiceCrMemoLine."VAT %",
+          TempTaxGroupBuffer, ServiceCrMemoLine."VAT Calculation Type", ServiceCrMemoLine."VAT %",
           ServiceCrMemoLine.Amount, ServiceCrMemoLine."Amount Including VAT", ServiceCrMemoLine."Inv. Discount Amount");
     end;
 
-    local procedure AddLineToTaxGroups(var TaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; VATCalculationType: Enum "Tax Calculation Type"; VATPercent: Decimal; Amount: Decimal; AmountIncludingVAT: Decimal; InvDiscountAmount: Decimal);
+    local procedure AddLineToTaxGroups(var TempTaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; VATCalculationType: Enum "Tax Calculation Type"; VATPercent: Decimal; Amount: Decimal; AmountIncludingVAT: Decimal; InvDiscountAmount: Decimal);
     var
         TaxCategoryID: Text[15];
     begin
         TaxCategoryID := GetTaxCategoryID(VATCalculationType, VATPercent);
-        if not TaxGroupBuffer.Get(TaxCategoryID, VATPercent) then begin
-            TaxGroupBuffer.Init();
-            TaxGroupBuffer."OIOUBL-Tax Category ID" := TaxCategoryID;
-            TaxGroupBuffer."OIOUBL-VAT %" := VATPercent;
-            TaxGroupBuffer.Insert();
+        if not TempTaxGroupBuffer.Get(TaxCategoryID, VATPercent) then begin
+            TempTaxGroupBuffer.Init();
+            TempTaxGroupBuffer."OIOUBL-Tax Category ID" := TaxCategoryID;
+            TempTaxGroupBuffer."OIOUBL-VAT %" := VATPercent;
+            TempTaxGroupBuffer.Insert();
         end;
-        TaxGroupBuffer."OIOUBL-Taxable Amount" += Amount;
-        TaxGroupBuffer."OIOUBL-Tax Amount" += AmountIncludingVAT - Amount;
-        TaxGroupBuffer."OIOUBL-Inv. Discount Amount" += InvDiscountAmount;
-        TaxGroupBuffer.Modify();
+        TempTaxGroupBuffer."OIOUBL-Taxable Amount" += Amount;
+        TempTaxGroupBuffer."OIOUBL-Tax Amount" += AmountIncludingVAT - Amount;
+        TempTaxGroupBuffer."OIOUBL-Inv. Discount Amount" += InvDiscountAmount;
+        TempTaxGroupBuffer.Modify();
     end;
 
     /// <summary>
     /// Inserts document's TaxTotal with one TaxSubtotal per tax-category group
     /// </summary>
     /// <param name="RootElement">Where in the XML the group is inserted</param>
-    /// <param name="TaxGroupBuffer">The buffer containing the tax groups</param>
+    /// <param name="TempTaxGroupBuffer">The buffer containing the tax groups</param>
     /// <param name="CurrencyCode">The currency code for the amounts</param>
-    procedure InsertGroupedInvoiceTaxTotal(var RootElement: XmlElement; var TaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; CurrencyCode: Code[10]);
+    procedure InsertGroupedInvoiceTaxTotal(var RootElement: XmlElement; var TempTaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; CurrencyCode: Code[10]);
     var
         TaxTotalElement: XmlElement;
         TotalTaxAmount: Decimal;
     begin
-        if TaxGroupBuffer.IsEmpty() then
+        if TempTaxGroupBuffer.IsEmpty() then
             exit;
 
         TaxTotalElement := XmlElement.Create('TaxTotal', DocNameSpaceCAC);
 
         TotalTaxAmount := 0;
-        if TaxGroupBuffer.FindSet() then
+        if TempTaxGroupBuffer.FindSet() then
             repeat
-                TotalTaxAmount += TaxGroupBuffer."OIOUBL-Tax Amount";
-            until TaxGroupBuffer.Next() = 0;
+                TotalTaxAmount += TempTaxGroupBuffer."OIOUBL-Tax Amount";
+            until TempTaxGroupBuffer.Next() = 0;
         TaxTotalElement.Add(
           XmlElement.Create('TaxAmount', DocNameSpaceCBC,
             XmlAttribute.Create('currencyID', CurrencyCode),
             OIOUBLDocumentEncode.DecimalToText(TotalTaxAmount)));
 
-        if TaxGroupBuffer.FindSet() then
+        if TempTaxGroupBuffer.FindSet() then
             repeat
                 InsertTaxSubtotalByCategory(
-                  TaxTotalElement, TaxGroupBuffer."OIOUBL-Tax Category ID", TaxGroupBuffer."OIOUBL-VAT %",
-                  TaxGroupBuffer."OIOUBL-Taxable Amount", TaxGroupBuffer."OIOUBL-Tax Amount", CurrencyCode);
-            until TaxGroupBuffer.Next() = 0;
+                  TaxTotalElement, TempTaxGroupBuffer."OIOUBL-Tax Category ID", TempTaxGroupBuffer."OIOUBL-VAT %",
+                  TempTaxGroupBuffer."OIOUBL-Taxable Amount", TempTaxGroupBuffer."OIOUBL-Tax Amount", CurrencyCode);
+            until TempTaxGroupBuffer.Next() = 0;
 
         RootElement.Add(TaxTotalElement);
     end;
@@ -595,22 +595,22 @@ codeunit 13648 "OIOUBL-Common Logic"
     /// Inserts the header level discounts as document's AllowanceCharge. One per tax-category group present in the buffer.
     /// </summary>
     /// <param name="RootElement">Where in the XML the allowance charges are inserted</param>
-    /// <param name="TaxGroupBuffer">The buffer containing the tax groups</param>
+    /// <param name="TempTaxGroupBuffer">The buffer containing the tax groups</param>
     /// <param name="CurrencyCode">The currency code for the amounts</param>
-    procedure InsertInvoiceDiscountAllowanceCharges(var RootElement: XmlElement; var TaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; CurrencyCode: Code[10]);
+    procedure InsertInvoiceDiscountAllowanceCharges(var RootElement: XmlElement; var TempTaxGroupBuffer: Record "OIOUBL-Tax Group Buffer"; CurrencyCode: Code[10]);
     var
         AllowanceChargeID: Integer;
     begin
         AllowanceChargeID := 0;
-        if TaxGroupBuffer.FindSet() then
+        if TempTaxGroupBuffer.FindSet() then
             repeat
-                if TaxGroupBuffer."OIOUBL-Inv. Discount Amount" > 0 then begin
+                if TempTaxGroupBuffer."OIOUBL-Inv. Discount Amount" > 0 then begin
                     AllowanceChargeID += 1;
                     InsertAllowanceCharge(
-                      RootElement, AllowanceChargeID, 'Rabat', TaxGroupBuffer."OIOUBL-Tax Category ID",
-                      TaxGroupBuffer."OIOUBL-Inv. Discount Amount", CurrencyCode, TaxGroupBuffer."OIOUBL-VAT %");
+                      RootElement, AllowanceChargeID, 'Rabat', TempTaxGroupBuffer."OIOUBL-Tax Category ID",
+                      TempTaxGroupBuffer."OIOUBL-Inv. Discount Amount", CurrencyCode, TempTaxGroupBuffer."OIOUBL-VAT %");
                 end;
-            until TaxGroupBuffer.Next() = 0;
+            until TempTaxGroupBuffer.Next() = 0;
     end;
 
     procedure InsertLegalMonetaryTotal(var InvoiceElement: XmlElement; LineAmount: Decimal; TaxAmount: Decimal; TotalAmount: Decimal; TotalInvDiscountAmount: Decimal; CurrencyCode: Code[10])

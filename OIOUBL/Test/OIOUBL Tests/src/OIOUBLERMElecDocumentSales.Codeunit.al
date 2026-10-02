@@ -735,7 +735,7 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
         Initialize();
         UpdateCompanySwiftCode();
         CreateElectronicDocumentFormat(
-          PEPPOLFormatNameTxt, ElectronicDocumentFormat.Usage::"Sales Invoice", CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0");
+          PEPPOLFormatNameTxt, ElectronicDocumentFormat.Usage::"Sales Invoice", CODEUNIT::"Exp. Sales Inv. PEPPOL30");
 
         // [GIVEN] Document Sending Profile = PEPPOL; Sales Invoice.
         CreateSalesDocumentWithItem(SalesLine, SalesHeader."Document Type"::Invoice);
@@ -943,7 +943,7 @@ codeunit 148053 "OIOUBL-ERM Elec Document Sales"
         Initialize();
         UpdateCompanySwiftCode();
         CreateElectronicDocumentFormat(
-          PEPPOLFormatNameTxt, ElectronicDocumentFormat.Usage::"Sales Credit Memo", CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0");
+          PEPPOLFormatNameTxt, ElectronicDocumentFormat.Usage::"Sales Credit Memo", CODEUNIT::"Exp. Sales CrM. PEPPOL30");
 
         // [GIVEN] Document Sending Profile = PEPPOL; Sales Credit Memo.
         CreateSalesDocumentWithItem(SalesLine, SalesHeader."Document Type"::"Credit Memo");

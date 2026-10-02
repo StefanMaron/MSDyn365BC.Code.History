@@ -187,7 +187,7 @@ codeunit 13636 "OIOUBL-Export Sales Invoice"
         DeliveryAddress: Record "Standard Address";
         BillToAddress: Record "Standard Address";
         SellToContact: Record Contact;
-        TaxGroupBuffer: Record "OIOUBL-Tax Group Buffer";
+        TempTaxGroupBuffer: Record "OIOUBL-Tax Group Buffer";
         XMLCurrNode: XmlElement;
         XMLdocOut: XmlDocument;
         CurrencyCode: Code[10];
@@ -330,8 +330,8 @@ codeunit 13636 "OIOUBL-Export Sales Invoice"
             until SalesInvLine2.NEXT() = 0;
 
         // Build per-(TaxCategory, VAT %) groups for the invoice-discount allowance charge(s) and the summary
-        TaxGroupBuffer.Reset();
-        TaxGroupBuffer.DeleteAll();
+        TempTaxGroupBuffer.Reset();
+        TempTaxGroupBuffer.DeleteAll();
         SalesInvLine2.RESET();
         SalesInvLine2.COPY(SalesInvLine);
         SalesInvLine2.SETFILTER(
@@ -342,14 +342,14 @@ codeunit 13636 "OIOUBL-Export Sales Invoice"
         if SalesInvLine2.FindSet() then
             repeat
                 ExcludeVAT(SalesInvLine2, SalesInvoiceHeader."Prices Including VAT");
-                OIOUBLXMLGenerator.AddLineToTaxGroups(TaxGroupBuffer, SalesInvLine2);
+                OIOUBLXMLGenerator.AddLineToTaxGroups(TempTaxGroupBuffer, SalesInvLine2);
             until SalesInvLine2.Next() = 0;
 
         // Invoice->AllowanceCharge (one per tax-category group carrying an invoice discount)
-        OIOUBLXMLGenerator.InsertInvoiceDiscountAllowanceCharges(XMLCurrNode, TaxGroupBuffer, CurrencyCode);
+        OIOUBLXMLGenerator.InsertInvoiceDiscountAllowanceCharges(XMLCurrNode, TempTaxGroupBuffer, CurrencyCode);
 
         // Invoice->TaxTotal (one TaxSubtotal per tax-category group)
-        OIOUBLXMLGenerator.InsertGroupedInvoiceTaxTotal(XMLCurrNode, TaxGroupBuffer, CurrencyCode);
+        OIOUBLXMLGenerator.InsertGroupedInvoiceTaxTotal(XMLCurrNode, TempTaxGroupBuffer, CurrencyCode);
 
         // Invoice->LegalMonetaryTotal
         LineAmount := 0;
