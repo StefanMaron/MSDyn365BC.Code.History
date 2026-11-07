@@ -8024,6 +8024,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Quotes - NamedType QuoteToOrderMessage)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2154995965 - NamedType 1035436590" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Simulated interruption while Reservation page is open.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Quotes - NamedType ReservationInterruptionErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2154995965 - NamedType 185390490" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot delete resource %1 because there are one or more outstanding %2 that include this resource.]]></Val>
