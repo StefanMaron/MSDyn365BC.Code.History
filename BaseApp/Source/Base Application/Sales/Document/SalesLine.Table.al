@@ -315,7 +315,7 @@ table 37 "Sales Line"
                 IsHandled := false;
                 OnValidateNoOnBeforeUpdateDates(Rec, xRec, SalesHeader, CurrFieldNo, IsHandled, TempSalesLine);
                 if not IsHandled then
-                    UpdateDates();
+                    UpdateDatesFromNo();
 
                 OnAfterAssignHeaderValues(Rec, SalesHeader);
 
@@ -515,7 +515,7 @@ table 37 "Sales Line"
                     if Type in [Type::"G/L Account", Type::Item, Type::Resource, Type::"Fixed Asset", Type::"Charge (Item)"] then
                         Validate("VAT Prod. Posting Group");
 
-                DoCheckReceiptOrderStatus := CurrFieldNo <> 0;
+                DoCheckReceiptOrderStatus := (CurrFieldNo <> 0) and not ReceiptOrderStatusCheckSuspended;
                 OnValidateShipmentDateOnAfterSalesLineVerifyChange(Rec, CurrFieldNo, DoCheckReceiptOrderStatus, HasBeenShown);
                 if DoCheckReceiptOrderStatus then
                     CheckReceiptOrderStatus();
@@ -1845,7 +1845,7 @@ table 37 "Sales Line"
                 IsHandled := false;
                 OnValidateVATProdPostingGroupOnBeforeUpdateUnitPrice(Rec, VATPostingSetup, IsHandled, xRec, SalesHeader, Currency);
                 if not IsHandled then
-                    if SalesHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
+                    if SalesHeader."Prices Including VAT" and (Type = Type::Resource) then
                         Validate("Unit Price",
                             Round(
                                 "Unit Price" * (100 + GetVATPct()) / (100 + xRec.GetVATPct()),
@@ -4475,9 +4475,11 @@ table 37 "Sales Line"
         FieldCausedPriceCalculation: Integer;
         FullAutoReservation: Boolean;
         HasBeenShown: Boolean;
+        ReceiptOrderStatusCheckSuspended: Boolean;
         PlannedShipmentDateCalculated: Boolean;
         PlannedDeliveryDateCalculated: Boolean;
         SuppressSalesHeaderExistsVerification: Boolean;
+        SkipUpdateQtyToAsm: Boolean;
         SkipDefaultItemQuantity: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
@@ -8751,10 +8753,15 @@ table 37 "Sales Line"
     begin
         IsHandled := false;
         OnBeforeUpdateQtyToAsmFromSalesLineQtyToShip(Rec, IsHandled);
-        if IsHandled then
+        if IsHandled or SkipUpdateQtyToAsm then
             exit;
 
         ATOLink.UpdateQtyToAsmFromSalesLine(Rec);
+    end;
+
+    internal procedure SetSkipUpdateQtyToAsm(NewSkipUpdateQtyToAsm: Boolean)
+    begin
+        SkipUpdateQtyToAsm := NewSkipUpdateQtyToAsm;
     end;
 
     /// <summary>
@@ -9824,13 +9831,27 @@ table 37 "Sales Line"
     local procedure ValidateUnitOfMeasureCodeFromNo()
     var
         IsHandled: Boolean;
+        OldStatusCheckSuspended: Boolean;
     begin
         IsHandled := false;
         OnBeforeValidateUnitOfMeasureCodeFromNo(Rec, xRec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
+        OldStatusCheckSuspended := StatusCheckSuspended;
+        StatusCheckSuspended := true;
         Validate("Unit of Measure Code");
+        StatusCheckSuspended := OldStatusCheckSuspended;
+    end;
+
+    local procedure UpdateDatesFromNo()
+    var
+        OldReceiptOrderStatusCheckSuspended: Boolean;
+    begin
+        OldReceiptOrderStatusCheckSuspended := ReceiptOrderStatusCheckSuspended;
+        ReceiptOrderStatusCheckSuspended := true;
+        UpdateDates();
+        ReceiptOrderStatusCheckSuspended := OldReceiptOrderStatusCheckSuspended;
     end;
 
     local procedure NotifyOnMissingSetup(FieldNumber: Integer)
