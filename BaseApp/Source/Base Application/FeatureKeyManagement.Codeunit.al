@@ -20,6 +20,9 @@ codeunit 265 "Feature Key Management"
         ManufacturingFlushingMethodActivateManualWithoutPickLbl: Label 'Manufacturing_FlushingMethod_ActivateManualWoPick', Locked = true;
         ManufacturingFlushingMethodActivateManualWithoutPick, ManufacturingFlushingMethodActivateManualWithoutPickRead, MockEnabledManufacturingFlushingMethodActivateManualWithoutPick : Boolean;
 #endif
+#if not CLEAN27
+        VATReverseChargeTok: Label 'VATReverseCharge', Locked = true;
+#endif
         ConcurrentInventoryPostingLbl: Label 'ConcurrentInventoryPosting', Locked = true;
         ConcurrentInventoryPosting: Boolean;
         ConcurrentInventoryPostingRead: Boolean;
@@ -40,6 +43,13 @@ codeunit 265 "Feature Key Management"
     begin
         exit(FeatureManagementFacade.IsEnabled(GetSIEAuditFileExportFeatureKeyId()));
     end;
+
+#if not CLEAN27
+    procedure IsVATReverseChargeEnabled(): Boolean
+    begin
+        exit(FeatureManagementFacade.IsEnabled(VATReverseChargeTok));
+    end;
+#endif
 
 #if not CLEAN27
     [Obsolete('This function is deprecated. Concurrent warehouse posting is always on.', '27.0')]

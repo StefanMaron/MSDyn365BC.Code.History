@@ -2,7 +2,7 @@
     {
         "CaseID": "{2A733D02-2125-4EA9-97E3-2068E5708A94}",
         "Description": "ISD-Inter-State Purchase Return of Service from Registered Vendor when Input Tax Credit is Available",
-        "Version": 2,
+        "Version": 3,
         "MinorVersion": 0,
         "TaxType": "GST",
         "ChangedBy": "Microsoft",
@@ -21,31 +21,19 @@
                     "Type": "Lookup",
                     "Lookup": {
                         "SourceType": "Table",
-                        "TableName": "Purchase Header",
-                        "TableFieldName": "State",
+                        "TableName": "Location",
+                        "TableFieldName": "State Code",
                         "Method": "First",
                         "TableFilters": [
                             {
-                                "FiterFieldName": "Document Type",
+                                "FiterFieldName": "Code",
                                 "FilterType": "Equals",
                                 "FilterValue": {
                                     "Type": "Lookup",
                                     "Lookup": {
                                         "SourceType": "Current Record",
                                         "TableName": "Purchase Line",
-                                        "FieldName": "Document Type"
-                                    }
-                                }
-                            },
-                            {
-                                "FiterFieldName": "No.",
-                                "FilterType": "Equals",
-                                "FilterValue": {
-                                    "Type": "Lookup",
-                                    "Lookup": {
-                                        "SourceType": "Current Record",
-                                        "TableName": "Purchase Line",
-                                        "FieldName": "Document No."
+                                        "FieldName": "Location Code"
                                     }
                                 }
                             }
@@ -1219,31 +1207,19 @@
                                                         "Type": "Lookup",
                                                         "Lookup": {
                                                             "SourceType": "Table",
-                                                            "TableName": "Purchase Header",
-                                                            "TableFieldName": "State",
+                                                            "TableName": "Location",
+                                                            "TableFieldName": "State Code",
                                                             "Method": "First",
                                                             "TableFilters": [
                                                                 {
-                                                                    "FiterFieldName": "Document Type",
+                                                                    "FiterFieldName": "Code",
                                                                     "FilterType": "Equals",
                                                                     "FilterValue": {
                                                                         "Type": "Lookup",
                                                                         "Lookup": {
                                                                             "SourceType": "Current Record",
                                                                             "TableName": "Purchase Line",
-                                                                            "FieldName": "Document Type"
-                                                                        }
-                                                                    }
-                                                                },
-                                                                {
-                                                                    "FiterFieldName": "No.",
-                                                                    "FilterType": "Equals",
-                                                                    "FilterValue": {
-                                                                        "Type": "Lookup",
-                                                                        "Lookup": {
-                                                                            "SourceType": "Current Record",
-                                                                            "TableName": "Purchase Line",
-                                                                            "FieldName": "Document No."
+                                                                            "FieldName": "Location Code"
                                                                         }
                                                                     }
                                                                 }

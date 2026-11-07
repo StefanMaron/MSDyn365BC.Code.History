@@ -435,7 +435,7 @@ page 490 "Acc. Schedule Overview"
                     MultiLine = true;
                     Editable = not ViewOnlyMode;
                 }
-                field("Last Run by User"; TempFinancialReport."Last Run by User")
+                field("Last Run by User"; TempFinancialReport."Last Run by Current User")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Your Last Run';
@@ -447,7 +447,7 @@ page 490 "Acc. Schedule Overview"
                         FinReportAuditLog: Record "Financial Report Audit Log";
                     begin
                         FinReportAuditLog.SetRange("Report Name", TempFinancialReport.Name);
-                        FinReportAuditLog.SetRange(User, UserId());
+                        FinReportAuditLog.SetRange(SystemCreatedBy, UserSecurityId());
                         Page.Run(0, FinReportAuditLog);
                     end;
                 }
@@ -1802,7 +1802,8 @@ page 490 "Acc. Schedule Overview"
         // Transfer filters from FinancialReport
         FinancialReportToLoadTemp.Init();
         FinancialReportToLoadTemp.TransferFields(FinancialReport);
-        FinancialReportToLoadTemp.CalcFields("Last Run by User");
+        FinancialReportToLoadTemp.SetRange("User Security ID Filter", UserSecurityId());
+        FinancialReportToLoadTemp.CalcFields("Last Run by Current User");
         IntroductoryParagraph := FinancialReport.GetIntroductoryParagraph();
         ClosingParagraph := FinancialReport.GetClosingParagraph();
         if not ViewOnlyMode then
@@ -2405,12 +2406,18 @@ page 490 "Acc. Schedule Overview"
     /// <returns>Formatted string value for the specified column</returns>
     procedure FormatStr(ColumnNo: Integer): Text
     var
-        AddCurrency: Boolean;
-        Result: Text;
         IsHandled: Boolean;
+    begin
+        exit(GetColumnFormatString(ColumnNo, IsHandled));
+    end;
+
+    local procedure GetColumnFormatString(ColumnNo: Integer; var IsHandled: Boolean) Result: Text
+    var
+        AddCurrency: Boolean;
     begin
         GLSetup.Get();
         AddCurrency := TempFinancialReport.UseAmountsInAddCurrency and (GLSetup."Additional Reporting Currency" <> '');
+        IsHandled := false;
         OnAfterFormatStr(ColumnLayoutArr, UseAmtsInAddCurr, ColumnNo, TempFinancialReport.GetEffectiveNegativeAmountFormat(), Result, IsHandled);
         if IsHandled then
             exit(Result);
