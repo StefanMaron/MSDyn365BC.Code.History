@@ -1778,6 +1778,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Close Income Statement - NamedType UnexpectedConfirmErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1932411446 - Method 4179512858 - NamedType 1429112749" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected fiscal-year balance for account %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = G/L account number]D;]A;(LookupHint=Codeunit ERM Close Income Statement - Method VerifyIncomeStatementAccountBalance - NamedType UnexpectedFiscalYearBalanceErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1932411446 - Method 3567947401 - NamedType 108298395" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Mixed-currency closing totals: first account expected %1, actual %2; second account expected %3, actual %4.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1, %3 = expected amounts, %2, %4 = actual amounts]D;]A;(LookupHint=Codeunit ERM Close Income Statement - Method VerifyMixedCurrencyClosingJournal - NamedType ClosingAmountsErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 187546204 - NamedType 5543261" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1,"%2",%3]]></Val>
@@ -8229,6 +8247,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Quotes - NamedType QuoteToOrderMessage)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2154995965 - NamedType 1035436590" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Simulated interruption while Reservation page is open.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Quotes - NamedType ReservationInterruptionErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2154995965 - NamedType 185390490" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
