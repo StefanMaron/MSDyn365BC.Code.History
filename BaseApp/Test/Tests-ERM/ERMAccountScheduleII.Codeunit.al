@@ -40,6 +40,7 @@
         MissingSheetDataErr: Label 'Sheet %1 is either missing or does not contain the correct data.', Comment = '%1 = Sheet number';
         AuditLogNotCreatedOnTemplateUpdateErr: Label 'Audit log entry was not created after updating the financial report Excel template.';
         TextValueDuplicateErr: Label 'Text value %1 should appear exactly once in Excel export, but found %2 occurrences', Comment = '%1 = Text value, %2 = Occurrence count';
+        LastRunByCurrentUserErr: Label 'The Your Last Run value must be calculated for the user in the User Security ID Filter flow filter.';
         IsInitialized: Boolean;
 
     [Test]
@@ -2913,6 +2914,55 @@
         FinancialReportAuditLog.SetRange(User, UserId);
         FinancialReportAuditLog.SetRange(Format, FinancialReportAuditLog.Format::Excel);
         Assert.AreEqual(1, FinancialReportAuditLog.Count(), AuditLogNotCreatedOnTemplateUpdateErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FinRepLastRunByCurrentUserUsesUserSecurityIdFilter()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinancialReport: Record "Financial Report";
+        FinancialReportAuditLog: Record "Financial Report Audit Log";
+        FinancialReports: TestPage "Financial Reports";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+    begin
+        // [SCENARIO 649981] The "Your Last Run" flow field is calculated for the user in the "User Security ID Filter" flow filter
+        Initialize();
+
+        // [GIVEN] A financial report that the current user has viewed
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        FinancialReports.OpenEdit();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
+        AccScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+        AccScheduleOverview.Close();
+        FinancialReports.Close();
+
+        FinancialReportAuditLog.SetRange("Report Name", AccScheduleName.Name);
+        FinancialReportAuditLog.SetRange(SystemCreatedBy, UserSecurityId());
+        FinancialReportAuditLog.FindLast();
+
+        // [WHEN] The flow field is calculated with the current user in the flow filter
+        FinancialReport.Get(AccScheduleName.Name);
+        FinancialReport.SetRange("User Security ID Filter", UserSecurityId());
+        FinancialReport.CalcFields("Last Run by Current User");
+
+        // [THEN] It returns the date-time of the audit log entry written for the current user
+        Assert.AreEqual(
+          FinancialReportAuditLog.SystemCreatedAt, FinancialReport."Last Run by Current User", LastRunByCurrentUserErr);
+
+        // [WHEN] The flow field is calculated for another user
+        FinancialReport.SetRange("User Security ID Filter", CreateGuid());
+        FinancialReport.CalcFields("Last Run by Current User");
+
+        // [THEN] It is blank, because that user has not run the report
+        Assert.AreEqual(0DT, FinancialReport."Last Run by Current User", LastRunByCurrentUserErr);
+
+        // [THEN] The Financial Reports page opens and shows the value for the current user
+        FinancialReports.OpenView();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
+        Assert.AreNotEqual('', FinancialReports."Last Run by User".Value(), LastRunByCurrentUserErr);
+        FinancialReports.Close();
     end;
 
     [Test]
