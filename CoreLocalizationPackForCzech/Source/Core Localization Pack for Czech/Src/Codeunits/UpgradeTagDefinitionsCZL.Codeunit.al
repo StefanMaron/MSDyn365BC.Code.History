@@ -48,6 +48,8 @@ codeunit 31016 "Upgrade Tag Definitions CZL"
         PerCompanyUpgradeTags.Add(GetVATReportUpgradeTag());
         PerCompanyUpgradeTags.Add(SetEnableNonDeductibleVATCZUpgradeTag());
         PerCompanyUpgradeTags.Add(GetUseW1RegistrationNumberFromSalesDocUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetEETTaxpayerCertificateCodeUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetEETBusinessPremisesExtendedDescriptionUpgradeTag());
     end;
 
     procedure GetDataVersion174PerDatabaseUpgradeTag(): Code[250]
@@ -210,5 +212,15 @@ codeunit 31016 "Upgrade Tag Definitions CZL"
     procedure GetUseW1RegistrationNumberFromSalesDocUpgradeTag(): Code[250]
     begin
         exit('CZL-575057-UseW1RegistrationNumberFromSalesDocUpgrade-20250424');
+    end;
+
+    procedure GetEETTaxpayerCertificateCodeUpgradeTag(): Code[250]
+    begin
+        exit('CZL-624913-EETTaxpayerCertificateCodeTag-20261012');
+    end;
+
+    procedure GetEETBusinessPremisesExtendedDescriptionUpgradeTag(): Code[250]
+    begin
+        exit('CZL-624913-EETBusinessPremisesExtendedDescriptionTag-20261013');
     end;
 }
