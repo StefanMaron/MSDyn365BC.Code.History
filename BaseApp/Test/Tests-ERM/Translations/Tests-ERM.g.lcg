@@ -2138,6 +2138,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Sales Item Charge Tests - NamedType IncorrectCreditMemoQtyAssignmentErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1130968063 - NamedType 1097150238" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item charge assignment is not as expected.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Sales Item Charge Tests - NamedType ItemChargeAssignmentIsNotAsExpectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1130968063 - NamedType 1156344551" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Quantity is not as expected.]]></Val>

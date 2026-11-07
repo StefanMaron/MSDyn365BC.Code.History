@@ -5,4 +5,13 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 2176863402 - NamedType 482549083" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The on-demand tax area could not be resolved.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Integration.Shopify)(LookupHint=Codeunit Shpfy TMA Rate Conflict Test - NamedType OnDemandTaxAreaErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>
