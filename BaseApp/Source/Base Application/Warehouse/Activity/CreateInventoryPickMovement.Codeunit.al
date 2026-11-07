@@ -1069,6 +1069,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         FromBinContent.SetRange("Item No.", NewWarehouseActivityLine."Item No.");
         FromBinContent.SetRange("Variant Code", NewWarehouseActivityLine."Variant Code");
         FromBinContent.SetRange("Unit of Measure Code", NewWarehouseActivityLine."Unit of Measure Code");
+        FromBinContent.SetTrackingFilterFromWhseActivityLineIfNotBlank(NewWarehouseActivityLine);
         if FromBinContent.FindSet() then
             repeat
                 FromBinContent.CalcFields("Quantity (Base)");
