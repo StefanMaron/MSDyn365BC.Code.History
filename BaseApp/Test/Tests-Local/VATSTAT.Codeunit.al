@@ -24,7 +24,7 @@ codeunit 144001 VATSTAT
         ReportingType: Option Quarter,Month,"Defined period";
         DefaultFdfTxt: Label 'Default.fdf';
         DefaultXmlTxt: Label 'Default.xml';
-        arguments: Option ,Zahl101,Zahl102,Zahl103,Zahl104,Zahl105,Zahl106,Zahl107,Zahl108,Zahl109,Zahl110,Zahl111,Zahl112,Zahl113,Zahl115a,Zahl116a,Zahl117a,Zahl118a,Zahl119a,Zahl120a,Zahl121a,Zahl123,Zahl124,Zahl125,Zahl125b,Zahl125a,Zahl126,Zahl127,Zahl128a,Zahl129a,Zahl130a,Zahl130aa,Zahl131,Zahl132,Zahl133,Zahl134,Zahl134a,Zahl135,Zahl136,Zahl136a,Zahl137a,Zahl137,Zahl138,Zahl139,DD140,Zahl140,DD141,Zahl141,DD143_27,Zahl143_27,DD143_28,Zahl143_28,DD143,Zahl143,Checkbox100X,Checkbox100Xx;
+        arguments: Option ,Zahl101,Zahl102,Zahl103,Zahl104,Zahl105,Zahl106,Zahl107,Zahl108,Zahl109,Zahl110,Zahl111,Zahl112,Zahl113,Zahl115a,Zahl116a1,Zahl116a,Zahl117a,Zahl118a,Zahl119a,Zahl120a,Zahl121a,Zahl123,Zahl124,Zahl125,Zahl125b,Zahl125a,Zahl126,Zahl127,Zahl128a,Zahl128a1,Zahl129a,Zahl130a,Zahl130aa,Zahl131,Zahl132,Zahl133,Zahl134,Zahl134a,Zahl135,Zahl136,Zahl136a,Zahl137a,Zahl137,Zahl138,Zahl139,DD140,Zahl140,DD141,Zahl141,DD143_27,Zahl143_27,DD143_28,Zahl143_28,DD143,Zahl143,Checkbox100X,Checkbox100Xx;
         PdfFileName: Text[260];
         FdfFileName: Text[260];
         XmlFileName: Text[260];
@@ -790,6 +790,10 @@ codeunit 144001 VATSTAT
         LibraryXPathXMLReader.Initialize(XmlFileName, '');
         VerifyXMLHeader(LibraryXPathXMLReader);
         VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/VERSTEUERT/KZ124', VATEntry.Base);
+
+        // [THEN] FDF file (U30 PDF form) has the base amount in field Zahl116a1
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl116a1, VATEntry.Base);
     end;
 
     [Test]
@@ -838,6 +842,64 @@ codeunit 144001 VATSTAT
         LibraryXPathXMLReader.Initialize(XmlFileName, '');
         VerifyXMLHeader(LibraryXPathXMLReader);
         VerifyXMLLine(LibraryXPathXMLReader, 'INNERGEMEINSCHAFTLICHE_ERWERBE/VERSTEUERT_IGE/KZ125', VATEntry.Base);
+
+        // [THEN] FDF file (U30 PDF form) has the base amount in field Zahl128a1
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl128a1, VATEntry.Base);
+    end;
+
+    [Test]
+    [HandlerFunctions('VATStmtATRequestPageHandler,VATStmtATMessageHandler')]
+    [Scope('OnPrem')]
+    procedure VAT49PctNegativeDomesticReclassifiedToKZ000()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATStatementLine: Record "VAT Statement Line";
+        VATEntry: Record "VAT Entry";
+        Item: Record Item;
+        VATStatementAT: Report "VAT Statement AT";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATTotalRowNo: Code[10];
+        DocNo: Code[20];
+        VATBusPostingGroupCode: Code[20];
+        VATProPostingGroupCode: Code[20];
+    begin
+        // [FEATURE] [VAT 4.9%]
+        // [SCENARIO 652286] A negative 4.9% domestic base (KZ124) is reclassified into KZ000 and omitted from the U30 form (FDF field Zahl116a1), like the sibling taxed-base columns.
+        Initialize();
+
+        // [GIVEN] VAT Statement Line with Row No. '124' totaling a domestic 4.9% VAT base amount
+        CreateVATPostingGroup(VATBusPostingGroupCode, VATProPostingGroupCode);
+        VATTotalRowNo := LibraryUtility.GenerateRandomCode(VATStatementLine.FieldNo("Row No."), DATABASE::"VAT Statement Line");
+        CreateVATEntTotVATStmtLine(VATTotalRowNo, VATBusPostingGroupCode, VATProPostingGroupCode);
+        VATStatementLine.SetRange("Row No.", VATTotalRowNo);
+        VATStatementLine.SetRange(Type, VATStatementLine.Type::"VAT Entry Totaling");
+        VATStatementLine.FindFirst();
+        VATStatementLine.Validate("Amount Type", VATStatementLine."Amount Type"::Base);
+        VATStatementLine.Modify(true);
+        CreateRowTotVATStmtLine('124', VATTotalRowNo);
+        CreateItem(Item, VATProPostingGroupCode);
+        EnqueRequestPageFields(WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+          ReportingType::"Defined period", false, false, false, false, 0);
+
+        // [GIVEN] Posted purchase credit memo producing a negative 4.9% base
+        DocNo := CreateAndPostPurchaseDocumentOnItem(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VATBusPostingGroupCode, Item);
+
+        // [WHEN] Export VAT Statement
+        VATStatementAT.InitializeRequest(FdfFileName, XmlFileName);
+        VATStatementAT.RunModal();
+
+        // [THEN] The negative base is folded into KZ000 and KZ124 is not emitted in the XML
+        GetVATEntry(VATEntry, DocNo, VATEntry."Document Type"::"Credit Memo", VATEntry.Type::Purchase);
+        LibraryXPathXMLReader.Initialize(XmlFileName, '');
+        VerifyXMLHeader(LibraryXPathXMLReader);
+        VerifyXMLLine(LibraryXPathXMLReader, 'LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH/KZ000', -VATEntry.Base);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('descendant::*[@type="kz"]', 1);
+
+        // [THEN] The U30 form (FDF) shows the amount only in KZ000 (Zahl101), not in the 4.9% field Zahl116a1
+        FdfFileHelper.ReadFdfFile(FdfFileName);
+        VerifyFDFLineValue(FdfFileHelper, arguments::Zahl101, VATEntry.Base);
+        FdfFileHelper.VerifyCount(DefinedHeaderAndFooterLines + 1);
     end;
 
     [Test]
