@@ -1238,6 +1238,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Post. Basic - NamedType EntryDoesNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 972101180 - NamedType 3495007309" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G/L Entries must be balanced for the posted document]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Post. Basic - NamedType GLEntriesNotBalancedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 972101180 - NamedType 940332990" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Non-Deductible VAT Amount must be 0 after changing to Full VAT]]></Val>
@@ -1281,6 +1290,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Post. Basic - NamedType PurchaseInvoiceMustBePostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 972101180 - NamedType 131318087" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sales Invoice must be posted successfully]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Post. Basic - NamedType SalesInvoiceMustBePostedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 972101180 - NamedType 3353806735" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
