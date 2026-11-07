@@ -2192,6 +2192,15 @@
       <Cmt Name="Dev"><![CDATA[You cannot use Customer 10000 for this action.]D;]A;(LookupHint=Codeunit Test Purchase Preview - NamedType RecordRestrictedTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2430598660 - NamedType 2917595294" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Changing the vendor on one purchase order must not change the next order in the filtered view.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Vendor Lookup - NamedType PurchaseOrderChangedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2430598660 - NamedType 4019219904" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must select an existing vendor.]]></Val>
