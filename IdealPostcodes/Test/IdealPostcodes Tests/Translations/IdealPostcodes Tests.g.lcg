@@ -5,4 +5,13 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 3373856137 - NamedType 192647305" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Failed to retrieve address details.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Foundation.Address.IdealPostcodes.Test)(LookupHint=Codeunit Test IPC Provider Lookup - NamedType RetrieveAddressDetailsErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>
