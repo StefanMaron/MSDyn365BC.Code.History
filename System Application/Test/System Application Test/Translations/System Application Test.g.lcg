@@ -104,6 +104,15 @@
       <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 3596146799)(Namespace=System.Test.Agents)(LookupHint=EnumExtension Mock Agent Meta. Prov. - EnumValue SDK Mock Agent - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";EnumExtension 1399480639 - EnumValue 1028847035 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[SDK Mock Agent No Archiving]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 3596146799)(Namespace=System.Test.Agents)(LookupHint=EnumExtension Mock Agent Meta. Prov. - EnumValue SDK Mock Agent No Archiving - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";PermissionSet 1236802005 - Property 2879900210" ItemType=";PermissionSet - PermissionSet" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Agent SDK Test]]></Val>
@@ -140,6 +149,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.AI)(LookupHint=Codeunit Copilot Test - NamedType AlreadyRegisteredErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3718743568 - NamedType 3021166569" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The consumption ID must be specified.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.AI)(LookupHint=Codeunit Copilot Test - NamedType ConsumptionIdMustBeSpecifiedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3718743568 - NamedType 2827260417" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Invalid billing type for Copilot capability '%1']]></Val>
@@ -156,6 +174,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.AI)(LookupHint=Codeunit Copilot Test - NamedType NotRegisteredErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3718743568 - NamedType 3056866427" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[All trial quota limits must be non-negative.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.AI)(LookupHint=Codeunit Copilot Test - NamedType QuotaLimitsMustBeNonNegativeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3718743568 - NamedType 3102783372" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The trial ID must be specified.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.AI)(LookupHint=Codeunit Copilot Test - NamedType TrialIdMustBeSpecifiedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 466086381 - NamedType 2958770673" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
