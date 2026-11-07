@@ -1346,6 +1346,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Posting Group Code]D;]A;(LookupHint=Codeunit ERM Exch. Rate Adjmt. Vendor - NamedType UnexpectedAdjustedEntryErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1542747169 - NamedType 3831225214" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Adjustment Amount %1 must equal Amount (LCY) %2 for detailed vendor ledger entry %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Adjustment Amount, %2 = Amount (LCY), %3 = Detailed Vendor Ledger Entry No.]D;]A;(LookupHint=Codeunit ERM Exch. Rate Adjustment - NamedType AdjustmentAmountMismatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1542747169 - NamedType 952304833" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Exchange Rate Adjmt. of %1 %2]]></Val>

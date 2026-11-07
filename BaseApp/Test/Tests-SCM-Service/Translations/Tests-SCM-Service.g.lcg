@@ -302,6 +302,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Contracts - NamedType DimensionNotChangeableServiceEntriesExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2797597328 - NamedType 1526687386" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension set id matches.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Contracts - NamedType DimensionSetIDMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2797597328 - NamedType 4237482343" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must exist for Contract: %2.]]></Val>
@@ -500,6 +509,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Contracts - NamedType ServItemHasDiffShipToCodeMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2797597328 - NamedType 3407805146" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Shortcut dimension 2 code matches.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Contracts - NamedType ShortcutDimension2CodeMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2797597328 - NamedType 3041014380" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unit Cost(LCY) must not have Zero Value.]]></Val>
@@ -606,6 +624,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Contracts II - NamedType DescriptionMustMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1134171456 - NamedType 273426245" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item A "Invoiced to Date" must retain the posted invoice period end date after deleting the retrospective invoice.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Contracts II - NamedType ItemAInvoicedToDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1134171456 - NamedType 982409396" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

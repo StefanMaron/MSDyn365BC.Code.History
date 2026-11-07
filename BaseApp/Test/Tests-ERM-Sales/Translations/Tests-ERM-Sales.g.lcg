@@ -626,6 +626,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents II - NamedType WorkStartingDateRecIsNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 655909914 - NamedType 1074613222" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong %1 on %2. The invoice discount was applied more than once by the allocation account split.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption, %2 = Table Caption]D;]A;(LookupHint=Codeunit ERM Sales Documents II - NamedType WrongAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2641639841 - NamedType 1874506076" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[G/L Account %1 is not balanced]]></Val>
@@ -1218,6 +1227,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Quotes - NamedType QuoteToOrderMessage)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2154995965 - NamedType 1035436590" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Simulated interruption while Reservation page is open.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Quotes - NamedType ReservationInterruptionErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2154995965 - NamedType 185390490" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
