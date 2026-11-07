@@ -734,6 +734,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule II - NamedType InvalidRowErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 583230938 - NamedType 4186755191" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Your Last Run value must be calculated for the user in the User Security ID Filter flow filter.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule II - NamedType LastRunByCurrentUserErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 583230938 - NamedType 939244098" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Sheet %1 is either missing or does not contain the correct data.]]></Val>
@@ -1175,6 +1184,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Close Income Statement - NamedType UnexpectedConfirmErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1932411446 - Method 2458124654 - NamedType 3622555388" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[A retained earnings G/L account could not be found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Close Income Statement - Method FindRetainedEarningsAccountNo - NamedType RetainedEarningsAccountNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1932411446 - Method 4179512858 - NamedType 1429112749" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected fiscal-year balance for account %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = G/L account number]D;]A;(LookupHint=Codeunit ERM Close Income Statement - Method VerifyIncomeStatementAccountBalance - NamedType UnexpectedFiscalYearBalanceErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1932411446 - Method 3567947401 - NamedType 108298395" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Mixed-currency closing totals: first account expected %1, actual %2; second account expected %3, actual %4.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1, %3 = expected amounts, %2, %4 = actual amounts]D;]A;(LookupHint=Codeunit ERM Close Income Statement - Method VerifyMixedCurrencyClosingJournal - NamedType ClosingAmountsErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 187546204 - NamedType 5543261" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1,"%2",%3]]></Val>
@@ -1569,6 +1605,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Posting Group Code]D;]A;(LookupHint=Codeunit ERM Exch. Rate Adjmt. Vendor - NamedType UnexpectedAdjustedEntryErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1542747169 - NamedType 3831225214" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Adjustment Amount %1 must equal Amount (LCY) %2 for detailed vendor ledger entry %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Adjustment Amount, %2 = Amount (LCY), %3 = Detailed Vendor Ledger Entry No.]D;]A;(LookupHint=Codeunit ERM Exch. Rate Adjustment - NamedType AdjustmentAmountMismatchErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1542747169 - NamedType 952304833" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

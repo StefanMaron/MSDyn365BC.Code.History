@@ -5,13 +5,13 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
-  <Item ItemId=";Codeunit 3391992882 - Method 2718061764 - NamedType 3915294381" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3391992882 - NamedType 3915294381" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Synchronization tables list is incorrect.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Master Data Mgt. Setup Tests - Method NoDuplicatesAddedToSetupOnSelectingTableWithCyclicReference - NamedType IncorrectTablesListErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Master Data Mgt. Setup Tests - NamedType IncorrectTablesListErr)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>
