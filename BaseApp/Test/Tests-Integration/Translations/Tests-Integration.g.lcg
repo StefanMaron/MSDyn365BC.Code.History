@@ -536,4 +536,13 @@
       <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 3466494917)(LookupHint=EnumExtension PBI Test Deployable Reports - EnumValue Test Report - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";EnumExtension 3540184235 - EnumValue 2983720894 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Report 2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 3466494917)(LookupHint=EnumExtension PBI Test Deployable Reports - EnumValue Test Report 2 - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>
