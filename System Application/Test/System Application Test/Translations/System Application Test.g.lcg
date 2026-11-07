@@ -131,6 +131,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Apps)(LookupHint=Codeunit Extension Management Test - NamedType NotInstalledSuccErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3698292160 - NamedType 4267348099" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You do not have sufficient permissions to manage extensions. Please contact your administrator.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Apps)(LookupHint=Codeunit Extension Management Test - NamedType NotSufficientPermissionErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3698292160 - NamedType 3272524287" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Extension has not been uninstalled succesfully]]></Val>
