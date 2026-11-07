@@ -23,4 +23,13 @@
       <Cmt Name="Dev"><![CDATA[%1=VAT Bus. Posting Group ,%2=Item No. ,%3=Document Type ,%4=Document No. , %5=Line No.]D;]A;(Namespace=Microsoft.Finance.VAT.Setup)(LookupHint=Codeunit ERM Sales Purch Documents - NamedType ReverseErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2697844315 - NamedType 1503371167" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[is not subjected to Reverse Charge]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.VAT.Setup)(LookupHint=Codeunit VAT On Sales/Purchase Document - NamedType NotSubjectToReverseChargeErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>
