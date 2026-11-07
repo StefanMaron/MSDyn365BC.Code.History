@@ -1211,6 +1211,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - number]D;]A;(LookupHint=Codeunit New Time Sheet Experience - NamedType CauseofAbsenceStatusTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1212730964 - NamedType 4263274552" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The work type or cause of absence on %1 copied line(s) no longer exists and was left blank. Review these lines before you submit the time sheet.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - number of lines]D;]A;(LookupHint=Codeunit New Time Sheet Experience - NamedType CopiedLinesWithClearedCodesMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1212730964 - NamedType 1427565258" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Week %1]]></Val>

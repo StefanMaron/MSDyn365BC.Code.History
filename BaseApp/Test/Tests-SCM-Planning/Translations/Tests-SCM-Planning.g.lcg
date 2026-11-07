@@ -5,6 +5,15 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 3881534877 - NamedType 3545964120" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected a %1 cost shares row for %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = BOM type, %2 = number]D;]A;(LookupHint=Codeunit SCM - BOM Cost Shares Report - NamedType ExpectedCostSharesRowErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3881534877 - NamedType 2996603465" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect value of %1.%2.]]></Val>
@@ -12,6 +21,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM - BOM Cost Shares Report - NamedType IncorrectValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3881534877 - NamedType 1579365886" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 replenishment system must be blank after navigating from an item.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = BOM type]D;]A;(LookupHint=Codeunit SCM - BOM Cost Shares Report - NamedType ReplenishmentSystemMustBeBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3881534877 - NamedType 1268495254" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 replenishment system must stay blank after revisiting the item.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = BOM type]D;]A;(LookupHint=Codeunit SCM - BOM Cost Shares Report - NamedType ReplenishmentSystemMustStayBlankErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3881534877 - NamedType 855861760" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -419,6 +446,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - I - NamedType ValidationError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3356532981 - NamedType 711415345" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[OnBeforeCheckBlockedItem must be raised for the handled blocked item as many times as for an item that is not blocked.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - II - NamedType HandledCheckBlockedItemEventCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3356532981 - NamedType 2687287108" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Location Code must be equal to '%1'  in Requisition Line]]></Val>
@@ -426,6 +462,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - II - NamedType LocationErrorText)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3356532981 - NamedType 1233514759" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[OnBeforeCheckBlockedItem must be raised exactly once for the blocked item.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - II - NamedType OnBeforeCheckBlockedItemCountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3356532981 - NamedType 1503709891" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -453,6 +498,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - II - NamedType RequisitionLineMustNotExist)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3356532981 - NamedType 3966654832" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[OnBeforeCheckBlockedItem is raised an unexpected number of times for the handled blocked item.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - II - NamedType UnexpectedCheckBlockedItemEventCountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3356532981 - NamedType 4174999501" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -491,6 +545,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - III - NamedType LineExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2531980374 - NamedType 1833297730" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Attention: Missing stockkeeping unit. The item is planned to cover the exact demand.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - III - NamedType MinimalSupplyAttentionTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2531980374 - NamedType 44815630" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Expected total quantity >= %1, but got %2]]></Val>
@@ -520,11 +583,20 @@
   </Item>
   <Item ItemId=";Codeunit 2531980374 - NamedType 2427899679" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Item %3 at Location %4 was planned using the planning parameters from the Item Card, because no stockkeeping unit exists and %1 is set to %2.]]></Val>
+      <Val><![CDATA[Attention: No stockkeeping unit exists for Item %1 at Location %2. The item was planned using planning parameters from the Item Card, as configured by Missing SKU Planning Policy.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1: Field Caption, %2: Missing SKU Policy, %3: Item No., %4: Location Code]D;]A;(LookupHint=Codeunit SCM Order Planning - III - NamedType PlanningParametersTakenFromItemCardTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1: Item No., %2: Location Code]D;]A;(LookupHint=Codeunit SCM Order Planning - III - NamedType PlanningParametersTakenFromItemCardTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2531980374 - NamedType 3154689621" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 %3 is not certified.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Table caption, %2 = No. field caption, %3 = Production BOM number]D;]A;(LookupHint=Codeunit SCM Order Planning - III - NamedType ProdBOMMustBeCertifiedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2531980374 - NamedType 1801751994" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -606,6 +678,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - III - NamedType ValidationError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2531980374 - NamedType 2169165704" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The field Prod. Planning Wksh. Template of table Manufacturing User Template contains a value (%1) that cannot be found in the related table (Req. Wksh. Template).]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = worksheet template name]D;]A;(LookupHint=Codeunit SCM Order Planning - III - NamedType WrongProdCopyDestErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 589420395 - NamedType 816136885" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
