@@ -82,7 +82,17 @@ page 283 "Recurring General Journal"
                         IsDimensionBalanceLine();
                     end;
                 }
-                field("Recurring Frequency"; RecurringFrequency)
+                field("Recurring Frequency"; Rec."Recurring Frequency")
+                {
+                    ApplicationArea = Suite;
+                    Visible = RecurringFrequencyVisible;
+
+                    trigger OnValidate()
+                    begin
+                        SetRecurringFrequency();
+                    end;
+                }
+                field(RecurringFrequencyText; RecurringFrequency)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Recurring Frequency';
@@ -1006,6 +1016,7 @@ page 283 "Recurring General Journal"
 
     trigger OnInit()
     begin
+        RecurringFrequencyVisible := false;
         TotalBalanceVisible := true;
         BalanceVisible := true;
         AmountVisible := true;
@@ -1067,6 +1078,7 @@ page 283 "Recurring General Journal"
         AccSchedLineDesc: Text[250];
         ColumnLayoutHeader: Text[50];
         RecurringFrequency: Text;
+        RecurringFrequencyVisible: Boolean;
         InvalidRecurringFrequencyErr: Label 'The recurring frequency %1 is not a valid date formula.', Comment = '%1 = the entered recurring frequency value';
         Balance: Decimal;
         TotalBalance: Decimal;
