@@ -71,6 +71,8 @@ codeunit 139688 "Recurring Billing Test"
         BillingToCappedErr: Label 'Billing to should be capped at the harmonized Next Billing To date.', Locked = true;
         ExtendedTextValueErr: Label 'Sales line with extended text description should be created.', Locked = true;
         ExtendedTextPurchValueErr: Label 'Purchase line with extended text description should be created.', Locked = true;
+        OnlyOneServicePartnerErr: Label 'You can create documents only for one type of partner at a time (Customer or Vendor). Please check your filters.', Locked = true;
+        VendorProposalChangedErr: Label 'The vendor billing proposal must not be affected when documents are created for the customer billing proposal.', Locked = true;
         RecurringBillingPage: TestPage "Recurring Billing";
         IsPartnerVendor: Boolean;
         PostDocuments: Boolean;
@@ -1578,7 +1580,7 @@ codeunit 139688 "Recurring Billing Test"
         ContractType: Record "Subscription Contract Type";
         BillingDate: Date;
         CappedNextBillingTo: Date;
-      begin
+    begin
         // [SCENARIO 637042] Creating a Billing Proposal for a harmonized billing contract must not hang when the contract "Next Billing To" caps the calculated billing period below the Billing Date
         Initialize();
 
@@ -1613,6 +1615,179 @@ codeunit 139688 "Recurring Billing Test"
         Assert.RecordIsNotEmpty(BillingLine);
         BillingLine.FindLast();
         Assert.AreEqual(CappedNextBillingTo, BillingLine."Billing to", BillingToCappedErr);
+    end;
+
+    [Test]
+    procedure CalculateNextToDateWithSubscriptionLineEndDate()
+    var
+        MonthlyPeriodLbl: Label '<1M>', Locked = true;
+        DailyPeriodLbl: Label '<1D>', Locked = true;
+        MonthlyStartDate: Date;
+        MonthlyEndDate: Date;
+        DailyStartDate: Date;
+        DailyEndDate: Date;
+    begin
+        // [SCENARIO 649304] Subscription Line End Date must be included in the
+        // current monthly period without extending fixed day periods.
+        Initialize();
+
+        // [GIVEN] A Subscription Line starts on 29/05/2026, uses Align to End of Month,
+        // has a monthly period, and ends on 28/06/2026.
+        MonthlyStartDate := 20260529D;
+        MonthlyEndDate := 20260628D;
+
+        ServiceCommitment."Period Calculation" :=
+            "Period Calculation"::"Align to End of Month";
+        ServiceCommitment."Subscription Line Start Date" := MonthlyStartDate;
+        ServiceCommitment."Subscription Line End Date" := MonthlyEndDate;
+
+        // [WHEN] CalculateNextToDate is called for the monthly period.
+        // [THEN] Next To Date is the Subscription Line End Date.
+        CheckNextToDateWithEndDate(MonthlyPeriodLbl, MonthlyStartDate, MonthlyEndDate);
+
+        // [GIVEN] A Subscription Line starts on 29/05/2026, uses Align to End of Month,
+        // has a monthly period, and its end date is the next period start date, 29/06/2026.
+        MonthlyEndDate := 20260629D;
+        ServiceCommitment."Subscription Line End Date" := MonthlyEndDate;
+
+        // [WHEN] CalculateNextToDate is called for the monthly period.
+        // [THEN] The next period start date is not included in the current period.
+        CheckNextToDateWithEndDate(MonthlyPeriodLbl, MonthlyStartDate, 20260627D);
+
+        // [GIVEN] A Subscription Line starts away from month-end, uses Align to End of Month,
+        // has a fixed daily period, and its end date equals CalcDate(1D, StartDate).
+        DailyStartDate := 20260515D;
+        DailyEndDate := 20260516D;
+
+        ServiceCommitment."Subscription Line Start Date" := DailyStartDate;
+        ServiceCommitment."Subscription Line End Date" := DailyEndDate;
+
+        // [WHEN] CalculateNextToDate is called for the fixed daily period.
+        // [THEN] Next To Date remains one day before the Subscription Line End Date,
+        // so the next one-day period can start on the following day.
+        CheckNextToDateWithEndDate(DailyPeriodLbl, DailyStartDate, DailyEndDate - 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('BillingTemplateFromQueueModalPageHandler,CreateBillingDocsCustomerPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
+    procedure CreateDocumentsOnRecurringBillingPageWhenVendorBillingProposalExists()
+    var
+        VendorBillingLineCount: Integer;
+    begin
+        // [SCENARIO 650583] Create Documents on the Recurring Billing page must ignore billing lines that belong to
+        // another partner type and are therefore outside the Partner filter of the current view.
+        Initialize();
+        ContractTestLibrary.DeleteAllContractRecords();
+
+        // [GIVEN] A billable Vendor Subscription Contract and a billable Customer Subscription Contract
+        ContractTestLibrary.CreateVendor(Vendor);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.", false);
+        ContractTestLibrary.CreateCustomer(Customer);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject2, Customer."No.", false);
+
+        // [GIVEN] An open billing proposal created with a vendor billing template
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate2, Enum::"Service Partner"::Vendor);
+        VendorBillingLineCount := CountOpenBillingLines(BillingTemplate2.Code, Enum::"Service Partner"::Vendor);
+        Assert.AreNotEqual(0, VendorBillingLineCount, BillingProposalNotCreatedErr);
+
+        // [GIVEN] An open billing proposal created with a customer billing template
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer);
+        Assert.AreNotEqual(0, CountOpenBillingLines(BillingTemplate.Code, Enum::"Service Partner"::Customer), BillingProposalNotCreatedErr);
+
+        // [WHEN] The customer billing template is selected on the Recurring Billing page and Create Documents is chosen
+        PostDocuments := false;
+        LibraryVariableStorage.Enqueue(BillingTemplate.Code);
+        RecurringBillingPage.OpenEdit();
+        RecurringBillingPage.BillingTemplateField.Lookup(); // BillingTemplateFromQueueModalPageHandler
+        RecurringBillingPage.CreateDocuments.Invoke(); // CreateBillingDocsCustomerPageHandler, MessageHandler
+        RecurringBillingPage.Close();
+
+        // [THEN] Sales invoices are created for the customer billing lines shown on the page
+        BillingLine.Reset();
+        BillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
+        BillingLine.SetRange(Partner, Enum::"Service Partner"::Customer);
+        BillingLine.SetRange("Document Type", Enum::"Rec. Billing Document Type"::Invoice);
+        BillingLine.SetFilter("Document No.", '<>%1', '');
+        Assert.RecordIsNotEmpty(BillingLine);
+
+        // [THEN] The vendor billing proposal is not taken into account and stays open
+        Assert.AreEqual(
+            VendorBillingLineCount, CountOpenBillingLines(BillingTemplate2.Code, Enum::"Service Partner"::Vendor),
+            VendorProposalChangedErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateBillingDocsCustomerPageHandler,ExchangeRateSelectionModalPageHandler,MessageHandler')]
+    procedure CreateBillingDocumentsWithPartnerFilterOnlyWhenOtherPartnerProposalExists()
+    var
+        VendorBillingLineCount: Integer;
+    begin
+        // [SCENARIO 650583] A Partner filter set by the caller must survive the "only one partner type" check.
+        // This mirrors the Recurring Billing page, which filters on Partner but not on Billing Template Code.
+        Initialize();
+        ContractTestLibrary.DeleteAllContractRecords();
+
+        // [GIVEN] An open vendor billing proposal and an open customer billing proposal
+        ContractTestLibrary.CreateVendor(Vendor);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.", false);
+        ContractTestLibrary.CreateCustomer(Customer);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject2, Customer."No.", false);
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate2, Enum::"Service Partner"::Vendor);
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer);
+        VendorBillingLineCount := CountOpenBillingLines(BillingTemplate2.Code, Enum::"Service Partner"::Vendor);
+
+        // [WHEN] Billing documents are created for billing lines filtered on Partner::Customer only
+        PostDocuments := false;
+        BillingLine.Reset();
+        BillingLine.SetRange(Partner, Enum::"Service Partner"::Customer);
+        BillingLine.FindFirst(); // the page always passes a record buffer positioned on the current row
+        Codeunit.Run(Codeunit::"Create Billing Documents", BillingLine);
+
+        // [THEN] Sales invoices are created and the vendor proposal is left untouched
+        BillingLine.Reset();
+        BillingLine.SetRange("Billing Template Code", BillingTemplate.Code);
+        BillingLine.SetRange(Partner, Enum::"Service Partner"::Customer);
+        BillingLine.SetRange("Document Type", Enum::"Rec. Billing Document Type"::Invoice);
+        BillingLine.SetFilter("Document No.", '<>%1', '');
+        Assert.RecordIsNotEmpty(BillingLine);
+
+        Assert.AreEqual(
+            VendorBillingLineCount, CountOpenBillingLines(BillingTemplate2.Code, Enum::"Service Partner"::Vendor),
+            VendorProposalChangedErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeRateSelectionModalPageHandler,MessageHandler')]
+    procedure CreateBillingDocumentsWithoutPartnerFilterStillBlocksMixedPartnerTypes()
+    var
+        CreateBillingDocumentsCodeunit: Codeunit "Create Billing Documents";
+    begin
+        // [SCENARIO 650583] Without a Partner filter the guard must still block a mixed set of billing lines,
+        // so that the fix for the filtered case does not weaken the check.
+        Initialize();
+        ContractTestLibrary.DeleteAllContractRecords();
+
+        // [GIVEN] An open vendor billing proposal and an open customer billing proposal
+        ContractTestLibrary.CreateVendor(Vendor);
+        ContractTestLibrary.CreateVendorContractAndCreateContractLinesForItems(VendorContract, ServiceObject, Vendor."No.", false);
+        ContractTestLibrary.CreateCustomer(Customer);
+        ContractTestLibrary.CreateCustomerContractAndCreateContractLinesForItems(CustomerContract, ServiceObject2, Customer."No.", false);
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate2, Enum::"Service Partner"::Vendor);
+        ContractTestLibrary.CreateBillingProposal(BillingTemplate, Enum::"Service Partner"::Customer);
+        Commit(); // retain data after asserterror
+
+        // [WHEN] Billing documents are created without any Partner filter
+        BillingLine.Reset();
+        asserterror CreateBillingDocumentsCodeunit.Run(BillingLine);
+
+        // [THEN] The partner type error is raised and no documents are created
+        Assert.ExpectedError(OnlyOneServicePartnerErr);
+
+        BillingLine.Reset();
+        BillingLine.SetFilter("Document No.", '<>%1', '');
+        Assert.RecordIsEmpty(BillingLine);
     end;
 
     #endregion Tests
@@ -1964,6 +2139,25 @@ codeunit 139688 "Recurring Billing Test"
         ExtendedTextLine.Find();
     end;
 
+    local procedure CheckNextToDateWithEndDate(PeriodTxt: Text; StartDate: Date; ExpectedEndDate: Date)
+    var
+        PeriodFormula: DateFormula;
+    begin
+        Evaluate(PeriodFormula, PeriodTxt);
+
+        Assert.AreEqual(ExpectedEndDate, ServiceCommitment.CalculateNextToDate(PeriodFormula, StartDate), 'Next Date not calculated correctly.');
+    end;
+
+    local procedure CountOpenBillingLines(BillingTemplateCode: Code[20]; ServicePartner: Enum "Service Partner"): Integer
+    var
+        OpenBillingLine: Record "Billing Line";
+    begin
+        OpenBillingLine.SetRange("Billing Template Code", BillingTemplateCode);
+        OpenBillingLine.SetRange(Partner, ServicePartner);
+        OpenBillingLine.SetRange("Document Type", Enum::"Rec. Billing Document Type"::None);
+        exit(OpenBillingLine.Count());
+    end;
+
     #endregion Procedures
 
     #region Handlers
@@ -2004,6 +2198,16 @@ codeunit 139688 "Recurring Billing Test"
     procedure ExchangeRateSelectionModalPageHandler(var ExchangeRateSelectionPage: TestPage "Exchange Rate Selection")
     begin
         ExchangeRateSelectionPage.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure BillingTemplateFromQueueModalPageHandler(var BillingTemplatesPage: TestPage "Billing Templates")
+    var
+        SelectedBillingTemplate: Record "Billing Template";
+    begin
+        SelectedBillingTemplate.Get(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(SelectedBillingTemplate.Code)));
+        BillingTemplatesPage.GoToRecord(SelectedBillingTemplate);
+        BillingTemplatesPage.OK().Invoke();
     end;
 
     [MessageHandler]
