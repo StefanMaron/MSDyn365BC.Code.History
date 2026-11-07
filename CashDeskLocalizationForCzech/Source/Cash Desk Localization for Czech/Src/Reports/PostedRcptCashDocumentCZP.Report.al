@@ -300,6 +300,9 @@ report 11736 "Posted Rcpt. Cash Document CZP"
                     column(FiscalIdentificationCode_EETEntry; "Fiscal Identification Code")
                     {
                     }
+                    column(AcknowledgementCode_EETEntry; "Acknowledgement Code")
+                    {
+                    }
                 }
                 dataitem("User Setup"; "User Setup")
                 {
@@ -402,6 +405,7 @@ report 11736 "Posted Rcpt. Cash Document CZP"
         BKPLbl = 'BKP:';
         FIKLbl = 'FIK:';
         PKPLbl = 'PKP:';
+        POKLbl = 'POK:';
         CopyLbl = 'Copy';
         PostingDateLbl = 'Posting Date';
     }

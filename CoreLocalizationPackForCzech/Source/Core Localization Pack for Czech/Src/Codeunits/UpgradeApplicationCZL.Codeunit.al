@@ -59,11 +59,6 @@ codeunit 31017 "Upgrade Application CZL"
                   tabledata "Subst. Cust. Posting Group CZL" = i,
                   tabledata "Subst. Vend. Posting Group CZL" = i,
                   tabledata "Certificate Code CZL" = im,
-                  tabledata "EET Service Setup CZL" = im,
-                  tabledata "EET Business Premises CZL" = im,
-                  tabledata "EET Cash Register CZL" = im,
-                  tabledata "EET Entry CZL" = im,
-                  tabledata "EET Entry Status Log CZL" = im,
                   tabledata "Constant Symbol CZL" = i,
                   tabledata "Specific Movement CZL" = im,
                   tabledata "Intrastat Delivery Group CZL" = im,
@@ -141,7 +136,10 @@ codeunit 31017 "Upgrade Application CZL"
                   tabledata "Gen. Journal Template" = m,
                   tabledata "VAT Entry" = m,
                   tabledata "Report Selections" = m,
-                  tabledata "G/L Entry" = m;
+                  tabledata "G/L Entry" = m,
+                  tabledata "EET Service Setup CZL" = m,
+                  tabledata "EET Business Premises CZL" = m,
+                  tabledata "EET Cash Register CZL" = m;
 
     var
         DataUpgradeMgt: Codeunit "Data Upgrade Mgt.";
@@ -187,6 +185,11 @@ codeunit 31017 "Upgrade Application CZL"
         UpgradeUseVATReturnPeriodInsteadOfVATPeriod();
 #endif
         UpgradeOriginalVATAmountsACYInVATEntries();
+#if not CLEANSCHEMA33
+        UpgradeStatutoryReportingSetupOfficialFullName();
+        UpgradeEETTaxpayerCertificateCode();
+        UpgradeEETBusinessPremisesExtendedDescription();
+#endif
     end;
 
     local procedure UpgradeReplaceVATDateCZL()
@@ -228,12 +231,10 @@ codeunit 31017 "Upgrade Application CZL"
         GLEntry.Reset();
         TotalRows := GLEntry.Count();
         ToNo := 0;
-
         while ToNo < TotalRows do begin
             // Batch size 5 million
             FromNo := ToNo + 1;
             ToNo := FromNo + 5000000;
-
             if ToNo > TotalRows then
                 ToNo := TotalRows;
 
@@ -348,7 +349,6 @@ codeunit 31017 "Upgrade Application CZL"
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.GetReplaceVATDateCZLServiceUpgradeTag()) then
             exit;
-
         if not (ServiceHeader.WritePermission() and ServiceInvoiceHeader.WritePermission() and ServiceCrMemoHeader.WritePermission()) then
             exit;
 
@@ -380,13 +380,11 @@ codeunit 31017 "Upgrade Application CZL"
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.GetReplaceVATDateCZLSetupUpgradeTag()) then
             exit;
-
         if GeneralLedgerSetup.Get() then begin
             if GeneralLedgerSetup."Use VAT Date CZL" then
                 GeneralLedgerSetup."VAT Reporting Date Usage" := GeneralLedgerSetup."VAT Reporting Date Usage"::"Enabled (Prevent modification)"
             else
                 GeneralLedgerSetup."VAT Reporting Date Usage" := GeneralLedgerSetup."VAT Reporting Date Usage"::Disabled;
-
             if PurchasesPayablesSetup.Get() then
                 case PurchasesPayablesSetup."Def. Orig. Doc. VAT Date CZL" of
                     PurchasesPayablesSetup."Def. Orig. Doc. VAT Date CZL"::Blank:
@@ -541,7 +539,6 @@ codeunit 31017 "Upgrade Application CZL"
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.GetStatutoryReportingSetupCityUpgradeTag()) then
             exit;
-
         if not CompanyInformation.Get() then
             exit;
         if not StatutoryReportingSetupCZL.Get() then
@@ -562,7 +559,6 @@ codeunit 31017 "Upgrade Application CZL"
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.GetSubstCustVendPostingGroupUpgradeTag()) then
             exit;
-
         if SubstCustPostingGroupCZL.FindSet() then
             repeat
                 if not AltCustomerPostingGroup.Get(SubstCustPostingGroupCZL."Parent Customer Posting Group", SubstCustPostingGroupCZL."Customer Posting Group") then begin
@@ -573,7 +569,6 @@ codeunit 31017 "Upgrade Application CZL"
                     AltCustomerPostingGroup.Insert(false, true);
                 end;
             until SubstCustPostingGroupCZL.Next() = 0;
-
         if SubstVendPostingGroupCZL.FindSet() then
             repeat
                 if not AltVendorPostingGroup.Get(SubstVendPostingGroupCZL."Parent Vendor Posting Group", SubstVendPostingGroupCZL."Vendor Posting Group") then begin
@@ -610,7 +605,6 @@ codeunit 31017 "Upgrade Application CZL"
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.GetAllowVATPostingUpgradeTag()) then
             exit;
-
         if GeneralLedgerSetup.Get() then begin
             if not VATSetup.Get() then begin
                 VATSetup.Init();
@@ -663,6 +657,24 @@ codeunit 31017 "Upgrade Application CZL"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitionsCZL.GetOriginalVATAmountsACYInVATEntriesUpgradeTag());
     end;
+#if not CLEANSCHEMA33
+
+    local procedure UpgradeStatutoryReportingSetupOfficialFullName()
+    var
+        StatutoryReportingSetupCZL: Record "Statutory Reporting Setup CZL";
+        StatutoryReportingSetupDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.GetStatutoryReportingSetupOfficialFullNameUpgradeTag()) then
+            exit;
+
+        StatutoryReportingSetupDataTransfer.SetTables(Database::"Statutory Reporting Setup CZL", Database::"Statutory Reporting Setup CZL");
+        StatutoryReportingSetupDataTransfer.AddSourceFilter(StatutoryReportingSetupCZL.FieldNo("Official Name"), '<>%1', '');
+        StatutoryReportingSetupDataTransfer.AddFieldValue(StatutoryReportingSetupCZL.FieldNo("Official Name"), StatutoryReportingSetupCZL.FieldNo("Official Full Name"));
+        StatutoryReportingSetupDataTransfer.CopyFields();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitionsCZL.GetStatutoryReportingSetupOfficialFullNameUpgradeTag());
+    end;
+#endif
 
     local procedure UpgradeEnableNonDeductibleVATCZ()
     var
@@ -695,7 +707,6 @@ codeunit 31017 "Upgrade Application CZL"
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.GetVATReportUpgradeTag()) then
             exit;
-
         if not VATReportsConfiguration.Get(VATReportsConfiguration."VAT Report Type"::"VAT Return", VATReportVersionTok) then begin
             VATReportsConfiguration.Init();
             VATReportsConfiguration.Validate("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"VAT Return");
@@ -706,7 +717,6 @@ codeunit 31017 "Upgrade Application CZL"
             VATReportsConfiguration.Validate("Submission Codeunit ID", Codeunit::"VAT Report Submit CZL");
             if VATReportsConfiguration.Insert(true) then;
         end;
-
         if not VATReportSetup.Get() then begin
             VATReportSetup.Init();
             if VATReportSetup.Insert() then;
@@ -714,7 +724,6 @@ codeunit 31017 "Upgrade Application CZL"
 
         VATReportSetup."Report Version" := VATReportVersionTok;
         if VATReportSetup.Modify() then;
-
         if VATAttributeCodeCZL.FindSet() then
             repeat
                 IsModified := true;
@@ -729,7 +738,6 @@ codeunit 31017 "Upgrade Application CZL"
                     else
                         IsModified := false;
                 end;
-
                 if IsModified then
                     if VATAttributeCodeCZL.Modify() then;
             until VATAttributeCodeCZL.Next() = 0;
@@ -744,7 +752,6 @@ codeunit 31017 "Upgrade Application CZL"
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.SetEnableNonDeductibleVATCZUpgradeTag()) then
             exit;
-
         if not NonDeductibleVATSetupCZL.IsEmpty() then
             if VATSetup.Get() then
                 if VATSetup."Enable Non-Deductible VAT" then begin
@@ -843,6 +850,58 @@ codeunit 31017 "Upgrade Application CZL"
         if EndDate = 0D then
             exit(0D);
         exit(CalcDate('<+25D>', EndDate));
+    end;
+#endif
+
+#if not CLEANSCHEMA33
+    local procedure UpgradeEETTaxpayerCertificateCode()
+    var
+        EETServiceSetupCZL: Record "EET Service Setup CZL";
+        EETBusinessPremisesCZL: Record "EET Business Premises CZL";
+        EETCashRegisterCZL: Record "EET Cash Register CZL";
+        EETServiceSetupDataTransfer: DataTransfer;
+        EETBusinessPremisesDataTransfer: DataTransfer;
+        EETCashRegisterDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.GetEETTaxpayerCertificateCodeUpgradeTag()) then
+            exit;
+
+        EETServiceSetupDataTransfer.SetTables(Database::"EET Service Setup CZL", Database::"EET Service Setup CZL");
+        EETServiceSetupDataTransfer.AddSourceFilter(EETServiceSetupCZL.FieldNo("Certificate Code"), '<>%1', '');
+        EETServiceSetupDataTransfer.AddSourceFilter(EETServiceSetupCZL.FieldNo("Taxpayer Certificate Code"), '=%1', '');
+        EETServiceSetupDataTransfer.AddFieldValue(EETServiceSetupCZL.FieldNo("Certificate Code"), EETServiceSetupCZL.FieldNo("Taxpayer Certificate Code"));
+        EETServiceSetupDataTransfer.CopyFields();
+
+        EETBusinessPremisesDataTransfer.SetTables(Database::"EET Business Premises CZL", Database::"EET Business Premises CZL");
+        EETBusinessPremisesDataTransfer.AddSourceFilter(EETBusinessPremisesCZL.FieldNo("Certificate Code"), '<>%1', '');
+        EETBusinessPremisesDataTransfer.AddSourceFilter(EETBusinessPremisesCZL.FieldNo("Taxpayer Certificate Code"), '=%1', '');
+        EETBusinessPremisesDataTransfer.AddFieldValue(EETBusinessPremisesCZL.FieldNo("Certificate Code"), EETBusinessPremisesCZL.FieldNo("Taxpayer Certificate Code"));
+        EETBusinessPremisesDataTransfer.CopyFields();
+
+        EETCashRegisterDataTransfer.SetTables(Database::"EET Cash Register CZL", Database::"EET Cash Register CZL");
+        EETCashRegisterDataTransfer.AddSourceFilter(EETCashRegisterCZL.FieldNo("Certificate Code"), '<>%1', '');
+        EETCashRegisterDataTransfer.AddSourceFilter(EETCashRegisterCZL.FieldNo("Taxpayer Certificate Code"), '=%1', '');
+        EETCashRegisterDataTransfer.AddFieldValue(EETCashRegisterCZL.FieldNo("Certificate Code"), EETCashRegisterCZL.FieldNo("Taxpayer Certificate Code"));
+        EETCashRegisterDataTransfer.CopyFields();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitionsCZL.GetEETTaxpayerCertificateCodeUpgradeTag());
+    end;
+
+    local procedure UpgradeEETBusinessPremisesExtendedDescription()
+    var
+        EETBusinessPremisesCZL: Record "EET Business Premises CZL";
+        EETBusinessPremisesDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.GetEETBusinessPremisesExtendedDescriptionUpgradeTag()) then
+            exit;
+
+        EETBusinessPremisesDataTransfer.SetTables(Database::"EET Business Premises CZL", Database::"EET Business Premises CZL");
+        EETBusinessPremisesDataTransfer.AddSourceFilter(EETBusinessPremisesCZL.FieldNo(Description), '<>%1', '');
+        EETBusinessPremisesDataTransfer.AddSourceFilter(EETBusinessPremisesCZL.FieldNo("Extended Description"), '=%1', '');
+        EETBusinessPremisesDataTransfer.AddFieldValue(EETBusinessPremisesCZL.FieldNo(Description), EETBusinessPremisesCZL.FieldNo("Extended Description"));
+        EETBusinessPremisesDataTransfer.CopyFields();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitionsCZL.GetEETBusinessPremisesExtendedDescriptionUpgradeTag());
     end;
 #endif
 
