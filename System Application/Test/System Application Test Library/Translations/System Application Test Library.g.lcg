@@ -527,6 +527,33 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.ExternalFileStorage)(LookupHint=Table Test File Connector Setup - Field Unsuccessful Register - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 970433406 - NamedType 294440665" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Failed to create file.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.ExternalFileStorage)(LookupHint=Codeunit Test File Storage Connector - NamedType FailedToCreateFileErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 970433406 - NamedType 3130596087" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Failed to get file.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestLibraries.ExternalFileStorage)(LookupHint=Codeunit Test File Storage Connector - NamedType FailedToGetFileErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 970433406 - NamedType 1733285004" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The file %1 does not exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = File path]D;]A;(Namespace=System.TestLibraries.ExternalFileStorage)(LookupHint=Codeunit Test File Storage Connector - NamedType FileNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 2992233629 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Translation Test Table]]></Val>
