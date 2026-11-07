@@ -941,6 +941,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Kitting - Able To Make - NamedType ItemNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2791754299 - NamedType 4256213702" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Value on %1 is incorrect for item %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field caption, %2 = Item number.]D;]A;(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Kitting - Able To Make - NamedType WrongQtyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 688121684 - NamedType 2399393996" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Assembly Orders for first ATO item should have been reused for second ATO item.]]></Val>
