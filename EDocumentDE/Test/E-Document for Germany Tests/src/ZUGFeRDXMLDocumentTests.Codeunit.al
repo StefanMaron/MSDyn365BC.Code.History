@@ -19,6 +19,7 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
+using Microsoft.Peppol;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
@@ -54,6 +55,7 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryEdocument: Codeunit "Library - E-Document";
         LibraryEDocDE: Codeunit "Library - E-Doc DE";
+        ValidationSetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         ZUGFeRDFormat: Codeunit "ZUGFeRD Format";
         ExportZUGFeRDDocument: Codeunit "Export ZUGFeRD Document";
@@ -82,6 +84,259 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         OriginalCompanyUsesRegistrationNo: Boolean;
         OriginalCompanyVATRegistrationNo: Text[20];
         OriginalCompanyRegistrationNo: Text[20];
+
+    [Test]
+    procedure ZUGFeRDAcceptsRoutingWithoutIdentifiersOrReference()
+    var
+        SalesHeader: Record "Sales Header";
+        SourceDocumentHeader: RecordRef;
+    begin
+        // [FEATURE] [AI test 1.0]
+        // [SCENARIO 654755] ZUGFeRD accepts routing and email without customer GLN/VAT or Your Reference.
+        Initialize();
+
+        // [GIVEN] Invoice "SI" has routing and email but no customer identifiers or reference.
+        CreateValidationInvoice(SalesHeader, true, false);
+        SourceDocumentHeader.GetTable(SalesHeader);
+
+        // [WHEN] Validate invoice "SI" as ZUGFeRD.
+        ZUGFeRDFormat.Check(SourceDocumentHeader, EDocumentService, "E-Document Processing Phase"::Release);
+
+        // [THEN] Validation succeeds without filling a reference.
+        Assert.AreEqual('', SalesHeader."Your Reference", 'Your Reference must remain empty.');
+    end;
+
+    [Test]
+    procedure ZUGFeRDRequiresEmailWithRouting()
+    var
+        SalesHeader: Record "Sales Header";
+        SourceDocumentHeader: RecordRef;
+    begin
+        // [FEATURE] [AI test 1.0]
+        // [SCENARIO 654755] ZUGFeRD routing exemptions do not bypass the email requirement.
+        Initialize();
+
+        // [GIVEN] Invoice "SI" has routing but no customer identifiers, reference or email.
+        CreateValidationInvoice(SalesHeader, true, false);
+        SalesHeader."Sell-to E-Mail" := '';
+        SourceDocumentHeader.GetTable(SalesHeader);
+
+        // [WHEN] Validate invoice "SI" as ZUGFeRD.
+        asserterror ZUGFeRDFormat.Check(SourceDocumentHeader, EDocumentService, "E-Document Processing Phase"::Release);
+
+        // [THEN] Validation reaches the missing-email error.
+        VerifyValidationError(SalesHeader.FieldCaption("Sell-to E-Mail"), 'TestField');
+    end;
+
+    [Test]
+    procedure ZUGFeRDRequiresIdentifiersWithoutRouting()
+    var
+        SalesHeader: Record "Sales Header";
+        SourceDocumentHeader: RecordRef;
+    begin
+        // [FEATURE] [AI test 1.0]
+        // [SCENARIO 654755] ZUGFeRD requires customer GLN/VAT when there is no routing number.
+        Initialize();
+
+        // [GIVEN] Invoice "SI" has email and a reference but no routing or customer identifiers.
+        CreateValidationInvoice(SalesHeader, false, false);
+        SalesHeader."Your Reference" := 'PO-123';
+        SourceDocumentHeader.GetTable(SalesHeader);
+
+        // [WHEN] Validate invoice "SI" as ZUGFeRD.
+        asserterror ZUGFeRDFormat.Check(SourceDocumentHeader, EDocumentService, "E-Document Processing Phase"::Release);
+
+        // [THEN] Customer identification is still required.
+        VerifyValidationError('You must specify either GLN or VAT Registration No. for Customer', 'Dialog');
+    end;
+
+    [Test]
+    procedure ZUGFeRDAcceptsIdentifiersWithoutYourReference()
+    var
+        SalesHeader: Record "Sales Header";
+        SourceDocumentHeader: RecordRef;
+    begin
+        // [FEATURE] [AI test 1.0]
+        // [SCENARIO 654755] ZUGFeRD does not require Your Reference when buyer reference is optional.
+        Initialize();
+
+        // [GIVEN] Invoice "SI" has customer GLN and email but no routing or reference.
+        CreateValidationInvoice(SalesHeader, false, true);
+        SourceDocumentHeader.GetTable(SalesHeader);
+
+        // [WHEN] Validate invoice "SI" as ZUGFeRD.
+        ZUGFeRDFormat.Check(SourceDocumentHeader, EDocumentService, "E-Document Processing Phase"::Release);
+
+        // [THEN] Your Reference remains optional independently of routing.
+        Assert.AreEqual('', SalesHeader."Your Reference", 'Your Reference must remain empty.');
+    end;
+
+    [Test]
+    procedure ZUGFeRDAcceptsAllocationAccountLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SourceDocumentHeader: RecordRef;
+    begin
+        // [FEATURE] [AI test 1.0]
+        // [SCENARIO 654755] ZUGFeRD validates allocation distributions instead of the placeholder line.
+        Initialize();
+
+        // [GIVEN] Invoice "SI" has an allocation line with a valid G/L distribution and no UOM.
+        CreateValidationInvoice(SalesHeader, false, true);
+        LibraryEDocDE.CreateAllocationValidationLine(SalesHeader, SalesLine, VATPostingSetup);
+        SourceDocumentHeader.GetTable(SalesHeader);
+
+        // [WHEN] Validate invoice "SI" as ZUGFeRD.
+        ZUGFeRDFormat.Check(SourceDocumentHeader, EDocumentService, "E-Document Processing Phase"::Release);
+
+        // [THEN] Validation accepts the allocation line without requiring a placeholder UOM.
+        Assert.AreEqual('', SalesLine."Unit of Measure Code", 'The allocation placeholder must not need a UOM.');
+    end;
+
+    [Test]
+    procedure ZUGFeRDRejectsAllocationWithoutTaxCategory()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SourceDocumentHeader: RecordRef;
+    begin
+        // [FEATURE] [AI test 1.0]
+        // [SCENARIO 654755] ZUGFeRD checks VAT on the expanded allocation line.
+        Initialize();
+
+        // [GIVEN] Invoice "SI" has an allocation distribution whose VAT setup has no tax category.
+        CreateValidationInvoice(SalesHeader, false, true);
+        LibraryEDocDE.CreateAllocationValidationLine(SalesHeader, SalesLine, VATPostingSetup);
+        VATPostingSetup.Validate("Tax Category", '');
+        VATPostingSetup.Modify(true);
+        SourceDocumentHeader.GetTable(SalesHeader);
+
+        // [WHEN] Validate invoice "SI" as ZUGFeRD.
+        asserterror ZUGFeRDFormat.Check(SourceDocumentHeader, EDocumentService, "E-Document Processing Phase"::Release);
+
+        // [THEN] The expanded line fails its VAT check, not a placeholder UOM check.
+        VerifyValidationError(VATPostingSetup.FieldCaption("Tax Category"), 'TestField');
+    end;
+
+    [Test]
+    procedure ZUGFeRDAcceptsSingleServiceVATBreakdown()
+    var
+        SalesHeader: Record "Sales Header";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        SourceDocumentHeader: RecordRef;
+    begin
+        // [FEATURE] [AI test 1.0]
+        // [SCENARIO 654755] ZUGFeRD accepts service lines sharing one outside-scope VAT breakdown.
+        Initialize();
+
+        // [GIVEN] Service invoice "SI" has two O-category lines with the same breakdown key.
+        CreateValidationInvoice(SalesHeader, false, true);
+        LibraryEDocDE.CreateServiceOutsideScopeDocument(SalesHeader, ServiceHeader, false);
+        SourceDocumentHeader.GetTable(ServiceHeader);
+
+        // [WHEN] Validate service invoice "SI" as ZUGFeRD.
+        ZUGFeRDFormat.Check(SourceDocumentHeader, EDocumentService, "E-Document Processing Phase"::Release);
+
+        // [THEN] Both lines are accepted.
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        Assert.AreEqual(2, ServiceLine.Count(), 'Both service lines must remain on the document.');
+    end;
+
+    [Test]
+    procedure ZUGFeRDRejectsMultipleServiceVATBreakdowns()
+    var
+        SalesHeader: Record "Sales Header";
+        ServiceHeader: Record "Service Header";
+        SourceDocumentHeader: RecordRef;
+    begin
+        // [FEATURE] [AI test 1.0]
+        // [SCENARIO 654755] ZUGFeRD retains outside-scope VAT state across service lines.
+        Initialize();
+
+        // [GIVEN] Service invoice "SI" has two O-category lines with different breakdown keys.
+        CreateValidationInvoice(SalesHeader, false, true);
+        LibraryEDocDE.CreateServiceOutsideScopeDocument(SalesHeader, ServiceHeader, true);
+        SourceDocumentHeader.GetTable(ServiceHeader);
+
+        // [WHEN] Validate service invoice "SI" as ZUGFeRD.
+        asserterror ZUGFeRDFormat.Check(SourceDocumentHeader, EDocumentService, "E-Document Processing Phase"::Release);
+
+        // [THEN] A second outside-scope VAT breakdown is rejected.
+        VerifyValidationError('There can be only one tax subtotal present on invoice used with "Not subject to VAT" (O) tax category.', 'Dialog');
+    end;
+
+    [Test]
+    procedure ZUGFeRDChecksPostedServiceInvoiceEmail()
+    var
+        SalesHeader: Record "Sales Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        SourceDocumentHeader: RecordRef;
+        DocumentEmail: Text[80];
+    begin
+        // [FEATURE] [AI test 1.0]
+        // [SCENARIO 654755] ZUGFeRD maps posted service invoice email into sales header validation.
+        Initialize();
+
+        // [GIVEN] Posted service invoice "SI" has its email removed from the validation input.
+        CreateValidationInvoice(SalesHeader, false, true);
+        LibraryEDocDE.CreateAndPostValidationServiceInvoice(SalesHeader, ServiceInvoiceHeader);
+        DocumentEmail := ServiceInvoiceHeader."E-Mail";
+        ServiceInvoiceHeader."E-Mail" := '';
+        SourceDocumentHeader.GetTable(ServiceInvoiceHeader);
+
+        // [WHEN] Validate posted service invoice "SI" without email.
+        asserterror ZUGFeRDFormat.Check(SourceDocumentHeader, EDocumentService, "E-Document Processing Phase"::Release);
+
+        // [THEN] The mapped sales email field is required.
+        VerifyValidationError(SalesHeader.FieldCaption("Sell-to E-Mail"), 'TestField');
+
+        // [WHEN] Restore the email and validate the same posted document again.
+        ServiceInvoiceHeader."E-Mail" := DocumentEmail;
+        SourceDocumentHeader.GetTable(ServiceInvoiceHeader);
+        ZUGFeRDFormat.Check(SourceDocumentHeader, EDocumentService, "E-Document Processing Phase"::Release);
+
+        // [THEN] The populated service email is accepted.
+        Assert.AreNotEqual('', DocumentEmail, 'The posted service invoice must have an email.');
+    end;
+
+    [Test]
+    procedure ZUGFeRDChecksPostedServiceCrMemoEmail()
+    var
+        SalesHeader: Record "Sales Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        SourceDocumentHeader: RecordRef;
+        DocumentEmail: Text[80];
+    begin
+        // [FEATURE] [AI test 1.0]
+        // [SCENARIO 654755] ZUGFeRD maps posted service credit memo email into sales header validation.
+        Initialize();
+
+        // [GIVEN] Posted service credit memo "SC" has its email removed from the validation input.
+        CreateValidationInvoice(SalesHeader, false, true);
+        LibraryEDocDE.CreateAndPostValidationServiceCrMemo(SalesHeader, ServiceCrMemoHeader);
+        DocumentEmail := ServiceCrMemoHeader."E-Mail";
+        ServiceCrMemoHeader."E-Mail" := '';
+        SourceDocumentHeader.GetTable(ServiceCrMemoHeader);
+
+        // [WHEN] Validate posted service credit memo "SC" without email.
+        asserterror ZUGFeRDFormat.Check(SourceDocumentHeader, EDocumentService, "E-Document Processing Phase"::Release);
+
+        // [THEN] The mapped sales email field is required.
+        VerifyValidationError(SalesHeader.FieldCaption("Sell-to E-Mail"), 'TestField');
+
+        // [WHEN] Restore the email and validate the same posted document again.
+        ServiceCrMemoHeader."E-Mail" := DocumentEmail;
+        SourceDocumentHeader.GetTable(ServiceCrMemoHeader);
+        ZUGFeRDFormat.Check(SourceDocumentHeader, EDocumentService, "E-Document Processing Phase"::Release);
+
+        // [THEN] The populated service email is accepted.
+        Assert.AreNotEqual('', DocumentEmail, 'The posted service credit memo must have an email.');
+    end;
 
     #region SalesInvoice
     [Test]
@@ -2958,6 +3213,72 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
     end;
     #endregion
 
+    local procedure Initialize();
+    var
+        PEPPOL30Setup: Record "PEPPOL 3.0 Setup";
+    begin
+        ValidationSetupStorage.Restore();
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ZUGFeRD XML Document Tests");
+        if IsInitialized then begin
+            RestoreCompanyIdentifiers();
+            EDocumentService.Get(EDocumentService.Code);
+            exit;
+        end;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ZUGFeRD XML Document Tests");
+        IsInitialized := true;
+        CompanyInformation.Get();
+        OriginalCompanyGLN := CompanyInformation.GLN;
+        OriginalCompanyUsesGLN := CompanyInformation."Use GLN in Electronic Document";
+        OriginalCompanyUsesRegistrationNo := CompanyInformation."Use Reg. No. in E-Document";
+        OriginalCompanyVATRegistrationNo := CompanyInformation."VAT Registration No.";
+        OriginalCompanyRegistrationNo := CompanyInformation."Registration No.";
+        CompanyInformation.IBAN := LibraryUtility.GenerateMOD97CompliantCode();
+        CompanyInformation."SWIFT Code" := LibraryUtility.GenerateGUID();
+        CompanyInformation."E-Mail" := LibraryUtility.GenerateRandomEmail();
+        CompanyInformation.Modify();
+        GeneralLedgerSetup.Get();
+        EDocumentService.DeleteAll();
+        EDocumentService.Get(LibraryEdocument.CreateService("E-Document Format"::ZUGFeRD, "Service Integration"::"No Integration"));
+        PEPPOL30Setup.GetSetup();
+        Commit();
+
+        ValidationSetupStorage.Save(Database::"PEPPOL 3.0 Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ZUGFeRD XML Document Tests");
+    end;
+
+    local procedure CreateValidationInvoice(var SalesHeader: Record "Sales Header"; HasRoutingNo: Boolean; HasCustomerIdentifier: Boolean)
+    var
+        Customer: Record Customer;
+        PEPPOL30Setup: Record "PEPPOL 3.0 Setup";
+    begin
+        PEPPOL30Setup.Get();
+        PEPPOL30Setup."PEPPOL 3.0 Sales Format" := PEPPOL30Setup."PEPPOL 3.0 Sales Format"::"PEPPOL 3.0 - Sales";
+        PEPPOL30Setup.Modify();
+        EDocumentService."Buyer Reference Mandatory" := false;
+
+        CreateSalesHeader(SalesHeader, "Sales Document Type"::Invoice);
+        CreateSalesLine(SalesHeader, Enum::"Sales Line Type"::Item, false);
+        Customer.Get(SalesHeader."Bill-to Customer No.");
+        Customer.GLN := '';
+        Customer."VAT Registration No." := '';
+        if not HasRoutingNo then
+            Customer.Validate("E-Invoice Routing No.", '');
+        if HasCustomerIdentifier then
+            Customer.Validate(GLN, CustomerGLN());
+        Customer.Modify();
+
+        SalesHeader."Buyer Reference" := '';
+        SalesHeader."Your Reference" := '';
+        SalesHeader."Sell-to E-Mail" := Customer."E-Mail";
+        SalesHeader.Modify();
+    end;
+
+    local procedure VerifyValidationError(ExpectedError: Text; ExpectedErrorCode: Text)
+    begin
+        Assert.ExpectedError(ExpectedError);
+        Assert.ExpectedErrorCode(ExpectedErrorCode);
+    end;
+
     local procedure CreateAndPostSalesInvoiceWithChargeAndZeroQuantityLine(var ItemChargeNo: Code[20]): Code[20]
     var
         Item: Record Item;
@@ -4881,33 +5202,6 @@ codeunit 13922 "ZUGFeRD XML Document Tests"
         CompanyInformation."Registration No." := RegistrationNo;
         CompanyInformation."Use Reg. No. in E-Document" := true;
         CompanyInformation.Modify();
-    end;
-
-    local procedure Initialize();
-    begin
-        LibraryTestInitialize.OnTestInitialize(Codeunit::"ZUGFeRD XML Document Tests");
-        if IsInitialized then begin
-            RestoreCompanyIdentifiers();
-            exit;
-        end;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ZUGFeRD XML Document Tests");
-        IsInitialized := true;
-        CompanyInformation.Get();
-        OriginalCompanyGLN := CompanyInformation.GLN;
-        OriginalCompanyUsesGLN := CompanyInformation."Use GLN in Electronic Document";
-        OriginalCompanyUsesRegistrationNo := CompanyInformation."Use Reg. No. in E-Document";
-        OriginalCompanyVATRegistrationNo := CompanyInformation."VAT Registration No.";
-        OriginalCompanyRegistrationNo := CompanyInformation."Registration No.";
-        CompanyInformation.IBAN := LibraryUtility.GenerateMOD97CompliantCode();
-        CompanyInformation."SWIFT Code" := LibraryUtility.GenerateGUID();
-        CompanyInformation."E-Mail" := LibraryUtility.GenerateRandomEmail();
-        CompanyInformation.Modify();
-        GeneralLedgerSetup.Get();
-        EDocumentService.DeleteAll();
-        EDocumentService.Get(LibraryEdocument.CreateService("E-Document Format"::ZUGFeRD, "Service Integration"::"No Integration"));
-        Commit();
-
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ZUGFeRD XML Document Tests");
     end;
 
     local procedure RestoreCompanyIdentifiers()

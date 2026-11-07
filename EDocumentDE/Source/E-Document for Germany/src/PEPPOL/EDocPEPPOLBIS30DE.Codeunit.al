@@ -19,7 +19,6 @@ codeunit 11035 "EDoc PEPPOL BIS 3.0 DE" implements "E-Document"
 
     var
         EDocPEPPOLBIS30: Codeunit "EDoc PEPPOL BIS 3.0";
-        EDocPEPPOLValidationDE: Codeunit "EDoc PEPPOL Validation DE";
         EDocumentDEHelper: Codeunit "E-Document DE Helper";
         UBLInvoiceNamespaceTxt: Label 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2', Locked = true;
         UBLCrMemoNamespaceTxt: Label 'urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2', Locked = true;
@@ -27,11 +26,11 @@ codeunit 11035 "EDoc PEPPOL BIS 3.0 DE" implements "E-Document"
         UBLCBCNamespaceTxt: Label 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2', Locked = true;
 
     procedure Check(var SourceDocumentHeader: RecordRef; EDocumentService: Record "E-Document Service"; EDocumentProcessingPhase: Enum "E-Document Processing Phase")
+    var
+        EDocPEPPOLValidationDE: Codeunit "EDoc PEPPOL Validation DE";
     begin
         EDocumentDEHelper.CheckBuyerReferenceMandatory(EDocumentService, SourceDocumentHeader);
-        BindSubscription(EDocPEPPOLValidationDE);
-        EDocPEPPOLBIS30.Check(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
-        UnbindSubscription(EDocPEPPOLValidationDE);
+        EDocPEPPOLValidationDE.Check(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
     end;
 
     procedure Create(EDocumentService: Record "E-Document Service"; var EDocument: Record "E-Document"; var SourceDocumentHeader: RecordRef; var SourceDocumentLines: RecordRef; var TempBlob: Codeunit "Temp Blob")

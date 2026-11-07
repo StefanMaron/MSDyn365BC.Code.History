@@ -22,23 +22,19 @@ codeunit 13920 "ZUGFeRD Format" implements "E-Document"
     InherentPermissions = X;
 
     var
-        EDocPEPPOLBIS30: Codeunit "EDoc PEPPOL BIS 3.0";
-        EDocPEPPOLValidationDE: Codeunit "EDoc PEPPOL Validation DE";
         EDocImportZUGFeRD: Codeunit "Import ZUGFeRD Document";
         EDocumentDEHelper: Codeunit "E-Document DE Helper";
 
     procedure Check(var SourceDocumentHeader: RecordRef; EDocumentService: Record "E-Document Service"; EDocumentProcessingPhase: Enum "E-Document Processing Phase")
     var
         CompanyInformation: Record "Company Information";
+        EDocPEPPOLValidationDE: Codeunit "EDoc PEPPOL Validation DE";
     begin
         OnBeforeCheck(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
         CheckCompanyInfoMandatory(CompanyInformation);
         CheckBankAccountIBANMandatory(SourceDocumentHeader, CompanyInformation);
         EDocumentDEHelper.CheckBuyerReferenceMandatory(EDocumentService, SourceDocumentHeader);
-        EDocPEPPOLValidationDE.SetSkipVATRegNoCheck(EDocumentDEHelper.HasRoutingNo(SourceDocumentHeader));
-        BindSubscription(EDocPEPPOLValidationDE);
-        EDocPEPPOLBIS30.Check(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
-        UnbindSubscription(EDocPEPPOLValidationDE);
+        EDocPEPPOLValidationDE.Check(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
         OnAfterCheck(SourceDocumentHeader, EDocumentService, EDocumentProcessingPhase);
     end;
 

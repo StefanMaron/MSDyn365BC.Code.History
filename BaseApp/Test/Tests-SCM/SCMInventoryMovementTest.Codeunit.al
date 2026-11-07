@@ -22,6 +22,41 @@ codeunit 137200 "SCM Inventory Movement Test"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
 
+    [Test]
+    procedure CheckToAssemblyBinContentRespectsLotNo()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        CreateInventoryPickMovement: Codeunit "Create Inventory Pick/Movement";
+        FirstLotNo: Code[50];
+        SecondLotNo: Code[50];
+        QtyToPickBase: Decimal;
+    begin
+        // [SCENARIO 648376] Quantity in the To-Assembly Bin is deducted only for the component lot.
+        Initialize();
+
+        // [GIVEN] A lot-tracked item has 1 unit of one lot and 2 units of another lot in the To-Assembly Bin.
+        CreateLocationWithToAssemblyBin(Location, Bin);
+        CreateLotTrackedItem(Item);
+        FirstLotNo := LibraryUtility.GenerateGUID();
+        SecondLotNo := LibraryUtility.GenerateGUID();
+        CreateAndPostItemJournalLineWithLotNo(Item, Location.Code, Bin.Code, FirstLotNo, 1);
+        CreateAndPostItemJournalLineWithLotNo(Item, Location.Code, Bin.Code, SecondLotNo, 2);
+
+        // [WHEN] The quantity to pick is reduced by existing content for the second lot.
+        WarehouseActivityLine."Location Code" := Location.Code;
+        WarehouseActivityLine."Item No." := Item."No.";
+        WarehouseActivityLine."Unit of Measure Code" := Item."Base Unit of Measure";
+        WarehouseActivityLine."Lot No." := SecondLotNo;
+        QtyToPickBase := 3;
+        CreateInventoryPickMovement.CheckBinContentWithToAssemblyBinCode(QtyToPickBase, WarehouseActivityLine);
+
+        // [THEN] Only the 2 units of the second lot are deducted.
+        Assert.AreEqual(1, QtyToPickBase, WarehouseActivityLine.FieldCaption("Qty. (Base)"));
+    end;        
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1008,6 +1043,38 @@ codeunit 137200 "SCM Inventory Movement Test"
                 BinName := 'B0' + Format(i) + '-00' + Format(j);
                 LibraryWarehouse.CreateBin(Bin, Location.Code, BinName, '', '');
             end;
+    end;
+
+    local procedure CreateLocationWithToAssemblyBin(var Location: Record Location; var Bin: Record Bin)
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("To-Assembly Bin Code", Bin.Code);
+        Location.Modify(true);
+    end;
+
+    local procedure CreateLotTrackedItem(var Item: Record Item)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCode.Modify(true);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateAndPostItemJournalLineWithLotNo(Item: Record Item; LocationCode: Code[10]; BinCode: Code[20]; LotNo: Code[50]; Quantity: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationCode, BinCode, Quantity);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo, Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure CreateFinalItem(var ItemRec: Record Item)
