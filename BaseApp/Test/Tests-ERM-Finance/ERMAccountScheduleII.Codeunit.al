@@ -43,6 +43,7 @@
         AuditLogWrittenTooEarlyErr: Label 'The audit log entry for financial report %1 must not be written before the report has finished processing.', Comment = '%1 = Financial report name';
         SheetNameTok: Label 'Sheet%1', Locked = true;
         SheetNotListedErr: Label 'The sheet selection page must list sheet %1 of the workbook.', Comment = '%1 = Sheet number';
+        LastRunByCurrentUserErr: Label 'The Your Last Run value must be calculated for the user in the User Security ID Filter flow filter.';
         IsInitialized: Boolean;
 
     [Test]
@@ -3066,6 +3067,35 @@
         VerifyTextValueAppearsOnce('Currency');
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ExportAccScheduleToExcelWithEmptyLCYCode()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        DimensionValue: array[4] of Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // [FEATURE] [Excel]
+        // [SCENARIO 650415] Account Schedule can be exported to Excel when the LCY Code is blank
+        Initialize();
+
+        // [GIVEN] LCY Code is blank
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."LCY Code" := '';
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] An Account Schedule
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryReportValidation.SetFileName(AccScheduleName.Name);
+
+        // [WHEN] Export Account Schedule to Excel
+        RunExportAccScheduleToExcel(AccScheduleName, DimensionValue);
+
+        // [THEN] Excel file is exported without error
+        Assert.IsTrue(FILE.Exists(LibraryReportValidation.GetFileName()), AccScheduleExportErr);
+    end;
+
     local procedure Initialize()
     var
         FinancialReportMgt: Codeunit "Financial Report Mgt.";
@@ -3813,6 +3843,55 @@
         FinancialReportAuditLog.SetRange(User, UserId);
         FinancialReportAuditLog.SetRange(Format, FinancialReportAuditLog.Format::Excel);
         Assert.AreEqual(0, FinancialReportAuditLog.Count(), StrSubstNo(AuditLogWrittenTooEarlyErr, FinancialReportName));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FinRepLastRunByCurrentUserUsesUserSecurityIdFilter()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinancialReport: Record "Financial Report";
+        FinancialReportAuditLog: Record "Financial Report Audit Log";
+        FinancialReports: TestPage "Financial Reports";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+    begin
+        // [SCENARIO 649981] The "Your Last Run" flow field is calculated for the user in the "User Security ID Filter" flow filter
+        Initialize();
+
+        // [GIVEN] A financial report that the current user has viewed
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        FinancialReports.OpenEdit();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
+        AccScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+        AccScheduleOverview.Close();
+        FinancialReports.Close();
+
+        FinancialReportAuditLog.SetRange("Report Name", AccScheduleName.Name);
+        FinancialReportAuditLog.SetRange(SystemCreatedBy, UserSecurityId());
+        FinancialReportAuditLog.FindLast();
+
+        // [WHEN] The flow field is calculated with the current user in the flow filter
+        FinancialReport.Get(AccScheduleName.Name);
+        FinancialReport.SetRange("User Security ID Filter", UserSecurityId());
+        FinancialReport.CalcFields("Last Run by Current User");
+
+        // [THEN] It returns the date-time of the audit log entry written for the current user
+        Assert.AreEqual(
+          FinancialReportAuditLog.SystemCreatedAt, FinancialReport."Last Run by Current User", LastRunByCurrentUserErr);
+
+        // [WHEN] The flow field is calculated for another user
+        FinancialReport.SetRange("User Security ID Filter", CreateGuid());
+        FinancialReport.CalcFields("Last Run by Current User");
+
+        // [THEN] It is blank, because that user has not run the report
+        Assert.AreEqual(0DT, FinancialReport."Last Run by Current User", LastRunByCurrentUserErr);
+
+        // [THEN] The Financial Reports page opens and shows the value for the current user
+        FinancialReports.OpenView();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
+        Assert.AreNotEqual('', FinancialReports."Last Run by User".Value(), LastRunByCurrentUserErr);
+        FinancialReports.Close();
     end;
 
     local procedure InsertNameValueBufferLine(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; LineNo: Integer)
