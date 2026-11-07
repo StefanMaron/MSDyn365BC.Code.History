@@ -47,6 +47,7 @@ codeunit 148148 "Factur-X CII XML Tests"
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         CIIXMLBuilder: Codeunit "CII XML Builder";
+        EDocHelpers: Codeunit "EDoc. Helpers";
         FacturXFormat: Codeunit "Factur-X Format";
         IncorrectValueErr: Label 'Incorrect value for %1', Comment = '%1 = XML element path', Locked = true;
         FacturXProfileIdTok: Label 'urn:cen.eu:en16931:2017', Locked = true;
@@ -1499,6 +1500,7 @@ codeunit 148148 "Factur-X CII XML Tests"
             GetCIINodeValue(TempBlob, '//ram:BusinessProcessSpecifiedDocumentContextParameter/ram:ID'),
             StrSubstNo(IncorrectValueErr, 'BillingMode M1'));
     end;
+
     #endregion
 
     #region Validation
@@ -1506,7 +1508,6 @@ codeunit 148148 "Factur-X CII XML Tests"
     procedure FacturXCheckRaisesErrorWhenBuyerElectronicAddressIsMissing()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        EDocHelpers: Codeunit "EDoc. Helpers";
         SourceDocumentHeader: RecordRef;
         CustomerNo: Code[20];
     begin
@@ -1531,7 +1532,6 @@ codeunit 148148 "Factur-X CII XML Tests"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         Customer: Record Customer;
-        EDocHelpers: Codeunit "EDoc. Helpers";
         SourceDocumentHeader: RecordRef;
         CustomerNo: Code[20];
     begin
@@ -1605,7 +1605,6 @@ codeunit 148148 "Factur-X CII XML Tests"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         Customer: Record Customer;
-        EDocHelpers: Codeunit "EDoc. Helpers";
         SourceDocumentHeader: RecordRef;
         CustomerNo: Code[20];
     begin

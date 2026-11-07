@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LCX SchemaVersion="6.0" Name="XML Audit File FR Tests.g" PsrId="63" SrcCul="en-US" TgtCul="en-US" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+  <OwnedComments>
+    <Cmt Name="Dev" />
+    <Cmt Name="LcxAdmin" />
+    <Cmt Name="Rccx" />
+  </OwnedComments>
+  <Item ItemId=";Codeunit 3285802438 - NamedType 569400846" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Since you did not schedule the audit file generation, it will be generated immediately which can take a while. Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.AuditFileExport)(LookupHint=Codeunit UT REP Export G/L FR - NamedType GenerateAuditFileImmediatelyQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3285802438 - NamedType 1953665483" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are no entries to export within the defined filter. The file was not created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Finance.AuditFileExport)(LookupHint=Codeunit UT REP Export G/L FR - NamedType NoEntriesToExportErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3285802438 - Method 346753561 - NamedType 3639101437" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The standard role %1 must not grant XML export access.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Permission set role ID]D;]A;(Namespace=Microsoft.Finance.AuditFileExport)(LookupHint=Codeunit UT REP Export G/L FR - Method XMLExportPermissionsRequireDedicatedRole - NamedType StandardRoleXMLExportAccessErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3285802438 - Method 346753561 - NamedType 413705091" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The standard role %1 must not grant XML generation access.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Permission set role ID]D;]A;(Namespace=Microsoft.Finance.AuditFileExport)(LookupHint=Codeunit UT REP Export G/L FR - Method XMLExportPermissionsRequireDedicatedRole - NamedType StandardRoleXMLGenerationAccessErr)]]></Cmt>
+    </Cmts>
+  </Item>
+</LCX>
